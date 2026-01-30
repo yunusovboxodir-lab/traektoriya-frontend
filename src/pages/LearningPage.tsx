@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { salesRepCourse,type Step,type Module } from '../data/salesRepCourse';
+import { useNavigate } from 'react-router-dom';
+import { salesRepCourse, type Step, type Module } from '../data/salesRepCourse';
+import { useAuth } from '../auth/AuthContext';
 
 // ============================================
 // ТИПЫ
@@ -23,9 +24,9 @@ type Language = 'ru' | 'uz';
 // ============================================
 
 // Хук для сохранения прогресса в localStorage
-function useProgress(courseId: string) {
+function useProgress(courseId: string, userId: string) {
   const [progress, setProgress] = useState<UserProgress>(() => {
-    const saved = localStorage.getItem(`progress_${courseId}`);
+    const saved = localStorage.getItem(`progress_${courseId}_${userId}`);
     if (saved) {
       return JSON.parse(saved);
     }
@@ -40,8 +41,8 @@ function useProgress(courseId: string) {
   });
 
   useEffect(() => {
-    localStorage.setItem(`progress_${courseId}`, JSON.stringify(progress));
-  }, [progress, courseId]);
+    localStorage.setItem(`progress_${courseId}_${userId}`, JSON.stringify(progress));
+  }, [progress, courseId, userId]);
 
   return [progress, setProgress] as const;
 }
@@ -422,7 +423,7 @@ function LessonViewer({
               {!showResults && (
                 <button
                   onClick={handleQuizSubmit}
-                  disabled={quizAnswers.length !== step.quiz.length || quizAnswers.includes(undefined as any)}
+                  disabled={quizAnswers.length !== step.quiz.length || quizAnswers.includes(undefined as never)}
                   className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
                 >
                   {language === 'ru' ? 'Проверить ответы' : 'Javoblarni tekshirish'}
@@ -553,14 +554,16 @@ function StatsPanel({ progress, totalSteps, language }: {
 }
 
 // Таблица лидеров
-function Leaderboard({ language }: { language: Language }) {
+function Leaderboard({ language, currentUserId }: { language: Language; currentUserId: string }) {
   // В реальном проекте данные приходят с API
   const leaders = [
-    { rank: 1, name: 'Алишер К.', points: 1250, steps: 87 },
-    { rank: 2, name: 'Дилшод М.', points: 1100, steps: 72 },
-    { rank: 3, name: 'Саида Р.', points: 980, steps: 65 },
-    { rank: 4, name: language === 'ru' ? 'Вы' : 'Siz', points: 450, steps: 30, isCurrentUser: true },
-    { rank: 5, name: 'Бобур А.', points: 400, steps: 28 },
+    { rank: 1, id: 'ag-001', name: 'Алишер К.', points: 1250, steps: 87 },
+    { rank: 2, id: 'ag-002', name: 'Дилшод М.', points: 1100, steps: 72 },
+    { rank: 3, id: 'ag-003', name: 'Саида Р.', points: 980, steps: 65 },
+    { rank: 4, id: 'ag-004', name: 'Бобур А.', points: 450, steps: 30 },
+    { rank: 5, id: 'ag-005', name: 'Жамшид Т.', points: 400, steps: 28 },
+    { rank: 6, id: 'ag-006', name: 'Нодир Х.', points: 350, steps: 24 },
+    { rank: 7, id: 'ag-007', name: 'Фарход И.', points: 200, steps: 15 },
   ];
   
   return (
@@ -575,7 +578,7 @@ function Leaderboard({ language }: { language: Language }) {
           <div 
             key={user.rank}
             className={`flex items-center gap-4 p-4 transition ${
-              user.isCurrentUser ? 'bg-blue-50' : 'hover:bg-gray-50'
+              user.id === currentUserId ? 'bg-blue-50' : 'hover:bg-gray-50'
             }`}
           >
             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${
@@ -587,8 +590,8 @@ function Leaderboard({ language }: { language: Language }) {
               {user.rank <= 3 ? ['🥇', '🥈', '🥉'][user.rank - 1] : user.rank}
             </div>
             <div className="flex-1">
-              <div className={`font-medium ${user.isCurrentUser ? 'text-blue-600' : ''}`}>
-                {user.name}
+              <div className={`font-medium ${user.id === currentUserId ? 'text-blue-600' : ''}`}>
+                {user.name} {user.id === currentUserId && (language === 'ru' ? '(Вы)' : '(Siz)')}
               </div>
               <div className="text-sm text-gray-500">
                 {user.steps}/100 {language === 'ru' ? 'шагов' : 'qadam'}
@@ -647,11 +650,13 @@ function Achievements({ badges, language }: { badges: string[]; language: Langua
 // Админ панель
 function AdminPanel({ language }: { language: Language }) {
   const agents = [
-    { name: 'Алишер К.', progress: 87, points: 1250, lastActive: '2 часа назад', status: 'active' },
-    { name: 'Дилшод М.', progress: 72, points: 1100, lastActive: '5 часов назад', status: 'active' },
-    { name: 'Саида Р.', progress: 65, points: 980, lastActive: 'Вчера', status: 'inactive' },
-    { name: 'Бобур А.', progress: 28, points: 400, lastActive: '3 дня назад', status: 'inactive' },
-    { name: 'Жамшид Т.', progress: 15, points: 150, lastActive: '1 неделю назад', status: 'at_risk' },
+    { id: 'ag-001', name: 'Алишер К.', progress: 87, points: 1250, lastActive: '2 часа назад', status: 'active' },
+    { id: 'ag-002', name: 'Дилшод М.', progress: 72, points: 1100, lastActive: '5 часов назад', status: 'active' },
+    { id: 'ag-003', name: 'Саида Р.', progress: 65, points: 980, lastActive: 'Вчера', status: 'inactive' },
+    { id: 'ag-004', name: 'Бобур А.', progress: 28, points: 400, lastActive: '3 дня назад', status: 'inactive' },
+    { id: 'ag-005', name: 'Жамшид Т.', progress: 15, points: 150, lastActive: '1 неделю назад', status: 'at_risk' },
+    { id: 'ag-006', name: 'Нодир Х.', progress: 24, points: 350, lastActive: '2 дня назад', status: 'inactive' },
+    { id: 'ag-007', name: 'Фарход И.', progress: 15, points: 200, lastActive: '4 дня назад', status: 'at_risk' },
   ];
   
   return (
@@ -663,25 +668,25 @@ function AdminPanel({ language }: { language: Language }) {
         </h2>
         <div className="grid grid-cols-4 gap-4">
           <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <div className="text-3xl font-bold text-blue-600">25</div>
+            <div className="text-3xl font-bold text-blue-600">7</div>
             <div className="text-sm text-gray-500">
               {language === 'ru' ? 'Всего агентов' : 'Jami agentlar'}
             </div>
           </div>
           <div className="p-4 bg-green-50 rounded-xl border border-green-100">
-            <div className="text-3xl font-bold text-green-600">18</div>
+            <div className="text-3xl font-bold text-green-600">2</div>
             <div className="text-sm text-gray-500">
               {language === 'ru' ? 'Активных' : 'Faol'}
             </div>
           </div>
           <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
-            <div className="text-3xl font-bold text-yellow-600">67%</div>
+            <div className="text-3xl font-bold text-yellow-600">44%</div>
             <div className="text-sm text-gray-500">
               {language === 'ru' ? 'Ср. прогресс' : 'O\'rtacha progress'}
             </div>
           </div>
           <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
-            <div className="text-3xl font-bold text-purple-600">5</div>
+            <div className="text-3xl font-bold text-purple-600">0</div>
             <div className="text-sm text-gray-500">
               {language === 'ru' ? 'Завершили курс' : 'Kursni tugatdi'}
             </div>
@@ -718,8 +723,8 @@ function AdminPanel({ language }: { language: Language }) {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {agents.map((agent, i) => (
-                <tr key={i} className="hover:bg-gray-50 transition">
+              {agents.map((agent) => (
+                <tr key={agent.id} className="hover:bg-gray-50 transition">
                   <td className="p-4 font-medium">{agent.name}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -763,10 +768,22 @@ function AdminPanel({ language }: { language: Language }) {
 // ============================================
 
 export function LearningPage() {
+  const { user, logout, isSupervisor } = useAuth();
+  const navigate = useNavigate();
+  
   const [viewMode, setViewMode] = useState<ViewMode>('learner');
   const [language, setLanguage] = useState<Language>('ru');
   const [activeStep, setActiveStep] = useState<Step | null>(null);
-  const [progress, setProgress] = useProgress(salesRepCourse.id);
+  const [progress, setProgress] = useProgress(salesRepCourse.id, user?.id || 'guest');
+  
+  // Если не авторизован — редирект на логин
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+  
+  if (!user) return null;
   
   const course = salesRepCourse;
   
@@ -802,6 +819,12 @@ export function LearningPage() {
     setActiveStep(null);
   };
   
+  // Обработчик выхода
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -809,12 +832,6 @@ export function LearningPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link 
-                to="/dashboard" 
-                className="text-blue-600 hover:text-blue-800 font-medium"
-              >
-                ← {language === 'ru' ? 'Назад' : 'Orqaga'}
-              </Link>
               <h1 className="text-xl font-bold">
                 📚 {language === 'ru' ? course.title : course.titleUz}
               </h1>
@@ -841,23 +858,45 @@ export function LearningPage() {
                 </button>
               </div>
               
-              {/* Переключатель режима */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              {/* Переключатель режима — ТОЛЬКО для супервайзера */}
+              {isSupervisor && (
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('learner')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                      viewMode === 'learner' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
+                    📖 {language === 'ru' ? 'Обучение' : 'Ta\'lim'}
+                  </button>
+                  <button
+                    onClick={() => setViewMode('admin')}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
+                      viewMode === 'admin' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
+                    ⚙️ {language === 'ru' ? 'Админ' : 'Admin'}
+                  </button>
+                </div>
+              )}
+              
+              {/* Профиль и выход */}
+              <div className="flex items-center gap-3 pl-4 border-l">
+                <div className="text-right">
+                  <div className="text-sm font-medium">{user.name}</div>
+                  <div className="text-xs text-gray-500">
+                    {user.role === 'supervisor' 
+                      ? (language === 'ru' ? 'Супервайзер' : 'Supervayzer')
+                      : (language === 'ru' ? 'Агент' : 'Agent')
+                    }
+                  </div>
+                </div>
                 <button
-                  onClick={() => setViewMode('learner')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                    viewMode === 'learner' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                  }`}
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                  title={language === 'ru' ? 'Выйти' : 'Chiqish'}
                 >
-                  📖 {language === 'ru' ? 'Обучение' : 'Ta\'lim'}
-                </button>
-                <button
-                  onClick={() => setViewMode('admin')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                    viewMode === 'admin' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                  }`}
-                >
-                  ⚙️ {language === 'ru' ? 'Админ' : 'Admin'}
+                  🚪
                 </button>
               </div>
               
@@ -914,7 +953,7 @@ export function LearningPage() {
               
               {/* Sidebar */}
               <div className="space-y-6">
-                <Leaderboard language={language} />
+                <Leaderboard language={language} currentUserId={user.id} />
                 <Achievements badges={progress.badges} language={language} />
               </div>
             </div>
