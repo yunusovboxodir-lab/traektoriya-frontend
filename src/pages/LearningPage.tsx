@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { salesRepCourse, Step, Module } from '../data/salesRepCourse';
+import { salesRepCourse,type Step,type Module } from '../data/salesRepCourse';
 
 // ============================================
 // ТИПЫ
