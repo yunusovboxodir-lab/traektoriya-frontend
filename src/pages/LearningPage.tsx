@@ -1,977 +1,672 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { salesRepCourse, type Step, type Module } from '../data/salesRepCourse';
-import { useAuth } from '../auth/AuthContext';
+"""
+Сервис Planogram AI для анализа выкладки товаров N'Medov
+Использует Anthropic Claude Sonnet 4.5 Vision API
+Версия 3.0 - с точными описаниями SKU на основе реального каталога
+"""
+import json
+import base64
+from datetime import datetime
+from typing import Optional, Dict, Any, List
+from anthropic import AsyncAnthropic
+from loguru import logger
 
-// ============================================
-// ТИПЫ
-// ============================================
+from app.core.config import settings
 
-interface UserProgress {
-  completedSteps: number[];
-  currentStep: number;
-  totalPoints: number;
-  badges: string[];
-  streakDays: number;
-  lastActivity: string;
+
+# ==================== ТОЧНЫЕ ОПИСАНИЯ SKU N'MEDOV ====================
+# Данные из официального каталога https://nmedov.uz/ru/catalog-2/
+
+SKU_CATALOG = {
+    # ============ ШОКОЛАДНЫЕ ПАСТЫ ============
+    "chococream": {
+        "brand": "Chococream",
+        "category": "chocolate_paste",
+        "sku_list": [
+            "Chococream 200", "Chococream 300", "Chococream 400",
+            "Chococream 400 лодка", "Chococream 400 круглая",
+            "Chococream 500", "Chococream 600", "Chococream 900"
+        ],
+        "visual_description": """
+▶ CHOCOCREAM - КРАСНЫЙ ПЛАСТИКОВЫЙ КОНТЕЙНЕР
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Форма: ПРЯМОУГОЛЬНЫЙ пластиковый контейнер (НЕ стеклянная банка!)
+• Цвет упаковки: КРАСНЫЙ корпус с красной крышкой
+• Надпись: "Chococream" БЕЛЫМИ буквами на красном фоне
+• На этикетке: изображение шоколадной пасты, орехи, ложка
+• Размеры граммажа: 200г, 300г, 400г, 500г, 600г, 900г
+• КЛЮЧЕВОЕ ОТЛИЧИЕ: слово "cream" в названии (Choco-CREAM)
+• Контейнер может быть прямоугольный, "лодка" или круглый
+
+❌ НЕ ПУТАТЬ С: Nutella (стеклянная банка), другими пастами в банках
+"""
+    },
+    
+    "chocotella": {
+        "brand": "Chocotella",
+        "category": "chocolate_paste",
+        "sku_list": ["Chocotella Duo", "Chocotella Dark"],
+        "visual_description": """
+▶ CHOCOTELLA - СТЕКЛЯННАЯ БАНКА (КАК NUTELLA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Форма: СТЕКЛЯННАЯ банка (похожа на Nutella!)
+• Крышка: БЕЛАЯ или СВЕТЛАЯ пластиковая
+• Надпись: "Chocotella" на этикетке
+• Версии: Duo (два вкуса), Dark (тёмный шоколад)
+• Этикетка: красно-коричневые тона, изображение пасты
+• КЛЮЧЕВОЕ ОТЛИЧИЕ: слово "tella" в названии (Choco-TELLA)
+
+❌ НЕ ПУТАТЬ С: Nutella (у Nutella надпись "Nutella", у нас "Chocotella")
+"""
+    },
+
+    # ============ ЛАПША ============
+    "hot_lunch": {
+        "brand": "Hot Lunch",
+        "category": "noodles",
+        "sku_list": [
+            "Hot Lunch куриный 50г", "Hot Lunch куриный 90г",
+            "Hot Lunch острый куриный 50г", "Hot Lunch острый куриный 90г",
+            "Hot Lunch говядина", "Hot Lunch острая говядина",
+            "Hot Lunch говядина 90г", "Hot Lunch острая говядина 90г",
+            "Hot Lunch Сочная говядина традиционная",
+            "Hot Lunch Сочная говядина острая"
+        ],
+        "visual_description": """
+▶ HOT LUNCH - ЛАПША В СТАКАНЕ И ПАКЕТАХ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Формат ПРЕМИУМ: пластиковый СТАКАН (тара) - верхняя полка
+• Формат ЭКОНОМ: ПАКЕТ - нижние полки
+• Цвета: КРАСНО-ОРАНЖЕВЫЙ дизайн, яркий
+• Надпись: "HOT LUNCH" крупными буквами (две слова!)
+• Логотип: изображение дымящейся чашки/тарелки лапши
+• Граммаж: 50г (маленький), 90г (большой)
+• Вкусы: куриный, острый куриный, говядина, острая говядина
+
+❌ НЕ ПУТАТЬ С: Роллтон (жёлтая упаковка), Доширак, Big Bon
+"""
+    },
+    
+    "cheff": {
+        "brand": "Cheff",
+        "category": "noodles",
+        "sku_list": [
+            "Cheff с куриным соусом", "Cheff с острым куриным соусом",
+            "Cheff с говяжьим соусом", "Cheff с острым говяжьим соусом"
+        ],
+        "visual_description": """
+▶ CHEFF - ЛАПША С СОУСОМ В ПАКЕТЕ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Формат: ПАКЕТ (не стакан)
+• Цвета: ЗЕЛЁНО-КРАСНЫЙ или БОРДОВЫЙ дизайн
+• Надпись: "Cheff" (с двумя буквами F!)
+• Логотип: изображение повара или колпак шеф-повара
+• Особенность: ЛАПША С СОУСОМ (в комплекте пакетик соуса)
+• Конкурент: Big Bon (тоже лапша с соусом)
+
+❌ НЕ ПУТАТЬ С: Big Bon (чёрно-красная упаковка)
+"""
+    },
+
+    # ============ БАТОНЧИКИ ============
+    "strobar": {
+        "brand": "Strobar",
+        "category": "bars",
+        "sku_list": ["Strobar классический", "Strobar x2"],
+        "visual_description": """
+▶ STROBAR - ШОКОЛАДНЫЙ БАТОНЧИК
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Формат: индивидуальный батончик в обёртке
+• Цвет упаковки: ОРАНЖЕВЫЙ фон, яркий дизайн
+• Надпись: "STROBAR" крупными буквами
+• Версии: обычный и "x2" (двойной)
+• Место продажи: ПРИКАССОВАЯ ЗОНА
+• Ценовая категория: импульсная покупка (~5000-6000 сум)
+
+❌ НЕ ПУТАТЬ С: Snickers, Mars, KitKat, Twix (другие бренды)
+"""
+    },
+
+    # ============ ПЕЧЕНЬЕ И ВАФЛИ ============
+    "velona": {
+        "brand": "Velona",
+        "category": "cookies",
+        "sku_list": ["Velona венские вафли"],
+        "visual_description": """
+▶ VELONA - ВЕНСКИЕ ВАФЛИ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Формат: упаковка вафель
+• Цвет: ЗЕЛЁНАЯ упаковка
+• Надпись: "Velona"
+• Категория: венские вафли, мягкие вафли
+• Размещение: среди упакованных пряников, бисквитов, вафель
+"""
+    },
+    
+    "tvbox": {
+        "brand": "Two Bite / Tvbox",
+        "category": "cookies",
+        "sku_list": ["Two Bite печенье"],
+        "visual_description": """
+▶ TWO BITE (TVBOX) - ПЕЧЕНЬЕ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Формат: упаковка печенья
+• Надпись: "Two Bite" или "Tvbox"
+• Размещение: среди упакованных пряников, бисквитов
+"""
+    },
 }
 
-type ViewMode = 'learner' | 'admin';
-type Language = 'ru' | 'uz';
 
-// ============================================
-// ХУКИ
-// ============================================
+# ============ КОНКУРЕНТЫ ============
+COMPETITORS_CATALOG = {
+    "chocolate_paste": {
+        "brands": ["Nutella", "Milka", "Nuss Milk"],
+        "how_to_distinguish": """
+• Nutella: СТЕКЛЯННАЯ банка, БЕЛАЯ крышка, надпись "nutella" маленькими буквами
+• Milka: ФИОЛЕТОВЫЙ цвет упаковки, корова на логотипе
+• Nuss Milk: другой дизайн
+"""
+    },
+    "noodles": {
+        "brands": ["Роллтон", "Доширак", "Big Bon", "Мивина"],
+        "how_to_distinguish": """
+• Роллтон: ЖЁЛТАЯ упаковка
+• Доширак: красно-жёлтая упаковка, корейский стиль
+• Big Bon: ЧЁРНО-КРАСНАЯ упаковка, лапша с соусом
+• Мивина: украинский бренд
+"""
+    },
+    "bars": {
+        "brands": ["Snickers", "Mars", "KitKat", "Twix", "Bounty", "Milky Way"],
+        "how_to_distinguish": """
+• Snickers: коричневая упаковка, арахис
+• Mars: чёрно-красная упаковка
+• KitKat: КРАСНАЯ упаковка, вафельный батончик
+• Twix: золотистая упаковка, два батончика
+"""
+    },
+}
 
-// Хук для сохранения прогресса в localStorage
-function useProgress(courseId: string, userId: string) {
-  const [progress, setProgress] = useState<UserProgress>(() => {
-    const saved = localStorage.getItem(`progress_${courseId}_${userId}`);
-    if (saved) {
-      return JSON.parse(saved);
+
+# ============ ПРАВИЛА ОЦЕНКИ ПО КАТЕГОРИЯМ ============
+EVALUATION_RULES = {
+    "noodles": {
+        "name": "Лапша быстрого приготовления",
+        "our_brands": ["Hot Lunch", "Cheff"],
+        "competitors": ["Роллтон", "Доширак", "Big Bon", "Мивина"],
+        "kpi": {
+            "hot_lunch_min_sos": 50,  # Доля Hot Lunch не менее 50%
+            "cheff_min_sos": 20,       # Доля Cheff не менее 20%
+        },
+        "planogram_rules": [
+            "ВЕРТИКАЛЬНАЯ: Сверху вниз — от премиум к эконом",
+            "Верхний ярус: премиум (лапша в таре/стакане)",
+            "Средний ярус: лапша с соусом (Cheff, Big Bon)",
+            "Нижний ярус: пакетированная лапша массового спроса",
+            "Hot Lunch 50г размещать рядом с конкурентами малого граммажа",
+            "ГОРИЗОНТАЛЬНАЯ: Слева ходовые, справа премиум",
+            "Обязательное заполнение вглубь полок",
+        ],
+    },
+    "chocolate_paste": {
+        "name": "Шоколадная паста",
+        "our_brands": ["Chococream", "Chocotella"],
+        "competitors": ["Nutella", "Milka", "Nuss Milk"],
+        "kpi": {
+            "upper_shelf_min_sos": 70,   # Верхняя полка: доля не менее 70%
+            "middle_shelf_min_sos": 70,  # Средняя полка: доля не менее 70%
+        },
+        "planogram_rules": [
+            "ВЕРТИКАЛЬНАЯ: Сверху премиум, ниже массовый, внизу эконом",
+            "Верхняя полка: премиум сегмент (Chocotella), доля ≥70%",
+            "Золотая полка (уровень глаз): премиум/большой граммаж",
+            "Средняя полка: топ категории, наибольший спрос, доля ≥70%",
+            "Нижняя полка: детские товары, минимальный объём",
+            "Полка у пола: НЕ выставлять если нет конкурента",
+        ],
+    },
+    "bars": {
+        "name": "Шоколадные батончики",
+        "our_brands": ["Strobar"],
+        "competitors": ["Snickers", "Mars", "KitKat", "Twix", "Bounty"],
+        "kpi": {
+            "right_hand_rule": True,
+            "eye_level": True,
+            "corporate_block": True,
+        },
+        "planogram_rules": [
+            "Прикассовая зона: Правило правой руки",
+            "Размещение СПРАВА от кассира",
+            "Уровень глаз покупателя в очереди",
+            "Блочная выкладка: не смешивать с конкурентами",
+            "Контраст и заметность: не 'теряться' среди конкурентов",
+            "Корпоративный блок Strobar",
+        ],
+    },
+    "cookies": {
+        "name": "Печенье и венские вафли",
+        "our_brands": ["Velona", "Two Bite", "Tvbox"],
+        "competitors": [],
+        "kpi": {},
+        "planogram_rules": [
+            "Размещать среди упакованных пряников, бисквитов, вафель",
+        ],
+    },
+}
+
+
+class PlanogramAIService:
+    """Сервис для AI-анализа планограмм с Claude Vision"""
+
+    def __init__(self):
+        self.client = None
+        if settings.ANTHROPIC_API_KEY:
+            self.client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+        self.model = "claude-sonnet-4-5-20250929"
+        self.sku_catalog = SKU_CATALOG
+        self.competitors = COMPETITORS_CATALOG
+        self.rules = EVALUATION_RULES
+
+    def _build_recognition_prompt(self) -> str:
+        """Создание блока распознавания SKU"""
+        
+        prompt = """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║          ИНСТРУКЦИЯ ПО РАСПОЗНАВАНИЮ БРЕНДОВ N'MEDOV                        ║
+║                    ЧИТАЙ ВНИМАТЕЛЬНО ПЕРЕД АНАЛИЗОМ!                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+ТЫ ДОЛЖЕН НАЙТИ И ПОСЧИТАТЬ НАШИ БРЕНДЫ. ЧИТАЙ НАДПИСИ НА УПАКОВКАХ!
+
+"""
+        # Добавляем описания каждого SKU
+        for sku_id, sku_data in self.sku_catalog.items():
+            prompt += sku_data["visual_description"]
+            prompt += "\n"
+        
+        # Добавляем раздел "как отличить от конкурентов"
+        prompt += """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    КАК ОТЛИЧИТЬ ОТ КОНКУРЕНТОВ                               ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+"""
+        for cat, data in self.competitors.items():
+            prompt += f"\n{cat.upper()}:\n"
+            prompt += f"Конкуренты: {', '.join(data['brands'])}\n"
+            prompt += data["how_to_distinguish"]
+        
+        prompt += """
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    АЛГОРИТМ РАСПОЗНАВАНИЯ                                    ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+ШАГ 1: Определи категорию товаров на полке
+ШАГ 2: Найди ВСЕ красные пластиковые контейнеры (это может быть Chococream)
+ШАГ 3: Найди ВСЕ стеклянные банки (это может быть Chocotella или Nutella)
+ШАГ 4: ПРОЧИТАЙ НАДПИСЬ на каждой упаковке
+ШАГ 5: Если написано "Chococream" → это НАШ бренд, считай
+ШАГ 6: Если написано "Chocotella" → это НАШ бренд, считай
+ШАГ 7: Если написано "Nutella" → это КОНКУРЕНТ
+ШАГ 8: Повтори для Hot Lunch, Cheff, Strobar
+
+⚠️ КРИТИЧЕСКИ ВАЖНО:
+• Chococream = КРАСНЫЙ ПЛАСТИКОВЫЙ контейнер, надпись "Chococream"
+• Chocotella = СТЕКЛЯННАЯ банка, надпись "Chocotella" 
+• НЕ ПУТАЙ их между собой и с конкурентами!
+
+"""
+        return prompt
+
+    def _build_category_rules_prompt(self, category: Optional[str]) -> str:
+        """Создание блока с правилами для категории"""
+        
+        if not category or category not in self.rules:
+            # Если категория не указана, показываем все правила
+            prompt = "\n══════ ПРАВИЛА ДЛЯ ВСЕХ КАТЕГОРИЙ ══════\n"
+            for cat_key, rule in self.rules.items():
+                prompt += f"\n--- {rule['name'].upper()} ---\n"
+                prompt += f"Наши бренды: {', '.join(rule['our_brands'])}\n"
+                prompt += f"Конкуренты: {', '.join(rule['competitors']) if rule['competitors'] else 'не определены'}\n"
+                prompt += "Правила:\n"
+                for r in rule['planogram_rules']:
+                    prompt += f"  • {r}\n"
+            return prompt
+        
+        rule = self.rules[category]
+        prompt = f"""
+══════════════════════════════════════════════════════════════════════════════
+ПРАВИЛА ДЛЯ КАТЕГОРИИ: {rule['name'].upper()}
+══════════════════════════════════════════════════════════════════════════════
+
+НАШИ БРЕНДЫ (ИСКАТЬ!): {', '.join(rule['our_brands'])}
+КОНКУРЕНТЫ: {', '.join(rule['competitors']) if rule['competitors'] else 'не определены'}
+
+KPI (КЛЮЧЕВЫЕ ПОКАЗАТЕЛИ):
+"""
+        for kpi_name, kpi_value in rule['kpi'].items():
+            if isinstance(kpi_value, bool):
+                prompt += f"  • {kpi_name}: {'Да' if kpi_value else 'Нет'}\n"
+            else:
+                prompt += f"  • {kpi_name}: {kpi_value}%\n"
+        
+        prompt += "\nПРАВИЛА ВЫКЛАДКИ:\n"
+        for r in rule['planogram_rules']:
+            prompt += f"  ✓ {r}\n"
+        
+        return prompt
+
+    def _get_system_prompt(self, category: Optional[str] = None) -> str:
+        """Полный System Prompt"""
+        
+        prompt = self._build_recognition_prompt()
+        prompt += """
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         РОЛЬ И ЗАДАЧА                                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Ты — опытный супервайзер компании N'Medov, эксперт по мерчандайзингу.
+Твоя задача — проанализировать фото полки магазина и оценить выкладку товаров.
+
+КРИТЕРИИ ОЦЕНКИ (всего 100 баллов):
+• SOS (Share of Shelf) — доля полки: 30 баллов
+• Золотая полка (уровень глаз) — правильное размещение: 25 баллов
+• Ценники — наличие под каждым SKU: 15 баллов
+• Глубина выкладки — заполнение вглубь: 15 баллов
+• Соответствие планограмме: 15 баллов
+
+"""
+        prompt += self._build_category_rules_prompt(category)
+        
+        prompt += """
+
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    ФОРМАТ ОТВЕТА (СТРОГО JSON!)                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Отвечай ТОЛЬКО в формате JSON без markdown. Структура:
+
+{
+    "category": "noodles/chocolate_paste/bars/cookies/mixed",
+    "overall_score": 0-100,
+    "alert_level": "good/warning/critical",
+    
+    "metrics": {
+        "share_of_shelf": {
+            "our_brands_count": число,
+            "competitors_count": число,
+            "percentage": число,
+            "kpi_met": true/false
+        },
+        "golden_shelf_compliance": {
+            "score": 0-100,
+            "issues": ["список проблем"]
+        },
+        "price_tags": {
+            "present": число,
+            "missing": число,
+            "score": 0-100
+        },
+        "depth_score": 0-100,
+        "planogram_compliance": 0-100
+    },
+    
+    "detected_products": {
+        "our_brands": [
+            {"name": "Chococream", "count": 8, "shelf_level": "golden"},
+            {"name": "Chocotella", "count": 4, "shelf_level": "top"}
+        ],
+        "competitors": [
+            {"name": "Nutella", "count": 3, "shelf_level": "golden"}
+        ]
+    },
+    
+    "violations": ["список нарушений"],
+    
+    "recommendations": [
+        {
+            "priority": "high/medium/low",
+            "action": "конкретное действие",
+            "expected_improvement": "ожидаемый результат"
+        }
+    ],
+    
+    "summary": {
+        "positive": "что хорошо",
+        "negative": "что плохо",
+        "instant_advice": "краткий совет агенту (1 предложение)"
     }
-    return {
-      completedSteps: [],
-      currentStep: 1,
-      totalPoints: 0,
-      badges: [],
-      streakDays: 0,
-      lastActivity: new Date().toISOString()
-    };
-  });
-
-  useEffect(() => {
-    localStorage.setItem(`progress_${courseId}_${userId}`, JSON.stringify(progress));
-  }, [progress, courseId, userId]);
-
-  return [progress, setProgress] as const;
 }
 
-// ============================================
-// КОМПОНЕНТЫ
-// ============================================
+ПРАВИЛА ПОДСЧЁТА:
+• Считай ФЕЙСИНГИ (единицы товара лицом к покупателю)
+• SOS = (наши фейсинги / все фейсинги) × 100%
+• Уровни полки: top, golden/eye_level, middle, bottom, floor
+• alert_level: good (≥85), warning (70-84), critical (<70)
+"""
+        return prompt
 
-// Прогресс-бар 100 шагов
-function ProgressMaze({ 
-  steps, 
-  modules,
-  completedSteps, 
-  currentStep,
-  onStepClick,
-  language
-}: {
-  steps: Step[];
-  modules: Module[];
-  completedSteps: number[];
-  currentStep: number;
-  onStepClick: (stepId: number) => void;
-  language: Language;
-}) {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">
-          🗺️ {language === 'ru' ? 'Карта прогресса' : 'Progress xaritasi'}
-        </h2>
-        <div className="text-sm text-gray-500">
-          {completedSteps.length} / {steps.length} {language === 'ru' ? 'шагов' : 'qadam'}
-        </div>
-      </div>
-      
-      {/* Общий прогресс-бар */}
-      <div className="mb-6">
-        <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 transition-all duration-500"
-            style={{ width: `${(completedSteps.length / steps.length) * 100}%` }}
-          />
-        </div>
-        <div className="flex justify-between mt-2 text-sm text-gray-500">
-          <span>0%</span>
-          <span className="font-bold text-blue-600">
-            {Math.round((completedSteps.length / steps.length) * 100)}%
-          </span>
-          <span>100%</span>
-        </div>
-      </div>
-      
-      {/* Модули */}
-      <div className="space-y-4">
-        {modules.map(module => {
-          const moduleSteps = steps.filter(s => s.moduleId === module.id);
-          const completedInModule = moduleSteps.filter(s => completedSteps.includes(s.id)).length;
-          const isModuleComplete = completedInModule === moduleSteps.length;
-          const isModuleActive = moduleSteps.some(s => s.id === currentStep);
-          const isModuleLocked = moduleSteps[0].id > currentStep && completedInModule === 0;
-          
-          return (
-            <div 
-              key={module.id}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                isModuleComplete 
-                  ? 'border-green-500 bg-green-50' 
-                  : isModuleActive 
-                    ? 'border-blue-500 bg-blue-50'
-                    : isModuleLocked
-                      ? 'border-gray-200 bg-gray-50 opacity-60'
-                      : 'border-gray-200 bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div 
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
-                    isModuleComplete ? 'bg-green-500 text-white' : ''
-                  }`}
-                  style={{ backgroundColor: isModuleComplete ? undefined : module.color + '20' }}
-                >
-                  {isModuleComplete ? '✓' : module.icon}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold">
-                    {language === 'ru' ? module.title : module.titleUz}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {completedInModule}/{moduleSteps.length} {language === 'ru' ? 'уроков' : 'dars'}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div 
-                    className="text-lg font-bold"
-                    style={{ color: module.color }}
-                  >
-                    {Math.round((completedInModule / moduleSteps.length) * 100)}%
-                  </div>
-                </div>
-              </div>
-              
-              {/* Шаги модуля */}
-              <div className="flex flex-wrap gap-1.5">
-                {moduleSteps.map(step => {
-                  const isCompleted = completedSteps.includes(step.id);
-                  const isCurrent = step.id === currentStep;
-                  const isLocked = step.id > currentStep && !isCompleted;
-                  
-                  return (
-                    <button
-                      key={step.id}
-                      onClick={() => !isLocked && onStepClick(step.id)}
-                      disabled={isLocked}
-                      className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white hover:bg-green-600 shadow-sm'
-                          : isCurrent
-                            ? 'bg-blue-500 text-white animate-pulse shadow-md'
-                            : isLocked
-                              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                              : 'bg-white border-2 border-gray-200 text-gray-500 hover:border-blue-400 hover:text-blue-600'
-                      }`}
-                      title={language === 'ru' ? step.title : step.titleUz}
-                    >
-                      {isCompleted ? '✓' : step.id}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+    async def analyze_photo(
+        self,
+        image_url: Optional[str] = None,
+        image_base64: Optional[str] = None,
+        category_hint: Optional[str] = None,
+        store_name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Анализ фото полки через Claude Vision API"""
+        
+        if not self.client:
+            raise ValueError("Anthropic client not configured. Set ANTHROPIC_API_KEY.")
+        
+        if not image_url and not image_base64:
+            raise ValueError("Either image_url or image_base64 must be provided")
 
-// Карточка текущего урока
-function CurrentLessonCard({ 
-  step, 
-  isCompleted,
-  onStart,
-  language
-}: {
-  step: Step;
-  isCompleted: boolean;
-  onStart: () => void;
-  language: Language;
-}) {
-  const typeConfig = {
-    theory: { icon: '📖', label: language === 'ru' ? 'Теория' : 'Nazariya', color: 'blue' },
-    practice: { icon: '✍️', label: language === 'ru' ? 'Практика' : 'Amaliyot', color: 'green' },
-    quiz: { icon: '❓', label: language === 'ru' ? 'Тест' : 'Test', color: 'purple' },
-    video: { icon: '🎬', label: language === 'ru' ? 'Видео' : 'Video', color: 'red' },
-    case_study: { icon: '💼', label: language === 'ru' ? 'Кейс' : 'Keys', color: 'orange' }
-  };
-  
-  const config = typeConfig[step.type];
-  
-  return (
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
-          {config.icon}
-        </div>
-        
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
-              {language === 'ru' ? 'Шаг' : 'Qadam'} {step.id}
-            </span>
-            <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
-              {config.label}
-            </span>
-            <span className="text-xs opacity-75">
-              {step.duration} {language === 'ru' ? 'мин' : 'daq'}
-            </span>
-          </div>
-          
-          <h3 className="font-bold text-xl mb-2">
-            {language === 'ru' ? step.title : step.titleUz}
-          </h3>
-          
-          <div className="flex items-center gap-4">
-            <span className="text-yellow-300 font-medium">
-              +{step.points} ⭐
-            </span>
-            {step.badge && (
-              <span className="text-pink-200">
-                🏅 {language === 'ru' ? step.badge.title : step.badge.titleUz}
-              </span>
-            )}
-          </div>
-        </div>
-        
-        <button
-          onClick={onStart}
-          className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg"
-        >
-          {isCompleted 
-            ? (language === 'ru' ? '🔄 Повторить' : '🔄 Takrorlash')
-            : (language === 'ru' ? '▶ Начать' : '▶ Boshlash')
-          }
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// Просмотр урока
-function LessonViewer({
-  step,
-  onComplete,
-  onClose,
-  language
-}: {
-  step: Step;
-  onComplete: () => void;
-  onClose: () => void;
-  language: Language;
-}) {
-  const [quizAnswers, setQuizAnswers] = useState<number[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [practiceChecks, setPracticeChecks] = useState<boolean[]>([]);
-  
-  const handleQuizSubmit = () => {
-    setShowResults(true);
-  };
-  
-  const isQuizCorrect = step.quiz?.every((q, i) => quizAnswers[i] === q.correctAnswer);
-  const isPracticeComplete = step.practice?.checkpoints.every((_, i) => practiceChecks[i]);
-  
-  const canComplete = 
-    step.type === 'quiz' ? showResults && isQuizCorrect :
-    step.type === 'practice' ? isPracticeComplete :
-    true;
-  
-  // Форматирование контента (простой markdown)
-  const formatContent = (content: string) => {
-    return content
-      .split('\n')
-      .map((line, i) => {
-        if (line.startsWith('# ')) {
-          return <h1 key={i} className="text-2xl font-bold mb-4 mt-6">{line.slice(2)}</h1>;
-        }
-        if (line.startsWith('## ')) {
-          return <h2 key={i} className="text-xl font-bold mb-3 mt-5">{line.slice(3)}</h2>;
-        }
-        if (line.startsWith('### ')) {
-          return <h3 key={i} className="text-lg font-bold mb-2 mt-4">{line.slice(4)}</h3>;
-        }
-        if (line.startsWith('> ')) {
-          return (
-            <blockquote key={i} className="border-l-4 border-blue-500 pl-4 py-2 my-3 bg-blue-50 rounded-r-lg">
-              {line.slice(2)}
-            </blockquote>
-          );
-        }
-        if (line.startsWith('- ') || line.startsWith('* ')) {
-          return <li key={i} className="ml-4 mb-1">• {line.slice(2)}</li>;
-        }
-        if (line.match(/^\d+\. /)) {
-          return <li key={i} className="ml-4 mb-1">{line}</li>;
-        }
-        if (line.startsWith('✅') || line.startsWith('❌') || line.startsWith('□')) {
-          return <p key={i} className="mb-1">{line}</p>;
-        }
-        if (line.trim() === '') {
-          return <br key={i} />;
-        }
-        // Bold text
-        const formatted = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return <p key={i} className="mb-2" dangerouslySetInnerHTML={{ __html: formatted }} />;
-      });
-  };
-  
-  return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-        {/* Header */}
-        <div className="p-5 border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-sm opacity-75">
-                {language === 'ru' ? 'Шаг' : 'Qadam'} {step.id} / 100
-              </span>
-              <h2 className="font-bold text-xl">
-                {language === 'ru' ? step.title : step.titleUz}
-              </h2>
-            </div>
-            <button 
-              onClick={onClose}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-        
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {/* Video */}
-          {step.videoUrl && (
-            <div className="mb-6 aspect-video bg-gray-900 rounded-xl flex items-center justify-center">
-              <a 
-                href={step.videoUrl} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 text-white hover:text-blue-400 transition"
-              >
-                <span className="text-5xl">▶️</span>
-                <span className="text-lg">
-                  {language === 'ru' ? 'Смотреть видео' : 'Videoni ko\'rish'}
-                </span>
-              </a>
-            </div>
-          )}
-          
-          {/* Text content */}
-          <div className="prose max-w-none mb-6">
-            {formatContent(language === 'ru' ? step.content : step.contentUz)}
-          </div>
-          
-          {/* Quiz */}
-          {step.quiz && step.quiz.length > 0 && (
-            <div className="space-y-4 mt-8 pt-6 border-t">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                📝 {language === 'ru' ? 'Проверьте себя' : 'O\'zingizni tekshiring'}
-              </h3>
-              {step.quiz.map((q, qIndex) => (
-                <div key={q.id} className="p-4 bg-gray-50 rounded-xl">
-                  <p className="font-medium mb-3">
-                    {qIndex + 1}. {language === 'ru' ? q.question : q.questionUz}
-                  </p>
-                  <div className="space-y-2">
-                    {(language === 'ru' ? q.options : q.optionsUz).map((option, oIndex) => (
-                      <label 
-                        key={oIndex}
-                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition border-2 ${
-                          showResults
-                            ? oIndex === q.correctAnswer
-                              ? 'bg-green-100 border-green-500'
-                              : quizAnswers[qIndex] === oIndex
-                                ? 'bg-red-100 border-red-500'
-                                : 'bg-white border-gray-200'
-                            : quizAnswers[qIndex] === oIndex
-                              ? 'bg-blue-100 border-blue-500'
-                              : 'bg-white border-gray-200 hover:border-blue-300'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name={`q-${q.id}`}
-                          checked={quizAnswers[qIndex] === oIndex}
-                          onChange={() => {
-                            const newAnswers = [...quizAnswers];
-                            newAnswers[qIndex] = oIndex;
-                            setQuizAnswers(newAnswers);
-                          }}
-                          disabled={showResults}
-                          className="w-4 h-4 text-blue-600"
-                        />
-                        <span className="flex-1">{option}</span>
-                        {showResults && oIndex === q.correctAnswer && (
-                          <span className="text-green-600 font-bold">✓</span>
-                        )}
-                      </label>
-                    ))}
-                  </div>
-                  {showResults && q.explanation && (
-                    <p className="mt-3 text-sm text-gray-600 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                      💡 {q.explanation}
-                    </p>
-                  )}
-                </div>
-              ))}
-              
-              {!showResults && (
-                <button
-                  onClick={handleQuizSubmit}
-                  disabled={quizAnswers.length !== step.quiz.length || quizAnswers.includes(undefined as never)}
-                  className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-                >
-                  {language === 'ru' ? 'Проверить ответы' : 'Javoblarni tekshirish'}
-                </button>
-              )}
-              
-              {showResults && !isQuizCorrect && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
-                  <p className="text-red-700 font-medium">
-                    {language === 'ru' 
-                      ? '❌ Есть ошибки. Попробуйте ещё раз!' 
-                      : '❌ Xatolar bor. Qaytadan urinib ko\'ring!'}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setShowResults(false);
-                      setQuizAnswers([]);
-                    }}
-                    className="mt-2 text-red-600 hover:underline"
-                  >
-                    {language === 'ru' ? 'Пройти заново' : 'Qaytadan o\'tish'}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Practice */}
-          {step.practice && (
-            <div className="space-y-4 mt-8 pt-6 border-t">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                ✍️ {language === 'ru' ? 'Практическое задание' : 'Amaliy topshiriq'}
-              </h3>
-              <p className="text-gray-600">
-                {language === 'ru' ? step.practice.instruction : step.practice.instructionUz}
-              </p>
-              <div className="space-y-2">
-                {(language === 'ru' ? step.practice.checkpoints : step.practice.checkpointsUz).map((checkpoint, i) => (
-                  <label 
-                    key={i}
-                    className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition border-2 ${
-                      practiceChecks[i] 
-                        ? 'bg-green-50 border-green-500' 
-                        : 'bg-gray-50 border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={practiceChecks[i] || false}
-                      onChange={(e) => {
-                        const newChecks = [...practiceChecks];
-                        newChecks[i] = e.target.checked;
-                        setPracticeChecks(newChecks);
-                      }}
-                      className="w-5 h-5 text-green-600 rounded"
-                    />
-                    <span className={practiceChecks[i] ? 'text-green-700' : ''}>{checkpoint}</span>
-                    {practiceChecks[i] && <span className="ml-auto text-green-600">✓</span>}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-        
-        {/* Footer */}
-        <div className="p-5 border-t bg-gray-50 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-gray-500">
-            <span className="text-yellow-500">⭐</span>
-            <span>{step.points} {language === 'ru' ? 'баллов за завершение' : 'ball tugatish uchun'}</span>
-          </div>
-          <button
-            onClick={onComplete}
-            disabled={!canComplete}
-            className={`px-8 py-3 rounded-xl font-bold transition-all ${
-              canComplete
-                ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {canComplete 
-              ? (language === 'ru' ? '✓ Завершить урок' : '✓ Darsni tugatish')
-              : (language === 'ru' ? 'Выполните задания' : 'Topshiriqlarni bajaring')
+        # Формируем контент изображения
+        if image_base64:
+            image_content = {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/jpeg",
+                    "data": image_base64
+                }
             }
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+        else:
+            image_content = {
+                "type": "image",
+                "source": {
+                    "type": "url",
+                    "url": image_url
+                }
+            }
 
-// Статистика
-function StatsPanel({ progress, totalSteps, language }: { 
-  progress: UserProgress; 
-  totalSteps: number;
-  language: Language;
-}) {
-  const completionPercent = Math.round((progress.completedSteps.length / totalSteps) * 100);
-  
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="text-3xl font-bold text-blue-600">{progress.completedSteps.length}</div>
-        <div className="text-sm text-gray-500">
-          {language === 'ru' ? 'Шагов пройдено' : 'Qadam o\'tildi'}
-        </div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="text-3xl font-bold text-green-600">{completionPercent}%</div>
-        <div className="text-sm text-gray-500">
-          {language === 'ru' ? 'Прогресс' : 'Progress'}
-        </div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="text-3xl font-bold text-yellow-600">{progress.totalPoints} ⭐</div>
-        <div className="text-sm text-gray-500">
-          {language === 'ru' ? 'Баллы' : 'Ballar'}
-        </div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <div className="text-3xl font-bold text-purple-600">{progress.badges.length}</div>
-        <div className="text-sm text-gray-500">
-          {language === 'ru' ? 'Достижения' : 'Yutuqlar'}
-        </div>
-      </div>
-    </div>
-  );
-}
+        system_prompt = self._get_system_prompt(category_hint)
+        
+        # Формируем user message с акцентом на распознавание
+        user_message = """Проанализируй это фото полки магазина.
 
-// Таблица лидеров
-function Leaderboard({ language, currentUserId }: { language: Language; currentUserId: string }) {
-  // В реальном проекте данные приходят с API
-  const leaders = [
-    { rank: 1, id: 'ag-001', name: 'Алишер К.', points: 1250, steps: 87 },
-    { rank: 2, id: 'ag-002', name: 'Дилшод М.', points: 1100, steps: 72 },
-    { rank: 3, id: 'ag-003', name: 'Саида Р.', points: 980, steps: 65 },
-    { rank: 4, id: 'ag-004', name: 'Бобур А.', points: 450, steps: 30 },
-    { rank: 5, id: 'ag-005', name: 'Жамшид Т.', points: 400, steps: 28 },
-    { rank: 6, id: 'ag-006', name: 'Нодир Х.', points: 350, steps: 24 },
-    { rank: 7, id: 'ag-007', name: 'Фарход И.', points: 200, steps: 15 },
-  ];
-  
-  return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-gray-100">
-      <div className="p-4 border-b bg-gradient-to-r from-yellow-50 to-orange-50">
-        <h3 className="font-bold text-lg flex items-center gap-2">
-          🏆 {language === 'ru' ? 'Рейтинг команды' : 'Jamoa reytingi'}
-        </h3>
-      </div>
-      <div className="divide-y">
-        {leaders.map(user => (
-          <div 
-            key={user.rank}
-            className={`flex items-center gap-4 p-4 transition ${
-              user.id === currentUserId ? 'bg-blue-50' : 'hover:bg-gray-50'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${
-              user.rank === 1 ? 'bg-yellow-400 text-white shadow-md' :
-              user.rank === 2 ? 'bg-gray-300 text-white shadow-md' :
-              user.rank === 3 ? 'bg-orange-400 text-white shadow-md' :
-              'bg-gray-100 text-gray-600'
-            }`}>
-              {user.rank <= 3 ? ['🥇', '🥈', '🥉'][user.rank - 1] : user.rank}
-            </div>
-            <div className="flex-1">
-              <div className={`font-medium ${user.id === currentUserId ? 'text-blue-600' : ''}`}>
-                {user.name} {user.id === currentUserId && (language === 'ru' ? '(Вы)' : '(Siz)')}
-              </div>
-              <div className="text-sm text-gray-500">
-                {user.steps}/100 {language === 'ru' ? 'шагов' : 'qadam'}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="font-bold text-lg">{user.points}</div>
-              <div className="text-sm text-gray-400">
-                {language === 'ru' ? 'баллов' : 'ball'}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+⚠️ ВНИМАНИЕ! Внимательно читай надписи на упаковках:
+• Красные пластиковые контейнеры с надписью "Chococream" = НАШ бренд
+• Стеклянные банки с надписью "Chocotella" = НАШ бренд
+• Стеклянные банки с надписью "Nutella" = КОНКУРЕНТ (не наш!)
 
-// Достижения
-function Achievements({ badges, language }: { badges: string[]; language: Language }) {
-  const allBadges = [
-    { id: 'first_step', icon: '🎉', title: language === 'ru' ? 'Первый шаг' : 'Birinchi qadam' },
-    { id: 'product_expert_1', icon: '🎓', title: language === 'ru' ? 'Знаток' : 'Bilimdon' },
-    { id: 'module_1_complete', icon: '🏆', title: language === 'ru' ? 'Модуль 1' : '1-modul' },
-    { id: 'distribution_master', icon: '📦', title: language === 'ru' ? 'Дистрибуция' : 'Distribyutsiya' },
-    { id: 'module_3_complete', icon: '📊', title: language === 'ru' ? 'Выкладка' : 'Joylashtirish' },
-    { id: 'module_5_complete', icon: '👣', title: language === 'ru' ? 'Визиты' : 'Tashriflar' },
-    { id: 'week_streak', icon: '🔥', title: language === 'ru' ? '7 дней' : '7 kun' },
-    { id: 'course_complete', icon: '👑', title: language === 'ru' ? 'Мастер' : 'Usta' },
-  ];
-  
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-      <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-        🏅 {language === 'ru' ? 'Достижения' : 'Yutuqlar'}
-      </h3>
-      <div className="grid grid-cols-4 gap-3">
-        {allBadges.map(badge => (
-          <div
-            key={badge.id}
-            className={`p-3 rounded-xl text-center transition ${
-              badges.includes(badge.id)
-                ? 'bg-yellow-50 border-2 border-yellow-300 shadow-sm'
-                : 'bg-gray-50 opacity-40 grayscale'
-            }`}
-          >
-            <div className="text-2xl mb-1">{badge.icon}</div>
-            <div className="text-xs font-medium">{badge.title}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+Посчитай количество КАЖДОГО бренда отдельно.
+"""
+        if store_name:
+            user_message += f"\nМагазин: {store_name}"
+        if category_hint:
+            cat_name = self.rules.get(category_hint, {}).get('name', category_hint)
+            user_message += f"\nКатегория: {cat_name}"
+        
+        user_message += "\n\nДай полную оценку и рекомендации в формате JSON."
 
-// Админ панель
-function AdminPanel({ language }: { language: Language }) {
-  const agents = [
-    { id: 'ag-001', name: 'Алишер К.', progress: 87, points: 1250, lastActive: '2 часа назад', status: 'active' },
-    { id: 'ag-002', name: 'Дилшод М.', progress: 72, points: 1100, lastActive: '5 часов назад', status: 'active' },
-    { id: 'ag-003', name: 'Саида Р.', progress: 65, points: 980, lastActive: 'Вчера', status: 'inactive' },
-    { id: 'ag-004', name: 'Бобур А.', progress: 28, points: 400, lastActive: '3 дня назад', status: 'inactive' },
-    { id: 'ag-005', name: 'Жамшид Т.', progress: 15, points: 150, lastActive: '1 неделю назад', status: 'at_risk' },
-    { id: 'ag-006', name: 'Нодир Х.', progress: 24, points: 350, lastActive: '2 дня назад', status: 'inactive' },
-    { id: 'ag-007', name: 'Фарход И.', progress: 15, points: 200, lastActive: '4 дня назад', status: 'at_risk' },
-  ];
-  
-  return (
-    <div className="space-y-6">
-      {/* Статистика команды */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <h2 className="text-xl font-bold mb-4">
-          📊 {language === 'ru' ? 'Статистика команды' : 'Jamoa statistikasi'}
-        </h2>
-        <div className="grid grid-cols-4 gap-4">
-          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <div className="text-3xl font-bold text-blue-600">7</div>
-            <div className="text-sm text-gray-500">
-              {language === 'ru' ? 'Всего агентов' : 'Jami agentlar'}
-            </div>
-          </div>
-          <div className="p-4 bg-green-50 rounded-xl border border-green-100">
-            <div className="text-3xl font-bold text-green-600">2</div>
-            <div className="text-sm text-gray-500">
-              {language === 'ru' ? 'Активных' : 'Faol'}
-            </div>
-          </div>
-          <div className="p-4 bg-yellow-50 rounded-xl border border-yellow-100">
-            <div className="text-3xl font-bold text-yellow-600">44%</div>
-            <div className="text-sm text-gray-500">
-              {language === 'ru' ? 'Ср. прогресс' : 'O\'rtacha progress'}
-            </div>
-          </div>
-          <div className="p-4 bg-purple-50 rounded-xl border border-purple-100">
-            <div className="text-3xl font-bold text-purple-600">0</div>
-            <div className="text-sm text-gray-500">
-              {language === 'ru' ? 'Завершили курс' : 'Kursni tugatdi'}
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Таблица агентов */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h3 className="font-bold text-lg">
-            👥 {language === 'ru' ? 'Прогресс агентов' : 'Agentlar progressi'}
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-4 font-medium text-gray-600">
-                  {language === 'ru' ? 'Агент' : 'Agent'}
-                </th>
-                <th className="text-left p-4 font-medium text-gray-600">
-                  {language === 'ru' ? 'Прогресс' : 'Progress'}
-                </th>
-                <th className="text-left p-4 font-medium text-gray-600">
-                  {language === 'ru' ? 'Баллы' : 'Ballar'}
-                </th>
-                <th className="text-left p-4 font-medium text-gray-600">
-                  {language === 'ru' ? 'Последняя активность' : 'Oxirgi faollik'}
-                </th>
-                <th className="text-left p-4 font-medium text-gray-600">
-                  {language === 'ru' ? 'Статус' : 'Status'}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {agents.map((agent) => (
-                <tr key={agent.id} className="hover:bg-gray-50 transition">
-                  <td className="p-4 font-medium">{agent.name}</td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${
-                            agent.progress >= 70 ? 'bg-green-500' :
-                            agent.progress >= 40 ? 'bg-yellow-500' : 'bg-red-400'
-                          }`}
-                          style={{ width: `${agent.progress}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-medium">{agent.progress}%</span>
-                    </div>
-                  </td>
-                  <td className="p-4">{agent.points} ⭐</td>
-                  <td className="p-4 text-gray-500">{agent.lastActive}</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      agent.status === 'active' ? 'bg-green-100 text-green-700' :
-                      agent.status === 'inactive' ? 'bg-gray-100 text-gray-600' :
-                      'bg-red-100 text-red-700'
-                    }`}>
-                      {agent.status === 'active' ? (language === 'ru' ? 'Активен' : 'Faol') :
-                       agent.status === 'inactive' ? (language === 'ru' ? 'Неактивен' : 'Nofaol') :
-                       (language === 'ru' ? 'Риск' : 'Xavf')}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================
-// ГЛАВНЫЙ КОМПОНЕНТ
-// ============================================
-
-export function LearningPage() {
-  const { user, logout, isSupervisor } = useAuth();
-  const navigate = useNavigate();
-  
-  const [viewMode, setViewMode] = useState<ViewMode>('learner');
-  const [language, setLanguage] = useState<Language>('ru');
-  const [activeStep, setActiveStep] = useState<Step | null>(null);
-  const [progress, setProgress] = useProgress(salesRepCourse.id, user?.id || 'guest');
-  
-  // Если не авторизован — редирект на логин
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-  
-  if (!user) return null;
-  
-  const course = salesRepCourse;
-  
-  // Текущий шаг для отображения
-  const currentStepData = course.steps.find(s => s.id === progress.currentStep) || course.steps[0];
-  
-  // Обработчик завершения урока
-  const handleCompleteStep = () => {
-    if (!activeStep) return;
-    
-    // Обновляем прогресс
-    setProgress(prev => {
-      const newCompletedSteps = prev.completedSteps.includes(activeStep.id)
-        ? prev.completedSteps
-        : [...prev.completedSteps, activeStep.id];
-      
-      const newBadges = activeStep.badge && !prev.badges.includes(activeStep.badge.id)
-        ? [...prev.badges, activeStep.badge.id]
-        : prev.badges;
-      
-      return {
-        ...prev,
-        completedSteps: newCompletedSteps,
-        currentStep: Math.max(prev.currentStep, activeStep.id + 1),
-        totalPoints: prev.completedSteps.includes(activeStep.id) 
-          ? prev.totalPoints 
-          : prev.totalPoints + activeStep.points,
-        badges: newBadges,
-        lastActivity: new Date().toISOString()
-      };
-    });
-    
-    setActiveStep(null);
-  };
-  
-  // Обработчик выхода
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-  
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-bold">
-                📚 {language === 'ru' ? course.title : course.titleUz}
-              </h1>
-            </div>
+        try:
+            start_time = datetime.utcnow()
             
-            <div className="flex items-center gap-4">
-              {/* Переключатель языка */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setLanguage('ru')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                    language === 'ru' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                  }`}
-                >
-                  🇷🇺 Рус
-                </button>
-                <button
-                  onClick={() => setLanguage('uz')}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                    language === 'uz' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                  }`}
-                >
-                  🇺🇿 O'zb
-                </button>
-              </div>
-              
-              {/* Переключатель режима — ТОЛЬКО для супервайзера */}
-              {isSupervisor && (
-                <div className="flex bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('learner')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                      viewMode === 'learner' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                    }`}
-                  >
-                    📖 {language === 'ru' ? 'Обучение' : 'Ta\'lim'}
-                  </button>
-                  <button
-                    onClick={() => setViewMode('admin')}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition ${
-                      viewMode === 'admin' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
-                    }`}
-                  >
-                    ⚙️ {language === 'ru' ? 'Админ' : 'Admin'}
-                  </button>
-                </div>
-              )}
-              
-              {/* Профиль и выход */}
-              <div className="flex items-center gap-3 pl-4 border-l">
-                <div className="text-right">
-                  <div className="text-sm font-medium">{user.name}</div>
-                  <div className="text-xs text-gray-500">
-                    {user.role === 'supervisor' 
-                      ? (language === 'ru' ? 'Супервайзер' : 'Supervayzer')
-                      : (language === 'ru' ? 'Агент' : 'Agent')
+            response = await self.client.messages.create(
+                model=self.model,
+                max_tokens=4096,
+                system=system_prompt,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            image_content,
+                            {"type": "text", "text": user_message}
+                        ]
                     }
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                  title={language === 'ru' ? 'Выйти' : 'Chiqish'}
-                >
-                  🚪
-                </button>
-              </div>
-              
-              {/* Баллы */}
-              <div className="text-right pl-4 border-l">
-                <div className="text-sm text-gray-500">
-                  {language === 'ru' ? 'Ваши баллы' : 'Sizning ballaringiz'}
-                </div>
-                <div className="text-xl font-bold text-yellow-600">
-                  {progress.totalPoints} ⭐
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-      
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        {viewMode === 'learner' ? (
-          <>
-            {/* Stats */}
-            <StatsPanel 
-              progress={progress} 
-              totalSteps={course.totalSteps}
-              language={language}
-            />
+                ]
+            )
             
-            {/* Текущий урок */}
-            <div className="mb-6">
-              <CurrentLessonCard
-                step={currentStepData}
-                isCompleted={progress.completedSteps.includes(currentStepData.id)}
-                onStart={() => setActiveStep(currentStepData)}
-                language={language}
-              />
-            </div>
+            processing_time = (datetime.utcnow() - start_time).total_seconds() * 1000
             
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Progress Maze */}
-              <div className="lg:col-span-2">
-                <ProgressMaze
-                  steps={course.steps}
-                  modules={course.modules}
-                  completedSteps={progress.completedSteps}
-                  currentStep={progress.currentStep}
-                  onStepClick={(stepId) => {
-                    const step = course.steps.find(s => s.id === stepId);
-                    if (step) setActiveStep(step);
-                  }}
-                  language={language}
-                />
-              </div>
-              
-              {/* Sidebar */}
-              <div className="space-y-6">
-                <Leaderboard language={language} currentUserId={user.id} />
-                <Achievements badges={progress.badges} language={language} />
-              </div>
-            </div>
-          </>
-        ) : (
-          <AdminPanel language={language} />
-        )}
-      </main>
-      
-      {/* Lesson Viewer Modal */}
-      {activeStep && (
-        <LessonViewer
-          step={activeStep}
-          onComplete={handleCompleteStep}
-          onClose={() => setActiveStep(null)}
-          language={language}
-        />
-      )}
-    </div>
-  );
-}
+            result_text = response.content[0].text
+            
+            # Очистка от markdown
+            if result_text.startswith("```json"):
+                result_text = result_text[7:]
+            if result_text.startswith("```"):
+                result_text = result_text[3:]
+            if result_text.endswith("```"):
+                result_text = result_text[:-3]
+            result_text = result_text.strip()
+            
+            try:
+                result = json.loads(result_text)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse AI response: {e}")
+                logger.error(f"Response: {result_text[:500]}")
+                result = self._get_fallback_result(str(e))
+            
+            result["processing_time_ms"] = int(processing_time)
+            result["model_used"] = self.model
+            result["analyzed_at"] = datetime.utcnow().isoformat()
+            
+            result = self._validate_and_enrich_result(result)
+            
+            return result
+
+        except Exception as e:
+            logger.error(f"Planogram AI analysis error: {e}")
+            raise
+
+    def _validate_and_enrich_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        """Валидация и обогащение результата"""
+        
+        defaults = {
+            "category": "mixed",
+            "overall_score": 0,
+            "alert_level": "critical",
+            "metrics": {
+                "share_of_shelf": {"our_brands_count": 0, "competitors_count": 0, "percentage": 0, "kpi_met": False},
+                "golden_shelf_compliance": {"score": 0, "issues": []},
+                "price_tags": {"present": 0, "missing": 0, "score": 0},
+                "depth_score": 0,
+                "planogram_compliance": 0
+            },
+            "detected_products": {"our_brands": [], "competitors": []},
+            "violations": [],
+            "recommendations": [],
+            "summary": {"positive": "", "negative": "", "instant_advice": ""}
+        }
+        
+        def merge_defaults(target, defaults):
+            for key, value in defaults.items():
+                if key not in target:
+                    target[key] = value
+                elif isinstance(value, dict) and isinstance(target.get(key), dict):
+                    merge_defaults(target[key], value)
+            return target
+        
+        result = merge_defaults(result, defaults)
+        
+        # Пересчёт alert_level
+        score = result.get("overall_score", 0)
+        if score >= 85:
+            result["alert_level"] = "good"
+        elif score >= 70:
+            result["alert_level"] = "warning"
+        else:
+            result["alert_level"] = "critical"
+        
+        return result
+
+    def _get_fallback_result(self, error_message: str) -> Dict[str, Any]:
+        """Результат-заглушка при ошибке"""
+        return {
+            "category": "unknown",
+            "overall_score": 0,
+            "alert_level": "critical",
+            "metrics": {
+                "share_of_shelf": {"our_brands_count": 0, "competitors_count": 0, "percentage": 0, "kpi_met": False},
+                "golden_shelf_compliance": {"score": 0, "issues": ["Ошибка анализа"]},
+                "price_tags": {"present": 0, "missing": 0, "score": 0},
+                "depth_score": 0,
+                "planogram_compliance": 0
+            },
+            "detected_products": {"our_brands": [], "competitors": []},
+            "violations": [f"Ошибка: {error_message}"],
+            "recommendations": [{
+                "priority": "high",
+                "action": "Переснимите фото более чётко",
+                "expected_improvement": "Система сможет распознать товары"
+            }],
+            "summary": {
+                "positive": "—",
+                "negative": "Ошибка анализа",
+                "instant_advice": "Сделайте более чёткое фото"
+            },
+            "error": error_message
+        }
+
+    def generate_telegram_message(self, analysis: Dict[str, Any]) -> str:
+        """Генерация сообщения для Telegram"""
+        
+        score = analysis.get("overall_score", 0)
+        summary = analysis.get("summary", {})
+        recommendations = analysis.get("recommendations", [])
+        detected = analysis.get("detected_products", {})
+        
+        if score >= 85:
+            emoji, level = "✅", "Отлично"
+        elif score >= 70:
+            emoji, level = "⚠️", "Требует внимания"
+        else:
+            emoji, level = "🔴", "Критично"
+        
+        msg = f"📊 **Оценка: {score}/100** {emoji}\nСтатус: {level}\n\n"
+        
+        our_brands = detected.get("our_brands", [])
+        if our_brands:
+            msg += "🏷️ **Наши бренды:**\n"
+            for b in our_brands:
+                msg += f"  • {b.get('name')}: {b.get('count')} шт. ({b.get('shelf_level', '?')})\n"
+            msg += "\n"
+        
+        if summary.get("instant_advice"):
+            msg += f"💡 **Совет:** {summary['instant_advice']}"
+        
+        return msg
+
+    def convert_to_db_format(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Конвертация для сохранения в БД"""
+        
+        metrics = analysis.get("metrics", {})
+        sos = metrics.get("share_of_shelf", {})
+        detected = analysis.get("detected_products", {})
+        
+        return {
+            "overall_score": analysis.get("overall_score", 0),
+            "alert_level": analysis.get("alert_level", "critical"),
+            "share_of_shelf": sos.get("percentage", 0),
+            "planogram_compliance": metrics.get("planogram_compliance", 0),
+            "price_tag_score": metrics.get("price_tags", {}).get("score", 0),
+            "facing_count": sos.get("our_brands_count", 0) + sos.get("competitors_count", 0),
+            "detected_products": detected.get("our_brands", []),
+            "violations": analysis.get("violations", []),
+            "processing_time_ms": analysis.get("processing_time_ms", 0),
+        }
+
+
+# Singleton
+planogram_ai_service = PlanogramAIService()
