@@ -1,29 +1,68 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
 import { LearningPage } from './pages/LearningPage';
-import { PlanogramPage } from './pages/PlanogramPage';
-import { TeamPage } from './pages/TeamPage';
-import { useAuthStore } from './stores/authStore';
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
+// Защищённый роут — редирект на логин если не авторизован
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
 }
 
-function App() {
+// Публичный роут — редирект на learning если уже авторизован
+function PublicRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  
+  if (isAuthenticated) {
+    return <Navigate to="/learning" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
+// Главный компонент приложения
+function AppRoutes() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-        <Route path="/learning" element={<PrivateRoute><LearningPage /></PrivateRoute>} />
-        <Route path="/planogram" element={<PrivateRoute><PlanogramPage /></PrivateRoute>} />
-        <Route path="/team" element={<PrivateRoute><TeamPage /></PrivateRoute>} />
-        <Route path="/" element={<Navigate to="/dashboard" />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      {/* Публичные роуты */}
+      <Route 
+        path="/login" 
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        } 
+      />
+      
+      {/* Защищённые роуты */}
+      <Route 
+        path="/learning" 
+        element={
+          <ProtectedRoute>
+            <LearningPage />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Редирект по умолчанию */}
+      <Route path="/" element={<Navigate to="/learning" replace />} />
+      <Route path="*" element={<Navigate to="/learning" replace />} />
+    </Routes>
   );
 }
 
-export default App;
+// Корневой компонент с провайдерами
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
