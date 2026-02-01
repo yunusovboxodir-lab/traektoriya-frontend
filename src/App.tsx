@@ -3,7 +3,10 @@ import { AuthProvider, useAuth } from './auth/AuthContext';
 import { LoginPage } from './pages/LoginPage';
 import { LearningPage } from './pages/LearningPage';
 
-// Защищённый роут — редирект на логин если не авторизован
+// ===========================================
+// ЗАЩИЩЁННЫЙ РОУТ
+// Если не авторизован — редирект на /login
+// ===========================================
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   
@@ -14,7 +17,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Публичный роут — редирект на learning если уже авторизован
+// ===========================================
+// ПУБЛИЧНЫЙ РОУТ
+// Если уже авторизован — редирект на /learning
+// ===========================================
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
   
@@ -25,11 +31,13 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Главный компонент приложения
+// ===========================================
+// РОУТЫ ПРИЛОЖЕНИЯ
+// ===========================================
 function AppRoutes() {
   return (
     <Routes>
-      {/* Публичные роуты */}
+      {/* Страница входа */}
       <Route 
         path="/login" 
         element={
@@ -39,7 +47,7 @@ function AppRoutes() {
         } 
       />
       
-      {/* Защищённые роуты */}
+      {/* Страница обучения (защищённая) */}
       <Route 
         path="/learning" 
         element={
@@ -56,7 +64,9 @@ function AppRoutes() {
   );
 }
 
-// Корневой компонент с провайдерами
+// ===========================================
+// ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ
+// ===========================================
 export default function App() {
   return (
     <BrowserRouter>
