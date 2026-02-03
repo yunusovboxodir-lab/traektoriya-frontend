@@ -1,30 +1,32 @@
 // ===========================================
 // КУРС "160 ШАГОВ К ЭКСПЕРТУ N'MEDOV"
-// Структура: 4 уровня, 16 модулей, 160 шагов
+// Структура: 4 территории, 16 модулей, 160 шагов
 // ===========================================
 
 // ===========================================
 // ТИПЫ
 // ===========================================
 
-export type UserLevel = 'trainee' | 'agent' | 'pro' | 'leader';
-export type StepType = 'theory' | 'practice' | 'quiz' | 'video' | 'case_study' | 'checkpoint';
+export type TerritoryKey = 'novice' | 'agent' | 'expert' | 'master';
+export type StepType = 'theory' | 'practice' | 'quiz' | 'video' | 'case_study';
 
-export interface Level {
+export interface Territory {
   id: number;
-  key: UserLevel;
+  key: TerritoryKey;
   title: string;
   titleUz: string;
   description: string;
   descriptionUz: string;
   icon: string;
   color: string;
+  gradient: string;
   stepsRange: [number, number];
+  requiredCards: number; // Лимит карточек для получения звезды
 }
 
 export interface Module {
   id: number;
-  levelId: number;
+  territoryId: number;
   title: string;
   titleUz: string;
   description: string;
@@ -32,21 +34,12 @@ export interface Module {
   icon: string;
   color: string;
   stepsRange: [number, number];
-}
-
-export interface Checkpoint {
-  id: number;
-  afterStep: number;
-  title: string;
-  titleUz: string;
-  productCount: number; // Сколько продуктов на экзамене
-  requiredScore: number; // Минимум для прохождения (%)
 }
 
 export interface Step {
   id: number;
   moduleId: number;
-  levelId: number;
+  territoryId: number;
   title: string;
   titleUz: string;
   type: StepType;
@@ -86,53 +79,61 @@ export interface Badge {
 }
 
 // ===========================================
-// 4 УРОВНЯ
+// 4 ТЕРРИТОРИИ (Карта Компетенций)
 // ===========================================
 
-export const levels: Level[] = [
+export const territories: Territory[] = [
   {
     id: 1,
-    key: 'trainee',
-    title: 'Стажёр',
-    titleUz: 'Stajer',
+    key: 'novice',
+    title: 'Территория Новичка',
+    titleUz: 'Yangi xodim hududi',
     description: 'Базовые знания и дисциплина. Изучите основы работы торгового представителя.',
     descriptionUz: 'Asosiy bilimlar va intizom. Savdo vakili ishining asoslarini o\'rganing.',
     icon: '🌱',
     color: '#10B981',
-    stepsRange: [1, 40]
+    gradient: 'from-green-400 to-emerald-600',
+    stepsRange: [1, 40],
+    requiredCards: 7
   },
   {
     id: 2,
     key: 'agent',
-    title: 'Агент',
-    titleUz: 'Agent',
+    title: 'Территория Агента',
+    titleUz: 'Agent hududi',
     description: 'Техники продаж и мерчандайзинг. Освойте DSPM и 8 шагов визита.',
     descriptionUz: 'Savdo texnikasi va merchandayzing. DSPM va 8 qadam tashrifini o\'rganing.',
     icon: '⚔️',
     color: '#3B82F6',
-    stepsRange: [41, 100]
+    gradient: 'from-blue-400 to-indigo-600',
+    stepsRange: [41, 100],
+    requiredCards: 13
   },
   {
     id: 3,
-    key: 'pro',
-    title: 'Профи',
-    titleUz: 'Profi',
+    key: 'expert',
+    title: 'Территория Эксперта',
+    titleUz: 'Ekspert hududi',
     description: 'Продвинутые техники и работа с возражениями. Станьте мастером продаж.',
     descriptionUz: 'Ilg\'or texnikalar va e\'tirozlar bilan ishlash. Savdo ustasi bo\'ling.',
     icon: '🎯',
     color: '#8B5CF6',
-    stepsRange: [101, 140]
+    gradient: 'from-purple-400 to-violet-600',
+    stepsRange: [101, 140],
+    requiredCards: 20
   },
   {
     id: 4,
-    key: 'leader',
-    title: 'Лидер',
-    titleUz: 'Lider',
+    key: 'master',
+    title: 'Территория Мастера',
+    titleUz: 'Usta hududi',
     description: 'Аналитика и наставничество. Развивайте команду и территорию.',
     descriptionUz: 'Tahlil va murabbiylik. Jamoa va hududni rivojlantiring.',
     icon: '👑',
     color: '#F59E0B',
-    stepsRange: [141, 160]
+    gradient: 'from-amber-400 to-orange-600',
+    stepsRange: [141, 160],
+    requiredCards: 26
   }
 ];
 
@@ -141,10 +142,10 @@ export const levels: Level[] = [
 // ===========================================
 
 export const modules: Module[] = [
-  // === УРОВЕНЬ 1: СТАЖЁР (1-40) ===
+  // === ТЕРРИТОРИЯ НОВИЧКА (1-40) ===
   {
     id: 1,
-    levelId: 1,
+    territoryId: 1,
     title: 'Добро пожаловать в N\'Medov',
     titleUz: 'N\'Medov ga xush kelibsiz',
     description: 'Знакомство с компанией, миссией и ценностями',
@@ -155,7 +156,7 @@ export const modules: Module[] = [
   },
   {
     id: 2,
-    levelId: 1,
+    territoryId: 1,
     title: 'Портрет торгового представителя',
     titleUz: 'Savdo vakili portreti',
     description: 'Кто такой успешный ТП и какими качествами он обладает',
@@ -166,7 +167,7 @@ export const modules: Module[] = [
   },
   {
     id: 3,
-    levelId: 1,
+    territoryId: 1,
     title: 'Инструменты работы',
     titleUz: 'Ish vositalari',
     description: 'CRM, КПК, отчётность и планирование',
@@ -177,7 +178,7 @@ export const modules: Module[] = [
   },
   {
     id: 4,
-    levelId: 1,
+    territoryId: 1,
     title: 'Основы визита',
     titleUz: 'Tashrif asoslari',
     description: 'Базовый чек-лист визита в торговую точку',
@@ -187,10 +188,10 @@ export const modules: Module[] = [
     stepsRange: [31, 40]
   },
 
-  // === УРОВЕНЬ 2: АГЕНТ (41-100) ===
+  // === ТЕРРИТОРИЯ АГЕНТА (41-100) ===
   {
     id: 5,
-    levelId: 2,
+    territoryId: 2,
     title: 'DSPM: Дистрибуция',
     titleUz: 'DSPM: Distribyutsiya',
     description: 'Distribution — обеспечение присутствия товара',
@@ -201,7 +202,7 @@ export const modules: Module[] = [
   },
   {
     id: 6,
-    levelId: 2,
+    territoryId: 2,
     title: 'DSPM: Выкладка',
     titleUz: 'DSPM: Joylashtirish',
     description: 'Shelving — правила выкладки товара',
@@ -212,7 +213,7 @@ export const modules: Module[] = [
   },
   {
     id: 7,
-    levelId: 2,
+    territoryId: 2,
     title: 'DSPM: Ценообразование',
     titleUz: 'DSPM: Narxlash',
     description: 'Pricing — работа с ценами и ценниками',
@@ -223,7 +224,7 @@ export const modules: Module[] = [
   },
   {
     id: 8,
-    levelId: 2,
+    territoryId: 2,
     title: 'DSPM: Мерчандайзинг',
     titleUz: 'DSPM: Merchandayzing',
     description: 'Merchandising — визуальное оформление',
@@ -234,7 +235,7 @@ export const modules: Module[] = [
   },
   {
     id: 9,
-    levelId: 2,
+    territoryId: 2,
     title: '8 шагов визита (часть 1)',
     titleUz: '8 qadam tashrif (1-qism)',
     description: 'Подготовка, приветствие, осмотр, анализ',
@@ -245,7 +246,7 @@ export const modules: Module[] = [
   },
   {
     id: 10,
-    levelId: 2,
+    territoryId: 2,
     title: '8 шагов визита (часть 2)',
     titleUz: '8 qadam tashrif (2-qism)',
     description: 'Презентация, работа с заказом, завершение',
@@ -255,10 +256,10 @@ export const modules: Module[] = [
     stepsRange: [91, 100]
   },
 
-  // === УРОВЕНЬ 3: ПРОФИ (101-140) ===
+  // === ТЕРРИТОРИЯ ЭКСПЕРТА (101-140) ===
   {
     id: 11,
-    levelId: 3,
+    territoryId: 3,
     title: 'ФУП: Формат убедительных продаж',
     titleUz: 'FUP: Ishonchli savdo formati',
     description: 'Техника FAB и презентация выгод',
@@ -269,7 +270,7 @@ export const modules: Module[] = [
   },
   {
     id: 12,
-    levelId: 3,
+    territoryId: 3,
     title: 'Работа с возражениями',
     titleUz: 'E\'tirozlar bilan ishlash',
     description: 'Техники преодоления возражений клиентов',
@@ -280,7 +281,7 @@ export const modules: Module[] = [
   },
   {
     id: 13,
-    levelId: 3,
+    territoryId: 3,
     title: 'Психология клиента',
     titleUz: 'Mijoz psixologiyasi',
     description: 'Типы клиентов и подходы к каждому',
@@ -291,7 +292,7 @@ export const modules: Module[] = [
   },
   {
     id: 14,
-    levelId: 3,
+    territoryId: 3,
     title: 'Конкурентная борьба',
     titleUz: 'Raqobat kurashi',
     description: 'Анализ конкурентов и позиционирование',
@@ -301,10 +302,10 @@ export const modules: Module[] = [
     stepsRange: [131, 140]
   },
 
-  // === УРОВЕНЬ 4: ЛИДЕР (141-160) ===
+  // === ТЕРРИТОРИЯ МАСТЕРА (141-160) ===
   {
     id: 15,
-    levelId: 4,
+    territoryId: 4,
     title: 'Анализ территории',
     titleUz: 'Hudud tahlili',
     description: 'Планирование и оптимизация маршрутов',
@@ -315,7 +316,7 @@ export const modules: Module[] = [
   },
   {
     id: 16,
-    levelId: 4,
+    territoryId: 4,
     title: 'Наставничество',
     titleUz: 'Murabbiylik',
     description: 'Развитие команды и передача опыта',
@@ -327,44 +328,44 @@ export const modules: Module[] = [
 ];
 
 // ===========================================
-// 12 ЗАСТАВ (Checkpoints)
-// ===========================================
-
-export const checkpoints: Checkpoint[] = [
-  { id: 1, afterStep: 40, title: 'Застава Стажёра', titleUz: 'Stajer to\'sig\'i', productCount: 5, requiredScore: 80 },
-  { id: 2, afterStep: 50, title: 'Застава Дистрибуции', titleUz: 'Distribyutsiya to\'sig\'i', productCount: 5, requiredScore: 80 },
-  { id: 3, afterStep: 60, title: 'Застава Выкладки', titleUz: 'Joylashtirish to\'sig\'i', productCount: 5, requiredScore: 80 },
-  { id: 4, afterStep: 70, title: 'Застава Цен', titleUz: 'Narx to\'sig\'i', productCount: 5, requiredScore: 80 },
-  { id: 5, afterStep: 80, title: 'Застава Мерчандайзинга', titleUz: 'Merchandayzing to\'sig\'i', productCount: 5, requiredScore: 80 },
-  { id: 6, afterStep: 90, title: 'Застава Визита 1', titleUz: 'Tashrif to\'sig\'i 1', productCount: 5, requiredScore: 80 },
-  { id: 7, afterStep: 100, title: 'Застава Агента', titleUz: 'Agent to\'sig\'i', productCount: 5, requiredScore: 85 },
-  { id: 8, afterStep: 110, title: 'Застава ФУП', titleUz: 'FUP to\'sig\'i', productCount: 5, requiredScore: 85 },
-  { id: 9, afterStep: 120, title: 'Застава Возражений', titleUz: 'E\'tirozlar to\'sig\'i', productCount: 5, requiredScore: 85 },
-  { id: 10, afterStep: 130, title: 'Застава Психологии', titleUz: 'Psixologiya to\'sig\'i', productCount: 5, requiredScore: 85 },
-  { id: 11, afterStep: 140, title: 'Застава Профи', titleUz: 'Profi to\'sig\'i', productCount: 5, requiredScore: 90 },
-  { id: 12, afterStep: 150, title: 'Застава Территории', titleUz: 'Hudud to\'sig\'i', productCount: 5, requiredScore: 90 },
-];
-
-// ===========================================
 // ФУНКЦИИ ПОМОЩНИКИ
 // ===========================================
 
-export function getLevelByStep(stepId: number): Level | undefined {
-  return levels.find(l => stepId >= l.stepsRange[0] && stepId <= l.stepsRange[1]);
+export function getTerritoryByStep(stepId: number): Territory | undefined {
+  return territories.find(t => stepId >= t.stepsRange[0] && stepId <= t.stepsRange[1]);
 }
 
 export function getModuleByStep(stepId: number): Module | undefined {
   return modules.find(m => stepId >= m.stepsRange[0] && stepId <= m.stepsRange[1]);
 }
 
-export function getCheckpointAfterStep(stepId: number): Checkpoint | undefined {
-  return checkpoints.find(c => c.afterStep === stepId);
+export function getTerritoryProgress(completedSteps: number[], territory: Territory): number {
+  const territorySteps = completedSteps.filter(
+    s => s >= territory.stepsRange[0] && s <= territory.stepsRange[1]
+  );
+  const totalSteps = territory.stepsRange[1] - territory.stepsRange[0] + 1;
+  return Math.round((territorySteps.length / totalSteps) * 100);
 }
 
-export function getLevelProgress(completedSteps: number[], level: Level): number {
-  const levelSteps = completedSteps.filter(
-    s => s >= level.stepsRange[0] && s <= level.stepsRange[1]
-  );
-  const totalSteps = level.stepsRange[1] - level.stepsRange[0] + 1;
-  return Math.round((levelSteps.length / totalSteps) * 100);
+export function getModulesByTerritory(territoryId: number): Module[] {
+  return modules.filter(m => m.territoryId === territoryId);
 }
+
+export function isTerritoryCompleted(unlockedCards: number, territory: Territory): boolean {
+  return unlockedCards >= territory.requiredCards;
+}
+
+export function getTerritoryStarStatus(unlockedCards: number, territory: Territory): 'locked' | 'in_progress' | 'completed' {
+  if (unlockedCards >= territory.requiredCards) return 'completed';
+  if (unlockedCards > 0) return 'in_progress';
+  return 'locked';
+}
+
+// ===========================================
+// КОНСТАНТЫ
+// ===========================================
+
+export const TOTAL_STEPS = 160;
+export const TOTAL_TERRITORIES = 4;
+export const TOTAL_MODULES = 16;
+export const TOTAL_PRODUCT_CARDS = 26;
