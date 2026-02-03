@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { 
   territories, 
-  modules, 
   getModulesByTerritory,
   products,
   productCategories,
