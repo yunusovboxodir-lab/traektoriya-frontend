@@ -1,320 +1,675 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { salesRepCourse, type Step, type Module } from '../data/salesRepCourse';
 import { useAuth } from '../auth/AuthContext';
+import { 
+  territories, 
+  modules, 
+  getModulesByTerritory,
+  products,
+  productCategories,
+  getProductsByCategory,
+  type Territory,
+  type Module,
+  type Product,
+  QUIZ_PASS_THRESHOLD
+} from '../data';
 
 // ===========================================
 // ТИПЫ
 // ===========================================
+type Language = 'ru' | 'uz';
+type ViewMode = 'map' | 'library';
+
 interface UserProgress {
   completedSteps: number[];
-  currentStep: number;
+  unlockedProducts: string[];
   totalPoints: number;
   badges: string[];
-  streakDays: number;
   lastActivity: string;
 }
 
-type ViewMode = 'learner' | 'admin';
-type Language = 'ru' | 'uz';
-
 // ===========================================
-// ХУК ПРОГРЕССА (localStorage для демо)
-// TODO: Перенести на backend API
+// ХУК ПРОГРЕССА
 // ===========================================
-function useProgress(courseId: string, visitorId: string) {
+function useProgress(visitorId: string) {
   const [progress, setProgress] = useState<UserProgress>(() => {
-    const saved = localStorage.getItem(`progress_${courseId}_${visitorId}`);
+    const saved = localStorage.getItem(`progress_160_${visitorId}`);
     if (saved) {
       return JSON.parse(saved);
     }
     return {
       completedSteps: [],
-      currentStep: 1,
+      unlockedProducts: [],
       totalPoints: 0,
       badges: [],
-      streakDays: 0,
       lastActivity: new Date().toISOString()
     };
   });
 
   useEffect(() => {
-    localStorage.setItem(`progress_${courseId}_${visitorId}`, JSON.stringify(progress));
-  }, [progress, courseId, visitorId]);
+    localStorage.setItem(`progress_160_${visitorId}`, JSON.stringify(progress));
+  }, [progress, visitorId]);
 
   return [progress, setProgress] as const;
 }
 
 // ===========================================
-// КОМПОНЕНТ: КАРТА ПРОГРЕССА
+// КОМПОНЕНТ: КАРТОЧКА ТЕРРИТОРИИ
 // ===========================================
-function ProgressMaze({ 
-  steps, 
-  modules,
-  completedSteps, 
-  currentStep,
-  onStepClick,
-  language
+function TerritoryCard({ 
+  territory, 
+  unlockedCount,
+  isExpanded,
+  onToggle,
+  onModuleClick,
+  language 
 }: {
-  steps: Step[];
-  modules: Module[];
-  completedSteps: number[];
-  currentStep: number;
-  onStepClick: (stepId: number) => void;
+  territory: Territory;
+  unlockedCount: number;
+  isExpanded: boolean;
+  onToggle: () => void;
+  onModuleClick: (module: Module) => void;
   language: Language;
 }) {
+  const territoryModules = getModulesByTerritory(territory.id);
+  const isCompleted = unlockedCount >= territory.requiredCards;
+  const progress = Math.min((unlockedCount / territory.requiredCards) * 100, 100);
+
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold">
-          🗺️ {language === 'ru' ? 'Карта прогресса' : 'Progress xaritasi'}
-        </h2>
-        <div className="text-sm text-gray-500">
-          {completedSteps.length} / {steps.length} {language === 'ru' ? 'шагов' : 'qadam'}
+    <div className={`rounded-2xl overflow-hidden shadow-lg transition-all duration-300 ${
+      isExpanded ? 'ring-2 ring-offset-2' : ''
+    }`} style={{ 
+      borderColor: territory.color,
+      boxShadow: isExpanded ? `0 0 20px ${territory.color}40` : undefined
+    }}>
+      {/* Заголовок территории */}
+      <div 
+        className={`p-5 cursor-pointer bg-gradient-to-r ${territory.gradient}`}
+        onClick={onToggle}
+      >
+        <div className="flex items-center justify-between text-white">
+          <div className="flex items-center gap-4">
+            <div className="text-4xl">{territory.icon}</div>
+            <div>
+              <h3 className="font-bold text-xl">
+                {language === 'ru' ? territory.title : territory.titleUz}
+              </h3>
+              <p className="text-sm opacity-80">
+                {language === 'ru' 
+                  ? `Шаги ${territory.stepsRange[0]}-${territory.stepsRange[1]}`
+                  : `Qadamlar ${territory.stepsRange[0]}-${territory.stepsRange[1]}`
+                }
+              </p>
+            </div>
+          </div>
+          <div className="text-right flex items-center gap-4">
+            {isCompleted ? (
+              <div className="text-4xl">⭐</div>
+            ) : (
+              <div className="text-sm">
+                <div className="font-bold text-lg">{unlockedCount}/{territory.requiredCards}</div>
+                <div className="opacity-80">{language === 'ru' ? 'карточек' : 'kartochka'}</div>
+              </div>
+            )}
+            <div className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`}>
+              ▼
+            </div>
+          </div>
         </div>
-      </div>
-      
-      {/* Общий прогресс-бар */}
-      <div className="mb-6">
-        <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+        
+        {/* Прогресс-бар */}
+        <div className="mt-4 h-2 bg-white/30 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 transition-all duration-500"
-            style={{ width: `${(completedSteps.length / steps.length) * 100}%` }}
+            className="h-full bg-white transition-all duration-500"
+            style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="flex justify-between mt-2 text-sm text-gray-500">
-          <span>0%</span>
-          <span className="font-bold text-blue-600">
-            {Math.round((completedSteps.length / steps.length) * 100)}%
-          </span>
-          <span>100%</span>
-        </div>
       </div>
-      
-      {/* Модули */}
-      <div className="space-y-4">
-        {modules.map(module => {
-          const moduleSteps = steps.filter(s => s.moduleId === module.id);
-          const completedInModule = moduleSteps.filter(s => completedSteps.includes(s.id)).length;
-          const isModuleComplete = completedInModule === moduleSteps.length;
-          const isModuleActive = moduleSteps.some(s => s.id === currentStep);
-          
-          return (
-            <div 
-              key={module.id}
-              className={`p-4 rounded-xl border-2 transition-all ${
-                isModuleComplete 
-                  ? 'border-green-500 bg-green-50' 
-                  : isModuleActive 
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-gray-50'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-3">
+
+      {/* Модули (раскрывающиеся) */}
+      {isExpanded && (
+        <div className="bg-white p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {territoryModules.map(module => (
+              <button
+                key={module.id}
+                onClick={() => onModuleClick(module)}
+                className="flex items-center gap-3 p-4 rounded-xl border-2 hover:border-blue-400 hover:bg-blue-50 transition-all text-left"
+              >
                 <div className="text-2xl">{module.icon}</div>
                 <div className="flex-1">
-                  <h3 className="font-semibold">
+                  <div className="font-medium">
                     {language === 'ru' ? module.title : module.titleUz}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {completedInModule}/{moduleSteps.length} {language === 'ru' ? 'уроков' : 'dars'}
-                  </p>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {language === 'ru' 
+                      ? `Шаги ${module.stepsRange[0]}-${module.stepsRange[1]}`
+                      : `Qadamlar ${module.stepsRange[0]}-${module.stepsRange[1]}`
+                    }
+                  </div>
                 </div>
-                <div className="text-lg font-bold" style={{ color: module.color }}>
-                  {Math.round((completedInModule / moduleSteps.length) * 100)}%
-                </div>
-              </div>
-              
-              {/* Шаги модуля */}
-              <div className="flex flex-wrap gap-1.5">
-                {moduleSteps.map(step => {
-                  const isCompleted = completedSteps.includes(step.id);
-                  const isCurrent = step.id === currentStep;
-                  const isLocked = step.id > currentStep && !isCompleted;
-                  
-                  return (
-                    <button
-                      key={step.id}
-                      onClick={() => !isLocked && onStepClick(step.id)}
-                      disabled={isLocked}
-                      className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
-                        isCompleted 
-                          ? 'bg-green-500 text-white'
-                          : isCurrent
-                            ? 'bg-blue-500 text-white animate-pulse'
-                            : isLocked
-                              ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                              : 'bg-white border-2 border-gray-200 hover:border-blue-400'
-                      }`}
-                      title={language === 'ru' ? step.title : step.titleUz}
-                    >
-                      {isCompleted ? '✓' : step.id}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                <div className="text-gray-400">→</div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ===========================================
-// КОМПОНЕНТ: КАРТОЧКА ТЕКУЩЕГО УРОКА
+// КОМПОНЕНТ: КАРТА КОМПЕТЕНЦИЙ
 // ===========================================
-function CurrentLessonCard({ 
-  step, 
-  isCompleted,
-  onStart,
-  language
+function CompetencyMap({ 
+  unlockedProducts,
+  language,
+  onModuleClick
 }: {
-  step: Step;
-  isCompleted: boolean;
-  onStart: () => void;
+  unlockedProducts: string[];
+  language: Language;
+  onModuleClick: (module: Module) => void;
+}) {
+  const [expandedTerritory, setExpandedTerritory] = useState<number | null>(1);
+  const unlockedCount = unlockedProducts.length;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">
+          🗺️ {language === 'ru' ? 'Карта Компетенций' : 'Kompetensiya Xaritasi'}
+        </h2>
+        <div className="text-sm text-gray-500">
+          {language === 'ru' 
+            ? `Разблокировано ${unlockedCount}/26 карточек`
+            : `${unlockedCount}/26 kartochka ochilgan`
+          }
+        </div>
+      </div>
+
+      {territories.map(territory => (
+        <TerritoryCard
+          key={territory.id}
+          territory={territory}
+          unlockedCount={unlockedCount}
+          isExpanded={expandedTerritory === territory.id}
+          onToggle={() => setExpandedTerritory(
+            expandedTerritory === territory.id ? null : territory.id
+          )}
+          onModuleClick={onModuleClick}
+          language={language}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ===========================================
+// КОМПОНЕНТ: КАРТОЧКА ПРОДУКТА
+// ===========================================
+function ProductCard({ 
+  product, 
+  isUnlocked,
+  onStartQuiz,
+  language 
+}: {
+  product: Product;
+  isUnlocked: boolean;
+  onStartQuiz: () => void;
   language: Language;
 }) {
   return (
-    <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg">
-      <div className="flex items-start gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center text-3xl">
-          📖
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-2 py-0.5 bg-white/20 rounded-full text-xs">
-              {language === 'ru' ? 'Шаг' : 'Qadam'} {step.id}
-            </span>
-            <span className="text-xs opacity-75">{step.duration} мин</span>
+    <div className={`rounded-xl border-2 overflow-hidden transition-all ${
+      isUnlocked 
+        ? 'border-green-400 bg-green-50' 
+        : 'border-gray-200 bg-white hover:border-blue-400 hover:shadow-lg'
+    }`}>
+      {/* Заголовок */}
+      <div className="p-4">
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h4 className="font-bold">
+              {language === 'ru' ? product.name : product.nameUz}
+            </h4>
+            <p className="text-xs text-gray-500">{product.sku}</p>
           </div>
-          <h3 className="font-bold text-xl mb-2">
-            {language === 'ru' ? step.title : step.titleUz}
-          </h3>
-          <div className="text-yellow-300 font-medium">+{step.points} ⭐</div>
+          {isUnlocked ? (
+            <span className="text-2xl">✅</span>
+          ) : (
+            <span className="text-2xl">🔒</span>
+          )}
         </div>
-        <button
-          onClick={onStart}
-          className="px-8 py-4 bg-white text-blue-600 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg"
-        >
-          {isCompleted ? '🔄 Повторить' : '▶ Начать'}
-        </button>
+
+        {/* Информация */}
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-500">{language === 'ru' ? 'Бренд:' : 'Brend:'}</span>
+            <span className="font-medium">{product.brand}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">{language === 'ru' ? 'Вес:' : 'Vazn:'}</span>
+            <span className="font-medium">{product.weight}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-500">{language === 'ru' ? 'Цена:' : 'Narx:'}</span>
+            <span className="font-medium text-green-600">{product.price.toLocaleString()} сум</span>
+          </div>
+        </div>
+
+        {/* USP */}
+        {isUnlocked && (
+          <div className="mt-3 p-2 bg-blue-50 rounded-lg text-xs">
+            <div className="font-medium text-blue-800 mb-1">
+              {language === 'ru' ? 'Преимущество:' : 'Afzallik:'}
+            </div>
+            <div className="text-blue-600">
+              {language === 'ru' ? product.usp : product.uspUz}
+            </div>
+          </div>
+        )}
+
+        {/* Бейджи */}
+        <div className="flex gap-2 mt-3">
+          {product.isBestseller && (
+            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+              ⭐ Бестселлер
+            </span>
+          )}
+          {product.isNew && (
+            <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+              🆕 Новинка
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Кнопка */}
+      <div className="p-3 bg-gray-50 border-t">
+        {isUnlocked ? (
+          <button
+            onClick={onStartQuiz}
+            className="w-full py-2 text-sm text-green-600 font-medium"
+          >
+            👁️ {language === 'ru' ? 'Просмотреть' : 'Ko\'rish'}
+          </button>
+        ) : (
+          <button
+            onClick={onStartQuiz}
+            className="w-full py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+          >
+            🧪 {language === 'ru' ? 'Пройти тест' : 'Testni topshirish'}
+          </button>
+        )}
       </div>
     </div>
   );
 }
 
 // ===========================================
-// КОМПОНЕНТ: ПРОСМОТР УРОКА
+// КОМПОНЕНТ: БИБЛИОТЕКА ПРОДУКТОВ
 // ===========================================
-function LessonViewer({
-  step,
-  onComplete,
-  onClose,
-  language
+function ProductLibrary({ 
+  unlockedProducts,
+  onStartQuiz,
+  language 
 }: {
-  step: Step;
-  onComplete: () => void;
+  unlockedProducts: string[];
+  onStartQuiz: (product: Product) => void;
+  language: Language;
+}) {
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  const filteredProducts = selectedCategory === 'all' 
+    ? products 
+    : getProductsByCategory(selectedCategory as any);
+
+  const unlockedCount = unlockedProducts.length;
+
+  return (
+    <div>
+      {/* Заголовок */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">
+          📚 {language === 'ru' ? 'Библиотека Продуктов' : 'Mahsulotlar Kutubxonasi'}
+        </h2>
+        <div className="text-sm">
+          <span className="text-green-600 font-bold">{unlockedCount}</span>
+          <span className="text-gray-400"> / 26</span>
+        </div>
+      </div>
+
+      {/* Общий прогресс */}
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white">
+        <div className="flex items-center justify-between mb-2">
+          <span>{language === 'ru' ? 'Прогресс разблокировки' : 'Ochish jarayoni'}</span>
+          <span className="font-bold">{Math.round((unlockedCount / 26) * 100)}%</span>
+        </div>
+        <div className="h-3 bg-white/30 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-white transition-all duration-500"
+            style={{ width: `${(unlockedCount / 26) * 100}%` }}
+          />
+        </div>
+        <div className="flex justify-between mt-2 text-xs opacity-80">
+          <span>🌱 7</span>
+          <span>⚔️ 13</span>
+          <span>🎯 20</span>
+          <span>👑 26</span>
+        </div>
+      </div>
+
+      {/* Фильтр по категориям */}
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <button
+          onClick={() => setSelectedCategory('all')}
+          className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
+            selectedCategory === 'all'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 hover:bg-gray-200'
+          }`}
+        >
+          📦 {language === 'ru' ? 'Все' : 'Hammasi'} ({products.length})
+        </button>
+        {productCategories.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`px-4 py-2 rounded-full whitespace-nowrap transition ${
+              selectedCategory === cat.id
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 hover:bg-gray-200'
+            }`}
+          >
+            {cat.icon} {language === 'ru' ? cat.title : cat.titleUz} ({getProductsByCategory(cat.id).length})
+          </button>
+        ))}
+      </div>
+
+      {/* Сетка продуктов */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredProducts.map(product => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            isUnlocked={unlockedProducts.includes(product.id)}
+            onStartQuiz={() => onStartQuiz(product)}
+            language={language}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ===========================================
+// КОМПОНЕНТ: ТЕСТ ПО ПРОДУКТУ
+// ===========================================
+function ProductQuizModal({ 
+  product, 
+  onComplete, 
+  onClose,
+  language 
+}: {
+  product: Product;
+  onComplete: (passed: boolean) => void;
   onClose: () => void;
   language: Language;
 }) {
-  const [quizAnswers, setQuizAnswers] = useState<number[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState<number[]>([]);
   const [showResults, setShowResults] = useState(false);
-  
-  const isQuizCorrect = step.quiz?.every((q, i) => quizAnswers[i] === q.correctAnswer);
-  const canComplete = step.type === 'quiz' ? showResults && isQuizCorrect : true;
-  
+
+  const questions = product.quiz;
+  const question = questions[currentQuestion];
+  const correctCount = answers.filter((a, i) => a === questions[i].correctAnswer).length;
+  const passed = correctCount >= QUIZ_PASS_THRESHOLD;
+
+  const handleAnswer = (answerIndex: number) => {
+    const newAnswers = [...answers, answerIndex];
+    setAnswers(newAnswers);
+
+    if (currentQuestion < questions.length - 1) {
+      setTimeout(() => setCurrentQuestion(currentQuestion + 1), 300);
+    } else {
+      setTimeout(() => setShowResults(true), 300);
+    }
+  };
+
+  const handleFinish = () => {
+    onComplete(passed);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden">
         {/* Заголовок */}
-        <div className="p-5 border-b bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+        <div className="p-5 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-sm opacity-75">Шаг {step.id} / 100</span>
-              <h2 className="font-bold text-xl">
-                {language === 'ru' ? step.title : step.titleUz}
-              </h2>
+              <p className="text-sm opacity-80">
+                {language === 'ru' ? 'Тест по продукту' : 'Mahsulot testi'}
+              </p>
+              <h3 className="font-bold text-lg">
+                {language === 'ru' ? product.name : product.nameUz}
+              </h3>
             </div>
-            <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30">
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"
+            >
+              ✕
+            </button>
+          </div>
+          
+          {/* Прогресс */}
+          {!showResults && (
+            <div className="mt-4">
+              <div className="flex justify-between text-sm mb-1">
+                <span>{language === 'ru' ? 'Вопрос' : 'Savol'} {currentQuestion + 1}/5</span>
+                <span>{language === 'ru' ? 'Нужно 4 из 5' : '5 tadan 4 tasi kerak'}</span>
+              </div>
+              <div className="h-2 bg-white/30 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-white transition-all"
+                  style={{ width: `${((currentQuestion + 1) / 5) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Контент */}
+        <div className="p-6">
+          {!showResults ? (
+            <>
+              {/* Вопрос */}
+              <h4 className="font-bold text-lg mb-4">
+                {language === 'ru' ? question.question : question.questionUz}
+              </h4>
+
+              {/* Варианты ответа */}
+              <div className="space-y-3">
+                {(language === 'ru' ? question.options : question.optionsUz).map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleAnswer(index)}
+                    disabled={answers.length > currentQuestion}
+                    className={`w-full p-4 text-left rounded-xl border-2 transition-all ${
+                      answers[currentQuestion] === index
+                        ? answers[currentQuestion] === question.correctAnswer
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-red-500 bg-red-50'
+                        : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+                    }`}
+                  >
+                    <span className="font-medium mr-2">
+                      {String.fromCharCode(65 + index)}.
+                    </span>
+                    {option}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            /* Результаты */
+            <div className="text-center">
+              <div className={`text-6xl mb-4 ${passed ? 'animate-bounce' : ''}`}>
+                {passed ? '🎉' : '😔'}
+              </div>
+              <h3 className="text-2xl font-bold mb-2">
+                {passed 
+                  ? (language === 'ru' ? 'Отлично!' : 'Ajoyib!')
+                  : (language === 'ru' ? 'Попробуйте ещё раз' : 'Yana urinib ko\'ring')
+                }
+              </h3>
+              <p className="text-gray-600 mb-4">
+                {language === 'ru' 
+                  ? `Правильных ответов: ${correctCount} из 5`
+                  : `To'g'ri javoblar: 5 tadan ${correctCount} ta`
+                }
+              </p>
+              
+              {passed && (
+                <div className="p-4 bg-green-50 rounded-xl mb-4">
+                  <p className="text-green-700 font-medium">
+                    ✅ {language === 'ru' 
+                      ? 'Карточка разблокирована!'
+                      : 'Kartochka ochildi!'
+                    }
+                  </p>
+                </div>
+              )}
+
+              <button
+                onClick={handleFinish}
+                className={`w-full py-3 rounded-xl font-bold text-white ${
+                  passed 
+                    ? 'bg-green-600 hover:bg-green-700' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {passed 
+                  ? (language === 'ru' ? 'Продолжить' : 'Davom etish')
+                  : (language === 'ru' ? 'Попробовать снова' : 'Yana urinish')
+                }
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===========================================
+// КОМПОНЕНТ: ПРОСМОТР ПРОДУКТА
+// ===========================================
+function ProductViewModal({ 
+  product, 
+  onClose,
+  language 
+}: {
+  product: Product;
+  onClose: () => void;
+  language: Language;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-lg w-full overflow-hidden max-h-[90vh] overflow-y-auto">
+        {/* Заголовок */}
+        <div className="p-5 bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm opacity-80">{product.brand}</p>
+              <h3 className="font-bold text-lg">
+                {language === 'ru' ? product.name : product.nameUz}
+              </h3>
+            </div>
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"
+            >
               ✕
             </button>
           </div>
         </div>
-        
+
         {/* Контент */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="prose max-w-none">
-            {(language === 'ru' ? step.content : step.contentUz).split('\n').map((line, i) => (
-              <p key={i} className="mb-2">{line}</p>
-            ))}
-          </div>
-          
-          {/* Тест */}
-          {step.quiz && step.quiz.length > 0 && (
-            <div className="mt-8 pt-6 border-t space-y-4">
-              <h3 className="font-bold text-lg">📝 Проверьте себя</h3>
-              {step.quiz.map((q, qIndex) => (
-                <div key={q.id} className="p-4 bg-gray-50 rounded-xl">
-                  <p className="font-medium mb-3">{qIndex + 1}. {q.question}</p>
-                  <div className="space-y-2">
-                    {q.options.map((option, oIndex) => (
-                      <label 
-                        key={oIndex}
-                        className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer border-2 ${
-                          showResults
-                            ? oIndex === q.correctAnswer
-                              ? 'bg-green-100 border-green-500'
-                              : quizAnswers[qIndex] === oIndex
-                                ? 'bg-red-100 border-red-500'
-                                : 'border-gray-200'
-                            : quizAnswers[qIndex] === oIndex
-                              ? 'bg-blue-100 border-blue-500'
-                              : 'border-gray-200 hover:border-blue-300'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          checked={quizAnswers[qIndex] === oIndex}
-                          onChange={() => {
-                            const newAnswers = [...quizAnswers];
-                            newAnswers[qIndex] = oIndex;
-                            setQuizAnswers(newAnswers);
-                          }}
-                          disabled={showResults}
-                        />
-                        <span>{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {!showResults && (
-                <button
-                  onClick={() => setShowResults(true)}
-                  disabled={quizAnswers.length !== step.quiz!.length}
-                  className="w-full py-3 bg-blue-600 text-white rounded-xl font-medium disabled:bg-gray-300"
-                >
-                  Проверить ответы
-                </button>
-              )}
+        <div className="p-6 space-y-4">
+          {/* Основная информация */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">SKU</div>
+              <div className="font-medium">{product.sku}</div>
             </div>
-          )}
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">
+                {language === 'ru' ? 'Вес' : 'Vazn'}
+              </div>
+              <div className="font-medium">{product.weight}</div>
+            </div>
+            <div className="p-3 bg-green-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">
+                {language === 'ru' ? 'РРЦ' : 'TChN'}
+              </div>
+              <div className="font-bold text-green-600">{product.price.toLocaleString()} сум</div>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <div className="text-xs text-gray-500 mb-1">
+                {language === 'ru' ? 'Срок годности' : 'Saqlash muddati'}
+              </div>
+              <div className="font-medium">{product.shelfLife}</div>
+            </div>
+          </div>
+
+          {/* USP */}
+          <div className="p-4 bg-blue-50 rounded-xl">
+            <div className="text-sm font-medium text-blue-800 mb-2">
+              💎 {language === 'ru' ? 'Уникальное преимущество (USP)' : 'Noyob afzallik (USP)'}
+            </div>
+            <div className="text-blue-700">
+              {language === 'ru' ? product.usp : product.uspUz}
+            </div>
+          </div>
+
+          {/* Целевая аудитория */}
+          <div className="p-4 bg-purple-50 rounded-xl">
+            <div className="text-sm font-medium text-purple-800 mb-2">
+              🎯 {language === 'ru' ? 'Целевая аудитория' : 'Maqsadli auditoriya'}
+            </div>
+            <div className="text-purple-700">
+              {language === 'ru' ? product.targetAudience : product.targetAudienceUz}
+            </div>
+          </div>
+
+          {/* Скрипт продаж */}
+          <div className="p-4 bg-orange-50 rounded-xl">
+            <div className="text-sm font-medium text-orange-800 mb-2">
+              💬 {language === 'ru' ? 'Скрипт продажи' : 'Savdo skripti'}
+            </div>
+            <div className="text-orange-700 italic">
+              "{language === 'ru' ? product.salesScript : product.salesScriptUz}"
+            </div>
+          </div>
+
+          {/* Условия хранения */}
+          <div className="p-4 bg-gray-50 rounded-xl">
+            <div className="text-sm font-medium text-gray-700 mb-2">
+              🌡️ {language === 'ru' ? 'Условия хранения' : 'Saqlash shartlari'}
+            </div>
+            <div className="text-gray-600">
+              {language === 'ru' ? product.storageConditions : product.storageConditionsUz}
+            </div>
+          </div>
         </div>
-        
-        {/* Футер */}
-        <div className="p-5 border-t bg-gray-50 flex justify-between">
-          <span className="text-gray-500">⭐ +{step.points} баллов</span>
+
+        {/* Кнопка закрытия */}
+        <div className="p-4 border-t">
           <button
-            onClick={onComplete}
-            disabled={!canComplete}
-            className={`px-8 py-3 rounded-xl font-bold ${
-              canComplete
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
+            onClick={onClose}
+            className="w-full py-3 bg-gray-100 hover:bg-gray-200 rounded-xl font-medium transition"
           >
-            ✓ Завершить урок
+            {language === 'ru' ? 'Закрыть' : 'Yopish'}
           </button>
         </div>
       </div>
@@ -323,341 +678,215 @@ function LessonViewer({
 }
 
 // ===========================================
-// КОМПОНЕНТ: СТАТИСТИКА
-// ===========================================
-function StatsPanel({ progress, totalSteps, language }: { 
-  progress: UserProgress; 
-  totalSteps: number;
-  language: Language;
-}) {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="text-3xl font-bold text-blue-600">{progress.completedSteps.length}</div>
-        <div className="text-sm text-gray-500">{language === 'ru' ? 'Шагов' : 'Qadam'}</div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="text-3xl font-bold text-green-600">
-          {Math.round((progress.completedSteps.length / totalSteps) * 100)}%
-        </div>
-        <div className="text-sm text-gray-500">{language === 'ru' ? 'Прогресс' : 'Progress'}</div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="text-3xl font-bold text-yellow-600">{progress.totalPoints} ⭐</div>
-        <div className="text-sm text-gray-500">{language === 'ru' ? 'Баллы' : 'Ballar'}</div>
-      </div>
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <div className="text-3xl font-bold text-purple-600">{progress.badges.length}</div>
-        <div className="text-sm text-gray-500">{language === 'ru' ? 'Значки' : 'Nishonlar'}</div>
-      </div>
-    </div>
-  );
-}
-
-// ===========================================
-// КОМПОНЕНТ: ТАБЛИЦА ЛИДЕРОВ
-// ===========================================
-function Leaderboard({ language, visitorId }: { language: Language; visitorId: string }) {
-  // TODO: Получать с backend API
-  const leaders = [
-    { rank: 1, id: 'ag-001', name: 'Алишер К.', points: 1250, steps: 87 },
-    { rank: 2, id: 'ag-002', name: 'Дилшод М.', points: 1100, steps: 72 },
-    { rank: 3, id: 'ag-003', name: 'Саида Р.', points: 980, steps: 65 },
-    { rank: 4, id: 'ag-004', name: 'Бобур А.', points: 450, steps: 30 },
-    { rank: 5, id: 'ag-005', name: 'Жамшид Т.', points: 400, steps: 28 },
-    { rank: 6, id: 'ag-006', name: 'Нодир Х.', points: 350, steps: 24 },
-    { rank: 7, id: 'ag-007', name: 'Фарход И.', points: 200, steps: 15 },
-  ];
-  
-  return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-      <div className="p-4 border-b bg-gradient-to-r from-yellow-50 to-orange-50">
-        <h3 className="font-bold text-lg">🏆 {language === 'ru' ? 'Рейтинг' : 'Reyting'}</h3>
-      </div>
-      <div className="divide-y">
-        {leaders.map(user => (
-          <div 
-            key={user.rank}
-            className={`flex items-center gap-4 p-4 ${user.id === visitorId ? 'bg-blue-50' : ''}`}
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${
-              user.rank === 1 ? 'bg-yellow-400 text-white' :
-              user.rank === 2 ? 'bg-gray-300 text-white' :
-              user.rank === 3 ? 'bg-orange-400 text-white' : 'bg-gray-100'
-            }`}>
-              {user.rank <= 3 ? ['🥇', '🥈', '🥉'][user.rank - 1] : user.rank}
-            </div>
-            <div className="flex-1">
-              <div className="font-medium">{user.name}</div>
-              <div className="text-sm text-gray-500">{user.steps}/100</div>
-            </div>
-            <div className="font-bold">{user.points} ⭐</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ===========================================
-// КОМПОНЕНТ: АДМИН ПАНЕЛЬ (только для СВ)
-// ===========================================
-function AdminPanel({ language }: { language: Language }) {
-  // TODO: Получать с backend API
-  const agents = [
-    { id: 'ag-001', name: 'Алишер К.', progress: 87, points: 1250, status: 'active' },
-    { id: 'ag-002', name: 'Дилшод М.', progress: 72, points: 1100, status: 'active' },
-    { id: 'ag-003', name: 'Саида Р.', progress: 65, points: 980, status: 'inactive' },
-    { id: 'ag-004', name: 'Бобур А.', progress: 28, points: 400, status: 'inactive' },
-    { id: 'ag-005', name: 'Жамшид Т.', progress: 15, points: 150, status: 'at_risk' },
-    { id: 'ag-006', name: 'Нодир Х.', progress: 24, points: 350, status: 'inactive' },
-    { id: 'ag-007', name: 'Фарход И.', progress: 15, points: 200, status: 'at_risk' },
-  ];
-  
-  return (
-    <div className="space-y-6">
-      {/* Статистика команды */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <h2 className="text-xl font-bold mb-4">📊 {language === 'ru' ? 'Статистика команды' : 'Jamoa statistikasi'}</h2>
-        <div className="grid grid-cols-4 gap-4">
-          <div className="p-4 bg-blue-50 rounded-xl">
-            <div className="text-3xl font-bold text-blue-600">7</div>
-            <div className="text-sm text-gray-500">{language === 'ru' ? 'Агентов' : 'Agentlar'}</div>
-          </div>
-          <div className="p-4 bg-green-50 rounded-xl">
-            <div className="text-3xl font-bold text-green-600">2</div>
-            <div className="text-sm text-gray-500">{language === 'ru' ? 'Активных' : 'Faol'}</div>
-          </div>
-          <div className="p-4 bg-yellow-50 rounded-xl">
-            <div className="text-3xl font-bold text-yellow-600">44%</div>
-            <div className="text-sm text-gray-500">{language === 'ru' ? 'Ср. прогресс' : 'O\'rtacha'}</div>
-          </div>
-          <div className="p-4 bg-red-50 rounded-xl">
-            <div className="text-3xl font-bold text-red-600">2</div>
-            <div className="text-sm text-gray-500">{language === 'ru' ? 'В риске' : 'Xavfda'}</div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Таблица агентов */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <h3 className="font-bold text-lg">👥 {language === 'ru' ? 'Агенты' : 'Agentlar'}</h3>
-        </div>
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="text-left p-4">{language === 'ru' ? 'Имя' : 'Ism'}</th>
-              <th className="text-left p-4">{language === 'ru' ? 'Прогресс' : 'Progress'}</th>
-              <th className="text-left p-4">{language === 'ru' ? 'Баллы' : 'Ballar'}</th>
-              <th className="text-left p-4">{language === 'ru' ? 'Статус' : 'Status'}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {agents.map(agent => (
-              <tr key={agent.id} className="hover:bg-gray-50">
-                <td className="p-4 font-medium">{agent.name}</td>
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 h-2 bg-gray-200 rounded-full">
-                      <div 
-                        className={`h-full rounded-full ${
-                          agent.progress >= 70 ? 'bg-green-500' :
-                          agent.progress >= 40 ? 'bg-yellow-500' : 'bg-red-400'
-                        }`}
-                        style={{ width: `${agent.progress}%` }}
-                      />
-                    </div>
-                    <span>{agent.progress}%</span>
-                  </div>
-                </td>
-                <td className="p-4">{agent.points} ⭐</td>
-                <td className="p-4">
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    agent.status === 'active' ? 'bg-green-100 text-green-700' :
-                    agent.status === 'inactive' ? 'bg-gray-100 text-gray-600' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {agent.status === 'active' ? '🟢 Активен' :
-                     agent.status === 'inactive' ? '⚪ Неактивен' : '🔴 Риск'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// ===========================================
-// ГЛАВНЫЙ КОМПОНЕНТ СТРАНИЦЫ
+// ГЛАВНЫЙ КОМПОНЕНТ
 // ===========================================
 export function LearningPage() {
   const { user, logout, isSupervisor } = useAuth();
   const navigate = useNavigate();
   
-  const [viewMode, setViewMode] = useState<ViewMode>('learner');
+  const [viewMode, setViewMode] = useState<ViewMode>('map');
   const [language, setLanguage] = useState<Language>('ru');
-  const [activeStep, setActiveStep] = useState<Step | null>(null);
-  const [progress, setProgress] = useProgress(salesRepCourse.id, user?.id || 'guest');
-  
-  // Редирект на логин если не авторизован
+  const [progress, setProgress] = useProgress(user?.id || 'guest');
+  const [quizProduct, setQuizProduct] = useState<Product | null>(null);
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
+
+  // Редирект если не авторизован
   useEffect(() => {
     if (!user) {
       navigate('/login');
     }
   }, [user, navigate]);
-  
+
   if (!user) return null;
-  
-  const course = salesRepCourse;
-  const currentStepData = course.steps.find(s => s.id === progress.currentStep) || course.steps[0];
-  
-  // Обработчик завершения урока
-  const handleCompleteStep = () => {
-    if (!activeStep) return;
-    
-    setProgress(prev => {
-      const newCompletedSteps = prev.completedSteps.includes(activeStep.id)
-        ? prev.completedSteps
-        : [...prev.completedSteps, activeStep.id];
-      
-      return {
-        ...prev,
-        completedSteps: newCompletedSteps,
-        currentStep: Math.max(prev.currentStep, activeStep.id + 1),
-        totalPoints: prev.completedSteps.includes(activeStep.id) 
-          ? prev.totalPoints 
-          : prev.totalPoints + activeStep.points,
-        lastActivity: new Date().toISOString()
-      };
-    });
-    
-    setActiveStep(null);
+
+  // Обработчик начала теста
+  const handleStartQuiz = (product: Product) => {
+    if (progress.unlockedProducts.includes(product.id)) {
+      setViewProduct(product);
+    } else {
+      setQuizProduct(product);
+    }
   };
-  
+
+  // Обработчик завершения теста
+  const handleQuizComplete = (passed: boolean) => {
+    if (passed && quizProduct) {
+      setProgress(prev => ({
+        ...prev,
+        unlockedProducts: [...prev.unlockedProducts, quizProduct.id],
+        totalPoints: prev.totalPoints + 50,
+        lastActivity: new Date().toISOString()
+      }));
+    }
+    setQuizProduct(null);
+  };
+
   // Обработчик выхода
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
-  
+
+  const unlockedCount = progress.unlockedProducts.length;
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Шапка */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 border-b">
+      <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold">📚 {language === 'ru' ? course.title : course.titleUz}</h1>
-            
+            {/* Логотип и название */}
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🗺️</span>
+              <div>
+                <h1 className="font-bold text-lg">
+                  {language === 'ru' ? '160 шагов к эксперту' : '160 qadam ekspertga'}
+                </h1>
+                <p className="text-xs text-gray-500">N'Medov Training Platform</p>
+              </div>
+            </div>
+
+            {/* Навигация */}
             <div className="flex items-center gap-4">
+              {/* Переключатель режима */}
+              <div className="flex bg-gray-100 rounded-xl p-1">
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    viewMode === 'map' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
+                  }`}
+                >
+                  🗺️ {language === 'ru' ? 'Карта' : 'Xarita'}
+                </button>
+                <button
+                  onClick={() => setViewMode('library')}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    viewMode === 'library' ? 'bg-white shadow text-blue-600' : 'text-gray-600'
+                  }`}
+                >
+                  📚 {language === 'ru' ? 'Продукты' : 'Mahsulotlar'}
+                </button>
+              </div>
+
               {/* Язык */}
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setLanguage('ru')}
-                  className={`px-3 py-1.5 rounded-md text-sm ${language === 'ru' ? 'bg-white shadow' : ''}`}
+                  className={`px-3 py-1.5 rounded-md text-sm ${
+                    language === 'ru' ? 'bg-white shadow' : ''
+                  }`}
                 >
-                  🇷🇺 Рус
+                  🇷🇺
                 </button>
                 <button
                   onClick={() => setLanguage('uz')}
-                  className={`px-3 py-1.5 rounded-md text-sm ${language === 'uz' ? 'bg-white shadow' : ''}`}
+                  className={`px-3 py-1.5 rounded-md text-sm ${
+                    language === 'uz' ? 'bg-white shadow' : ''
+                  }`}
                 >
-                  🇺🇿 O'zb
+                  🇺🇿
                 </button>
               </div>
-              
-              {/* Режим (только для СВ) */}
-              {isSupervisor && (
-                <div className="flex bg-gray-100 rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('learner')}
-                    className={`px-3 py-1.5 rounded-md text-sm ${viewMode === 'learner' ? 'bg-white shadow' : ''}`}
-                  >
-                    📖 Обучение
-                  </button>
-                  <button
-                    onClick={() => setViewMode('admin')}
-                    className={`px-3 py-1.5 rounded-md text-sm ${viewMode === 'admin' ? 'bg-white shadow' : ''}`}
-                  >
-                    ⚙️ Админ
-                  </button>
-                </div>
-              )}
-              
+
               {/* Профиль */}
               <div className="flex items-center gap-3 pl-4 border-l">
                 <div className="text-right">
                   <div className="text-sm font-medium">{user.name}</div>
                   <div className="text-xs text-gray-500">
-                    {isSupervisor ? 'Супервайзер' : 'Агент'}
+                    {isSupervisor 
+                      ? (language === 'ru' ? 'Супервайзер' : 'Supervayzer')
+                      : (language === 'ru' ? 'Агент' : 'Agent')
+                    }
                   </div>
                 </div>
                 <button
                   onClick={handleLogout}
                   className="p-2 text-gray-400 hover:text-red-500 rounded-lg"
-                  title="Выйти"
+                  title={language === 'ru' ? 'Выйти' : 'Chiqish'}
                 >
                   🚪
                 </button>
               </div>
-              
+
               {/* Баллы */}
-              <div className="text-right pl-4 border-l">
-                <div className="text-xl font-bold text-yellow-600">{progress.totalPoints} ⭐</div>
+              <div className="flex items-center gap-2 pl-4 border-l">
+                <span className="text-2xl">⭐</span>
+                <span className="font-bold text-lg">{progress.totalPoints}</span>
               </div>
             </div>
           </div>
         </div>
       </header>
-      
-      {/* Контент */}
+
+      {/* Статистика */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold">{unlockedCount}/26</div>
+              <div className="text-xs opacity-80">
+                {language === 'ru' ? 'Карточек' : 'Kartochka'}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{progress.completedSteps.length}/160</div>
+              <div className="text-xs opacity-80">
+                {language === 'ru' ? 'Уроков' : 'Darslar'}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">
+                {territories.filter(t => unlockedCount >= t.requiredCards).length}/4
+              </div>
+              <div className="text-xs opacity-80">
+                {language === 'ru' ? 'Звёзд' : 'Yulduzlar'}
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold">{progress.totalPoints}</div>
+              <div className="text-xs opacity-80">
+                {language === 'ru' ? 'Баллов' : 'Ball'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Основной контент */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {viewMode === 'learner' ? (
-          <>
-            <StatsPanel progress={progress} totalSteps={course.totalSteps} language={language} />
-            
-            <div className="mb-6">
-              <CurrentLessonCard
-                step={currentStepData}
-                isCompleted={progress.completedSteps.includes(currentStepData.id)}
-                onStart={() => setActiveStep(currentStepData)}
-                language={language}
-              />
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <ProgressMaze
-                  steps={course.steps}
-                  modules={course.modules}
-                  completedSteps={progress.completedSteps}
-                  currentStep={progress.currentStep}
-                  onStepClick={(stepId) => {
-                    const step = course.steps.find(s => s.id === stepId);
-                    if (step) setActiveStep(step);
-                  }}
-                  language={language}
-                />
-              </div>
-              <div>
-                <Leaderboard language={language} visitorId={user.id} />
-              </div>
-            </div>
-          </>
+        {viewMode === 'map' ? (
+          <CompetencyMap
+            unlockedProducts={progress.unlockedProducts}
+            language={language}
+            onModuleClick={(module) => {
+              // TODO: Открыть модуль
+              console.log('Open module:', module);
+            }}
+          />
         ) : (
-          <AdminPanel language={language} />
+          <ProductLibrary
+            unlockedProducts={progress.unlockedProducts}
+            onStartQuiz={handleStartQuiz}
+            language={language}
+          />
         )}
       </main>
-      
-      {/* Модальное окно урока */}
-      {activeStep && (
-        <LessonViewer
-          step={activeStep}
-          onComplete={handleCompleteStep}
-          onClose={() => setActiveStep(null)}
+
+      {/* Модальное окно теста */}
+      {quizProduct && (
+        <ProductQuizModal
+          product={quizProduct}
+          onComplete={handleQuizComplete}
+          onClose={() => setQuizProduct(null)}
+          language={language}
+        />
+      )}
+
+      {/* Модальное окно просмотра продукта */}
+      {viewProduct && (
+        <ProductViewModal
+          product={viewProduct}
+          onClose={() => setViewProduct(null)}
           language={language}
         />
       )}
