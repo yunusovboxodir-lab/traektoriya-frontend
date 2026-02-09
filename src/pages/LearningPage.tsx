@@ -26,7 +26,7 @@ export function LearningPage() {
     try {
       setIsLoading(true);
       const response = await coursesApi.getCourses(0, 50);
-      setCourses(response.data.courses || []);
+      setCourses(response.data.items || []);
       setError('');
     } catch (err: any) {
       setError('Ошибка при загрузке курсов');
@@ -42,7 +42,7 @@ export function LearningPage() {
 
     try {
       const response = await coursesApi.getCourseContent(course.id);
-      setCourseContent(response.data || []);
+      setCourseContent(response.data.items || []);
     } catch (err) {
       console.error('Error loading course content:', err);
       setCourseContent([]);
@@ -121,7 +121,7 @@ export function LearningPage() {
                         {course.description}
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span> {course.category}</span>
+                        <span> {course.code}</span>
                         <span className="px-2 py-1 bg-gray-100 rounded">
                           {course.status}
                         </span>
@@ -175,7 +175,7 @@ export function LearningPage() {
                               {idx + 1}. {item.title}
                             </h4>
                             <p className="text-gray-600 text-sm mb-3">
-                              {item.content_text.substring(0, 200)}...
+                              {item.content?.substring(0, 200)}...
                             </p>
                             <div className="flex items-center justify-between text-xs text-gray-500">
                               <span>Тип: {item.content_type}</span>

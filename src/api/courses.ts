@@ -5,9 +5,13 @@ export interface Course {
   tenant_id: string;
   title: string;
   description: string;
-  category: string;
-  target_audience: string;
+  code: string;
+  target_role: string;
   status: string;
+  total_lessons: number;
+  total_duration_minutes: number;
+  version: number;
+  is_published: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -17,7 +21,14 @@ export interface ContentItem {
   course_id: string;
   title: string;
   content_type: string;
-  content_text: string;
+  content: string;
+  difficulty_level: number;
+  status: string;
+  duration_minutes: number;
+  points: number;
+  learning_objective: string;
+  path: string;
+  sort_order: number;
   version: number;
   created_at: string;
   updated_at: string;
@@ -29,7 +40,7 @@ export interface CourseDetail extends Course {
 
 export const coursesApi = {
   getCourses: (skip: number = 0, limit: number = 100) =>
-    api.get<{ courses: Course[]; total: number }>('/api/v1/courses', {
+    api.get<{ items: Course[]; total: number; skip: number; limit: number }>('/api/v1/courses', {
       params: { skip, limit },
     }),
 
@@ -37,13 +48,13 @@ export const coursesApi = {
     api.get<CourseDetail>('/api/v1/courses/' + courseId),
 
   getCourseContent: (courseId: string) =>
-    api.get<ContentItem[]>('/api/v1/courses/' + courseId + '/content'),
+    api.get<{ items: ContentItem[]; total: number; skip: number; limit: number }>('/api/v1/courses/' + courseId + '/content'),
 
   createCourse: (data: {
     title: string;
     description: string;
-    category: string;
-    target_audience: string;
+    code: string;
+    tenant_id: string;
   }) =>
     api.post<Course>('/api/v1/courses', data),
 
@@ -56,7 +67,9 @@ export const coursesApi = {
   addContentItem: (courseId: string, data: {
     title: string;
     content_type: string;
-    content_text: string;
+    content: string;
+    course_id: string;
+    path: string;
   }) =>
     api.post<ContentItem>('/api/v1/courses/' + courseId + '/content', data),
 
