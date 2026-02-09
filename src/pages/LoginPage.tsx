@@ -6,7 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 // СТРАНИЦА ВХОДА В СИСТЕМУ
 // ===========================================
 export function LoginPage() {
-  const [employeeId, setEmployeeId] = useState('0001');
+  const [employeeId, setEmployeeId] = useState('admin');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -103,12 +103,12 @@ export function LoginPage() {
           <p className="text-xs text-gray-500 text-center mb-3">Демо доступы:</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="bg-white p-2 rounded-lg border">
-              <div className="font-medium text-purple-600">SuperAdmin</div>
-              <div className="text-gray-500">0001 / admin123</div>
+              <div className="font-medium text-purple-600">Admin</div>
+              <div className="text-gray-500">admin / admin123</div>
             </div>
             <div className="bg-white p-2 rounded-lg border">
-              <div className="font-medium text-blue-600">Trade Rep</div>
-              <div className="text-gray-500">nmtash3-A1 / agent123</div>
+              <div className="font-medium text-blue-600">Test User</div>
+              <div className="text-gray-500">test_user / test123</div>
             </div>
           </div>
         </div>
