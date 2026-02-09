@@ -7,6 +7,7 @@ import { PlanogramPage } from './pages/PlanogramPage';
 import { TeamPage } from './pages/TeamPage';
 import { GenerationPage } from './pages/GenerationPage';
 import { QuizPage } from './pages/QuizPage';
+import { TasksPage } from './pages/TasksPage';
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ
@@ -98,6 +99,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <GenerationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Задачи / Kanban (защищённый) */}
+      <Route
+        path="/tasks"
+        element={
+          <ProtectedRoute>
+            <TasksPage />
           </ProtectedRoute>
         }
       />

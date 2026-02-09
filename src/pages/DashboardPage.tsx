@@ -16,6 +16,7 @@ export function DashboardPage() {
     { title: 'AI Генерация', desc: 'Создание уроков с помощью ИИ', icon: '🤖', path: '/generation', color: 'from-indigo-500 to-indigo-600' },
     { title: 'Planogram AI', desc: 'Анализ выкладки', icon: '📸', path: '/planogram', color: 'from-purple-500 to-purple-600' },
     { title: 'Команда', desc: 'Управление персоналом', icon: '👥', path: '/team', color: 'from-green-500 to-green-600' },
+    { title: 'Задачи', desc: 'Kanban-доска задач', icon: '📋', path: '/tasks', color: 'from-amber-500 to-amber-600' },
   ];
 
   return (
@@ -31,7 +32,7 @@ export function DashboardPage() {
       </header>
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-6">Добро пожаловать!</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cards.map((card) => (
             <Link key={card.path} to={card.path} className="block group">
               <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all cursor-pointer">
