@@ -1,7 +1,6 @@
 ﻿import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const API_URL = import.meta.env.VITE_API_URL || 'https://web-production-c2613.up.railway.app';
+import { api } from '../api/client';
 interface AnalysisResult {
   category: string;
   overall_score: number;
@@ -95,37 +94,16 @@ export function PlanogramPage() {
     setError(null);
 
     try {
-      // Получаем токен
-      const loginRes = await fetch(`${API_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: 'admin',
-          password: 'admin123',
-          employee_id: 'admin'
-        })
-      });
-      const loginData = await loginRes.json();
-      const token = loginData.access_token;
-
-      // Отправляем фото на анализ (без категории - AI определит сам)
       const formData = new FormData();
       formData.append('photo', selectedFile);
 
-      const analysisRes = await fetch(`${API_URL}/api/v1/planogram/analyze`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+      const response = await api.post('/api/v1/planogram/analyze', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      if (!analysisRes.ok) {
-        throw new Error(`Ошибка анализа: ${analysisRes.status}`);
-      }
-
-      const analysisData = await analysisRes.json();
-      setResult(analysisData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+      setResult(response.data);
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || err?.message || 'Произошла ошибка');
     } finally {
       setIsLoading(false);
     }

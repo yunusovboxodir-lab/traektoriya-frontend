@@ -1,17 +1,17 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
+import { useAuthStore } from '../stores/authStore';
 
 // ===========================================
 // СТРАНИЦА ВХОДА В СИСТЕМУ
 // ===========================================
 export function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [employeeId, setEmployeeId] = useState('0001');
+  const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useAuth();
+
+  const { login } = useAuthStore();
   const navigate = useNavigate();
 
   // Обработчик отправки формы
@@ -20,49 +20,45 @@ export function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    // Небольшая задержка для UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    const success = login(username, password);
-    
-    if (success) {
+    try {
+      await login(employeeId, password);
       navigate('/learning');
-    } else {
-      setError('Неверный логин или пароль');
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Ошибка входа. Проверьте данные.');
+    } finally {
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
+
+  const buttonClass = isLoading
+    ? 'bg-gray-400 cursor-not-allowed'
+    : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-        {/* Логотип */}
         <div className="text-center mb-8">
-          <div className="text-5xl mb-4">📚</div>
+          <div className="text-5xl mb-4"></div>
           <h1 className="text-2xl font-bold text-gray-800">Traektoriya</h1>
           <p className="text-gray-500 mt-2">Платформа обучения N'Medov</p>
         </div>
 
-        {/* Форма входа */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Поле логина */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Логин
+              ID Сотрудника
             </label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Введите логин"
+              value={employeeId}
+              onChange={(e) => setEmployeeId(e.target.value)}
+              placeholder="Введите ID"
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition outline-none"
               required
               autoFocus
             />
           </div>
 
-          {/* Поле пароля */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Пароль
@@ -77,23 +73,17 @@ export function LoginPage() {
             />
           </div>
 
-          {/* Сообщение об ошибке */}
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm flex items-center gap-2">
-              <span>⚠️</span>
+              <span></span>
               {error}
             </div>
           )}
 
-          {/* Кнопка входа */}
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-4 rounded-xl font-bold text-white transition-all ${
-              isLoading
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl'
-            }`}
+            className={"w-full py-4 rounded-xl font-bold text-white transition-all " + buttonClass}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -104,29 +94,27 @@ export function LoginPage() {
                 Вход...
               </span>
             ) : (
-              '🚀 Войти'
+              ' Войти'
             )}
           </button>
         </form>
 
-        {/* Подсказка с демо-доступами */}
         <div className="mt-8 p-4 bg-gray-50 rounded-xl">
           <p className="text-xs text-gray-500 text-center mb-3">Демо доступы:</p>
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="bg-white p-2 rounded-lg border">
-              <div className="font-medium text-purple-600">Супервайзер</div>
-              <div className="text-gray-500">super / super123</div>
+              <div className="font-medium text-purple-600">SuperAdmin</div>
+              <div className="text-gray-500">0001 / admin123</div>
             </div>
             <div className="bg-white p-2 rounded-lg border">
-              <div className="font-medium text-blue-600">Агент</div>
-              <div className="text-gray-500">agent1 / agent1</div>
+              <div className="font-medium text-blue-600">Trade Rep</div>
+              <div className="text-gray-500">nmtash3-A1 / agent123</div>
             </div>
           </div>
         </div>
 
-        {/* Футер */}
         <p className="text-center text-gray-400 text-xs mt-6">
-          © 2025 N'Medov Distribution
+           2025 N'Medov Distribution
         </p>
       </div>
     </div>

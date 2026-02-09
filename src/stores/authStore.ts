@@ -1,30 +1,81 @@
 ﻿import { create } from 'zustand';
+import { authApi } from '../api/client';
 
 interface User {
-  id: number;
+  id: string;
   employee_id: string;
   full_name: string;
+  email?: string;
   role: string;
+  is_active: boolean;
+  last_login?: string;
 }
 
 interface AuthState {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
-  login: (user: User, token: string) => void;
-  logout: () => void;
+  isLoading: boolean;
+  error: string | null;
+  login: (employee_id: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
-  login: (user, token) => {
-    localStorage.setItem('token', token);
-    set({ user, token, isAuthenticated: true });
+  accessToken: localStorage.getItem('accessToken'),
+  refreshToken: localStorage.getItem('refreshToken'),
+  isAuthenticated: !!localStorage.getItem('accessToken'),
+  isLoading: false,
+  error: null,
+
+  login: async (employee_id: string, password: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await authApi.login(employee_id, password);
+      const { access_token, refresh_token, user } = response.data;
+
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('refreshToken', refresh_token);
+
+      set({
+        user,
+        accessToken: access_token,
+        refreshToken: refresh_token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error: any) {
+      const message = error.response?.data?.detail || 'Login failed';
+      set({
+        isLoading: false,
+        error: message,
+      });
+      throw error;
+    }
   },
-  logout: () => {
-    localStorage.removeItem('token');
-    set({ user: null, token: null, isAuthenticated: false });
+
+  logout: async () => {
+    set({ isLoading: true });
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    }
   },
+
+  setUser: (user) => set({ user }),
 }));

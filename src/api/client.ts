@@ -1,6 +1,6 @@
 ﻿import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://web-production-c2613.up.railway.app';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -8,13 +8,15 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
 export const authApi = {
-  login: (employee_id: string, password: string) => 
+  login: (employee_id: string, password: string) =>
     api.post('/api/v1/auth/login', { employee_id, password }),
+  refresh: () => api.post('/api/v1/auth/refresh'),
+  logout: () => api.post('/api/v1/auth/logout'),
   me: () => api.get('/api/v1/auth/me'),
 };
