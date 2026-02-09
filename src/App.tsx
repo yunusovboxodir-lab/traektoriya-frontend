@@ -1,14 +1,16 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { LoginPage } from './pages/LoginPage';
 import { LearningPage } from './pages/LearningPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PlanogramPage } from './pages/PlanogramPage';
 import { TeamPage } from './pages/TeamPage';
+import { GenerationPage } from './pages/GenerationPage';
+import { QuizPage } from './pages/QuizPage';
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ
-// Если не авторизован  редирект на /login
+// Если не авторизован → редирект на /login
 // ===========================================
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,7 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 // ===========================================
 // ПУБЛИЧНЫЙ РОУТ
-// Если уже авторизован  редирект на /learning
+// Если уже авторизован → редирект на /learning
 // ===========================================
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -86,6 +88,26 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <TeamPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* AI Генерация уроков (защищённый) */}
+      <Route
+        path="/generation"
+        element={
+          <ProtectedRoute>
+            <GenerationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Квиз/Тест (защищённый) */}
+      <Route
+        path="/quiz/:contentItemId"
+        element={
+          <ProtectedRoute>
+            <QuizPage />
           </ProtectedRoute>
         }
       />

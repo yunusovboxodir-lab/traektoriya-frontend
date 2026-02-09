@@ -1,4 +1,4 @@
-﻿import { useAuthStore } from '../stores/authStore';
+import { useAuthStore } from '../stores/authStore';
 import { useNavigate, Link } from 'react-router-dom';
 
 export function DashboardPage() {
@@ -13,6 +13,7 @@ export function DashboardPage() {
 
   const cards = [
     { title: 'Обучение', desc: 'Курсы и тренинги', icon: '📚', path: '/learning', color: 'from-blue-500 to-blue-600' },
+    { title: 'AI Генерация', desc: 'Создание уроков с помощью ИИ', icon: '🤖', path: '/generation', color: 'from-indigo-500 to-indigo-600' },
     { title: 'Planogram AI', desc: 'Анализ выкладки', icon: '📸', path: '/planogram', color: 'from-purple-500 to-purple-600' },
     { title: 'Команда', desc: 'Управление персоналом', icon: '👥', path: '/team', color: 'from-green-500 to-green-600' },
   ];
@@ -30,7 +31,7 @@ export function DashboardPage() {
       </header>
       <main className="max-w-7xl mx-auto px-4 py-8">
         <h2 className="text-2xl font-bold mb-6">Добро пожаловать!</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cards.map((card) => (
             <Link key={card.path} to={card.path} className="block group">
               <div className="bg-white p-6 rounded-xl shadow-sm border hover:shadow-lg transition-all cursor-pointer">

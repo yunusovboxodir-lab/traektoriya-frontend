@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { coursesApi, type Course, type ContentItem } from '../api/courses';
@@ -49,6 +49,14 @@ export function LearningPage() {
     }
   };
 
+  const handleContentClick = (item: ContentItem) => {
+    if (item.content_type === 'quiz' && selectedCourse) {
+      navigate(`/quiz/${item.id}`, {
+        state: { quiz: item, courseId: selectedCourse.id },
+      });
+    }
+  };
+
   const handleLogout = async () => {
     await logout();
     navigate('/login');
@@ -58,7 +66,10 @@ export function LearningPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
         <div className="text-center text-white">
-          <div className="text-4xl mb-4"></div>
+          <svg className="animate-spin h-10 w-10 mx-auto mb-4" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
           <p>Загрузка курсов...</p>
         </div>
       </div>
@@ -111,7 +122,7 @@ export function LearningPage() {
                     className="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer overflow-hidden"
                   >
                     <div className="h-32 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                      <div className="text-5xl"></div>
+                      <div className="text-5xl">📚</div>
                     </div>
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-800 mb-2">
@@ -121,7 +132,7 @@ export function LearningPage() {
                         {course.description}
                       </p>
                       <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span> {course.code}</span>
+                        <span>📋 {course.code}</span>
                         <span className="px-2 py-1 bg-gray-100 rounded">
                           {course.status}
                         </span>
@@ -143,7 +154,7 @@ export function LearningPage() {
               }}
               className="mb-6 px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
             >
-               Назад к курсам
+              ← Назад к курсам
             </button>
 
             {selectedCourse && (
@@ -161,30 +172,49 @@ export function LearningPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {courseContent.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500"
-                      >
-                        <div className="flex items-start gap-4">
-                          <div className="text-3xl">
-                            {item.content_type === 'lesson' ? '' : ''}
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="text-lg font-bold text-gray-800 mb-2">
-                              {idx + 1}. {item.title}
-                            </h4>
-                            <p className="text-gray-600 text-sm mb-3">
-                              {item.content?.substring(0, 200)}...
-                            </p>
-                            <div className="flex items-center justify-between text-xs text-gray-500">
-                              <span>Тип: {item.content_type}</span>
-                              <span>v{item.version}</span>
+                    {courseContent.map((item, idx) => {
+                      const isQuiz = item.content_type === 'quiz';
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => handleContentClick(item)}
+                          className={`bg-white p-6 rounded-lg shadow-md border-l-4 transition ${
+                            isQuiz
+                              ? 'border-orange-500 hover:shadow-lg cursor-pointer hover:bg-orange-50'
+                              : 'border-blue-500'
+                          }`}
+                        >
+                          <div className="flex items-start gap-4">
+                            <div className="text-3xl">
+                              {isQuiz ? '📝' : '📖'}
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-lg font-bold text-gray-800 mb-2">
+                                {idx + 1}. {item.title}
+                              </h4>
+                              <p className="text-gray-600 text-sm mb-3">
+                                {item.content?.substring(0, 200)}...
+                              </p>
+                              <div className="flex items-center justify-between text-xs text-gray-500">
+                                <span className={`px-2 py-1 rounded-full ${
+                                  isQuiz
+                                    ? 'bg-orange-100 text-orange-700 font-medium'
+                                    : 'bg-blue-100 text-blue-700'
+                                }`}>
+                                  {isQuiz ? '📝 Тест' : '📖 Урок'}
+                                </span>
+                                <span>v{item.version}</span>
+                              </div>
+                              {isQuiz && (
+                                <p className="text-xs text-orange-600 mt-2 font-medium">
+                                  Нажмите чтобы пройти тест →
+                                </p>
+                              )}
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
