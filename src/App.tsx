@@ -13,6 +13,7 @@ import { ProductsPage } from './pages/ProductsPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { AssessmentsPage } from './pages/AssessmentsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { KnowledgeBasePage } from './pages/KnowledgeBasePage';
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -152,6 +153,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AnalyticsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* База знаний */}
+      <Route
+        path="/knowledge-base"
+        element={
+          <ProtectedRoute>
+            <KnowledgeBasePage />
           </ProtectedRoute>
         }
       />
