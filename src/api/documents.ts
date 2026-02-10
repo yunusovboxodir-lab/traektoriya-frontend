@@ -6,9 +6,9 @@ export interface DocumentResponse {
   file_type: string;
   file_size: number;
   document_type: string | null;
+  category: string | null;
   status: string;
   title: string | null;
-  category: string | null;
   chunk_count: number | null;
   word_count: number | null;
   created_at: string;
@@ -53,40 +53,49 @@ async function getTenantId(): Promise<string> {
 export { getTenantId };
 
 export const documentsApi = {
-  upload: async (file: File, documentType: string) => {
+  upload: async (file: File, documentType: string, category?: string) => {
     const tenantId = await getTenantId();
     const formData = new FormData();
     formData.append('file', file);
     formData.append('tenant_id', tenantId);
     formData.append('document_type', documentType);
+    if (category) {
+      formData.append('category', category);
+    }
     return api.post<DocumentResponse>('/api/v1/documents/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  uploadBatch: async (files: File[], documentType: string) => {
+  uploadBatch: async (files: File[], documentType: string, category?: string) => {
     const tenantId = await getTenantId();
     const formData = new FormData();
     files.forEach(f => formData.append('files', f));
     formData.append('tenant_id', tenantId);
     formData.append('document_type', documentType);
+    if (category) {
+      formData.append('category', category);
+    }
     return api.post('/api/v1/documents/upload-batch', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  uploadZip: async (file: File, documentType: string) => {
+  uploadZip: async (file: File, documentType: string, category?: string) => {
     const tenantId = await getTenantId();
     const formData = new FormData();
     formData.append('file', file);
     formData.append('tenant_id', tenantId);
     formData.append('document_type', documentType);
+    if (category) {
+      formData.append('category', category);
+    }
     return api.post('/api/v1/documents/upload-zip', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  list: async (params?: { document_type?: string; status?: string; limit?: number; offset?: number }) => {
+  list: async (params?: { document_type?: string; category?: string; status?: string; limit?: number; offset?: number }) => {
     const tenantId = await getTenantId();
     return api.get<DocumentListResponse>('/api/v1/documents', { params: { tenant_id: tenantId, ...params } });
   },
@@ -95,6 +104,11 @@ export const documentsApi = {
   getText: (documentId: string) => api.get(`/api/v1/documents/${documentId}/text`),
   getTypes: () => api.get<string[]>('/api/v1/documents/types'),
 
+  getCategories: async () => {
+    const tenantId = await getTenantId();
+    return api.get<string[]>('/api/v1/documents/categories', { params: { tenant_id: tenantId } });
+  },
+
   getStats: async () => {
     const tenantId = await getTenantId();
     return api.get<DocumentStats>('/api/v1/documents/stats', { params: { tenant_id: tenantId } });
@@ -102,6 +116,12 @@ export const documentsApi = {
 
   updateType: (documentId: string, documentType: string) =>
     api.patch(`/api/v1/documents/${documentId}/type`, null, { params: { document_type: documentType } }),
+
+  updateCategory: (documentId: string, category: string | null) =>
+    api.patch(`/api/v1/documents/${documentId}/category`, null, { params: { category: category || undefined } }),
+
+  reprocess: (documentId: string) =>
+    api.post(`/api/v1/documents/${documentId}/reprocess`),
 
   delete: (documentId: string) => api.delete(`/api/v1/documents/${documentId}`),
 };

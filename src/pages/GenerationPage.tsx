@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import {
   generationApi,
   type GenerateLessonResponse,
@@ -667,8 +667,12 @@ function WizardGeneration() {
   const loadSources = async () => {
     setIsLoadingSources(true);
     try {
-      const res = await documentsApi.list({ document_type: 'standard', limit: 50 });
-      setKbDocuments(res.data.documents || []);
+      const res = await documentsApi.list({ limit: 200 });
+      // Show all processed/completed documents as potential sources (except job descriptions)
+      const sourceDocs = (res.data.documents || []).filter(
+        (d) => d.document_type !== 'job_description'
+      );
+      setKbDocuments(sourceDocs);
     } catch {
       // ignore
     } finally {
@@ -683,6 +687,18 @@ function WizardGeneration() {
       else next.add(docId);
       return next;
     });
+  }, []);
+
+  const selectAllSources = useCallback((ids: string[]) => {
+    setSelectedSources((prev) => {
+      const next = new Set(prev);
+      ids.forEach((id) => next.add(id));
+      return next;
+    });
+  }, []);
+
+  const deselectAllSources = useCallback(() => {
+    setSelectedSources(new Set());
   }, []);
 
   // ---- Step 4: Generate lessons ----
@@ -842,6 +858,8 @@ function WizardGeneration() {
           selectedSources={selectedSources}
           isLoading={isLoadingSources}
           onToggle={toggleSource}
+          onSelectAll={selectAllSources}
+          onDeselectAll={deselectAllSources}
           onNext={() => {
             setStep(4);
             // Auto-start generation
@@ -1142,6 +1160,8 @@ function StepSources({
   selectedSources,
   isLoading,
   onToggle,
+  onSelectAll,
+  onDeselectAll,
   onNext,
   onBack,
 }: {
@@ -1149,9 +1169,40 @@ function StepSources({
   selectedSources: Set<string>;
   isLoading: boolean;
   onToggle: (id: string) => void;
+  onSelectAll: (ids: string[]) => void;
+  onDeselectAll: () => void;
   onNext: () => void;
   onBack: () => void;
 }) {
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+
+  // Get unique categories from documents
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    documents.forEach((doc) => {
+      if (doc.category) cats.add(doc.category);
+    });
+    return Array.from(cats).sort();
+  }, [documents]);
+
+  // Filter documents by category
+  const filteredDocs = useMemo(() => {
+    if (categoryFilter === 'all') return documents;
+    if (categoryFilter === 'uncategorized') return documents.filter((d) => !d.category);
+    return documents.filter((d) => d.category === categoryFilter);
+  }, [documents, categoryFilter]);
+
+  const allFilteredSelected = filteredDocs.length > 0 && filteredDocs.every((d) => selectedSources.has(d.id));
+  const someFilteredSelected = filteredDocs.some((d) => selectedSources.has(d.id));
+
+  const handleToggleAll = () => {
+    if (allFilteredSelected) {
+      onDeselectAll();
+    } else {
+      onSelectAll(filteredDocs.map((d) => d.id));
+    }
+  };
+
   return (
     <div className="max-w-3xl">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
@@ -1170,38 +1221,81 @@ function StepSources({
             <p className="text-sm">Загрузите документы типа «Стандарт» в Базу знаний</p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {documents.map((doc) => {
-              const isSelected = selectedSources.has(doc.id);
-              return (
-                <div
-                  key={doc.id}
-                  onClick={() => onToggle(doc.id)}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
-                    isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                  }`}
+          <>
+            {/* Category filter + Select All controls */}
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {categories.length > 0 && (
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => onToggle(doc.id)}
-                    className="w-4 h-4 text-blue-600 rounded flex-shrink-0"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">{doc.original_filename}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {formatFileSize(doc.file_size)}
-                      {doc.status === 'processed' || doc.status === 'completed' ? (
-                        <span className="text-green-600 ml-2">Проиндексирован</span>
-                      ) : (
-                        <span className="text-yellow-600 ml-2">{doc.status}</span>
-                      )}
-                    </p>
+                  <option value="all">Все должности</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                  <option value="uncategorized">Без классификации</option>
+                </select>
+              )}
+              <button
+                type="button"
+                onClick={handleToggleAll}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
+                {allFilteredSelected ? 'Снять все' : 'Выбрать все'}
+              </button>
+              {someFilteredSelected && !allFilteredSelected && (
+                <button
+                  type="button"
+                  onClick={onDeselectAll}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Сбросить выбор
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {filteredDocs.map((doc) => {
+                const isSelected = selectedSources.has(doc.id);
+                return (
+                  <div
+                    key={doc.id}
+                    onClick={() => onToggle(doc.id)}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
+                      isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggle(doc.id)}
+                      className="w-4 h-4 text-blue-600 rounded flex-shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-gray-900 truncate">{doc.original_filename}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {formatFileSize(doc.file_size)}
+                        {doc.category && (
+                          <span className="text-purple-600 ml-2">{doc.category}</span>
+                        )}
+                        {doc.status === 'processed' || doc.status === 'completed' ? (
+                          <span className="text-green-600 ml-2">Проиндексирован</span>
+                        ) : (
+                          <span className="text-yellow-600 ml-2">{doc.status}</span>
+                        )}
+                      </p>
+                    </div>
                   </div>
+                );
+              })}
+              {filteredDocs.length === 0 && (
+                <div className="text-center py-6 text-gray-400 text-sm">
+                  Нет документов для выбранной должности
                 </div>
-              );
-            })}
-          </div>
+              )}
+            </div>
+          </>
         )}
 
         {/* Info */}

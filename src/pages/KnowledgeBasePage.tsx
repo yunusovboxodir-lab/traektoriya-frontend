@@ -189,6 +189,8 @@ export function KnowledgeBasePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [uploadDocType, setUploadDocType] = useState('standard');
+  const [uploadCategory, setUploadCategory] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResults, setUploadResults] = useState<{ name: string; ok: boolean }[]>([]);
   const [offset, setOffset] = useState(0);
@@ -250,9 +252,19 @@ export function KnowledgeBasePage() {
     }
   }, []);
 
+  const loadCategories = useCallback(async () => {
+    try {
+      const res = await documentsApi.getCategories();
+      setCategories(res.data || []);
+    } catch (e: unknown) {
+      console.error('Categories load error:', e);
+    }
+  }, []);
+
   useEffect(() => {
     loadDocuments(0);
     loadStats();
+    loadCategories();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ----- Filter -----
@@ -322,9 +334,10 @@ export function KnowledgeBasePage() {
       try {
         const isZip = file.name.toLowerCase().endsWith('.zip');
         let docId: string | undefined;
+        const cat = uploadCategory.trim() || undefined;
 
         if (isZip) {
-          const res = await documentsApi.uploadZip(file, uploadDocType);
+          const res = await documentsApi.uploadZip(file, uploadDocType, cat);
           // uploadZip may return array or single doc
           const data = res.data;
           if (Array.isArray(data) && data.length > 0) {
@@ -333,7 +346,7 @@ export function KnowledgeBasePage() {
             docId = data.id;
           }
         } else {
-          const res = await documentsApi.upload(file, uploadDocType);
+          const res = await documentsApi.upload(file, uploadDocType, cat);
           docId = res.data?.id;
         }
 
@@ -361,7 +374,8 @@ export function KnowledgeBasePage() {
     setOffset(0);
     loadDocuments(0);
     loadStats();
-  }, [selectedFiles, isUploading, uploadDocType, loadDocuments, loadStats]);
+    loadCategories();
+  }, [selectedFiles, isUploading, uploadDocType, uploadCategory, loadDocuments, loadStats, loadCategories]);
 
   // ----- Re-index -----
   const handleReindex = useCallback(async (docId: string) => {
@@ -512,7 +526,7 @@ export function KnowledgeBasePage() {
               </h2>
 
               {/* Document type selector */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <label htmlFor="upload-doc-type" className="block text-sm font-medium text-gray-700 mb-1">
                   Тип документа
                 </label>
@@ -528,6 +542,30 @@ export function KnowledgeBasePage() {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              {/* Category / Position selector */}
+              <div className="mb-4">
+                <label htmlFor="upload-category" className="block text-sm font-medium text-gray-700 mb-1">
+                  Должность / Классификация
+                </label>
+                <input
+                  id="upload-category"
+                  type="text"
+                  list="category-suggestions"
+                  value={uploadCategory}
+                  onChange={(e) => setUploadCategory(e.target.value)}
+                  placeholder="Например: Торговый представитель"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                />
+                <datalist id="category-suggestions">
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat} />
+                  ))}
+                </datalist>
+                <p className="text-xs text-gray-400 mt-1">
+                  К какой должности относится документ (необязательно)
+                </p>
               </div>
 
               {/* Drop zone */}
@@ -650,6 +688,7 @@ export function KnowledgeBasePage() {
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Документ</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Тип</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">Должность</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Размер</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Статус</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Дата</th>
@@ -671,6 +710,15 @@ export function KnowledgeBasePage() {
                         {doc.document_type ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
                             {DOC_TYPE_LABELS[doc.document_type] || doc.document_type}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400 text-xs">--</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {doc.category ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                            {doc.category}
                           </span>
                         ) : (
                           <span className="text-gray-400 text-xs">--</span>
