@@ -589,8 +589,14 @@ function WizardGeneration() {
       }
       setStep(2);
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { detail?: string } }; message?: string };
-      setUploadError(e.response?.data?.detail || e.message || 'Ошибка загрузки');
+      const e = err as { response?: { data?: { detail?: unknown } }; message?: string };
+      const detail = e.response?.data?.detail;
+      const msg = typeof detail === 'string'
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d: { msg?: string }) => d.msg).join('; ')
+          : e.message || 'Ошибка загрузки';
+      setUploadError(msg);
     } finally {
       setIsUploading(false);
     }
@@ -619,8 +625,14 @@ function WizardGeneration() {
       resp.data.competencies.forEach((_, i) => allIdxs.add(i));
       setSelectedCompetencies(allIdxs);
     } catch (err: unknown) {
-      const e = err as { response?: { data?: { detail?: string } }; message?: string };
-      setExtractError(e.response?.data?.detail || e.message || 'Ошибка извлечения компетенций');
+      const e = err as { response?: { data?: { detail?: unknown } }; message?: string };
+      const detail = e.response?.data?.detail;
+      const msg = typeof detail === 'string'
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((d: { msg?: string }) => d.msg).join('; ')
+          : e.message || 'Ошибка извлечения компетенций';
+      setExtractError(msg);
     } finally {
       setIsExtracting(false);
     }

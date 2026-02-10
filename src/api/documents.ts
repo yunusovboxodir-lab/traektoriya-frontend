@@ -57,9 +57,10 @@ export const documentsApi = {
     const tenantId = await getTenantId();
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('tenant_id', tenantId);
+    formData.append('document_type', documentType);
     return api.post<DocumentResponse>('/api/v1/documents/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      params: { tenant_id: tenantId, document_type: documentType },
     });
   },
 
@@ -67,9 +68,10 @@ export const documentsApi = {
     const tenantId = await getTenantId();
     const formData = new FormData();
     files.forEach(f => formData.append('files', f));
+    formData.append('tenant_id', tenantId);
+    formData.append('document_type', documentType);
     return api.post('/api/v1/documents/upload-batch', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      params: { tenant_id: tenantId, document_type: documentType },
     });
   },
 
@@ -77,9 +79,10 @@ export const documentsApi = {
     const tenantId = await getTenantId();
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('tenant_id', tenantId);
+    formData.append('document_type', documentType);
     return api.post('/api/v1/documents/upload-zip', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-      params: { tenant_id: tenantId, document_type: documentType },
     });
   },
 
