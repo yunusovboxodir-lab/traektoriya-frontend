@@ -22,7 +22,7 @@ export function LoginPage() {
 
     try {
       await login(employeeId, password);
-      navigate('/learning');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Ошибка входа. Проверьте данные.');
     } finally {
