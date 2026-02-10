@@ -737,11 +737,12 @@ function WizardGeneration() {
           editContent: lessonData.content || '',
         });
       } catch (err: unknown) {
-        const e = err as { message?: string };
+        const e = err as { response?: { data?: { detail?: string } }; message?: string };
+        const errorMsg = e.response?.data?.detail || e.message || 'Не удалось сгенерировать';
         results.push({
           lesson: {
             title: `Ошибка: ${comp.name}`,
-            content: e.message || 'Не удалось сгенерировать',
+            content: typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg),
           } as GeneratedLesson,
           competencyName: comp.name,
           status: 'draft',
