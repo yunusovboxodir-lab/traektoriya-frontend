@@ -14,6 +14,8 @@ import { ProductDetailPage } from './pages/ProductDetailPage';
 import { AssessmentsPage } from './pages/AssessmentsPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 import { KnowledgeBasePage } from './pages/KnowledgeBasePage';
+import { KPIPage } from './pages/KPIPage';
+import { ChatPage } from './pages/ChatPage';
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -163,6 +165,26 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <KnowledgeBasePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* KPI и Рейтинг */}
+      <Route
+        path="/kpi"
+        element={
+          <ProtectedRoute>
+            <KPIPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* AI-Консультант */}
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
           </ProtectedRoute>
         }
       />
