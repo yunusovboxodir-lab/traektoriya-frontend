@@ -3,11 +3,32 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
 
+interface OverviewStatsRaw {
+  users?: { total?: number };
+  courses?: { total?: number };
+  tasks?: { total?: number };
+  products?: { total?: number };
+  // fallback flat shape
+  total_products?: number;
+  total_users?: number;
+  total_courses?: number;
+  total_tasks?: number;
+}
+
 interface OverviewStats {
   total_products: number;
   total_users: number;
   total_courses: number;
   total_tasks: number;
+}
+
+function normalizeOverview(raw: OverviewStatsRaw): OverviewStats {
+  return {
+    total_products: raw.products?.total ?? raw.total_products ?? 0,
+    total_users: raw.users?.total ?? raw.total_users ?? 0,
+    total_courses: raw.courses?.total ?? raw.total_courses ?? 0,
+    total_tasks: raw.tasks?.total ?? raw.total_tasks ?? 0,
+  };
 }
 
 const roleBadge: Record<string, string> = {
@@ -23,8 +44,8 @@ export function DashboardPage() {
 
   useEffect(() => {
     api
-      .get<OverviewStats>('/api/v1/analytics/overview')
-      .then((res) => setStats(res.data))
+      .get<OverviewStatsRaw>('/api/v1/analytics/overview')
+      .then((res) => setStats(normalizeOverview(res.data)))
       .catch(() => {
         /* silently ignore — dashboard shows --- while loading */
       });

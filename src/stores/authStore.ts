@@ -21,6 +21,7 @@ interface AuthState {
   login: (employee_id: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
+  fetchUser: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -78,4 +79,26 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setUser: (user) => set({ user }),
+
+  fetchUser: async () => {
+    try {
+      const response = await authApi.me();
+      set({ user: response.data });
+    } catch {
+      // Token expired or invalid — clear auth
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      set({
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAuthenticated: false,
+      });
+    }
+  },
 }));
+
+// Auto-fetch user on app load if token exists
+if (localStorage.getItem('accessToken')) {
+  useAuthStore.getState().fetchUser();
+}

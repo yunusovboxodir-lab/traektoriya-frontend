@@ -22,7 +22,7 @@ export function ProductsPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await productsApi.getProducts(0, 200);
+      const res = await productsApi.getProducts(0, 100);
       const data = res.data;
       setProducts(Array.isArray(data) ? data : data.items ?? []);
     } catch (e: unknown) {
