@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsApi, type Product } from '../api/products';
 
+type ViewMode = 'grid' | 'table';
+
 export function ProductsPage() {
   const navigate = useNavigate();
 
@@ -9,6 +11,8 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
     loadProducts();
@@ -21,7 +25,7 @@ export function ProductsPage() {
       const res = await productsApi.getProducts(0, 200);
       const data = res.data;
       setProducts(Array.isArray(data) ? data : data.items ?? []);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Products load error:', e);
       setError('Не удалось загрузить товары');
     } finally {
@@ -29,22 +33,57 @@ export function ProductsPage() {
     }
   };
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return products;
-    const q = search.toLowerCase();
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.brand && p.brand.toLowerCase().includes(q)) ||
-        (p.category && p.category.toLowerCase().includes(q)),
-    );
-  }, [products, search]);
+  // Extract unique categories from products
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    products.forEach((p) => {
+      if (p.category) cats.add(p.category);
+    });
+    return Array.from(cats).sort();
+  }, [products]);
 
-  // -- Loading --
+  // Filter products by search + category
+  const filtered = useMemo(() => {
+    let result = products;
+
+    if (selectedCategory !== 'all') {
+      result = result.filter((p) => p.category === selectedCategory);
+    }
+
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          (p.brand && p.brand.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)),
+      );
+    }
+
+    return result;
+  }, [products, search, selectedCategory]);
+
+  // -- Loading skeleton --
   if (loading) {
     return (
-      <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+      <div className="space-y-6">
+        <div className="h-8 w-56 bg-gray-200 rounded animate-pulse" />
+        <div className="h-10 w-80 bg-gray-200 rounded animate-pulse" />
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-8 w-24 bg-gray-200 rounded-full animate-pulse" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+              <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+              <div className="h-5 w-full bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-32 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 w-20 bg-gray-200 rounded animate-pulse mt-3" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -69,18 +108,55 @@ export function ProductsPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Библиотека товаров
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {products.length}{' '}
-          {pluralize(products.length, 'товар', 'товара', 'товаров')}
-        </p>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Библиотека товаров
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Показано {filtered.length} из {products.length}{' '}
+            {pluralize(products.length, 'товар', 'товара', 'товаров')}
+          </p>
+        </div>
+
+        {/* View toggle */}
+        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <button
+            type="button"
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'grid'
+                ? 'bg-white shadow-sm text-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            title="Карточки"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode('table')}
+            className={`p-2 rounded-md transition-colors ${
+              viewMode === 'table'
+                ? 'bg-white shadow-sm text-blue-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            title="Таблица"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path d="M3 6h18M3 12h18M3 18h18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Search */}
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="relative max-w-md">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -103,6 +179,37 @@ export function ProductsPage() {
         </div>
       </div>
 
+      {/* Category filter chips */}
+      {categories.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setSelectedCategory('all')}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedCategory === 'all'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            Все
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                selectedCategory === cat
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Empty state */}
       {filtered.length === 0 && (
         <div className="text-center py-16">
@@ -119,20 +226,24 @@ export function ProductsPage() {
             <path d="M12 22.08V12" />
           </svg>
           <p className="text-gray-500 text-lg font-medium">
-            {search.trim()
+            {search.trim() || selectedCategory !== 'all'
               ? 'Ничего не найдено'
               : 'Товары ещё не добавлены'}
           </p>
-          {search.trim() && (
-            <p className="text-gray-400 text-sm mt-1">
-              Попробуйте изменить запрос
-            </p>
+          {(search.trim() || selectedCategory !== 'all') && (
+            <button
+              type="button"
+              onClick={() => { setSearch(''); setSelectedCategory('all'); }}
+              className="text-blue-600 hover:text-blue-800 text-sm mt-2"
+            >
+              Сбросить фильтры
+            </button>
           )}
         </div>
       )}
 
-      {/* Product grid */}
-      {filtered.length > 0 && (
+      {/* Card Grid View */}
+      {filtered.length > 0 && viewMode === 'grid' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filtered.map((product) => (
             <button
@@ -180,13 +291,68 @@ export function ProductsPage() {
                   <span className="text-sm font-semibold text-gray-800">
                     {formatPrice(product.price_rrp)}
                   </span>
-                  <span className="text-xs text-gray-400 ml-1">
-                    РРЦ
-                  </span>
                 </div>
               )}
             </button>
           ))}
+        </div>
+      )}
+
+      {/* Table View */}
+      {filtered.length > 0 && viewMode === 'table' && (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
+                  Название
+                </th>
+                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
+                  Бренд
+                </th>
+                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
+                  Категория
+                </th>
+                <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
+                  Вес
+                </th>
+                <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
+                  Цена
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filtered.map((product) => (
+                <tr
+                  key={product.id}
+                  onClick={() => navigate(`/products/${product.id}`)}
+                  className="hover:bg-blue-50 cursor-pointer transition-colors"
+                >
+                  <td className="px-5 py-3.5">
+                    <span className="text-sm font-medium text-gray-900">
+                      {product.name}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    {product.brand && (
+                      <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                        {product.brand}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 text-sm text-gray-600">
+                    {product.category || '—'}
+                  </td>
+                  <td className="px-5 py-3.5 text-sm text-gray-600">
+                    {product.weight || '—'}
+                  </td>
+                  <td className="px-5 py-3.5 text-right text-sm font-medium text-gray-800">
+                    {product.price_rrp != null ? formatPrice(product.price_rrp) : '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
@@ -196,12 +362,7 @@ export function ProductsPage() {
 // -- helpers --
 
 function formatPrice(v: number): string {
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(v);
+  return new Intl.NumberFormat('ru-RU').format(v) + ' сум';
 }
 
 function pluralize(n: number, one: string, few: string, many: string): string {
