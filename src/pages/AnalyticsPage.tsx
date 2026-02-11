@@ -97,8 +97,7 @@ export function AnalyticsPage() {
       ) {
         setError('Не удалось загрузить аналитику');
       }
-    } catch (e: unknown) {
-      console.error('Analytics load error:', e);
+    } catch {
       setError('Не удалось загрузить аналитику');
     } finally {
       setLoading(false);

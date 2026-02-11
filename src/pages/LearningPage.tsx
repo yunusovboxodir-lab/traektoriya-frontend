@@ -26,9 +26,8 @@ export function LearningPage() {
       const response = await coursesApi.getCourses(0, 50);
       setCourses(response.data.items || []);
       setError('');
-    } catch (err: any) {
+    } catch {
       setError('Ошибка при загрузке курсов');
-      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -41,8 +40,7 @@ export function LearningPage() {
     try {
       const response = await coursesApi.getCourseContent(course.id);
       setCourseContent(response.data.items || []);
-    } catch (err) {
-      console.error('Error loading course content:', err);
+    } catch {
       setCourseContent([]);
     }
   };

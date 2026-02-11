@@ -36,8 +36,7 @@ export function ProductDetailPage() {
       const data: ProductDetail = res.data;
       setProduct(data);
       setHpv(data.hpv);
-    } catch (e: unknown) {
-      console.error('Product load error:', e);
+    } catch {
       setError('Не удалось загрузить товар');
     } finally {
       setLoading(false);
@@ -50,8 +49,8 @@ export function ProductDetailPage() {
       setHpvLoading(true);
       const res = await productsApi.getProduct(productId);
       setHpv(res.data.hpv);
-    } catch (e) {
-      console.error('HPV refresh error:', e);
+    } catch {
+      // HPV refresh failed silently — user can retry
     } finally {
       setHpvLoading(false);
     }

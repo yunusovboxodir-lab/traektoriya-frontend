@@ -63,8 +63,7 @@ export function ChatPage() {
         timestamp: data.created_at,
       };
       setMessages((prev) => [...prev, aiMsg]);
-    } catch (e: unknown) {
-      console.error('Chat error:', e);
+    } catch {
       setMessages((prev) => [
         ...prev,
         {

@@ -61,7 +61,6 @@ export function TeamPage() {
       setError('');
     } catch (err: unknown) {
       setError('Не удалось загрузить список сотрудников');
-      console.error(err);
     } finally {
       setIsLoading(false);
     }

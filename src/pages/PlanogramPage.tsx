@@ -65,6 +65,11 @@ export function PlanogramPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Файл слишком большой (макс. 20 МБ)');
+        return;
+      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
@@ -76,6 +81,11 @@ export function PlanogramPage() {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith('image/')) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError('Файл слишком большой (макс. 20 МБ)');
+        return;
+      }
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
@@ -102,8 +112,9 @@ export function PlanogramPage() {
       });
 
       setResult(response.data);
-    } catch (err: any) {
-      setError(err?.response?.data?.detail || err?.message || 'Произошла ошибка');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { detail?: string } }; message?: string };
+      setError(axiosErr?.response?.data?.detail || axiosErr?.message || 'Произошла ошибка при анализе');
     } finally {
       setIsLoading(false);
     }

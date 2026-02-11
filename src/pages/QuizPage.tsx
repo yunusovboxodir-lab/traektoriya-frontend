@@ -70,7 +70,7 @@ export function QuizPage() {
     return () => clearInterval(timer);
   }, [stage, timeLimit]);
 
-  const finishQuiz = useCallback(() => {
+  const finishQuiz = useCallback(async () => {
     // Подсчёт баллов
     let correct = 0;
     questions.forEach((q, i) => {
@@ -86,14 +86,18 @@ export function QuizPage() {
       questions.forEach((q, i) => {
         answersMap[q.id || `q${i}`] = answers[i] || '';
       });
-      quizApi.submitResult({
-        content_item_id: quizItem.id,
-        course_id: courseId,
-        answers: answersMap,
-        score: pct,
-        time_spent_seconds: Math.round((Date.now() - startTime) / 1000),
-        passed: pct >= passingScore,
-      });
+      try {
+        await quizApi.submitResult({
+          content_item_id: quizItem.id,
+          course_id: courseId,
+          answers: answersMap,
+          score: pct,
+          time_spent_seconds: Math.round((Date.now() - startTime) / 1000),
+          passed: pct >= passingScore,
+        });
+      } catch {
+        // Result will be shown to user even if submission fails
+      }
     }
   }, [answers, questions, quizItem, courseId, passingScore, startTime]);
 

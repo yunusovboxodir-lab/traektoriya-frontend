@@ -25,8 +25,7 @@ export function ProductsPage() {
       const res = await productsApi.getProducts(0, 100);
       const data = res.data;
       setProducts(Array.isArray(data) ? data : data.items ?? []);
-    } catch (e: unknown) {
-      console.error('Products load error:', e);
+    } catch {
       setError('Не удалось загрузить товары');
     } finally {
       setLoading(false);

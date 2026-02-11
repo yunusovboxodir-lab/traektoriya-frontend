@@ -42,8 +42,7 @@ export function AssessmentsPage() {
       const res = await assessmentsApi.getAssessments();
       const data = res.data;
       setAssessments(Array.isArray(data) ? data : data.items ?? []);
-    } catch (e: any) {
-      console.error('Assessments load error:', e);
+    } catch {
       setError('Не удалось загрузить аттестации');
     } finally {
       setLoading(false);

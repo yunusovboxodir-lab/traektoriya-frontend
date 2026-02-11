@@ -234,8 +234,7 @@ export function KnowledgeBasePage() {
         }
         setTotal(data.total || 0);
       } catch (e: unknown) {
-        console.error('Documents load error:', e);
-        setError('Не удалось загрузить документы');
+          setError('Не удалось загрузить документы');
       } finally {
         setIsLoading(false);
       }
@@ -247,8 +246,8 @@ export function KnowledgeBasePage() {
     try {
       const res = await documentsApi.getStats();
       setStats(res.data);
-    } catch (e: unknown) {
-      console.error('Stats load error:', e);
+    } catch {
+      // Stats are non-critical
     }
   }, []);
 
@@ -256,8 +255,8 @@ export function KnowledgeBasePage() {
     try {
       const res = await documentsApi.getCategories();
       setCategories(res.data || []);
-    } catch (e: unknown) {
-      console.error('Categories load error:', e);
+    } catch {
+      // Categories are non-critical
     }
   }, []);
 
@@ -360,8 +359,7 @@ export function KnowledgeBasePage() {
         }
 
         results.push({ name: file.name, ok: true });
-      } catch (e: unknown) {
-        console.error(`Upload failed for ${file.name}:`, e);
+      } catch {
         results.push({ name: file.name, ok: false });
       }
     }
@@ -382,8 +380,8 @@ export function KnowledgeBasePage() {
     setReindexingIds((prev) => new Set(prev).add(docId));
     try {
       await ragApi.processDocument(docId, { force_reprocess: true });
-    } catch (e: unknown) {
-      console.error('Reindex error:', e);
+    } catch {
+      // Reindex failed — will refresh anyway
     } finally {
       setReindexingIds((prev) => {
         const next = new Set(prev);
@@ -404,8 +402,8 @@ export function KnowledgeBasePage() {
         setOffset(0);
         loadDocuments(0);
         loadStats();
-      } catch (e: unknown) {
-        console.error('Delete error:', e);
+      } catch {
+        // Delete failed silently
       }
     },
     [loadDocuments, loadStats],

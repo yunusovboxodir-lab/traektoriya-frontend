@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { Layout } from './components/layout';
+import { ToastContainer } from './components/ui/ToastContainer';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
 import { LearningPage } from './pages/LearningPage';
 import { DashboardPage } from './pages/DashboardPage';
@@ -211,8 +213,11 @@ function AppRoutes() {
 // ===========================================
 export default function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppRoutes />
+        <ToastContainer />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

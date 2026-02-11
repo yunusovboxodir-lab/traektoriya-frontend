@@ -143,8 +143,7 @@ export function TasksPage() {
       ]);
       setBoard(kanbanRes.data);
       setStats(statsRes.data);
-    } catch (e: unknown) {
-      console.error('Tasks load error:', e);
+    } catch {
       setError('Не удалось загрузить задачи');
       setBoard({ todo: [], in_progress: [], review: [], done: [] });
       setStats({ total: 0, todo: 0, in_progress: 0, done: 0 });
@@ -161,8 +160,8 @@ export function TasksPage() {
     try {
       await tasksApi.update(taskId, { status: newStatus } as Partial<Task>);
       await loadData();
-    } catch (e) {
-      console.error('Status update error:', e);
+    } catch {
+      setError('Не удалось обновить статус задачи');
     }
   };
 
@@ -181,8 +180,8 @@ export function TasksPage() {
       setNewPriority('medium');
       setShowCreate(false);
       await loadData();
-    } catch (e) {
-      console.error('Create task error:', e);
+    } catch {
+      setError('Не удалось создать задачу');
     } finally {
       setCreating(false);
     }

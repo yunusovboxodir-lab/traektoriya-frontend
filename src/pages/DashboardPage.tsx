@@ -47,7 +47,8 @@ export function DashboardPage() {
       .get<OverviewStatsRaw>('/api/v1/analytics/overview')
       .then((res) => setStats(normalizeOverview(res.data)))
       .catch(() => {
-        /* silently ignore — dashboard shows --- while loading */
+        // API unavailable — show zeros instead of dashes
+        setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
       });
   }, []);
 
