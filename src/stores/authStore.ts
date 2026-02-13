@@ -1,5 +1,6 @@
 ﻿import { create } from 'zustand';
 import { authApi } from '../api/client';
+import { useScopeStore } from './scopeStore';
 
 interface User {
   id: string;
@@ -48,6 +49,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
+
+      // Load role scopes after login
+      useScopeStore.getState().fetchMyScopes();
     } catch (error: any) {
       const message = error.response?.data?.detail || 'Login failed';
       set({
@@ -75,6 +79,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
         error: null,
       });
+      useScopeStore.getState().reset();
     }
   },
 
@@ -98,7 +103,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-// Auto-fetch user on app load if token exists
+// Auto-fetch user and scopes on app load if token exists
 if (localStorage.getItem('accessToken')) {
   useAuthStore.getState().fetchUser();
+  useScopeStore.getState().fetchMyScopes();
 }

@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { useScopeStore } from '../../stores/scopeStore';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -10,6 +11,7 @@ interface NavItem {
   label: string;
   path: string;
   icon: React.ReactNode;
+  pageKey: string;
 }
 
 interface SidebarProps {
@@ -217,24 +219,47 @@ function IconChevronRight() {
   );
 }
 
+function IconShield() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      className="w-5 h-5 flex-shrink-0">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
+// Role hierarchy for admin checks
+const ROLE_HIERARCHY: Record<string, number> = {
+  superadmin: 5,
+  commercial_dir: 4,
+  admin: 3,
+  supervisor: 2,
+  sales_rep: 1,
+};
+
 // ---------------------------------------------------------------------------
 // Navigation items
 // ---------------------------------------------------------------------------
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Главная', path: '/dashboard', icon: <IconHome /> },
-  { label: 'Обучение', path: '/learning', icon: <IconBook /> },
-  { label: 'Товары', path: '/products', icon: <IconBox /> },
-  { label: 'Задачи', path: '/tasks', icon: <IconClipboard /> },
-  { label: 'Команда', path: '/team', icon: <IconUsers /> },
-  { label: 'Оценка', path: '/assessments', icon: <IconCheckSquare /> },
-  { label: 'AI Генерация', path: '/generation', icon: <IconAI /> },
-  { label: 'База знаний', path: '/knowledge-base', icon: <IconDatabase /> },
-  { label: 'KPI', path: '/kpi', icon: <IconTarget /> },
-  { label: 'AI Чат', path: '/chat', icon: <IconMessageCircle /> },
-  { label: 'Планограмма', path: '/planogram', icon: <IconCamera /> },
-  { label: 'Аналитика', path: '/analytics', icon: <IconChart /> },
+  { label: 'Главная', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
+  { label: 'Обучение', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
+  { label: 'Товары', path: '/products', icon: <IconBox />, pageKey: 'products' },
+  { label: 'Задачи', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },
+  { label: 'Команда', path: '/team', icon: <IconUsers />, pageKey: 'team' },
+  { label: 'Оценка', path: '/assessments', icon: <IconCheckSquare />, pageKey: 'assessments' },
+  { label: 'AI Генерация', path: '/generation', icon: <IconAI />, pageKey: 'generation' },
+  { label: 'База знаний', path: '/knowledge-base', icon: <IconDatabase />, pageKey: 'knowledge-base' },
+  { label: 'KPI', path: '/kpi', icon: <IconTarget />, pageKey: 'kpi' },
+  { label: 'AI Чат', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
+  { label: 'Планограмма', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
+  { label: 'Аналитика', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },
 ];
+
+const ADMIN_NAV_ITEM: NavItem = {
+  label: 'Управление ролями', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles',
+};
 
 // ---------------------------------------------------------------------------
 // Sidebar Component
@@ -251,6 +276,16 @@ export function Sidebar({
 
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const isPageAllowed = useScopeStore((s) => s.isPageAllowed);
+
+  const userRole = user?.role || 'sales_rep';
+  const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
+
+  // Filter nav items by role scopes + add admin item
+  const visibleItems = NAV_ITEMS.filter((item) =>
+    item.pageKey === 'dashboard' || isPageAllowed(item.pageKey)
+  );
+  const allNavItems = isAdmin ? [...visibleItems, ADMIN_NAV_ITEM] : visibleItems;
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -325,7 +360,7 @@ export function Sidebar({
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
-        {NAV_ITEMS.map((item) => {
+        {allNavItems.map((item) => {
           const active = isActive(item.path);
           return (
             <button

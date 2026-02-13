@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { useScopeStore } from './stores/scopeStore';
 import { Layout } from './components/layout';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
@@ -21,16 +22,23 @@ const KnowledgeBasePage = lazy(() => import('./pages/KnowledgeBasePage').then(m 
 const KPIPage = lazy(() => import('./pages/KPIPage').then(m => ({ default: m.KPIPage })));
 const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
 const QuizPage = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
+const RolesPage = lazy(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
 // Если не авторизован → редирект на /login
 // ===========================================
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; pageKey?: string }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isPageAllowed = useScopeStore((state) => state.isPageAllowed);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // If pageKey specified and user doesn't have access — redirect to dashboard
+  if (pageKey && !isPageAllowed(pageKey)) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Layout>{children}</Layout>;
@@ -89,7 +97,7 @@ function AppRoutes() {
       <Route
         path="/learning"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="learning">
             <LearningPage />
           </ProtectedRoute>
         }
@@ -99,7 +107,7 @@ function AppRoutes() {
       <Route
         path="/products"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="products">
             <ProductsPage />
           </ProtectedRoute>
         }
@@ -107,7 +115,7 @@ function AppRoutes() {
       <Route
         path="/products/:productId"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="products">
             <ProductDetailPage />
           </ProtectedRoute>
         }
@@ -117,7 +125,7 @@ function AppRoutes() {
       <Route
         path="/tasks"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="tasks">
             <TasksPage />
           </ProtectedRoute>
         }
@@ -127,7 +135,7 @@ function AppRoutes() {
       <Route
         path="/team"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="team">
             <TeamPage />
           </ProtectedRoute>
         }
@@ -137,7 +145,7 @@ function AppRoutes() {
       <Route
         path="/assessments"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="assessments">
             <AssessmentsPage />
           </ProtectedRoute>
         }
@@ -147,7 +155,7 @@ function AppRoutes() {
       <Route
         path="/generation"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="generation">
             <GenerationPage />
           </ProtectedRoute>
         }
@@ -157,7 +165,7 @@ function AppRoutes() {
       <Route
         path="/planogram"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="planogram">
             <PlanogramPage />
           </ProtectedRoute>
         }
@@ -167,7 +175,7 @@ function AppRoutes() {
       <Route
         path="/analytics"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="analytics">
             <AnalyticsPage />
           </ProtectedRoute>
         }
@@ -177,7 +185,7 @@ function AppRoutes() {
       <Route
         path="/knowledge-base"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="knowledge-base">
             <KnowledgeBasePage />
           </ProtectedRoute>
         }
@@ -187,7 +195,7 @@ function AppRoutes() {
       <Route
         path="/kpi"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="kpi">
             <KPIPage />
           </ProtectedRoute>
         }
@@ -197,8 +205,18 @@ function AppRoutes() {
       <Route
         path="/chat"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="chat">
             <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Управление ролями (admin+) */}
+      <Route
+        path="/admin/roles"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <RolesPage />
           </ProtectedRoute>
         }
       />
