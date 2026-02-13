@@ -247,28 +247,19 @@ export function TeamPage() {
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div className="px-4 pb-4 border-t border-gray-100">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                        <div className="text-center p-3 bg-blue-50 rounded-xl">
-                          <div className="text-sm font-bold text-blue-700">&mdash;</div>
-                          <div className="text-xs text-blue-500">Курсов</div>
-                        </div>
-                        <div className="text-center p-3 bg-emerald-50 rounded-xl">
-                          <div className="text-sm font-bold text-emerald-700">&mdash;</div>
-                          <div className="text-xs text-emerald-500">Тестов</div>
-                        </div>
-                        <div className="text-center p-3 bg-amber-50 rounded-xl">
-                          <div className="text-sm font-bold text-amber-700">&mdash;</div>
-                          <div className="text-xs text-amber-500">Средний балл</div>
-                        </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
                         <div className="text-center p-3 bg-gray-50 rounded-xl">
                           <div className="text-sm font-bold text-gray-700 truncate">{m.email || '\u2014'}</div>
                           <div className="text-xs text-gray-500">Email</div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-center gap-4 text-xs text-gray-400 mt-3">
-                        <span>Регистрация: {new Date(m.created_at).toLocaleDateString('ru-RU')}</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                        <span>Последний вход: {relativeTime(m.last_login)}</span>
+                        <div className="text-center p-3 bg-blue-50 rounded-xl">
+                          <div className="text-sm font-bold text-blue-700">{new Date(m.created_at).toLocaleDateString('ru-RU')}</div>
+                          <div className="text-xs text-blue-500">Регистрация</div>
+                        </div>
+                        <div className="text-center p-3 bg-emerald-50 rounded-xl">
+                          <div className="text-sm font-bold text-emerald-700">{relativeTime(m.last_login)}</div>
+                          <div className="text-xs text-emerald-500">Последний вход</div>
+                        </div>
                       </div>
                     </div>
                   )}

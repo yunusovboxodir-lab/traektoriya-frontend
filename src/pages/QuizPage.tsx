@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { quizApi } from '../api/quiz';
+import { learningApi } from '../api/learning';
+import { toast } from '../stores/toastStore';
 
 // ===========================================
 // ИНТЕРФЕЙСЫ
@@ -80,23 +81,18 @@ export function QuizPage() {
     setScore(pct);
     setStage('results');
 
-    // Отправить результат
-    if (quizItem?.id && courseId) {
-      const answersMap: Record<string, string> = {};
-      questions.forEach((q, i) => {
-        answersMap[q.id || `q${i}`] = answers[i] || '';
-      });
+    // Отправить результат через Learning API
+    if (courseId) {
       try {
-        await quizApi.submitResult({
-          content_item_id: quizItem.id,
-          course_id: courseId,
-          answers: answersMap,
-          score: pct,
+        const resp = await learningApi.completeCourse(courseId, {
+          quiz_score: pct,
           time_spent_seconds: Math.round((Date.now() - startTime) / 1000),
-          passed: pct >= passingScore,
         });
+        if (resp.data.level_up) {
+          toast.success(`Уровень повышен: ${resp.data.level_up.from} → ${resp.data.level_up.to}`);
+        }
       } catch {
-        // Result will be shown to user even if submission fails
+        toast.error('Не удалось сохранить результат теста на сервере');
       }
     }
   }, [answers, questions, quizItem, courseId, passingScore, startTime]);

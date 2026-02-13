@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
+import { toast } from '../stores/toastStore';
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -47,8 +48,8 @@ export function DashboardPage() {
       .get<OverviewStatsRaw>('/api/v1/analytics/overview')
       .then((res) => setStats(normalizeOverview(res.data)))
       .catch(() => {
-        // API unavailable — show zeros instead of dashes
         setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
+        toast.error('Не удалось загрузить статистику');
       });
   }, []);
 
