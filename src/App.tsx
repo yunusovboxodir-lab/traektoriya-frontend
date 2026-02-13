@@ -31,14 +31,15 @@ const RolesPage = lazy(() => import('./pages/RolesPage').then(m => ({ default: m
 function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; pageKey?: string }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isPageAllowed = useScopeStore((state) => state.isPageAllowed);
+  const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  // If pageKey specified and user doesn't have access — redirect to dashboard
+  // If pageKey specified and user doesn't have access — redirect to first allowed page
   if (pageKey && !isPageAllowed(pageKey)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getFirstAllowedPath()} replace />;
   }
 
   return <Layout>{children}</Layout>;
@@ -46,16 +47,30 @@ function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; page
 
 // ===========================================
 // ПУБЛИЧНЫЙ РОУТ
-// Если уже авторизован → редирект на /dashboard
+// Если уже авторизован → редирект на первую разрешённую страницу
 // ===========================================
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getFirstAllowedPath()} replace />;
   }
 
   return <>{children}</>;
+}
+
+// ===========================================
+// УМНЫЙ РЕДИРЕКТ — на первую разрешённую страницу
+// ===========================================
+function SmartRedirect() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <Navigate to={getFirstAllowedPath()} replace />;
 }
 
 // ===========================================
@@ -83,11 +98,11 @@ function AppRoutes() {
         }
       />
 
-      {/* Дашборд — главная страница */}
+      {/* Дашборд — только admin/superadmin */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute pageKey="dashboard">
             <DashboardPage />
           </ProtectedRoute>
         }
@@ -231,9 +246,9 @@ function AppRoutes() {
         }
       />
 
-      {/* Редирект по умолчанию → Дашборд */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Редирект по умолчанию → первая разрешённая страница */}
+      <Route path="/" element={<SmartRedirect />} />
+      <Route path="*" element={<SmartRedirect />} />
     </Routes>
     </Suspense>
   );

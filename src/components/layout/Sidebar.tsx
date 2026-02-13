@@ -282,9 +282,7 @@ export function Sidebar({
   const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
 
   // Filter nav items by role scopes + add admin item
-  const visibleItems = NAV_ITEMS.filter((item) =>
-    item.pageKey === 'dashboard' || isPageAllowed(item.pageKey)
-  );
+  const visibleItems = NAV_ITEMS.filter((item) => isPageAllowed(item.pageKey));
   const allNavItems = isAdmin ? [...visibleItems, ADMIN_NAV_ITEM] : visibleItems;
 
   const handleLogout = useCallback(async () => {
