@@ -1,23 +1,26 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { Layout } from './components/layout';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
-import { LoginPage } from './pages/LoginPage';
-import { LearningPage } from './pages/LearningPage';
-import { DashboardPage } from './pages/DashboardPage';
-import { PlanogramPage } from './pages/PlanogramPage';
-import { TeamPage } from './pages/TeamPage';
-import { GenerationPage } from './pages/GenerationPage';
-import { QuizPage } from './pages/QuizPage';
-import { TasksPage } from './pages/TasksPage';
-import { ProductsPage } from './pages/ProductsPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { AssessmentsPage } from './pages/AssessmentsPage';
-import { AnalyticsPage } from './pages/AnalyticsPage';
-import { KnowledgeBasePage } from './pages/KnowledgeBasePage';
-import { KPIPage } from './pages/KPIPage';
-import { ChatPage } from './pages/ChatPage';
+
+// Lazy-loaded pages for code splitting
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const LearningPage = lazy(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
+const ProductsPage = lazy(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const TasksPage = lazy(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
+const TeamPage = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })));
+const AssessmentsPage = lazy(() => import('./pages/AssessmentsPage').then(m => ({ default: m.AssessmentsPage })));
+const GenerationPage = lazy(() => import('./pages/GenerationPage').then(m => ({ default: m.GenerationPage })));
+const PlanogramPage = lazy(() => import('./pages/PlanogramPage').then(m => ({ default: m.PlanogramPage })));
+const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const KnowledgeBasePage = lazy(() => import('./pages/KnowledgeBasePage').then(m => ({ default: m.KnowledgeBasePage })));
+const KPIPage = lazy(() => import('./pages/KPIPage').then(m => ({ default: m.KPIPage })));
+const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const QuizPage = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -50,8 +53,17 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 // ===========================================
 // РОУТЫ ПРИЛОЖЕНИЯ
 // ===========================================
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+    </div>
+  );
+}
+
 function AppRoutes() {
   return (
+    <Suspense fallback={<PageLoader />}>
     <Routes>
       {/* Страница входа (публичная) */}
       <Route
@@ -205,6 +217,7 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
+    </Suspense>
   );
 }
 
