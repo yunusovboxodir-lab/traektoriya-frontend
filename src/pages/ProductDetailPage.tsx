@@ -104,36 +104,59 @@ export function ProductDetailPage() {
         Назад к товарам
       </button>
 
-      {/* Header */}
+      {/* Header with product image */}
       <div className="mb-6">
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          {product.brand && (
-            <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded">{product.brand}</span>
-          )}
-          {product.category && (
-            <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded">{product.category}</span>
-          )}
-          {product.subcategory && (
-            <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded">{product.subcategory}</span>
-          )}
-          {product.flavor && (
-            <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2.5 py-1 rounded">{product.flavor}</span>
-          )}
-          {product.is_active ? (
-            <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded">Активен</span>
+        <div className="flex gap-5">
+          {/* Product image */}
+          {product.images && product.images.length > 0 ? (
+            <div className="flex-shrink-0 w-36 h-36 rounded-xl border border-gray-200 bg-white overflow-hidden flex items-center justify-center p-2">
+              <img
+                src={product.images[0].url}
+                alt={product.name}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
           ) : (
-            <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded">Неактивен</span>
+            <div className="flex-shrink-0 w-36 h-36 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+              <span className="text-4xl opacity-30">📦</span>
+            </div>
           )}
+
+          {/* Text info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {product.brand && (
+                <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2.5 py-1 rounded">{product.brand}</span>
+              )}
+              {product.category && (
+                <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded">{product.category}</span>
+              )}
+              {product.subcategory && (
+                <span className="text-xs font-medium text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded">{product.subcategory}</span>
+              )}
+              {product.flavor && (
+                <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2.5 py-1 rounded">{product.flavor}</span>
+              )}
+              {product.is_active ? (
+                <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded">Активен</span>
+              ) : (
+                <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded">Неактивен</span>
+              )}
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-1">{product.name}</h1>
+            {product.short_description && (
+              <p className="text-sm text-gray-500 mb-2">{product.short_description}</p>
+            )}
+            {product.price_rrp != null && (
+              <p className="text-xl font-bold text-blue-600">
+                {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум
+              </p>
+            )}
+          </div>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">{product.name}</h1>
-        {product.short_description && (
-          <p className="text-sm text-gray-500 mb-2">{product.short_description}</p>
-        )}
-        {product.price_rrp != null && (
-          <p className="text-xl font-bold text-blue-600">
-            {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум
-          </p>
-        )}
       </div>
 
       {/* Tabs */}
