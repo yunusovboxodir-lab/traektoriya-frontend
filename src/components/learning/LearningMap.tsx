@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import {
   LEVEL_NAMES,
   LEVEL_COLORS,
@@ -32,6 +32,11 @@ interface ZoneConfig {
   glowColor: string;
   cx: number; cy: number; // center for label & buildings
   buildingSlots: Array<{ dx: number; dy: number }>;
+  // House colors per zone
+  wallColor: string;       // front wall
+  wallSideColor: string;   // side wall (slightly darker)
+  roofHouseColor: string;  // roof tile color
+  doorColor: string;       // door
 }
 
 // Map dimensions
@@ -52,6 +57,10 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
     cx: 155, cy: 350,
+    wallColor: '#a8d5a2',
+    wallSideColor: '#8bc185',
+    roofHouseColor: '#2e7d32',
+    doorColor: '#5d4037',
     buildingSlots: [
       { dx: -80, dy: -220 },
       { dx: 50, dy: -170 },
@@ -70,6 +79,10 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
     cx: 620, cy: 505,
+    wallColor: '#a0c4e8',
+    wallSideColor: '#85b0d8',
+    roofHouseColor: '#1565c0',
+    doorColor: '#4e342e',
     buildingSlots: [
       { dx: -230, dy: -120 },
       { dx: -80, dy: -130 },
@@ -88,6 +101,10 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
     cx: 620, cy: 155,
+    wallColor: '#f5d6a8',
+    wallSideColor: '#e8c088',
+    roofHouseColor: '#e65100',
+    doorColor: '#5d4037',
     buildingSlots: [
       { dx: -230, dy: -80 },
       { dx: -80, dy: -90 },
@@ -106,6 +123,10 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
     cx: 1065, cy: 350,
+    wallColor: '#e8a8a0',
+    wallSideColor: '#d89088',
+    roofHouseColor: '#b71c1c',
+    doorColor: '#4e342e',
     buildingSlots: [
       { dx: -60, dy: -220 },
       { dx: 50, dy: -150 },
@@ -360,6 +381,23 @@ export function LearningMap({ data, onOpenSection }: Props) {
   const [tooltip, setTooltip] = useState<{
     x: number; y: number; building: ZoneBuilding; zoneColor: string;
   } | null>(null);
+  const [mapScale, setMapScale] = useState(1);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+
+  // Responsive: compute scale based on actual container width vs design width
+  const updateScale = useCallback(() => {
+    if (mapContainerRef.current) {
+      const containerW = mapContainerRef.current.clientWidth;
+      const scale = Math.min(containerW / W, 1); // never upscale past 1
+      setMapScale(scale);
+    }
+  }, []);
+
+  useEffect(() => {
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, [updateScale]);
 
   const zoneData = useMemo(() => buildZoneData(sections), [sections]);
   const currentLevelIdx = ZONES.findIndex((z) => z.level === user.current_level);
@@ -414,7 +452,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
       </div>
 
       {/* ===== Map container ===== */}
-      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
+      <div ref={mapContainerRef} className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
         {/* ===== LAYER 1: SVG — territories + background ===== */}
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -545,8 +583,8 @@ export function LearningMap({ data, onOpenSection }: Props) {
           })}
         </svg>
 
-        {/* ===== LAYER 2: 3D Buildings (HTML overlay) ===== */}
-        <div className="learning-map-3d-layer">
+        {/* ===== LAYER 2: 3D House Buildings (HTML overlay) ===== */}
+        <div className="learning-map-3d-layer" style={{ '--map-scale': mapScale } as React.CSSProperties}>
           <div style={{ perspective: '800px', width: '100%', height: '100%', position: 'relative' }}>
             {ZONES.map((zone) => {
               const buildings = zoneData.get(zone.level) || [];
@@ -556,38 +594,54 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 const by = zone.cy + slot.dy;
                 const bKey = `${bld.section.section_id}-${zone.level}`;
 
-                const bHeight = 30 + Math.min(bld.coursesInLevel, 5) * 6;
-                const bWidth = 26 + Math.min(bld.coursesInLevel, 5) * 3;
-                const bDepth = Math.max(18, Math.round(bWidth * 0.55));
+                const bHeight = 28 + Math.min(bld.coursesInLevel, 5) * 5;
+                const bWidth = 24 + Math.min(bld.coursesInLevel, 5) * 3;
+                const bDepth = Math.max(16, Math.round(bWidth * 0.55));
+                const doorHeight = Math.max(8, Math.round(bHeight * 0.25));
 
-                let bodyColor = '#1e2d40';
-                let roofColor = '#283848';
-                let windowColor = '#111820';
-                let windowOpacity = 0.25;
-                let strokeColor = 'rgba(255,255,255,0.1)';
+                // Default: zone-colored house
+                let wallColor = zone.wallColor;
+                let wallSideColor = zone.wallSideColor;
+                let roofColor = zone.roofHouseColor;
+                let doorColor = zone.doorColor;
+                let windowColor = '#ffeaa7'; // warm yellow lit windows
+                let windowOpacity = 0.85;
+                let strokeColor = 'rgba(0,0,0,0.12)';
                 let glowColor = 'transparent';
 
                 if (bld.isCompleted) {
-                  bodyColor = '#1a4a25';
-                  roofColor = '#2a6a35';
-                  windowColor = '#4CAF50';
-                  windowOpacity = 0.85;
+                  // Completed: bright green house
+                  wallColor = '#c8e6c9';
+                  wallSideColor = '#a5d6a7';
+                  roofColor = '#2e7d32';
+                  windowColor = '#81c784';
+                  windowOpacity = 0.95;
                   strokeColor = '#4CAF50';
-                  glowColor = 'rgba(76,175,80,0.45)';
+                  glowColor = 'rgba(76,175,80,0.5)';
                 } else if (bld.isAiRecommended) {
-                  bodyColor = '#4a3010';
-                  roofColor = '#5a4020';
-                  windowColor = '#FF9800';
+                  // AI recommended: warm orange house
+                  wallColor = '#ffe0b2';
+                  wallSideColor = '#ffcc80';
+                  roofColor = '#e65100';
+                  windowColor = '#ffb74d';
                   windowOpacity = 0.95;
                   strokeColor = '#FF9800';
-                  glowColor = 'rgba(255,152,0,0.45)';
+                  glowColor = 'rgba(255,152,0,0.5)';
                 } else if (bld.hasProgress) {
-                  bodyColor = '#1a2d45';
-                  roofColor = '#2a4060';
-                  windowColor = zone.color;
-                  windowOpacity = 0.6;
+                  // In progress: slightly brighter than default
+                  windowColor = '#fff9c4';
+                  windowOpacity = 0.9;
                   strokeColor = zone.color;
-                  glowColor = `${zone.glowColor}`;
+                  glowColor = zone.glowColor;
+                } else {
+                  // Not started: darker, dimmer
+                  wallColor = '#9e9e9e';
+                  wallSideColor = '#878787';
+                  roofColor = '#616161';
+                  doorColor = '#5d4037';
+                  windowColor = '#b0bec5';
+                  windowOpacity = 0.35;
+                  strokeColor = 'rgba(0,0,0,0.1)';
                 }
 
                 if (hoveredBuilding === bKey) {
@@ -600,7 +654,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                   ? 'building-wrapper--ai'
                   : '';
 
-                const winRows = Math.min(Math.ceil(bHeight / 14), 4);
+                const winRows = Math.min(Math.ceil(bHeight / 16), 3);
                 const winCols = 2;
 
                 const leftPct = (bx / W) * 100;
@@ -629,8 +683,11 @@ export function LearningMap({ data, onOpenSection }: Props) {
                         '--b-width': `${bWidth}px`,
                         '--b-height': `${bHeight}px`,
                         '--b-depth': `${bDepth}px`,
-                        '--body-color': bodyColor,
+                        '--door-height': `${doorHeight}px`,
+                        '--wall-color': wallColor,
+                        '--wall-side-color': wallSideColor,
                         '--roof-color': roofColor,
+                        '--door-color': doorColor,
                         '--stroke-color': strokeColor,
                         '--window-color': windowColor,
                         '--window-opacity': windowOpacity,
@@ -645,6 +702,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                             <div key={w} className="building-window" />
                           ))}
                         </div>
+                        <div className="building-door" />
                       </div>
                       <div className="face-side" />
                       <div className="face-top" />
@@ -666,7 +724,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                     )}
 
                     {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
-                      <div className="building-icon" style={{ opacity: 0.65 }}>
+                      <div className="building-icon" style={{ opacity: 0.7 }}>
                         {bld.section.icon}
                       </div>
                     )}
