@@ -11,6 +11,7 @@ import {
   type CourseCompleteResponse,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
+import { LearningMap } from '../components/learning/LearningMap';
 
 // ===========================================
 // LEARNING MAP — три режима отображения:
@@ -174,7 +175,7 @@ export function LearningPage() {
 
   // ======== VIEW: MAP ========
   if (view === 'map' && mapData) {
-    return <MapView data={mapData} onOpenSection={openSection} />;
+    return <LearningMap data={mapData} onOpenSection={openSection} />;
   }
 
   // ======== VIEW: SECTION ========
