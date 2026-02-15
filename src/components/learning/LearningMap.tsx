@@ -9,10 +9,10 @@ import {
 /**
  * Interactive Learning Map — 3D isometric city
  *
- * The entire map is divided into 4 territory zones (no empty space).
- * Organic wavy borders separate the zones like a political map.
+ * Desktop: 4 zones side-by-side (1200×700)
+ * Mobile:  4 zones stacked vertically (400×1200) — fills phone screen
+ * Organic wavy borders separate the zones.
  * SVG background + HTML overlay for 3D CSS buildings.
- * Responsive: works on desktop and mobile.
  */
 
 interface Props {
@@ -21,33 +21,35 @@ interface Props {
 }
 
 // ============================================================
-// ZONE CONFIG — 4 zones filling the entire 1200×700 map
+// ZONE CONFIG
 // ============================================================
 
 interface ZoneConfig {
   level: string;
   label: string;
   color: string;
-  colorDark: string;     // darker shade for fill
+  colorDark: string;
   glowColor: string;
-  cx: number; cy: number; // center for label & buildings
+  // Desktop positions (1200×700 viewport)
+  cx: number; cy: number;
   buildingSlots: Array<{ dx: number; dy: number }>;
-  // House colors per zone
-  wallColor: string;       // front wall
-  wallSideColor: string;   // side wall (slightly darker)
-  roofHouseColor: string;  // roof tile color
-  doorColor: string;       // door
+  // Mobile positions (400×1200 viewport) — zones stacked vertically
+  mcx: number; mcy: number;
+  mobileBuildingSlots: Array<{ dx: number; dy: number }>;
+  // House colors
+  wallColor: string;
+  wallSideColor: string;
+  roofHouseColor: string;
+  doorColor: string;
 }
 
-// Map dimensions
-const W = 1200;
-const H = 700;
+// Desktop dimensions
+const DW = 1200;
+const DH = 700;
 
-// Territory boundaries (approx):
-//   Trainee:      x=0..310,   y=0..700    → center (155, 350)
-//   Expert:       x=310..930, y=0..310     → center (620, 155)
-//   Practitioner: x=310..930, y=310..700   → center (620, 505)
-//   Master:       x=930..1200, y=0..700    → center (1065, 350)
+// Mobile dimensions
+const MW = 400;
+const MH = 1200;
 
 const ZONES: ZoneConfig[] = [
   {
@@ -56,11 +58,8 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
+    // Desktop: left column
     cx: 155, cy: 350,
-    wallColor: '#a8d5a2',
-    wallSideColor: '#8bc185',
-    roofHouseColor: '#2e7d32',
-    doorColor: '#5d4037',
     buildingSlots: [
       { dx: -80, dy: -220 },
       { dx: 50, dy: -170 },
@@ -71,6 +70,22 @@ const ZONES: ZoneConfig[] = [
       { dx: -50, dy: 140 },
       { dx: 60, dy: 200 },
     ],
+    // Mobile: top zone (y=0..300)
+    mcx: 200, mcy: 150,
+    mobileBuildingSlots: [
+      { dx: -130, dy: -90 },
+      { dx: 0, dy: -100 },
+      { dx: 130, dy: -85 },
+      { dx: -100, dy: 0 },
+      { dx: 50, dy: -10 },
+      { dx: 140, dy: 15 },
+      { dx: -60, dy: 80 },
+      { dx: 80, dy: 90 },
+    ],
+    wallColor: '#a8d5a2',
+    wallSideColor: '#8bc185',
+    roofHouseColor: '#2e7d32',
+    doorColor: '#5d4037',
   },
   {
     level: 'practitioner',
@@ -78,11 +93,8 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
+    // Desktop: bottom-middle
     cx: 620, cy: 505,
-    wallColor: '#a0c4e8',
-    wallSideColor: '#85b0d8',
-    roofHouseColor: '#1565c0',
-    doorColor: '#4e342e',
     buildingSlots: [
       { dx: -230, dy: -120 },
       { dx: -80, dy: -130 },
@@ -93,6 +105,22 @@ const ZONES: ZoneConfig[] = [
       { dx: 120, dy: -10 },
       { dx: 240, dy: 20 },
     ],
+    // Mobile: second zone (y=300..600)
+    mcx: 200, mcy: 450,
+    mobileBuildingSlots: [
+      { dx: -130, dy: -90 },
+      { dx: 0, dy: -100 },
+      { dx: 130, dy: -85 },
+      { dx: -100, dy: 0 },
+      { dx: 50, dy: -10 },
+      { dx: 140, dy: 15 },
+      { dx: -60, dy: 80 },
+      { dx: 80, dy: 90 },
+    ],
+    wallColor: '#a0c4e8',
+    wallSideColor: '#85b0d8',
+    roofHouseColor: '#1565c0',
+    doorColor: '#4e342e',
   },
   {
     level: 'expert',
@@ -100,11 +128,8 @@ const ZONES: ZoneConfig[] = [
     color: '#FF9800',
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
+    // Desktop: top-middle
     cx: 620, cy: 155,
-    wallColor: '#f5d6a8',
-    wallSideColor: '#e8c088',
-    roofHouseColor: '#e65100',
-    doorColor: '#5d4037',
     buildingSlots: [
       { dx: -230, dy: -80 },
       { dx: -80, dy: -90 },
@@ -115,6 +140,22 @@ const ZONES: ZoneConfig[] = [
       { dx: 120, dy: 30 },
       { dx: 240, dy: 45 },
     ],
+    // Mobile: third zone (y=600..900)
+    mcx: 200, mcy: 750,
+    mobileBuildingSlots: [
+      { dx: -130, dy: -90 },
+      { dx: 0, dy: -100 },
+      { dx: 130, dy: -85 },
+      { dx: -100, dy: 0 },
+      { dx: 50, dy: -10 },
+      { dx: 140, dy: 15 },
+      { dx: -60, dy: 80 },
+      { dx: 80, dy: 90 },
+    ],
+    wallColor: '#f5d6a8',
+    wallSideColor: '#e8c088',
+    roofHouseColor: '#e65100',
+    doorColor: '#5d4037',
   },
   {
     level: 'master',
@@ -122,11 +163,8 @@ const ZONES: ZoneConfig[] = [
     color: '#F44336',
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
+    // Desktop: right column
     cx: 1065, cy: 350,
-    wallColor: '#e8a8a0',
-    wallSideColor: '#d89088',
-    roofHouseColor: '#b71c1c',
-    doorColor: '#4e342e',
     buildingSlots: [
       { dx: -60, dy: -220 },
       { dx: 50, dy: -150 },
@@ -135,6 +173,20 @@ const ZONES: ZoneConfig[] = [
       { dx: -50, dy: 80 },
       { dx: 55, dy: 160 },
     ],
+    // Mobile: bottom zone (y=900..1200)
+    mcx: 200, mcy: 1050,
+    mobileBuildingSlots: [
+      { dx: -130, dy: -90 },
+      { dx: 0, dy: -100 },
+      { dx: 130, dy: -85 },
+      { dx: -100, dy: 0 },
+      { dx: 50, dy: -10 },
+      { dx: 140, dy: 15 },
+    ],
+    wallColor: '#e8a8a0',
+    wallSideColor: '#d89088',
+    roofHouseColor: '#b71c1c',
+    doorColor: '#4e342e',
   },
 ];
 
@@ -146,49 +198,29 @@ const LEVEL_ORDER: Record<string, number> = {
 };
 
 // ============================================================
-// Territory borders — wavy lines dividing the entire map into 4
+// Territory borders — desktop layout
 // ============================================================
 
-/**
- * 3 organic border lines that divide the map into 4 territories:
- *   border1: vertical wavy line between trainee | practitioner+expert+master (x ≈ 300)
- *   border2: vertical wavy line between practitioner+expert | master (x ≈ 920)
- *   border3: horizontal wavy line between practitioner | expert (y ≈ 350, in middle column)
- *
- * Layout (roughly):
- *   ┌─────────┬────────────────┬─────────┐
- *   │         │    Эксперт     │         │
- *   │ Стажёр  ├────────────────┤ Мастер  │
- *   │         │    Практик     │         │
- *   └─────────┴────────────────┴─────────┘
- */
-
-// Wavy vertical border: top→bottom with jitter
-function wavyVerticalBorder(x: number, seed: number): string {
+function wavyVerticalBorder(x: number, seed: number, h: number): string {
   const pts: Array<{ x: number; y: number }> = [];
   let s = seed;
   const steps = 8;
   for (let i = 0; i <= steps; i++) {
-    const y = (i / steps) * H;
+    const y = (i / steps) * h;
     s = (s * 16807 + 7) % 2147483647;
     const jitter = ((s / 2147483647) - 0.5) * 50;
     pts.push({ x: x + jitter, y });
   }
-  // smooth path
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i++) {
-    const curr = pts[i];
-    const next = pts[i + 1];
-    const cpx1 = curr.x;
-    const cpy1 = curr.y + (next.y - curr.y) * 0.5;
-    const cpx2 = next.x;
-    const cpy2 = curr.y + (next.y - curr.y) * 0.5;
+    const curr = pts[i]; const next = pts[i + 1];
+    const cpx1 = curr.x; const cpy1 = curr.y + (next.y - curr.y) * 0.5;
+    const cpx2 = next.x; const cpy2 = curr.y + (next.y - curr.y) * 0.5;
     d += ` C ${cpx1.toFixed(1)},${cpy1.toFixed(1)} ${cpx2.toFixed(1)},${cpy2.toFixed(1)} ${next.x.toFixed(1)},${next.y.toFixed(1)}`;
   }
   return d;
 }
 
-// Wavy horizontal border: left→right with jitter
 function wavyHorizontalBorder(y: number, xStart: number, xEnd: number, seed: number): string {
   const pts: Array<{ x: number; y: number }> = [];
   let s = seed;
@@ -201,119 +233,144 @@ function wavyHorizontalBorder(y: number, xStart: number, xEnd: number, seed: num
   }
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i++) {
-    const curr = pts[i];
-    const next = pts[i + 1];
-    const cpx1 = curr.x + (next.x - curr.x) * 0.5;
-    const cpy1 = curr.y;
-    const cpx2 = curr.x + (next.x - curr.x) * 0.5;
-    const cpy2 = next.y;
+    const curr = pts[i]; const next = pts[i + 1];
+    const cpx1 = curr.x + (next.x - curr.x) * 0.5; const cpy1 = curr.y;
+    const cpx2 = curr.x + (next.x - curr.x) * 0.5; const cpy2 = next.y;
     d += ` C ${cpx1.toFixed(1)},${cpy1.toFixed(1)} ${cpx2.toFixed(1)},${cpy2.toFixed(1)} ${next.x.toFixed(1)},${next.y.toFixed(1)}`;
   }
   return d;
 }
 
-// Build territory clip paths for each zone
-function buildTerritoryPaths(): {
-  border1: string;
-  border2: string;
-  border3: string;
-  territories: string[];
-} {
-  const b1x = 310;  // left vertical border
-  const b2x = 930;  // right vertical border
-  const b3y = 310;  // horizontal border (middle)
+function wavyHorizontalFull(y: number, w: number, seed: number): string {
+  return wavyHorizontalBorder(y, 0, w, seed);
+}
 
-  const border1 = wavyVerticalBorder(b1x, 42);
-  const border2 = wavyVerticalBorder(b2x, 137);
+function extractPoints(path: string): Array<{ x: number; y: number }> {
+  const pts: Array<{ x: number; y: number }> = [];
+  const regex = /(-?\d+\.?\d*),(-?\d+\.?\d*)/g;
+  let match;
+  const allPairs: Array<{ x: number; y: number }> = [];
+  while ((match = regex.exec(path)) !== null) {
+    allPairs.push({ x: parseFloat(match[1]), y: parseFloat(match[2]) });
+  }
+  if (allPairs.length > 0) {
+    pts.push(allPairs[0]);
+    for (let i = 1; i < allPairs.length; i += 3) {
+      if (i + 2 < allPairs.length) pts.push(allPairs[i + 2]);
+    }
+  }
+  return pts;
+}
+
+function pointsToPath(pts: Array<{ x: number; y: number }>): string {
+  if (pts.length === 0) return '';
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${pts[i].x.toFixed(1)},${pts[i].y.toFixed(1)}`;
+  }
+  return d + ' Z';
+}
+
+// Desktop territory layout
+function buildDesktopTerritories() {
+  const b1x = 310; const b2x = 930; const b3y = 310;
+  const border1 = wavyVerticalBorder(b1x, 42, DH);
+  const border2 = wavyVerticalBorder(b2x, 137, DH);
   const border3 = wavyHorizontalBorder(b3y, b1x, b2x, 256);
-
-  // Extract points from border paths for composing territory shapes
-  // We'll use the raw border paths + edges of the viewBox
-
-  // Parse a path into points (rough extraction from "M x,y C ... x,y" — last point of each segment)
-  function extractPoints(path: string): Array<{ x: number; y: number }> {
-    const pts: Array<{ x: number; y: number }> = [];
-    const regex = /(-?\d+\.?\d*),(-?\d+\.?\d*)/g;
-    let match;
-    // Get every coordinate pair (last pair of each C segment is the endpoint)
-    const allPairs: Array<{ x: number; y: number }> = [];
-    while ((match = regex.exec(path)) !== null) {
-      allPairs.push({ x: parseFloat(match[1]), y: parseFloat(match[2]) });
-    }
-    // For M + C format: first pair is M, then groups of 3 (cp1, cp2, end)
-    if (allPairs.length > 0) {
-      pts.push(allPairs[0]); // M point
-      for (let i = 1; i < allPairs.length; i += 3) {
-        if (i + 2 < allPairs.length) {
-          pts.push(allPairs[i + 2]); // end point of C
-        }
-      }
-    }
-    return pts;
-  }
-
-  const b1pts = extractPoints(border1); // vertical left border points (top→bottom)
-  const b2pts = extractPoints(border2); // vertical right border points (top→bottom)
-  const b3pts = extractPoints(border3); // horizontal middle border points (left→right)
-
-  // Helper: points to smooth path
-  function pointsToPath(pts: Array<{ x: number; y: number }>): string {
-    if (pts.length === 0) return '';
-    let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-    for (let i = 1; i < pts.length; i++) {
-      d += ` L ${pts[i].x.toFixed(1)},${pts[i].y.toFixed(1)}`;
-    }
-    d += ' Z';
-    return d;
-  }
-
-  // Territory 0 — TRAINEE (left column: 0,0 → b1 top→bottom → 0,H)
-  const t0: Array<{ x: number; y: number }> = [
-    { x: 0, y: 0 },
-    ...b1pts,
-    { x: 0, y: H },
-  ];
-
-  // Territory 1 — PRACTITIONER (bottom-middle: b1 bottom→top → b3 left→right → b2 at b3y→bottom → W_b2, H → 0, H)
-  // Practitioner = below b3, between b1 and b2
-  const b1reversed = [...b1pts].reverse();
-  const t1: Array<{ x: number; y: number }> = [
-    ...b3pts, // top edge (horizontal border, left→right)
-    ...b2pts.filter(p => p.y >= b3y - 30), // right border, from horizontal down
-    { x: b2pts[b2pts.length - 1]?.x ?? b2x, y: H }, // bottom-right
-    { x: b1pts[b1pts.length - 1]?.x ?? b1x, y: H }, // bottom-left
-    ...b1reversed.filter(p => p.y >= b3y - 30), // left border, from bottom up to horizontal
-  ];
-
-  // Territory 2 — EXPERT (top-middle: 0_top → b1 top → b3 → b2 top → top-right)
-  // Expert = above b3, between b1 and b2
+  const b1pts = extractPoints(border1);
+  const b2pts = extractPoints(border2);
+  const b3pts = extractPoints(border3);
   const b3reversed = [...b3pts].reverse();
-  const t2: Array<{ x: number; y: number }> = [
-    { x: b1pts[0]?.x ?? b1x, y: 0 }, // top-left
-    { x: b2pts[0]?.x ?? b2x, y: 0 }, // top-right
-    ...b2pts.filter(p => p.y <= b3y + 30), // right border top→horizontal
-    ...b3reversed, // horizontal border right→left
-    ...b1pts.filter(p => p.y <= b3y + 30).reverse(), // left border horizontal→top
-  ];
 
-  // Territory 3 — MASTER (right column: b2 top→bottom → W,H → W,0)
-  const t3: Array<{ x: number; y: number }> = [
-    { x: W, y: 0 },
-    ...b2pts,
-    { x: W, y: H },
+  const t0 = [{ x: 0, y: 0 }, ...b1pts, { x: 0, y: DH }];
+  const t1 = [
+    ...b3pts,
+    ...b2pts.filter(p => p.y >= b3y - 30),
+    { x: b2pts[b2pts.length - 1]?.x ?? b2x, y: DH },
+    { x: b1pts[b1pts.length - 1]?.x ?? b1x, y: DH },
+    ...[...b1pts].reverse().filter(p => p.y >= b3y - 30),
   ];
+  const t2 = [
+    { x: b1pts[0]?.x ?? b1x, y: 0 },
+    { x: b2pts[0]?.x ?? b2x, y: 0 },
+    ...b2pts.filter(p => p.y <= b3y + 30),
+    ...b3reversed,
+    ...b1pts.filter(p => p.y <= b3y + 30).reverse(),
+  ];
+  const t3 = [{ x: DW, y: 0 }, ...b2pts, { x: DW, y: DH }];
 
   return {
-    border1,
-    border2,
-    border3,
-    territories: [
-      pointsToPath(t0),
-      pointsToPath(t1),
-      pointsToPath(t2),
-      pointsToPath(t3),
-    ],
+    borders: [border1, border2, border3],
+    territories: [pointsToPath(t0), pointsToPath(t1), pointsToPath(t2), pointsToPath(t3)],
   };
+}
+
+// Mobile territory layout — 4 horizontal stripes
+function buildMobileTerritories() {
+  const by1 = 300; const by2 = 600; const by3 = 900;
+  const border1 = wavyHorizontalFull(by1, MW, 42);
+  const border2 = wavyHorizontalFull(by2, MW, 137);
+  const border3 = wavyHorizontalFull(by3, MW, 256);
+  const b2pts = extractPoints(border2);
+  const b3pts = extractPoints(border3);
+
+  // Build territory polygons
+  const b1pts2 = extractPoints(border1);
+  const t0fix = [{ x: 0, y: 0 }, { x: MW, y: 0 }, ...[...b1pts2].reverse()];
+  const t1fix = [...b1pts2, ...[...b2pts].reverse(), { x: 0, y: by2 }];
+  const t2fix = [...extractPoints(border2), ...[...b3pts].reverse()];
+  const t3fix = [...extractPoints(border3), { x: MW, y: MH }, { x: 0, y: MH }];
+
+  return {
+    borders: [border1, extractPoints(border2).length > 0 ? wavyHorizontalFull(by2, MW, 137) : '', wavyHorizontalFull(by3, MW, 256)],
+    territories: [pointsToPath(t0fix), pointsToPath(t1fix), pointsToPath(t2fix), pointsToPath(t3fix)],
+  };
+}
+
+// Precompute
+const DESKTOP_TERRITORY = buildDesktopTerritories();
+const MOBILE_TERRITORY = buildMobileTerritories();
+
+// ============================================================
+// Smooth Catmull-Rom path + nearest-neighbor ordering
+// ============================================================
+
+function smoothCatmullRom(pts: Array<{ x: number; y: number }>): string {
+  if (pts.length < 2) return '';
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[Math.max(0, i - 1)];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[Math.min(pts.length - 1, i + 2)];
+    const t = 0.3;
+    const cp1x = p1.x + (p2.x - p0.x) * t;
+    const cp1y = p1.y + (p2.y - p0.y) * t;
+    const cp2x = p2.x - (p3.x - p1.x) * t;
+    const cp2y = p2.y - (p3.y - p1.y) * t;
+    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+// Order zone buildings by nearest-neighbor for shortest path
+function nearestNeighborOrder(pts: Array<{ x: number; y: number }>): Array<{ x: number; y: number }> {
+  if (pts.length <= 2) return pts;
+  const remaining = [...pts];
+  const result: Array<{ x: number; y: number }> = [remaining.shift()!];
+  while (remaining.length > 0) {
+    const last = result[result.length - 1];
+    let bestIdx = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < remaining.length; i++) {
+      const dx = remaining[i].x - last.x;
+      const dy = remaining[i].y - last.y;
+      const dist = dx * dx + dy * dy;
+      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+    }
+    result.push(remaining.splice(bestIdx, 1)[0]);
+  }
+  return result;
 }
 
 // ============================================================
@@ -333,29 +390,22 @@ interface ZoneBuilding {
 
 function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
   const map = new Map<string, ZoneBuilding[]>();
-  for (const zone of ZONES) {
-    map.set(zone.level, []);
-  }
+  for (const zone of ZONES) map.set(zone.level, []);
 
   for (const sec of sections) {
     const startIdx = LEVEL_ORDER[sec.level_range.start] ?? 0;
     const endIdx = LEVEL_ORDER[sec.level_range.end] ?? 3;
-
     for (let i = startIdx; i <= endIdx; i++) {
       const level = ZONES[i]?.level;
       if (!level) continue;
-
       const levelData = sec.levels?.find((l) => l.level === level);
       const coursesTotal = levelData?.courses_total ?? 0;
       const coursesCompleted = levelData?.courses_completed ?? 0;
-      const isLevelCompleted = coursesTotal > 0 && coursesCompleted >= coursesTotal;
       const pct = coursesTotal > 0 ? (coursesCompleted / coursesTotal) * 100 : 0;
-
       if (coursesTotal > 0) {
         map.get(level)?.push({
-          section: sec,
-          levelInZone: level,
-          isCompleted: isLevelCompleted,
+          section: sec, levelInZone: level,
+          isCompleted: coursesTotal > 0 && coursesCompleted >= coursesTotal,
           isAiRecommended: sec.ai_recommended_count > 0,
           hasProgress: coursesCompleted > 0,
           progressPct: pct,
@@ -368,9 +418,6 @@ function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
   return map;
 }
 
-// Precompute territory paths (static, same every render)
-const TERRITORY = buildTerritoryPaths();
-
 // ============================================================
 // COMPONENT
 // ============================================================
@@ -382,14 +429,16 @@ export function LearningMap({ data, onOpenSection }: Props) {
     x: number; y: number; building: ZoneBuilding; zoneColor: string;
   } | null>(null);
   const [mapScale, setMapScale] = useState(1);
+  const [isMobile, setIsMobile] = useState(false);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
-  // Responsive: compute scale based on actual container width vs design width
   const updateScale = useCallback(() => {
     if (mapContainerRef.current) {
       const containerW = mapContainerRef.current.clientWidth;
-      const scale = Math.min(containerW / W, 1); // never upscale past 1
-      setMapScale(scale);
+      const mobile = containerW < 640;
+      setIsMobile(mobile);
+      const designW = mobile ? MW : DW;
+      setMapScale(Math.min(containerW / designW, 1));
     }
   }, []);
 
@@ -401,7 +450,52 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
   const zoneData = useMemo(() => buildZoneData(sections), [sections]);
 
-  // Deterministic stars
+  // Current layout params
+  const W = isMobile ? MW : DW;
+  const H = isMobile ? MH : DH;
+  const territory = isMobile ? MOBILE_TERRITORY : DESKTOP_TERRITORY;
+
+  // Get zone position based on layout
+  const getZoneCenter = (zone: ZoneConfig) => isMobile ? { x: zone.mcx, y: zone.mcy } : { x: zone.cx, y: zone.cy };
+  const getSlots = (zone: ZoneConfig) => isMobile ? zone.mobileBuildingSlots : zone.buildingSlots;
+
+  // Collect ALL building points for road (with nearest-neighbor ordering per zone)
+  const allBuildingPts = useMemo(() => {
+    const pts: Array<{ x: number; y: number; zoneIdx: number }> = [];
+    for (let zi = 0; zi < ZONES.length; zi++) {
+      const zone = ZONES[zi];
+      const center = getZoneCenter(zone);
+      const slots = getSlots(zone);
+      const buildings = zoneData.get(zone.level) || [];
+      const count = Math.max(buildings.length, 1);
+      const rawPts: Array<{ x: number; y: number }> = [];
+      for (let bi = 0; bi < count; bi++) {
+        const slot = slots[bi % slots.length];
+        rawPts.push({ x: center.x + slot.dx, y: center.y + slot.dy });
+      }
+      // Nearest-neighbor within zone
+      const ordered = nearestNeighborOrder(rawPts);
+      for (const p of ordered) pts.push({ ...p, zoneIdx: zi });
+    }
+    return pts;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoneData, isMobile]);
+
+  // Completed count for road coloring
+  const completedCount = useMemo(() => {
+    let count = 0;
+    for (let zi = 0; zi < ZONES.length; zi++) {
+      const buildings = zoneData.get(ZONES[zi].level) || [];
+      for (const bld of buildings) {
+        if (bld.isCompleted) count++;
+        else return count;
+      }
+      if (!buildings.every(b => b.isCompleted)) return count;
+    }
+    return count;
+  }, [zoneData]);
+
+  // Stars
   const stars = useMemo(() => {
     const result: Array<{ x: number; y: number; r: number; o: number }> = [];
     let seed = 42;
@@ -417,7 +511,9 @@ export function LearningMap({ data, onOpenSection }: Props) {
       result.push({ x, y, r, o });
     }
     return result;
-  }, []);
+  }, [W, H]);
+
+  const roadPath = useMemo(() => smoothCatmullRom(allBuildingPts), [allBuildingPts]);
 
   return (
     <div className="relative w-full">
@@ -452,11 +548,10 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
       {/* ===== Map container ===== */}
       <div ref={mapContainerRef} className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
-        {/* ===== LAYER 1: SVG — territories + background ===== */}
+        {/* ===== LAYER 1: SVG ===== */}
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="w-full h-auto block"
-          style={{ minHeight: '280px' }}
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
@@ -467,31 +562,15 @@ export function LearningMap({ data, onOpenSection }: Props) {
             ))}
           </defs>
 
-          {/* === Territory fills (entire map covered) === */}
+          {/* Territory fills */}
           {ZONES.map((zone, zi) => {
             const isCurrent = zone.level === user.current_level;
             return (
               <g key={zone.level}>
-                {/* Base territory fill */}
-                <path
-                  d={TERRITORY.territories[zi]}
-                  fill={zone.colorDark}
-                  opacity={0.7}
-                />
-                {/* Color overlay */}
-                <path
-                  d={TERRITORY.territories[zi]}
-                  fill={zone.color}
-                  opacity={isCurrent ? 0.15 : 0.07}
-                />
-                {/* Current zone glow */}
+                <path d={territory.territories[zi]} fill={zone.colorDark} opacity={0.7} />
+                <path d={territory.territories[zi]} fill={zone.color} opacity={isCurrent ? 0.15 : 0.07} />
                 {isCurrent && (
-                  <path
-                    d={TERRITORY.territories[zi]}
-                    fill={zone.glowColor}
-                    filter={`url(#glow-${zone.level})`}
-                    opacity={0.25}
-                  >
+                  <path d={territory.territories[zi]} fill={zone.glowColor} filter={`url(#glow-${zone.level})`} opacity={0.25}>
                     <animate attributeName="opacity" values="0.15;0.3;0.15" dur="3s" repeatCount="indefinite" />
                   </path>
                 )}
@@ -499,126 +578,48 @@ export function LearningMap({ data, onOpenSection }: Props) {
             );
           })}
 
-          {/* === Stars (on top of territory fills) === */}
+          {/* Stars */}
           {stars.map((s, i) => (
             <circle key={`s${i}`} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />
           ))}
 
-          {/* === Territory borders (wavy lines) === */}
-          <path d={TERRITORY.border1} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-          <path d={TERRITORY.border2} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
-          <path d={TERRITORY.border3} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          {/* Territory borders */}
+          {territory.borders.map((b, i) => (
+            <path key={`border-${i}`} d={b} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          ))}
 
-          {/* === Road trajectory through every building === */}
-          {(() => {
-            // Collect all building positions in order: Trainee→Practitioner→Expert→Master
-            const allBuildingPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
-            for (let zi = 0; zi < ZONES.length; zi++) {
-              const zone = ZONES[zi];
-              const buildings = zoneData.get(zone.level) || [];
-              const count = Math.max(buildings.length, 1);
-              for (let bi = 0; bi < count; bi++) {
-                const slot = zone.buildingSlots[bi % zone.buildingSlots.length];
-                allBuildingPts.push({
-                  x: zone.cx + slot.dx,
-                  y: zone.cy + slot.dy,
-                  zoneIdx: zi,
-                });
-              }
-            }
+          {/* Road trajectory through every building */}
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" strokeDasharray="8 4" />
+          {allBuildingPts.map((pt, i) => (
+            <circle
+              key={`rd-${i}`}
+              cx={pt.x} cy={pt.y} r={3.5}
+              fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.25)'}
+              stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.1)'}
+              strokeWidth={1}
+            />
+          ))}
 
-            if (allBuildingPts.length < 2) return null;
-
-            // Build smooth Catmull-Rom-like cubic bezier path through all points
-            function smoothPath(pts: Array<{ x: number; y: number }>): string {
-              if (pts.length < 2) return '';
-              let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-              for (let i = 0; i < pts.length - 1; i++) {
-                const p0 = pts[Math.max(0, i - 1)];
-                const p1 = pts[i];
-                const p2 = pts[i + 1];
-                const p3 = pts[Math.min(pts.length - 1, i + 2)];
-                // Catmull-Rom → cubic bezier control points (tension=0.35)
-                const t = 0.35;
-                const cp1x = p1.x + (p2.x - p0.x) * t;
-                const cp1y = p1.y + (p2.y - p0.y) * t;
-                const cp2x = p2.x - (p3.x - p1.x) * t;
-                const cp2y = p2.y - (p3.y - p1.y) * t;
-                d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
-              }
-              return d;
-            }
-
-            const fullPath = smoothPath(allBuildingPts);
-
-            // Find how many buildings are "completed" or in progress for glow road
-            let completedCount = 0;
-            for (let zi = 0; zi < ZONES.length; zi++) {
-              const buildings = zoneData.get(ZONES[zi].level) || [];
-              for (const bld of buildings) {
-                if (bld.isCompleted) completedCount++;
-                else break; // stop at first incomplete
-              }
-              // If not all completed in this zone, don't continue to next
-              const allDone = buildings.every(b => b.isCompleted);
-              if (!allDone) break;
-            }
-
-            return (
-              <>
-                {/* Full road (background — dashed) */}
-                <path
-                  d={fullPath}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.1)"
-                  strokeWidth="2.5"
-                  strokeDasharray="8 4"
-                />
-                {/* Road dots at each building */}
-                {allBuildingPts.map((pt, i) => (
-                  <circle
-                    key={`road-dot-${i}`}
-                    cx={pt.x}
-                    cy={pt.y}
-                    r={3}
-                    fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.2)'}
-                    stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.1)'}
-                    strokeWidth={1}
-                  />
-                ))}
-              </>
-            );
-          })()}
-
-          {/* === Zone labels (centered in each territory) === */}
+          {/* Zone labels */}
           {ZONES.map((zone) => {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
+            const center = getZoneCenter(zone);
             return (
               <g key={`label-${zone.level}`}>
                 <text
-                  x={zone.cx}
-                  y={zone.cy}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill={zone.color}
-                  fontSize="20"
-                  fontWeight="bold"
-                  className="select-none"
-                  opacity={isCurrent ? 0.9 : 0.55}
+                  x={center.x} y={center.y}
+                  textAnchor="middle" dominantBaseline="central"
+                  fill={zone.color} fontSize={isMobile ? 18 : 20} fontWeight="bold"
+                  className="select-none" opacity={isCurrent ? 0.9 : 0.55}
                   style={{ textShadow: `0 0 15px ${zone.glowColor}` }}
                 >
                   {zone.label}
                 </text>
                 <text
-                  x={zone.cx}
-                  y={zone.cy + 20}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fill={zone.color}
-                  fontSize="11"
-                  opacity={0.35}
-                  className="select-none"
+                  x={center.x} y={center.y + (isMobile ? 18 : 20)}
+                  textAnchor="middle" dominantBaseline="central"
+                  fill={zone.color} fontSize="11" opacity={0.35} className="select-none"
                 >
                   {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
                 </text>
@@ -627,15 +628,17 @@ export function LearningMap({ data, onOpenSection }: Props) {
           })}
         </svg>
 
-        {/* ===== LAYER 2: 3D House Buildings (HTML overlay) ===== */}
+        {/* ===== LAYER 2: 3D Houses (HTML overlay) ===== */}
         <div className="learning-map-3d-layer" style={{ '--map-scale': mapScale } as React.CSSProperties}>
           <div style={{ perspective: '800px', width: '100%', height: '100%', position: 'relative' }}>
             {ZONES.map((zone) => {
               const buildings = zoneData.get(zone.level) || [];
+              const center = getZoneCenter(zone);
+              const slots = getSlots(zone);
               return buildings.map((bld, bIdx) => {
-                const slot = zone.buildingSlots[bIdx % zone.buildingSlots.length];
-                const bx = zone.cx + slot.dx;
-                const by = zone.cy + slot.dy;
+                const slot = slots[bIdx % slots.length];
+                const bx = center.x + slot.dx;
+                const by = center.y + slot.dy;
                 const bKey = `${bld.section.section_id}-${zone.level}`;
 
                 const bHeight = 28 + Math.min(bld.coursesInLevel, 5) * 5;
@@ -643,106 +646,67 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 const bDepth = Math.max(16, Math.round(bWidth * 0.55));
                 const doorHeight = Math.max(8, Math.round(bHeight * 0.25));
 
-                // Default: zone-colored house
                 let wallColor = zone.wallColor;
                 let wallSideColor = zone.wallSideColor;
                 let roofColor = zone.roofHouseColor;
                 let doorColor = zone.doorColor;
-                let windowColor = '#ffeaa7'; // warm yellow lit windows
+                let windowColor = '#ffeaa7';
                 let windowOpacity = 0.85;
                 let strokeColor = 'rgba(0,0,0,0.12)';
                 let glowColor = 'transparent';
 
                 if (bld.isCompleted) {
-                  // Completed: bright green house
-                  wallColor = '#c8e6c9';
-                  wallSideColor = '#a5d6a7';
-                  roofColor = '#2e7d32';
-                  windowColor = '#81c784';
-                  windowOpacity = 0.95;
-                  strokeColor = '#4CAF50';
+                  wallColor = '#c8e6c9'; wallSideColor = '#a5d6a7'; roofColor = '#2e7d32';
+                  windowColor = '#81c784'; windowOpacity = 0.95; strokeColor = '#4CAF50';
                   glowColor = 'rgba(76,175,80,0.5)';
                 } else if (bld.isAiRecommended) {
-                  // AI recommended: warm orange house
-                  wallColor = '#ffe0b2';
-                  wallSideColor = '#ffcc80';
-                  roofColor = '#e65100';
-                  windowColor = '#ffb74d';
-                  windowOpacity = 0.95;
-                  strokeColor = '#FF9800';
+                  wallColor = '#ffe0b2'; wallSideColor = '#ffcc80'; roofColor = '#e65100';
+                  windowColor = '#ffb74d'; windowOpacity = 0.95; strokeColor = '#FF9800';
                   glowColor = 'rgba(255,152,0,0.5)';
                 } else if (bld.hasProgress) {
-                  // In progress: slightly brighter than default
-                  windowColor = '#fff9c4';
-                  windowOpacity = 0.9;
-                  strokeColor = zone.color;
+                  windowColor = '#fff9c4'; windowOpacity = 0.9; strokeColor = zone.color;
                   glowColor = zone.glowColor;
                 } else {
-                  // Not started: darker, dimmer
-                  wallColor = '#9e9e9e';
-                  wallSideColor = '#878787';
-                  roofColor = '#616161';
-                  doorColor = '#5d4037';
-                  windowColor = '#b0bec5';
-                  windowOpacity = 0.35;
+                  wallColor = '#9e9e9e'; wallSideColor = '#878787'; roofColor = '#616161';
+                  doorColor = '#5d4037'; windowColor = '#b0bec5'; windowOpacity = 0.35;
                   strokeColor = 'rgba(0,0,0,0.1)';
                 }
 
-                if (hoveredBuilding === bKey) {
-                  strokeColor = '#ffffff';
-                }
+                if (hoveredBuilding === bKey) strokeColor = '#ffffff';
 
-                const stateClass = bld.isCompleted
-                  ? 'building-wrapper--completed'
-                  : bld.isAiRecommended
-                  ? 'building-wrapper--ai'
-                  : '';
+                const stateClass = bld.isCompleted ? 'building-wrapper--completed'
+                  : bld.isAiRecommended ? 'building-wrapper--ai' : '';
 
                 const winRows = Math.min(Math.ceil(bHeight / 16), 3);
-                const winCols = 2;
-
-                const leftPct = (bx / W) * 100;
-                const topPct = (by / H) * 100;
 
                 return (
                   <div
                     key={bKey}
                     className="building-positioner"
-                    style={{ left: `${leftPct}%`, top: `${topPct}%` }}
+                    style={{ left: `${(bx / W) * 100}%`, top: `${(by / H) * 100}%` }}
                     onClick={() => onOpenSection(bld.section.section_id)}
                     onMouseEnter={() => {
                       setHoveredBuilding(bKey);
                       setTooltip({ x: bx, y: by - bHeight - 30, building: bld, zoneColor: zone.color });
                     }}
-                    onMouseLeave={() => {
-                      setHoveredBuilding(null);
-                      setTooltip(null);
-                    }}
+                    onMouseLeave={() => { setHoveredBuilding(null); setTooltip(null); }}
                   >
                     <div
                       className={`building-wrapper ${stateClass}`}
                       style={{
-                        width: `${bWidth}px`,
-                        height: `${bHeight}px`,
-                        '--b-width': `${bWidth}px`,
-                        '--b-height': `${bHeight}px`,
-                        '--b-depth': `${bDepth}px`,
-                        '--door-height': `${doorHeight}px`,
-                        '--wall-color': wallColor,
-                        '--wall-side-color': wallSideColor,
-                        '--roof-color': roofColor,
-                        '--door-color': doorColor,
-                        '--stroke-color': strokeColor,
-                        '--window-color': windowColor,
-                        '--window-opacity': windowOpacity,
-                        '--win-rows': winRows,
-                        '--win-cols': winCols,
+                        width: `${bWidth}px`, height: `${bHeight}px`,
+                        '--b-width': `${bWidth}px`, '--b-height': `${bHeight}px`,
+                        '--b-depth': `${bDepth}px`, '--door-height': `${doorHeight}px`,
+                        '--wall-color': wallColor, '--wall-side-color': wallSideColor,
+                        '--roof-color': roofColor, '--door-color': doorColor,
+                        '--stroke-color': strokeColor, '--window-color': windowColor,
+                        '--window-opacity': windowOpacity, '--win-rows': winRows, '--win-cols': 2,
                         '--glow-color': glowColor,
                       } as React.CSSProperties}
                     >
                       <div className="face-front">
                         <div className="building-windows">
-                          {Array.from({ length: winRows * winCols }).map((_, w) => (
+                          {Array.from({ length: winRows * 2 }).map((_, w) => (
                             <div key={w} className="building-window" />
                           ))}
                         </div>
@@ -754,23 +718,13 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
                     {!bld.isCompleted && bld.hasProgress && (
                       <div className="building-progress">
-                        <div
-                          className="building-progress-fill"
-                          style={{ width: `${bld.progressPct}%`, backgroundColor: zone.color }}
-                        />
+                        <div className="building-progress-fill" style={{ width: `${bld.progressPct}%`, backgroundColor: zone.color }} />
                       </div>
                     )}
-
                     {bld.isCompleted && <div className="building-badge">✓</div>}
-
-                    {bld.isAiRecommended && !bld.isCompleted && (
-                      <div className="building-icon">🔥</div>
-                    )}
-
+                    {bld.isAiRecommended && !bld.isCompleted && <div className="building-icon">🔥</div>}
                     {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
-                      <div className="building-icon" style={{ opacity: 0.7 }}>
-                        {bld.section.icon}
-                      </div>
+                      <div className="building-icon" style={{ opacity: 0.7 }}>{bld.section.icon}</div>
                     )}
                   </div>
                 );
