@@ -38,6 +38,12 @@ interface ZoneConfig {
 const W = 1200;
 const H = 700;
 
+// Territory boundaries (approx):
+//   Trainee:      x=0..310,   y=0..700    → center (155, 350)
+//   Expert:       x=310..930, y=0..310     → center (620, 155)
+//   Practitioner: x=310..930, y=310..700   → center (620, 505)
+//   Master:       x=930..1200, y=0..700    → center (1065, 350)
+
 const ZONES: ZoneConfig[] = [
   {
     level: 'trainee',
@@ -45,16 +51,16 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
-    cx: 180, cy: 330,
+    cx: 155, cy: 350,
     buildingSlots: [
-      { dx: -80, dy: -100 },
-      { dx: 0, dy: -120 },
-      { dx: 80, dy: -95 },
-      { dx: -100, dy: -30 },
-      { dx: -20, dy: -50 },
-      { dx: 60, dy: -25 },
-      { dx: -60, dy: 40 },
-      { dx: 30, dy: 50 },
+      { dx: -80, dy: -220 },
+      { dx: 50, dy: -170 },
+      { dx: -60, dy: -100 },
+      { dx: 70, dy: -60 },
+      { dx: -90, dy: 20 },
+      { dx: 40, dy: 60 },
+      { dx: -50, dy: 140 },
+      { dx: 60, dy: 200 },
     ],
   },
   {
@@ -63,16 +69,16 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
-    cx: 430, cy: 400,
+    cx: 620, cy: 505,
     buildingSlots: [
-      { dx: -100, dy: -110 },
-      { dx: -20, dy: -130 },
-      { dx: 70, dy: -105 },
-      { dx: -80, dy: -40 },
-      { dx: 10, dy: -55 },
-      { dx: 90, dy: -35 },
-      { dx: -50, dy: 30 },
-      { dx: 40, dy: 40 },
+      { dx: -230, dy: -120 },
+      { dx: -80, dy: -130 },
+      { dx: 80, dy: -110 },
+      { dx: 230, dy: -120 },
+      { dx: -200, dy: 0 },
+      { dx: -40, dy: 10 },
+      { dx: 120, dy: -10 },
+      { dx: 240, dy: 20 },
     ],
   },
   {
@@ -81,16 +87,16 @@ const ZONES: ZoneConfig[] = [
     color: '#FF9800',
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
-    cx: 770, cy: 350,
+    cx: 620, cy: 155,
     buildingSlots: [
-      { dx: -100, dy: -100 },
-      { dx: -20, dy: -120 },
-      { dx: 70, dy: -95 },
-      { dx: 140, dy: -110 },
-      { dx: -70, dy: -30 },
-      { dx: 20, dy: -45 },
-      { dx: 100, dy: -25 },
-      { dx: -30, dy: 40 },
+      { dx: -230, dy: -80 },
+      { dx: -80, dy: -90 },
+      { dx: 80, dy: -70 },
+      { dx: 230, dy: -80 },
+      { dx: -200, dy: 40 },
+      { dx: -40, dy: 50 },
+      { dx: 120, dy: 30 },
+      { dx: 240, dy: 45 },
     ],
   },
   {
@@ -99,14 +105,14 @@ const ZONES: ZoneConfig[] = [
     color: '#F44336',
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
-    cx: 1050, cy: 330,
+    cx: 1065, cy: 350,
     buildingSlots: [
-      { dx: -70, dy: -100 },
-      { dx: 10, dy: -120 },
-      { dx: 80, dy: -95 },
-      { dx: -50, dy: -30 },
-      { dx: 30, dy: -50 },
-      { dx: -20, dy: 40 },
+      { dx: -60, dy: -220 },
+      { dx: 50, dy: -150 },
+      { dx: -70, dy: -60 },
+      { dx: 40, dy: -10 },
+      { dx: -50, dy: 80 },
+      { dx: 55, dy: 160 },
     ],
   },
 ];
@@ -466,32 +472,43 @@ export function LearningMap({ data, onOpenSection }: Props) {
           <path d={TERRITORY.border2} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
           <path d={TERRITORY.border3} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
 
-          {/* === Road connecting zone centers === */}
-          <path
-            d={`M ${ZONES[0].cx},${ZONES[0].cy}
-                C ${ZONES[0].cx + 80},${ZONES[0].cy + 60} ${ZONES[1].cx - 60},${ZONES[1].cy - 40} ${ZONES[1].cx},${ZONES[1].cy}
-                C ${ZONES[1].cx + 80},${ZONES[1].cy - 50} ${ZONES[2].cx - 80},${ZONES[2].cy + 30} ${ZONES[2].cx},${ZONES[2].cy}
-                C ${ZONES[2].cx + 60},${ZONES[2].cy - 30} ${ZONES[3].cx - 60},${ZONES[3].cy + 20} ${ZONES[3].cx},${ZONES[3].cy}`}
-            fill="none"
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth="3"
-            strokeDasharray="10 5"
-          />
+          {/* === Road connecting zone centers (Trainee → Practitioner → Expert → Master) === */}
+          {(() => {
+            // Road order: Trainee(0) → Practitioner(1) → Expert(2) → Master(3)
+            const roadZones = [ZONES[0], ZONES[1], ZONES[2], ZONES[3]];
+            const roadPath = `M ${roadZones[0].cx},${roadZones[0].cy}
+                C ${roadZones[0].cx + 100},${roadZones[0].cy + 80} ${roadZones[1].cx - 150},${roadZones[1].cy - 60} ${roadZones[1].cx},${roadZones[1].cy}
+                C ${roadZones[1].cx + 50},${roadZones[1].cy - 180} ${roadZones[2].cx - 50},${roadZones[2].cy + 60} ${roadZones[2].cx},${roadZones[2].cy}
+                C ${roadZones[2].cx + 150},${roadZones[2].cy + 80} ${roadZones[3].cx - 100},${roadZones[3].cy - 60} ${roadZones[3].cx},${roadZones[3].cy}`;
+            return (
+              <path
+                d={roadPath}
+                fill="none"
+                stroke="rgba(255,255,255,0.08)"
+                strokeWidth="3"
+                strokeDasharray="10 5"
+              />
+            );
+          })()}
           {/* Progress road glow */}
-          {currentLevelIdx >= 0 && (
-            <path
-              d={`M ${ZONES[0].cx},${ZONES[0].cy}
-                  ${currentLevelIdx >= 1 ? `C ${ZONES[0].cx + 80},${ZONES[0].cy + 60} ${ZONES[1].cx - 60},${ZONES[1].cy - 40} ${ZONES[1].cx},${ZONES[1].cy}` : ''}
-                  ${currentLevelIdx >= 2 ? `C ${ZONES[1].cx + 80},${ZONES[1].cy - 50} ${ZONES[2].cx - 80},${ZONES[2].cy + 30} ${ZONES[2].cx},${ZONES[2].cy}` : ''}
-                  ${currentLevelIdx >= 3 ? `C ${ZONES[2].cx + 60},${ZONES[2].cy - 30} ${ZONES[3].cx - 60},${ZONES[3].cy + 20} ${ZONES[3].cx},${ZONES[3].cy}` : ''}`}
-              fill="none"
-              stroke={LEVEL_COLORS[user.current_level]}
-              strokeWidth="2"
-              opacity="0.4"
-            />
-          )}
+          {currentLevelIdx >= 0 && (() => {
+            const rz = [ZONES[0], ZONES[1], ZONES[2], ZONES[3]];
+            let d = `M ${rz[0].cx},${rz[0].cy}`;
+            if (currentLevelIdx >= 1) d += ` C ${rz[0].cx + 100},${rz[0].cy + 80} ${rz[1].cx - 150},${rz[1].cy - 60} ${rz[1].cx},${rz[1].cy}`;
+            if (currentLevelIdx >= 2) d += ` C ${rz[1].cx + 50},${rz[1].cy - 180} ${rz[2].cx - 50},${rz[2].cy + 60} ${rz[2].cx},${rz[2].cy}`;
+            if (currentLevelIdx >= 3) d += ` C ${rz[2].cx + 150},${rz[2].cy + 80} ${rz[3].cx - 100},${rz[3].cy - 60} ${rz[3].cx},${rz[3].cy}`;
+            return (
+              <path
+                d={d}
+                fill="none"
+                stroke={LEVEL_COLORS[user.current_level]}
+                strokeWidth="2"
+                opacity="0.4"
+              />
+            );
+          })()}
 
-          {/* === Zone labels === */}
+          {/* === Zone labels (centered in each territory) === */}
           {ZONES.map((zone) => {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
@@ -499,24 +516,26 @@ export function LearningMap({ data, onOpenSection }: Props) {
               <g key={`label-${zone.level}`}>
                 <text
                   x={zone.cx}
-                  y={zone.cy + 90}
+                  y={zone.cy}
                   textAnchor="middle"
+                  dominantBaseline="central"
                   fill={zone.color}
-                  fontSize="18"
+                  fontSize="20"
                   fontWeight="bold"
                   className="select-none"
-                  opacity={isCurrent ? 1 : 0.7}
+                  opacity={isCurrent ? 0.9 : 0.55}
                   style={{ textShadow: `0 0 15px ${zone.glowColor}` }}
                 >
                   {zone.label}
                 </text>
                 <text
                   x={zone.cx}
-                  y={zone.cy + 108}
+                  y={zone.cy + 20}
                   textAnchor="middle"
+                  dominantBaseline="central"
                   fill={zone.color}
                   fontSize="11"
-                  opacity={0.5}
+                  opacity={0.35}
                   className="select-none"
                 >
                   {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
