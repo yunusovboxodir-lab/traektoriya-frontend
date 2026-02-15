@@ -97,6 +97,12 @@ export const productsApi = {
     api.get<ProductListResponse>('/api/v1/products', { params: { skip, limit } }),
   getProduct: (id: string) =>
     api.get<ProductDetail>(`/api/v1/products/${id}`),
+  createProduct: (data: Partial<Product>) =>
+    api.post<Product>('/api/v1/products', data),
+  updateProduct: (id: string, data: Partial<Product>) =>
+    api.patch<Product>(`/api/v1/products/${id}`, data),
+  deleteProduct: (id: string) =>
+    api.delete(`/api/v1/products/${id}`),
   submitTest: (productId: string, answers: Record<string, string>) =>
     api.post(`/api/v1/products/${productId}/test`, { answers }),
   getTestResults: (productId: string) =>
