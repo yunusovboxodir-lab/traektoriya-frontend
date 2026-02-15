@@ -8,15 +8,11 @@ import {
 
 /**
  * Interactive Learning Map — 3D isometric city
- * 4 zones: Стажёр (green), Практик (blue), Эксперт (orange), Мастер (red)
  *
- * Architecture: SVG background (stars, mountains, road, zone platforms)
- *             + HTML overlay (3D CSS buildings with perspective)
- *
- * Building states:
- *   - 🟢 Green glow  = completed (all courses at this level done)
- *   - 🔥 Orange glow = AI recommended (has pending learning tasks)
- *   - 🔵 Dim/dark    = not started yet
+ * The entire map is divided into 4 territory zones (no empty space).
+ * Organic wavy borders separate the zones like a political map.
+ * SVG background + HTML overlay for 3D CSS buildings.
+ * Responsive: works on desktop and mobile.
  */
 
 interface Props {
@@ -24,86 +20,93 @@ interface Props {
   onOpenSection: (sectionId: string) => void;
 }
 
-// Zone layout config
+// ============================================================
+// ZONE CONFIG — 4 zones filling the entire 1200×700 map
+// ============================================================
+
 interface ZoneConfig {
   level: string;
   label: string;
   color: string;
+  colorDark: string;     // darker shade for fill
   glowColor: string;
-  bgGradient: [string, string];
-  cx: number; cy: number;
+  cx: number; cy: number; // center for label & buildings
   buildingSlots: Array<{ dx: number; dy: number }>;
 }
+
+// Map dimensions
+const W = 1200;
+const H = 700;
 
 const ZONES: ZoneConfig[] = [
   {
     level: 'trainee',
     label: 'Стажёр',
     color: '#4CAF50',
-    glowColor: 'rgba(76,175,80,0.4)',
-    bgGradient: ['#1a3a1f', '#2d5a33'],
-    cx: 200, cy: 300,
+    colorDark: '#1b3d20',
+    glowColor: 'rgba(76,175,80,0.35)',
+    cx: 180, cy: 330,
     buildingSlots: [
-      { dx: -100, dy: -50 },
-      { dx: -30, dy: -70 },
-      { dx: 50, dy: -45 },
-      { dx: 110, dy: -55 },
-      { dx: -70, dy: 15 },
-      { dx: 10, dy: 25 },
-      { dx: 80, dy: 10 },
-      { dx: -20, dy: -15 },
+      { dx: -80, dy: -100 },
+      { dx: 0, dy: -120 },
+      { dx: 80, dy: -95 },
+      { dx: -100, dy: -30 },
+      { dx: -20, dy: -50 },
+      { dx: 60, dy: -25 },
+      { dx: -60, dy: 40 },
+      { dx: 30, dy: 50 },
     ],
   },
   {
     level: 'practitioner',
     label: 'Практик',
     color: '#2196F3',
-    glowColor: 'rgba(33,150,243,0.4)',
-    bgGradient: ['#1a2a3f', '#2a4060'],
-    cx: 480, cy: 430,
+    colorDark: '#152d45',
+    glowColor: 'rgba(33,150,243,0.35)',
+    cx: 430, cy: 400,
     buildingSlots: [
-      { dx: -110, dy: -40 },
-      { dx: -40, dy: -65 },
-      { dx: 40, dy: -50 },
-      { dx: 110, dy: -35 },
-      { dx: -80, dy: 20 },
-      { dx: 0, dy: 30 },
-      { dx: 75, dy: 15 },
-      { dx: -30, dy: -5 },
+      { dx: -100, dy: -110 },
+      { dx: -20, dy: -130 },
+      { dx: 70, dy: -105 },
+      { dx: -80, dy: -40 },
+      { dx: 10, dy: -55 },
+      { dx: 90, dy: -35 },
+      { dx: -50, dy: 30 },
+      { dx: 40, dy: 40 },
     ],
   },
   {
     level: 'expert',
     label: 'Эксперт',
     color: '#FF9800',
-    glowColor: 'rgba(255,152,0,0.4)',
-    bgGradient: ['#3a2a10', '#5a4020'],
-    cx: 800, cy: 310,
+    colorDark: '#3a2810',
+    glowColor: 'rgba(255,152,0,0.35)',
+    cx: 770, cy: 350,
     buildingSlots: [
-      { dx: -100, dy: -45 },
-      { dx: -25, dy: -65 },
-      { dx: 55, dy: -40 },
-      { dx: 115, dy: -50 },
-      { dx: -65, dy: 20 },
-      { dx: 15, dy: 25 },
-      { dx: 85, dy: 10 },
-      { dx: -30, dy: -10 },
+      { dx: -100, dy: -100 },
+      { dx: -20, dy: -120 },
+      { dx: 70, dy: -95 },
+      { dx: 140, dy: -110 },
+      { dx: -70, dy: -30 },
+      { dx: 20, dy: -45 },
+      { dx: 100, dy: -25 },
+      { dx: -30, dy: 40 },
     ],
   },
   {
     level: 'master',
     label: 'Мастер',
     color: '#F44336',
-    glowColor: 'rgba(244,67,54,0.4)',
-    bgGradient: ['#3a1515', '#5a2020'],
-    cx: 1060, cy: 220,
+    colorDark: '#3a1515',
+    glowColor: 'rgba(244,67,54,0.35)',
+    cx: 1050, cy: 330,
     buildingSlots: [
-      { dx: -80, dy: -40 },
-      { dx: -10, dy: -60 },
-      { dx: 60, dy: -35 },
-      { dx: -45, dy: 15 },
-      { dx: 30, dy: 20 },
-      { dx: -70, dy: -10 },
+      { dx: -70, dy: -100 },
+      { dx: 10, dy: -120 },
+      { dx: 80, dy: -95 },
+      { dx: -50, dy: -30 },
+      { dx: 30, dy: -50 },
+      { dx: -20, dy: 40 },
     ],
   },
 ];
@@ -116,91 +119,180 @@ const LEVEL_ORDER: Record<string, number> = {
 };
 
 // ============================================================
-// Territory path generator — organic blob boundary around zone
+// Territory borders — wavy lines dividing the entire map into 4
 // ============================================================
 
-/** Seeded pseudo-random (LCG) */
-function seededRandom(seed: number): [number, number] {
-  const next = (seed * 16807 + 7) % 2147483647;
-  return [next / 2147483647, next];
-}
-
 /**
- * Generate a smooth organic territory path around the zone center,
- * ensuring all building slots are enclosed within the boundary.
- * Uses cubic bezier curves for natural-looking edges.
+ * 3 organic border lines that divide the map into 4 territories:
+ *   border1: vertical wavy line between trainee | practitioner+expert+master (x ≈ 300)
+ *   border2: vertical wavy line between practitioner+expert | master (x ≈ 920)
+ *   border3: horizontal wavy line between practitioner | expert (y ≈ 350, in middle column)
+ *
+ * Layout (roughly):
+ *   ┌─────────┬────────────────┬─────────┐
+ *   │         │    Эксперт     │         │
+ *   │ Стажёр  ├────────────────┤ Мастер  │
+ *   │         │    Практик     │         │
+ *   └─────────┴────────────────┴─────────┘
  */
-function generateTerritoryPath(zone: ZoneConfig): string {
-  const { cx, cy, buildingSlots } = zone;
 
-  // Find the bounding box of all building slots + padding
-  const pad = 55; // extra padding around buildings
-  let minX = cx, maxX = cx, minY = cy, maxY = cy;
-  for (const s of buildingSlots) {
-    minX = Math.min(minX, cx + s.dx - pad);
-    maxX = Math.max(maxX, cx + s.dx + pad);
-    minY = Math.min(minY, cy + s.dy - pad);
-    maxY = Math.max(maxY, cy + s.dy + pad);
+// Wavy vertical border: top→bottom with jitter
+function wavyVerticalBorder(x: number, seed: number): string {
+  const pts: Array<{ x: number; y: number }> = [];
+  let s = seed;
+  const steps = 8;
+  for (let i = 0; i <= steps; i++) {
+    const y = (i / steps) * H;
+    s = (s * 16807 + 7) % 2147483647;
+    const jitter = ((s / 2147483647) - 0.5) * 50;
+    pts.push({ x: x + jitter, y });
   }
-
-  // Territory extends further in label area (below buildings)
-  maxY = Math.max(maxY, cy + 110);
-
-  const hw = (maxX - minX) / 2; // half-width
-  const hh = (maxY - minY) / 2; // half-height
-  const mcx = (minX + maxX) / 2; // midpoint x
-  const mcy = (minY + maxY) / 2; // midpoint y
-
-  // Generate 10-14 points around the perimeter with jitter
-  const numPoints = 12;
-  const points: Array<{ x: number; y: number }> = [];
-  let s = zone.cx * 7 + zone.cy * 13; // deterministic seed per zone
-
-  for (let i = 0; i < numPoints; i++) {
-    const angle = (i / numPoints) * Math.PI * 2 - Math.PI / 2;
-
-    // Elliptical base radius
-    const baseRx = hw + 10;
-    const baseRy = hh + 10;
-    const bx = mcx + Math.cos(angle) * baseRx;
-    const by = mcy + Math.sin(angle) * baseRy;
-
-    // Add organic jitter
-    let jx: number, jy: number;
-    [jx, s] = seededRandom(s);
-    [jy, s] = seededRandom(s);
-    const jitterX = (jx - 0.5) * 30;
-    const jitterY = (jy - 0.5) * 25;
-
-    points.push({ x: bx + jitterX, y: by + jitterY });
+  // smooth path
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const curr = pts[i];
+    const next = pts[i + 1];
+    const cpx1 = curr.x;
+    const cpy1 = curr.y + (next.y - curr.y) * 0.5;
+    const cpx2 = next.x;
+    const cpy2 = curr.y + (next.y - curr.y) * 0.5;
+    d += ` C ${cpx1.toFixed(1)},${cpy1.toFixed(1)} ${cpx2.toFixed(1)},${cpy2.toFixed(1)} ${next.x.toFixed(1)},${next.y.toFixed(1)}`;
   }
-
-  // Build closed cubic bezier path through points (Catmull-Rom → Bezier)
-  if (points.length < 3) return '';
-
-  const n = points.length;
-  let d = `M ${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
-
-  for (let i = 0; i < n; i++) {
-    const p0 = points[(i - 1 + n) % n];
-    const p1 = points[i];
-    const p2 = points[(i + 1) % n];
-    const p3 = points[(i + 2) % n];
-
-    // Catmull-Rom to cubic bezier control points
-    const tension = 6; // higher = smoother
-    const cp1x = p1.x + (p2.x - p0.x) / tension;
-    const cp1y = p1.y + (p2.y - p0.y) / tension;
-    const cp2x = p2.x - (p3.x - p1.x) / tension;
-    const cp2y = p2.y - (p3.y - p1.y) / tension;
-
-    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
-  }
-  d += ' Z';
   return d;
 }
 
-// Building data for each zone
+// Wavy horizontal border: left→right with jitter
+function wavyHorizontalBorder(y: number, xStart: number, xEnd: number, seed: number): string {
+  const pts: Array<{ x: number; y: number }> = [];
+  let s = seed;
+  const steps = 8;
+  for (let i = 0; i <= steps; i++) {
+    const x = xStart + (i / steps) * (xEnd - xStart);
+    s = (s * 16807 + 7) % 2147483647;
+    const jitter = ((s / 2147483647) - 0.5) * 45;
+    pts.push({ x, y: y + jitter });
+  }
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const curr = pts[i];
+    const next = pts[i + 1];
+    const cpx1 = curr.x + (next.x - curr.x) * 0.5;
+    const cpy1 = curr.y;
+    const cpx2 = curr.x + (next.x - curr.x) * 0.5;
+    const cpy2 = next.y;
+    d += ` C ${cpx1.toFixed(1)},${cpy1.toFixed(1)} ${cpx2.toFixed(1)},${cpy2.toFixed(1)} ${next.x.toFixed(1)},${next.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+// Build territory clip paths for each zone
+function buildTerritoryPaths(): {
+  border1: string;
+  border2: string;
+  border3: string;
+  territories: string[];
+} {
+  const b1x = 310;  // left vertical border
+  const b2x = 930;  // right vertical border
+  const b3y = 310;  // horizontal border (middle)
+
+  const border1 = wavyVerticalBorder(b1x, 42);
+  const border2 = wavyVerticalBorder(b2x, 137);
+  const border3 = wavyHorizontalBorder(b3y, b1x, b2x, 256);
+
+  // Extract points from border paths for composing territory shapes
+  // We'll use the raw border paths + edges of the viewBox
+
+  // Parse a path into points (rough extraction from "M x,y C ... x,y" — last point of each segment)
+  function extractPoints(path: string): Array<{ x: number; y: number }> {
+    const pts: Array<{ x: number; y: number }> = [];
+    const regex = /(-?\d+\.?\d*),(-?\d+\.?\d*)/g;
+    let match;
+    // Get every coordinate pair (last pair of each C segment is the endpoint)
+    const allPairs: Array<{ x: number; y: number }> = [];
+    while ((match = regex.exec(path)) !== null) {
+      allPairs.push({ x: parseFloat(match[1]), y: parseFloat(match[2]) });
+    }
+    // For M + C format: first pair is M, then groups of 3 (cp1, cp2, end)
+    if (allPairs.length > 0) {
+      pts.push(allPairs[0]); // M point
+      for (let i = 1; i < allPairs.length; i += 3) {
+        if (i + 2 < allPairs.length) {
+          pts.push(allPairs[i + 2]); // end point of C
+        }
+      }
+    }
+    return pts;
+  }
+
+  const b1pts = extractPoints(border1); // vertical left border points (top→bottom)
+  const b2pts = extractPoints(border2); // vertical right border points (top→bottom)
+  const b3pts = extractPoints(border3); // horizontal middle border points (left→right)
+
+  // Helper: points to smooth path
+  function pointsToPath(pts: Array<{ x: number; y: number }>): string {
+    if (pts.length === 0) return '';
+    let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+    for (let i = 1; i < pts.length; i++) {
+      d += ` L ${pts[i].x.toFixed(1)},${pts[i].y.toFixed(1)}`;
+    }
+    d += ' Z';
+    return d;
+  }
+
+  // Territory 0 — TRAINEE (left column: 0,0 → b1 top→bottom → 0,H)
+  const t0: Array<{ x: number; y: number }> = [
+    { x: 0, y: 0 },
+    ...b1pts,
+    { x: 0, y: H },
+  ];
+
+  // Territory 1 — PRACTITIONER (bottom-middle: b1 bottom→top → b3 left→right → b2 at b3y→bottom → W_b2, H → 0, H)
+  // Practitioner = below b3, between b1 and b2
+  const b1reversed = [...b1pts].reverse();
+  const t1: Array<{ x: number; y: number }> = [
+    ...b3pts, // top edge (horizontal border, left→right)
+    ...b2pts.filter(p => p.y >= b3y - 30), // right border, from horizontal down
+    { x: b2pts[b2pts.length - 1]?.x ?? b2x, y: H }, // bottom-right
+    { x: b1pts[b1pts.length - 1]?.x ?? b1x, y: H }, // bottom-left
+    ...b1reversed.filter(p => p.y >= b3y - 30), // left border, from bottom up to horizontal
+  ];
+
+  // Territory 2 — EXPERT (top-middle: 0_top → b1 top → b3 → b2 top → top-right)
+  // Expert = above b3, between b1 and b2
+  const b3reversed = [...b3pts].reverse();
+  const t2: Array<{ x: number; y: number }> = [
+    { x: b1pts[0]?.x ?? b1x, y: 0 }, // top-left
+    { x: b2pts[0]?.x ?? b2x, y: 0 }, // top-right
+    ...b2pts.filter(p => p.y <= b3y + 30), // right border top→horizontal
+    ...b3reversed, // horizontal border right→left
+    ...b1pts.filter(p => p.y <= b3y + 30).reverse(), // left border horizontal→top
+  ];
+
+  // Territory 3 — MASTER (right column: b2 top→bottom → W,H → W,0)
+  const t3: Array<{ x: number; y: number }> = [
+    { x: W, y: 0 },
+    ...b2pts,
+    { x: W, y: H },
+  ];
+
+  return {
+    border1,
+    border2,
+    border3,
+    territories: [
+      pointsToPath(t0),
+      pointsToPath(t1),
+      pointsToPath(t2),
+      pointsToPath(t3),
+    ],
+  };
+}
+
+// ============================================================
+// Building data distribution
+// ============================================================
+
 interface ZoneBuilding {
   section: SectionMap;
   levelInZone: string;
@@ -212,10 +304,6 @@ interface ZoneBuilding {
   coursesCompletedInLevel: number;
 }
 
-/**
- * Distribute sections across zones.
- * A section spanning trainee→expert will produce a building in trainee, practitioner, AND expert zones.
- */
 function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
   const map = new Map<string, ZoneBuilding[]>();
   for (const zone of ZONES) {
@@ -250,9 +338,11 @@ function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
       }
     }
   }
-
   return map;
 }
+
+// Precompute territory paths (static, same every render)
+const TERRITORY = buildTerritoryPaths();
 
 // ============================================================
 // COMPONENT
@@ -268,19 +358,19 @@ export function LearningMap({ data, onOpenSection }: Props) {
   const zoneData = useMemo(() => buildZoneData(sections), [sections]);
   const currentLevelIdx = ZONES.findIndex((z) => z.level === user.current_level);
 
-  // Seeded star positions (deterministic to avoid flicker on re-render)
+  // Deterministic stars
   const stars = useMemo(() => {
     const result: Array<{ x: number; y: number; r: number; o: number }> = [];
     let seed = 42;
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 60; i++) {
       seed = (seed * 16807 + 7) % 2147483647;
-      const x = (seed % 1200);
+      const x = (seed % W);
       seed = (seed * 16807 + 7) % 2147483647;
-      const y = (seed % 600);
+      const y = (seed % H);
       seed = (seed * 16807 + 7) % 2147483647;
-      const r = 0.3 + (seed % 15) / 10;
+      const r = 0.3 + (seed % 12) / 10;
       seed = (seed * 16807 + 7) % 2147483647;
-      const o = 0.1 + (seed % 40) / 100;
+      const o = 0.15 + (seed % 35) / 100;
       result.push({ x, y, r, o });
     }
     return result;
@@ -289,28 +379,28 @@ export function LearningMap({ data, onOpenSection }: Props) {
   return (
     <div className="relative w-full">
       {/* ===== User progress bar ===== */}
-      <div className="flex items-center justify-between mb-4 bg-gray-900/80 backdrop-blur rounded-xl px-5 py-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between mb-3 bg-gray-900/80 backdrop-blur rounded-xl px-4 py-2.5 sm:px-5 sm:py-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div
-            className="px-3 py-1 rounded-full text-white font-bold text-sm"
+            className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-white font-bold text-xs sm:text-sm"
             style={{ backgroundColor: LEVEL_COLORS[user.current_level] || '#666' }}
           >
             {LEVEL_NAMES[user.current_level] || user.current_level}
           </div>
-          <span className="text-white/70 text-sm">{user.name}</span>
+          <span className="text-white/70 text-xs sm:text-sm hidden sm:inline">{user.name}</span>
         </div>
         {user.level_progress.next && (
           <div className="flex items-center gap-2">
-            <div className="w-32 bg-gray-700 rounded-full h-2">
+            <div className="w-20 sm:w-32 bg-gray-700 rounded-full h-1.5 sm:h-2">
               <div
-                className="h-2 rounded-full transition-all"
+                className="h-full rounded-full transition-all"
                 style={{
                   width: `${user.level_progress.percentage_to_next}%`,
                   backgroundColor: LEVEL_COLORS[user.current_level],
                 }}
               />
             </div>
-            <span className="text-white/60 text-xs">
+            <span className="text-white/60 text-[10px] sm:text-xs whitespace-nowrap">
               {Math.round(user.level_progress.percentage_to_next)}% до {LEVEL_NAMES[user.level_progress.next]}
             </span>
           </div>
@@ -318,128 +408,115 @@ export function LearningMap({ data, onOpenSection }: Props) {
       </div>
 
       {/* ===== Map container ===== */}
-      <div
-        className="relative w-full rounded-2xl overflow-hidden shadow-2xl"
-        style={{ background: 'linear-gradient(135deg, #0f1923 0%, #1a2634 40%, #0d1520 100%)' }}
-      >
-        {/* ===== LAYER 1: SVG Background ===== */}
+      <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
+        {/* ===== LAYER 1: SVG — territories + background ===== */}
         <svg
-          viewBox="0 0 1200 600"
+          viewBox={`0 0 ${W} ${H}`}
           className="w-full h-auto block"
-          style={{ minHeight: '400px' }}
+          style={{ minHeight: '280px' }}
+          preserveAspectRatio="xMidYMid meet"
         >
           <defs>
             {ZONES.map((zone) => (
               <filter key={`glow-${zone.level}`} id={`glow-${zone.level}`} x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
               </filter>
             ))}
           </defs>
 
-          {/* Stars */}
+          {/* === Territory fills (entire map covered) === */}
+          {ZONES.map((zone, zi) => {
+            const isCurrent = zone.level === user.current_level;
+            return (
+              <g key={zone.level}>
+                {/* Base territory fill */}
+                <path
+                  d={TERRITORY.territories[zi]}
+                  fill={zone.colorDark}
+                  opacity={0.7}
+                />
+                {/* Color overlay */}
+                <path
+                  d={TERRITORY.territories[zi]}
+                  fill={zone.color}
+                  opacity={isCurrent ? 0.15 : 0.07}
+                />
+                {/* Current zone glow */}
+                {isCurrent && (
+                  <path
+                    d={TERRITORY.territories[zi]}
+                    fill={zone.glowColor}
+                    filter={`url(#glow-${zone.level})`}
+                    opacity={0.25}
+                  >
+                    <animate attributeName="opacity" values="0.15;0.3;0.15" dur="3s" repeatCount="indefinite" />
+                  </path>
+                )}
+              </g>
+            );
+          })}
+
+          {/* === Stars (on top of territory fills) === */}
           {stars.map((s, i) => (
             <circle key={`s${i}`} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />
           ))}
 
-          {/* Terrain layers */}
-          <path d="M0,580 Q200,540 400,560 T800,550 T1200,570 L1200,600 L0,600 Z" fill="#0a1018" opacity="0.6" />
-          <path d="M0,560 Q300,520 600,545 T1200,530 L1200,600 L0,600 Z" fill="#0d1520" opacity="0.4" />
+          {/* === Territory borders (wavy lines) === */}
+          <path d={TERRITORY.border1} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          <path d={TERRITORY.border2} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+          <path d={TERRITORY.border3} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
 
-          {/* Mountains */}
-          <path
-            d="M-20,400 L80,250 L150,320 L250,200 L350,300 L420,220 L500,350 L600,180 L700,280 L800,150 L900,250 L1000,180 L1100,260 L1220,350 L1220,600 L-20,600Z"
-            fill="#111a25" opacity="0.5"
-          />
-          <path
-            d="M-20,450 L100,350 L200,400 L320,310 L450,380 L550,300 L680,370 L800,280 L950,350 L1100,300 L1220,380 L1220,600 L-20,600Z"
-            fill="#152030" opacity="0.4"
-          />
-
-          {/* Road connecting zones */}
+          {/* === Road connecting zone centers === */}
           <path
             d={`M ${ZONES[0].cx},${ZONES[0].cy}
-                C ${ZONES[0].cx + 100},${ZONES[0].cy + 80} ${ZONES[1].cx - 100},${ZONES[1].cy - 50} ${ZONES[1].cx},${ZONES[1].cy}
-                C ${ZONES[1].cx + 100},${ZONES[1].cy - 60} ${ZONES[2].cx - 100},${ZONES[2].cy + 40} ${ZONES[2].cx},${ZONES[2].cy}
-                C ${ZONES[2].cx + 80},${ZONES[2].cy - 40} ${ZONES[3].cx - 80},${ZONES[3].cy + 30} ${ZONES[3].cx},${ZONES[3].cy}`}
+                C ${ZONES[0].cx + 80},${ZONES[0].cy + 60} ${ZONES[1].cx - 60},${ZONES[1].cy - 40} ${ZONES[1].cx},${ZONES[1].cy}
+                C ${ZONES[1].cx + 80},${ZONES[1].cy - 50} ${ZONES[2].cx - 80},${ZONES[2].cy + 30} ${ZONES[2].cx},${ZONES[2].cy}
+                C ${ZONES[2].cx + 60},${ZONES[2].cy - 30} ${ZONES[3].cx - 60},${ZONES[3].cy + 20} ${ZONES[3].cx},${ZONES[3].cy}`}
             fill="none"
-            stroke="#2a3a4a"
-            strokeWidth="4"
-            strokeDasharray="12 6"
-            opacity="0.6"
+            stroke="rgba(255,255,255,0.08)"
+            strokeWidth="3"
+            strokeDasharray="10 5"
           />
-          {/* Glowing road overlay for current progress */}
+          {/* Progress road glow */}
           {currentLevelIdx >= 0 && (
             <path
               d={`M ${ZONES[0].cx},${ZONES[0].cy}
-                  ${currentLevelIdx >= 1 ? `C ${ZONES[0].cx + 100},${ZONES[0].cy + 80} ${ZONES[1].cx - 100},${ZONES[1].cy - 50} ${ZONES[1].cx},${ZONES[1].cy}` : ''}
-                  ${currentLevelIdx >= 2 ? `C ${ZONES[1].cx + 100},${ZONES[1].cy - 60} ${ZONES[2].cx - 100},${ZONES[2].cy + 40} ${ZONES[2].cx},${ZONES[2].cy}` : ''}
-                  ${currentLevelIdx >= 3 ? `C ${ZONES[2].cx + 80},${ZONES[2].cy - 40} ${ZONES[3].cx - 80},${ZONES[3].cy + 30} ${ZONES[3].cx},${ZONES[3].cy}` : ''}`}
+                  ${currentLevelIdx >= 1 ? `C ${ZONES[0].cx + 80},${ZONES[0].cy + 60} ${ZONES[1].cx - 60},${ZONES[1].cy - 40} ${ZONES[1].cx},${ZONES[1].cy}` : ''}
+                  ${currentLevelIdx >= 2 ? `C ${ZONES[1].cx + 80},${ZONES[1].cy - 50} ${ZONES[2].cx - 80},${ZONES[2].cy + 30} ${ZONES[2].cx},${ZONES[2].cy}` : ''}
+                  ${currentLevelIdx >= 3 ? `C ${ZONES[2].cx + 60},${ZONES[2].cy - 30} ${ZONES[3].cx - 60},${ZONES[3].cy + 20} ${ZONES[3].cx},${ZONES[3].cy}` : ''}`}
               fill="none"
               stroke={LEVEL_COLORS[user.current_level]}
-              strokeWidth="3"
-              opacity="0.5"
+              strokeWidth="2"
+              opacity="0.4"
             />
           )}
 
-          {/* Zone territories — organic blob boundaries */}
+          {/* === Zone labels === */}
           {ZONES.map((zone) => {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
-            const territoryPath = generateTerritoryPath(zone);
-
             return (
-              <g key={zone.level}>
-                {/* Territory fill — zone color at low opacity */}
-                <path
-                  d={territoryPath}
-                  fill={zone.color}
-                  opacity={isCurrent ? 0.12 : 0.06}
-                />
-
-                {/* Territory glow for current level */}
-                {isCurrent && (
-                  <path
-                    d={territoryPath}
-                    fill={zone.glowColor}
-                    filter={`url(#glow-${zone.level})`}
-                    opacity={0.3}
-                  >
-                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
-                  </path>
-                )}
-
-                {/* Territory border — dashed organic outline */}
-                <path
-                  d={territoryPath}
-                  fill="none"
-                  stroke={zone.color}
-                  strokeWidth={isCurrent ? 1.5 : 0.8}
-                  strokeDasharray="6 4"
-                  opacity={isCurrent ? 0.6 : 0.3}
-                />
-
-                {/* Zone label */}
+              <g key={`label-${zone.level}`}>
                 <text
                   x={zone.cx}
-                  y={zone.cy + 85}
+                  y={zone.cy + 90}
                   textAnchor="middle"
                   fill={zone.color}
-                  fontSize="16"
+                  fontSize="18"
                   fontWeight="bold"
                   className="select-none"
-                  style={{ textShadow: `0 0 12px ${zone.glowColor}` }}
+                  opacity={isCurrent ? 1 : 0.7}
+                  style={{ textShadow: `0 0 15px ${zone.glowColor}` }}
                 >
                   {zone.label}
                 </text>
-
-                {/* Zone building count */}
                 <text
                   x={zone.cx}
-                  y={zone.cy + 100}
+                  y={zone.cy + 108}
                   textAnchor="middle"
                   fill={zone.color}
-                  fontSize="10"
-                  opacity={0.6}
+                  fontSize="11"
+                  opacity={0.5}
                   className="select-none"
                 >
                   {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
@@ -460,12 +537,10 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 const by = zone.cy + slot.dy;
                 const bKey = `${bld.section.section_id}-${zone.level}`;
 
-                // Building dimensions scale with course count
                 const bHeight = 30 + Math.min(bld.coursesInLevel, 5) * 6;
                 const bWidth = 26 + Math.min(bld.coursesInLevel, 5) * 3;
                 const bDepth = Math.max(18, Math.round(bWidth * 0.55));
 
-                // State-dependent colors
                 let bodyColor = '#1e2d40';
                 let roofColor = '#283848';
                 let windowColor = '#111820';
@@ -496,35 +571,27 @@ export function LearningMap({ data, onOpenSection }: Props) {
                   glowColor = `${zone.glowColor}`;
                 }
 
-                // Hovered building gets brighter stroke
-                const isHovered = hoveredBuilding === bKey;
-                if (isHovered) {
+                if (hoveredBuilding === bKey) {
                   strokeColor = '#ffffff';
                 }
 
-                // CSS state class
                 const stateClass = bld.isCompleted
                   ? 'building-wrapper--completed'
                   : bld.isAiRecommended
                   ? 'building-wrapper--ai'
                   : '';
 
-                // Window grid
                 const winRows = Math.min(Math.ceil(bHeight / 14), 4);
                 const winCols = 2;
 
-                // SVG coord → percentage position
-                const leftPct = (bx / 1200) * 100;
-                const topPct = (by / 600) * 100;
+                const leftPct = (bx / W) * 100;
+                const topPct = (by / H) * 100;
 
                 return (
                   <div
                     key={bKey}
                     className="building-positioner"
-                    style={{
-                      left: `${leftPct}%`,
-                      top: `${topPct}%`,
-                    }}
+                    style={{ left: `${leftPct}%`, top: `${topPct}%` }}
                     onClick={() => onOpenSection(bld.section.section_id)}
                     onMouseEnter={() => {
                       setHoveredBuilding(bKey);
@@ -535,7 +602,6 @@ export function LearningMap({ data, onOpenSection }: Props) {
                       setTooltip(null);
                     }}
                   >
-                    {/* 3D isometric building */}
                     <div
                       className={`building-wrapper ${stateClass}`}
                       style={{
@@ -554,7 +620,6 @@ export function LearningMap({ data, onOpenSection }: Props) {
                         '--glow-color': glowColor,
                       } as React.CSSProperties}
                     >
-                      {/* Front face with windows */}
                       <div className="face-front">
                         <div className="building-windows">
                           {Array.from({ length: winRows * winCols }).map((_, w) => (
@@ -562,38 +627,25 @@ export function LearningMap({ data, onOpenSection }: Props) {
                           ))}
                         </div>
                       </div>
-
-                      {/* Side face */}
                       <div className="face-side" />
-
-                      {/* Top face (roof) */}
                       <div className="face-top" />
                     </div>
 
-                    {/* Progress bar (flat, outside 3D space) */}
                     {!bld.isCompleted && bld.hasProgress && (
                       <div className="building-progress">
                         <div
                           className="building-progress-fill"
-                          style={{
-                            width: `${bld.progressPct}%`,
-                            backgroundColor: zone.color,
-                          }}
+                          style={{ width: `${bld.progressPct}%`, backgroundColor: zone.color }}
                         />
                       </div>
                     )}
 
-                    {/* Completed badge */}
-                    {bld.isCompleted && (
-                      <div className="building-badge">✓</div>
-                    )}
+                    {bld.isCompleted && <div className="building-badge">✓</div>}
 
-                    {/* AI fire icon */}
                     {bld.isAiRecommended && !bld.isCompleted && (
                       <div className="building-icon">🔥</div>
                     )}
 
-                    {/* Section icon */}
                     {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
                       <div className="building-icon" style={{ opacity: 0.65 }}>
                         {bld.section.icon}
@@ -611,49 +663,43 @@ export function LearningMap({ data, onOpenSection }: Props) {
           <div
             className="absolute pointer-events-none z-20"
             style={{
-              left: `${(tooltip.x / 1200) * 100}%`,
-              top: `${(tooltip.y / 600) * 100}%`,
+              left: `${(tooltip.x / W) * 100}%`,
+              top: `${(tooltip.y / H) * 100}%`,
               transform: 'translate(-50%, -100%)',
             }}
           >
-            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-4 py-3 shadow-xl min-w-[200px]">
+            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xl min-w-[160px] sm:min-w-[200px]">
               <div className="flex items-center gap-2">
                 {tooltip.building.section.icon && (
-                  <span className="text-lg">{tooltip.building.section.icon}</span>
+                  <span className="text-base sm:text-lg">{tooltip.building.section.icon}</span>
                 )}
-                <p className="text-white font-bold text-sm">{tooltip.building.section.title.ru}</p>
+                <p className="text-white font-bold text-xs sm:text-sm">{tooltip.building.section.title.ru}</p>
               </div>
-              <p className="text-gray-400 text-xs mt-1">
+              <p className="text-gray-400 text-[10px] sm:text-xs mt-1">
                 Уровень: {LEVEL_NAMES[tooltip.building.levelInZone]}
               </p>
-
-              {/* Status badge */}
-              <div className="mt-2">
+              <div className="mt-1.5 sm:mt-2">
                 {tooltip.building.isCompleted ? (
-                  <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">✓ Пройдено</span>
+                  <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">✓ Пройдено</span>
                 ) : tooltip.building.isAiRecommended ? (
-                  <span className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-full">🔥 AI задача</span>
+                  <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-full">🔥 AI задача</span>
                 ) : tooltip.building.hasProgress ? (
-                  <span className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">📖 В процессе</span>
+                  <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">📖 В процессе</span>
                 ) : (
-                  <span className="text-xs px-2 py-0.5 bg-gray-500/20 text-gray-400 rounded-full">Не начато</span>
+                  <span className="text-[10px] sm:text-xs px-2 py-0.5 bg-gray-500/20 text-gray-400 rounded-full">Не начато</span>
                 )}
               </div>
-
-              {/* Progress */}
-              <div className="mt-2">
-                <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <div className="mt-1.5 sm:mt-2">
+                <div className="flex justify-between text-[10px] sm:text-xs text-gray-400 mb-1">
                   <span>{tooltip.building.coursesCompletedInLevel}/{tooltip.building.coursesInLevel} курсов</span>
                   <span>{Math.round(tooltip.building.progressPct)}%</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                <div className="w-full bg-gray-700 rounded-full h-1 sm:h-1.5">
                   <div
-                    className="h-1.5 rounded-full"
+                    className="h-full rounded-full"
                     style={{
                       width: `${tooltip.building.progressPct}%`,
-                      backgroundColor: tooltip.building.isCompleted
-                        ? '#4CAF50'
-                        : tooltip.zoneColor,
+                      backgroundColor: tooltip.building.isCompleted ? '#4CAF50' : tooltip.zoneColor,
                     }}
                   />
                 </div>
@@ -664,24 +710,24 @@ export function LearningMap({ data, onOpenSection }: Props) {
       </div>
 
       {/* ===== Legend ===== */}
-      <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-3 sm:mt-4 text-[10px] sm:text-xs text-gray-500">
         {ZONES.map((zone) => (
-          <div key={zone.level} className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: zone.color }} />
+          <div key={zone.level} className="flex items-center gap-1 sm:gap-1.5">
+            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm" style={{ backgroundColor: zone.color }} />
             <span className="text-gray-300">{zone.label}</span>
           </div>
         ))}
-        <div className="h-3 border-l border-gray-600 mx-1" />
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-green-500/60 rounded-sm" />
+        <div className="h-3 border-l border-gray-600 mx-0.5 sm:mx-1" />
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-500/60 rounded-sm" />
           <span>Пройдено</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm">🔥</span>
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <span className="text-xs sm:text-sm">🔥</span>
           <span>AI задача</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 bg-gray-700 rounded-sm border border-gray-500" />
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gray-700 rounded-sm border border-gray-500" />
           <span>Не начато</span>
         </div>
       </div>
