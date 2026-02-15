@@ -106,10 +106,10 @@ export function ProductDetailPage() {
 
       {/* Header with product image */}
       <div className="mb-6">
-        <div className="flex gap-5">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
           {/* Product image */}
           {product.images && product.images.length > 0 ? (
-            <div className="flex-shrink-0 w-36 h-36 rounded-xl border border-gray-200 bg-white overflow-hidden flex items-center justify-center p-2">
+            <div className="flex-shrink-0 w-24 h-24 sm:w-36 sm:h-36 rounded-xl border border-gray-200 bg-white overflow-hidden flex items-center justify-center p-2">
               <img
                 src={product.images[0].url}
                 alt={product.name}
@@ -120,7 +120,7 @@ export function ProductDetailPage() {
               />
             </div>
           ) : (
-            <div className="flex-shrink-0 w-36 h-36 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+            <div className="flex-shrink-0 w-24 h-24 sm:w-36 sm:h-36 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
               <span className="text-4xl opacity-30">📦</span>
             </div>
           )}
@@ -228,8 +228,8 @@ function SectionCard({
 function InfoRow({ label, value }: { label: string; value: string | number | null | undefined }) {
   if (value == null || value === '') return null;
   return (
-    <div className="flex items-start gap-3 py-2">
-      <span className="text-sm text-gray-500 w-40 flex-shrink-0">{label}</span>
+    <div className="flex flex-col sm:flex-row sm:items-start gap-0.5 sm:gap-3 py-2">
+      <span className="text-sm text-gray-500 sm:w-40 sm:flex-shrink-0">{label}</span>
       <span className="text-sm text-gray-900 font-medium">{String(value)}</span>
     </div>
   );
@@ -356,7 +356,7 @@ function SalesTab({ product }: { product: ProductDetail }) {
             {product.competitors!.map((c, idx) => (
               <div key={idx} className="bg-white rounded-lg border border-gray-100 p-4">
                 <h4 className="text-sm font-semibold text-gray-900 mb-2">{c.name}</h4>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <p className="text-xs font-medium text-green-600 mb-1">Сильные стороны</p>
                     <p className="text-xs text-gray-600">{c.strengths}</p>

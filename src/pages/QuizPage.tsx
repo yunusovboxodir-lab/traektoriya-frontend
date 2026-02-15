@@ -134,17 +134,17 @@ export function QuizPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Шапка */}
       <header className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link to="/learning" className="text-white/80 hover:text-white transition text-sm flex items-center gap-1">
+        <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Link to="/learning" className="text-white/80 hover:text-white transition text-sm flex items-center gap-1 shrink-0">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              К курсам
+              <span className="hidden sm:inline">К курсам</span>
             </Link>
-            <h1 className="text-xl font-bold">📝 {quizItem.title}</h1>
+            <h1 className="text-base sm:text-xl font-bold truncate">📝 {quizItem.title}</h1>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {stage === 'quiz' && timeLimit && (
               <span className={`px-3 py-1 rounded-lg font-mono font-bold ${timeLeft < 60 ? 'bg-red-500 animate-pulse' : 'bg-white/20'}`}>
                 ⏱ {formatTime(timeLeft)}
@@ -227,7 +227,7 @@ export function QuizPage() {
                           : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50 text-gray-700'
                       }`}
                     >
-                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 mr-3 font-bold text-sm">
+                      <span className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 mr-2 sm:mr-3 font-bold text-xs sm:text-sm">
                         {letter}
                       </span>
                       {opt}
@@ -265,12 +265,12 @@ export function QuizPage() {
             </div>
 
             {/* Точки навигации */}
-            <div className="mt-6 flex justify-center gap-2 flex-wrap">
+            <div className="mt-6 flex justify-center gap-1.5 sm:gap-2 flex-wrap">
               {questions.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentQ(i)}
-                  className={`w-8 h-8 rounded-full text-xs font-bold transition ${
+                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full text-xs font-bold transition ${
                     i === currentQ
                       ? 'bg-indigo-600 text-white'
                       : answers[i]

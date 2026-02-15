@@ -411,7 +411,7 @@ function StatCard({ card }: { card: StatCardDef }) {
       />
       <div className="flex items-center justify-between mb-3">
         <div
-          className={`w-10 h-10 rounded-lg ${card.bgLight} flex items-center justify-center ${card.textColor}`}
+          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${card.bgLight} flex items-center justify-center ${card.textColor}`}
         >
           {card.icon}
         </div>
@@ -435,7 +435,7 @@ function StatCard({ card }: { card: StatCardDef }) {
           {card.trend}
         </span>
       </div>
-      <div className={`text-2xl font-bold ${card.textColor} tracking-tight`}>
+      <div className={`text-xl sm:text-2xl font-bold ${card.textColor} tracking-tight`}>
         {card.value}
       </div>
       <div className="text-sm text-gray-500 mt-0.5">{card.label}</div>
@@ -522,7 +522,7 @@ function HorizontalBarChart({ categories }: { categories: CategoryBreakdown[] })
         const barColor = BAR_COLORS[i % BAR_COLORS.length];
         return (
           <div key={cat.name} className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 w-28 text-right shrink-0 truncate">
+            <span className="text-xs sm:text-sm text-gray-600 w-20 sm:w-28 text-right shrink-0 truncate">
               {cat.name}
             </span>
             <div className="flex-1 h-6 bg-gray-100 rounded-md overflow-hidden">

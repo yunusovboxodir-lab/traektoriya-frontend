@@ -128,9 +128,9 @@ export function RolesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Управление ролями</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Управление ролями</h1>
           <p className="mt-1 text-sm text-gray-500">
             Настройте доступ к разделам для каждой роли
           </p>
@@ -154,7 +154,7 @@ export function RolesPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-48">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32 sm:w-48">
                   Роль
                 </th>
                 {allPages.map((page) => (

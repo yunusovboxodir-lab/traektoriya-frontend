@@ -118,9 +118,9 @@ export function ProductsPage() {
   return (
     <div>
       {/* Page header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Библиотека товаров</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Библиотека товаров</h1>
           <p className="text-sm text-gray-500 mt-1">
             {currentBrand.label}: {filtered.length} из {currentBrand.expectedSKU} SKU
           </p>
@@ -347,7 +347,8 @@ export function ProductsPage() {
         <>
           {filtered.length > 0 ? (
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <table className="w-full">
+              <div className="overflow-x-auto">
+              <table className="w-full min-w-[600px]">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
@@ -416,6 +417,7 @@ export function ProductsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             </div>
           ) : null}
 

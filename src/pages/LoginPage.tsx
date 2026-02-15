@@ -47,7 +47,7 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* ===== LEFT BRANDING PANEL ===== */}
-      <div className="relative lg:w-[480px] xl:w-[520px] shrink-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center px-8 py-10 lg:py-0">
+      <div className="relative lg:w-[480px] xl:w-[520px] shrink-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center px-8 py-6 lg:py-0">
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-slate-900/80 to-slate-900" />
 
@@ -204,7 +204,7 @@ export function LoginPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {demoCredentials.map((cred) => (
                 <button
                   key={cred.id}

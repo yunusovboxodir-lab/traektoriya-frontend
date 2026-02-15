@@ -201,7 +201,7 @@ export function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* ── Welcome Banner ── */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-8 text-white shadow-lg">
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-8 text-white shadow-lg">
         <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5" />
         <div className="absolute -right-4 bottom-0 h-32 w-32 rounded-full bg-white/5" />
         <div className="relative z-10">

@@ -97,8 +97,8 @@ export function ChatPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-80px)]">
       {/* Header */}
-      <div className="flex-none px-6 py-4 border-b bg-white">
-        <h1 className="text-xl font-bold text-gray-900">AI-Консультант</h1>
+      <div className="flex-none px-4 sm:px-6 py-3 sm:py-4 border-b bg-white">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900">AI-Консультант</h1>
         <p className="text-sm text-gray-500">
           Задавайте вопросы о продуктах, продажах, KPI и рабочих процессах
         </p>
@@ -128,7 +128,7 @@ export function ChatPage() {
                 <button
                   key={q}
                   onClick={() => { setInput(q); inputRef.current?.focus(); }}
-                  className="text-sm px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors"
+                  className="text-sm px-3 py-2.5 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors text-left"
                 >
                   {q}
                 </button>
@@ -143,7 +143,7 @@ export function ChatPage() {
             className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[75%] rounded-2xl px-4 py-3 ${
+              className={`max-w-[90%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-3 ${
                 msg.role === 'user'
                   ? 'bg-blue-600 text-white'
                   : 'bg-white border border-gray-200 text-gray-900'
@@ -223,7 +223,7 @@ export function ChatPage() {
           <button
             onClick={handleSend}
             disabled={!input.trim() || loading}
-            className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 sm:px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"

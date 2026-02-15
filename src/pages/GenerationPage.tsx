@@ -243,13 +243,13 @@ function SimpleGeneration() {
           {/* Difficulty */}
           <div className="mb-5">
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Уровень сложности</label>
-            <div className="flex gap-2">
+            <div className="grid grid-cols-2 sm:flex gap-2">
               {[1, 2, 3, 4].map((d) => (
                 <button
                   key={d}
                   type="button"
                   onClick={() => setDifficulty(d)}
-                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${
+                  className={`sm:flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${
                     difficulty === d
                       ? 'bg-blue-600 text-white shadow-sm'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -791,7 +791,7 @@ function WizardGeneration() {
     <div>
       {/* Step indicator */}
       <div className="mb-8">
-        <div className="flex items-center justify-between max-w-3xl">
+        <div className="flex items-center justify-between max-w-3xl overflow-x-auto">
           {WIZARD_STEPS.map((s, i) => {
             const isActive = step === s.num;
             const isDone = step > s.num;
@@ -799,7 +799,7 @@ function WizardGeneration() {
               <div key={s.num} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold transition-colors ${
+                    className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-colors ${
                       isDone
                         ? 'bg-green-500 text-white'
                         : isActive
@@ -809,7 +809,7 @@ function WizardGeneration() {
                   >
                     {isDone ? <IconCheck className="w-4 h-4" /> : s.num}
                   </div>
-                  <span className={`text-xs mt-1.5 whitespace-nowrap ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
+                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 whitespace-nowrap ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
                     {s.label}
                   </span>
                 </div>
@@ -1436,7 +1436,7 @@ function StepModeration({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Модерация уроков</h2>
           <p className="text-sm text-gray-500 mt-0.5">

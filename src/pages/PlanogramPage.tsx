@@ -180,9 +180,9 @@ export function PlanogramPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link to="/dashboard" className="text-blue-600 hover:text-blue-800">← Назад</Link>
-          <h1 className="text-xl font-bold">ShelfScan AI</h1>
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex items-center gap-3 sm:gap-4">
+          <Link to="/dashboard" className="text-blue-600 hover:text-blue-800 text-sm sm:text-base shrink-0">← Назад</Link>
+          <h1 className="text-lg sm:text-xl font-bold">ShelfScan AI</h1>
           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">v2 + Goal-Driven</span>
         </div>
       </header>
@@ -255,7 +255,7 @@ export function PlanogramPage() {
                     <div className="space-y-3">
                       {Object.entries(result.criteria).map(([key, c]) => (
                         <div key={key} className="flex items-center gap-3">
-                          <span className="text-sm w-28 shrink-0">{CRITERIA_LABELS[key] || key}</span>
+                          <span className="text-xs sm:text-sm w-20 sm:w-28 shrink-0">{CRITERIA_LABELS[key] || key}</span>
                           <div className="flex-1 bg-gray-100 rounded-full h-4 overflow-hidden">
                             <div className={`h-full rounded-full transition-all ${c.percentage >= 80 ? 'bg-green-500' : c.percentage >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${c.percentage}%` }} />
                           </div>

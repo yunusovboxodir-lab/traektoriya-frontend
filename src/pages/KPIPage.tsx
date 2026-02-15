@@ -117,9 +117,9 @@ export function KPIPage() {
   // ─── Loading ─────────────────────────
   if (loading) {
     return (
-      <div className="animate-pulse space-y-6 p-6">
+      <div className="animate-pulse space-y-6 p-4 sm:p-6">
         <div className="h-8 w-48 bg-gray-200 rounded" />
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="h-32 bg-gray-200 rounded-xl" />
           ))}
@@ -146,8 +146,8 @@ export function KPIPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">KPI и Рейтинг</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">KPI и Рейтинг</h1>
         {isAdmin && (
           <button
             onClick={async () => {
@@ -182,12 +182,12 @@ export function KPIPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit overflow-x-auto">
         {([['my', 'Мой KPI'], ['leaderboard', 'Лидерборд'], ['teams', 'Рейтинг команд']] as const).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+            className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               tab === key ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:text-gray-900'
             }`}
           >
@@ -243,6 +243,7 @@ export function KPIPage() {
       {/* Tab: Leaderboard */}
       {tab === 'leaderboard' && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
@@ -287,12 +288,14 @@ export function KPIPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
 
       {/* Tab: Team ratings */}
       {tab === 'teams' && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b">
               <tr>
@@ -324,6 +327,7 @@ export function KPIPage() {
               ))}
             </tbody>
           </table>
+          </div>
           {teams.length > 0 && (
             <div className="px-4 py-3 bg-gray-50 border-t text-xs text-gray-400">
               Формула: (KPI руководителя + Сумма KPI сотрудников) / (кол-во + 1)
