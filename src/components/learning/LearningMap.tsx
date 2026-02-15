@@ -7,10 +7,12 @@ import {
 } from '../../api/learning';
 
 /**
- * Interactive Learning Map — city-inspired SVG map
+ * Interactive Learning Map — 3D isometric city
  * 4 zones: Стажёр (green), Практик (blue), Эксперт (orange), Мастер (red)
  *
- * Each section that spans multiple levels appears as a building in EACH zone it covers.
+ * Architecture: SVG background (stars, mountains, road, zone platforms)
+ *             + HTML overlay (3D CSS buildings with perspective)
+ *
  * Building states:
  *   - 🟢 Green glow  = completed (all courses at this level done)
  *   - 🔥 Orange glow = AI recommended (has pending learning tasks)
@@ -30,7 +32,6 @@ interface ZoneConfig {
   glowColor: string;
   bgGradient: [string, string];
   cx: number; cy: number;
-  // Building positions within zone — up to 8 slots
   buildingSlots: Array<{ dx: number; dy: number }>;
 }
 
@@ -118,7 +119,6 @@ const LEVEL_ORDER: Record<string, number> = {
 interface ZoneBuilding {
   section: SectionMap;
   levelInZone: string;
-  // Status
   isCompleted: boolean;
   isAiRecommended: boolean;
   hasProgress: boolean;
@@ -145,14 +145,12 @@ function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
       const level = ZONES[i]?.level;
       if (!level) continue;
 
-      // Find level-specific data from section.levels array
       const levelData = sec.levels?.find((l) => l.level === level);
       const coursesTotal = levelData?.courses_total ?? 0;
       const coursesCompleted = levelData?.courses_completed ?? 0;
       const isLevelCompleted = coursesTotal > 0 && coursesCompleted >= coursesTotal;
       const pct = coursesTotal > 0 ? (coursesCompleted / coursesTotal) * 100 : 0;
 
-      // Only add if there are courses at this level
       if (coursesTotal > 0) {
         map.get(level)?.push({
           section: sec,
@@ -171,6 +169,10 @@ function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
   return map;
 }
 
+// ============================================================
+// COMPONENT
+// ============================================================
+
 export function LearningMap({ data, onOpenSection }: Props) {
   const { user, sections } = data;
   const [hoveredBuilding, setHoveredBuilding] = useState<string | null>(null);
@@ -181,7 +183,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
   const zoneData = useMemo(() => buildZoneData(sections), [sections]);
   const currentLevelIdx = ZONES.findIndex((z) => z.level === user.current_level);
 
-  // Seeded star positions (deterministic)
+  // Seeded star positions (deterministic to avoid flicker on re-render)
   const stars = useMemo(() => {
     const result: Array<{ x: number; y: number; r: number; o: number }> = [];
     let seed = 42;
@@ -201,7 +203,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
   return (
     <div className="relative w-full">
-      {/* User progress bar */}
+      {/* ===== User progress bar ===== */}
       <div className="flex items-center justify-between mb-4 bg-gray-900/80 backdrop-blur rounded-xl px-5 py-3">
         <div className="flex items-center gap-3">
           <div
@@ -230,31 +232,23 @@ export function LearningMap({ data, onOpenSection }: Props) {
         )}
       </div>
 
-      {/* SVG Map */}
+      {/* ===== Map container ===== */}
       <div
         className="relative w-full rounded-2xl overflow-hidden shadow-2xl"
         style={{ background: 'linear-gradient(135deg, #0f1923 0%, #1a2634 40%, #0d1520 100%)' }}
       >
+        {/* ===== LAYER 1: SVG Background ===== */}
         <svg
           viewBox="0 0 1200 600"
-          className="w-full h-auto"
+          className="w-full h-auto block"
           style={{ minHeight: '400px' }}
         >
           <defs>
-            {/* Glow filters for each zone */}
             {ZONES.map((zone) => (
               <filter key={`glow-${zone.level}`} id={`glow-${zone.level}`} x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
               </filter>
             ))}
-            {/* Fire glow for AI recommended */}
-            <filter id="glow-fire" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
-            </filter>
-            {/* Green glow for completed */}
-            <filter id="glow-done" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
-            </filter>
           </defs>
 
           {/* Stars */}
@@ -288,7 +282,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
             strokeDasharray="12 6"
             opacity="0.6"
           />
-          {/* Glowing road overlay */}
+          {/* Glowing road overlay for current progress */}
           {currentLevelIdx >= 0 && (
             <path
               d={`M ${ZONES[0].cx},${ZONES[0].cy}
@@ -302,15 +296,13 @@ export function LearningMap({ data, onOpenSection }: Props) {
             />
           )}
 
-          {/* === ZONES === */}
+          {/* Zone platforms, labels, counts (NO buildings — those are in HTML layer) */}
           {ZONES.map((zone) => {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
-            // All zones are visually accessible
-            const isUnlocked = true;
 
             return (
-              <g key={zone.level} opacity={isUnlocked ? 1 : 0.4}>
+              <g key={zone.level}>
                 {/* Zone glow for current level */}
                 {isCurrent && (
                   <circle
@@ -362,182 +354,169 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 >
                   {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
                 </text>
-
-                {/* === BUILDINGS === */}
-                {buildings.map((bld, bIdx) => {
-                  const slot = zone.buildingSlots[bIdx % zone.buildingSlots.length];
-                  const bx = zone.cx + slot.dx;
-                  const by = zone.cy + slot.dy;
-                  const bKey = `${bld.section.section_id}-${zone.level}`;
-                  const isHovered = hoveredBuilding === bKey;
-
-                  // Building height varies by course count
-                  const bHeight = 30 + Math.min(bld.coursesInLevel, 5) * 5;
-                  const bWidth = 28 + Math.min(bld.coursesInLevel, 5) * 2;
-
-                  // Building state colors
-                  let bodyColor = '#1e2d40'; // dark (not started)
-                  let roofColor = '#283848';
-                  let windowColor = '#111820';
-                  let windowOpacity = 0.3;
-                  let buildingStroke = zone.color;
-                  let buildingStrokeWidth = 0.8;
-
-                  if (bld.isCompleted) {
-                    // ✅ Completed — green glow
-                    bodyColor = '#1a4a25';
-                    roofColor = '#2a6a35';
-                    windowColor = '#4CAF50';
-                    windowOpacity = 0.9;
-                    buildingStroke = '#4CAF50';
-                    buildingStrokeWidth = 1.5;
-                  } else if (bld.isAiRecommended) {
-                    // 🔥 AI recommended — lit up / orange fire
-                    bodyColor = '#4a3010';
-                    roofColor = '#5a4020';
-                    windowColor = '#FF9800';
-                    windowOpacity = 1;
-                    buildingStroke = '#FF9800';
-                    buildingStrokeWidth = 1.5;
-                  } else if (bld.hasProgress) {
-                    // 🔵 In progress — partially lit
-                    bodyColor = '#1a2d45';
-                    roofColor = '#2a4060';
-                    windowColor = zone.glowColor;
-                    windowOpacity = 0.7;
-                    buildingStroke = zone.color;
-                    buildingStrokeWidth = 1;
-                  }
-                  // else: dark/not started — defaults above
-
-                  if (isHovered) {
-                    buildingStroke = '#fff';
-                    buildingStrokeWidth = 2;
-                  }
-
-                  // Window grid
-                  const windowRows = Math.min(Math.ceil(bHeight / 14), 3);
-                  const windowCols = 2;
-
-                  return (
-                    <g
-                      key={bKey}
-                      className="cursor-pointer"
-                      onClick={() => onOpenSection(bld.section.section_id)}
-                      onMouseEnter={() => {
-                        setHoveredBuilding(bKey);
-                        setTooltip({ x: bx, y: by - bHeight - 15, building: bld, zoneColor: zone.color });
-                      }}
-                      onMouseLeave={() => {
-                        setHoveredBuilding(null);
-                        setTooltip(null);
-                      }}
-                    >
-                      {/* Completed glow */}
-                      {bld.isCompleted && (
-                        <circle cx={bx} cy={by - bHeight / 2} r={25} fill="rgba(76,175,80,0.3)" filter="url(#glow-done)">
-                          <animate attributeName="opacity" values="0.5;0.8;0.5" dur="2s" repeatCount="indefinite" />
-                        </circle>
-                      )}
-
-                      {/* AI recommended fire glow */}
-                      {bld.isAiRecommended && !bld.isCompleted && (
-                        <circle cx={bx} cy={by - bHeight / 2} r={25} fill="rgba(255,152,0,0.35)" filter="url(#glow-fire)">
-                          <animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.5s" repeatCount="indefinite" />
-                        </circle>
-                      )}
-
-                      {/* Building shadow */}
-                      <ellipse cx={bx} cy={by + 4} rx={bWidth / 2 + 3} ry={5} fill="#000" opacity="0.3" />
-
-                      {/* Building body */}
-                      <rect
-                        x={bx - bWidth / 2}
-                        y={by - bHeight}
-                        width={bWidth}
-                        height={bHeight}
-                        rx={2}
-                        fill={bodyColor}
-                        stroke={buildingStroke}
-                        strokeWidth={buildingStrokeWidth}
-                      />
-
-                      {/* Roof */}
-                      <polygon
-                        points={`${bx - bWidth / 2 - 4},${by - bHeight} ${bx},${by - bHeight - 14} ${bx + bWidth / 2 + 4},${by - bHeight}`}
-                        fill={roofColor}
-                        stroke={buildingStroke}
-                        strokeWidth="0.5"
-                      />
-
-                      {/* Windows */}
-                      {Array.from({ length: windowRows * windowCols }).map((_, w) => {
-                        const row = Math.floor(w / windowCols);
-                        const col = w % windowCols;
-                        const wx = bx - bWidth / 4 + col * (bWidth / 2);
-                        const wy = by - bHeight + 8 + row * 12;
-                        return (
-                          <rect
-                            key={w}
-                            x={wx - 3}
-                            y={wy}
-                            width={5}
-                            height={7}
-                            rx={1}
-                            fill={windowColor}
-                            opacity={windowOpacity}
-                          >
-                            {/* Flickering effect for AI recommended */}
-                            {bld.isAiRecommended && !bld.isCompleted && (
-                              <animate
-                                attributeName="opacity"
-                                values={`${windowOpacity};${windowOpacity * 0.4};${windowOpacity}`}
-                                dur={`${1.5 + w * 0.3}s`}
-                                repeatCount="indefinite"
-                              />
-                            )}
-                          </rect>
-                        );
-                      })}
-
-                      {/* Progress bar under building */}
-                      {!bld.isCompleted && bld.hasProgress && (
-                        <>
-                          <rect x={bx - bWidth / 2} y={by + 6} width={bWidth} height={3} rx={1.5} fill="#1a2030" />
-                          <rect x={bx - bWidth / 2} y={by + 6} width={bWidth * bld.progressPct / 100} height={3} rx={1.5} fill={zone.color} />
-                        </>
-                      )}
-
-                      {/* Completed badge */}
-                      {bld.isCompleted && (
-                        <g>
-                          <circle cx={bx + bWidth / 2 - 2} cy={by - bHeight - 10} r={7} fill="#4CAF50" stroke="#fff" strokeWidth="1" />
-                          <text x={bx + bWidth / 2 - 2} y={by - bHeight - 6} textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">✓</text>
-                        </g>
-                      )}
-
-                      {/* AI fire icon */}
-                      {bld.isAiRecommended && !bld.isCompleted && (
-                        <text x={bx} y={by - bHeight - 16} textAnchor="middle" fontSize="13">
-                          🔥
-                        </text>
-                      )}
-
-                      {/* Section icon */}
-                      {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
-                        <text x={bx} y={by - bHeight - 16} textAnchor="middle" fontSize="12" opacity={0.7}>
-                          {bld.section.icon}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
               </g>
             );
           })}
         </svg>
 
-        {/* Tooltip */}
+        {/* ===== LAYER 2: 3D Buildings (HTML overlay) ===== */}
+        <div className="learning-map-3d-layer">
+          <div style={{ perspective: '800px', width: '100%', height: '100%', position: 'relative' }}>
+            {ZONES.map((zone) => {
+              const buildings = zoneData.get(zone.level) || [];
+              return buildings.map((bld, bIdx) => {
+                const slot = zone.buildingSlots[bIdx % zone.buildingSlots.length];
+                const bx = zone.cx + slot.dx;
+                const by = zone.cy + slot.dy;
+                const bKey = `${bld.section.section_id}-${zone.level}`;
+
+                // Building dimensions scale with course count
+                const bHeight = 30 + Math.min(bld.coursesInLevel, 5) * 6;
+                const bWidth = 26 + Math.min(bld.coursesInLevel, 5) * 3;
+                const bDepth = Math.max(18, Math.round(bWidth * 0.55));
+
+                // State-dependent colors
+                let bodyColor = '#1e2d40';
+                let roofColor = '#283848';
+                let windowColor = '#111820';
+                let windowOpacity = 0.25;
+                let strokeColor = 'rgba(255,255,255,0.1)';
+                let glowColor = 'transparent';
+
+                if (bld.isCompleted) {
+                  bodyColor = '#1a4a25';
+                  roofColor = '#2a6a35';
+                  windowColor = '#4CAF50';
+                  windowOpacity = 0.85;
+                  strokeColor = '#4CAF50';
+                  glowColor = 'rgba(76,175,80,0.45)';
+                } else if (bld.isAiRecommended) {
+                  bodyColor = '#4a3010';
+                  roofColor = '#5a4020';
+                  windowColor = '#FF9800';
+                  windowOpacity = 0.95;
+                  strokeColor = '#FF9800';
+                  glowColor = 'rgba(255,152,0,0.45)';
+                } else if (bld.hasProgress) {
+                  bodyColor = '#1a2d45';
+                  roofColor = '#2a4060';
+                  windowColor = zone.color;
+                  windowOpacity = 0.6;
+                  strokeColor = zone.color;
+                  glowColor = `${zone.glowColor}`;
+                }
+
+                // Hovered building gets brighter stroke
+                const isHovered = hoveredBuilding === bKey;
+                if (isHovered) {
+                  strokeColor = '#ffffff';
+                }
+
+                // CSS state class
+                const stateClass = bld.isCompleted
+                  ? 'building-wrapper--completed'
+                  : bld.isAiRecommended
+                  ? 'building-wrapper--ai'
+                  : '';
+
+                // Window grid
+                const winRows = Math.min(Math.ceil(bHeight / 14), 4);
+                const winCols = 2;
+
+                // SVG coord → percentage position
+                const leftPct = (bx / 1200) * 100;
+                const topPct = (by / 600) * 100;
+
+                return (
+                  <div
+                    key={bKey}
+                    className="building-positioner"
+                    style={{
+                      left: `${leftPct}%`,
+                      top: `${topPct}%`,
+                    }}
+                    onClick={() => onOpenSection(bld.section.section_id)}
+                    onMouseEnter={() => {
+                      setHoveredBuilding(bKey);
+                      setTooltip({ x: bx, y: by - bHeight - 30, building: bld, zoneColor: zone.color });
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredBuilding(null);
+                      setTooltip(null);
+                    }}
+                  >
+                    {/* 3D isometric building */}
+                    <div
+                      className={`building-wrapper ${stateClass}`}
+                      style={{
+                        width: `${bWidth}px`,
+                        height: `${bHeight}px`,
+                        '--b-width': `${bWidth}px`,
+                        '--b-height': `${bHeight}px`,
+                        '--b-depth': `${bDepth}px`,
+                        '--body-color': bodyColor,
+                        '--roof-color': roofColor,
+                        '--stroke-color': strokeColor,
+                        '--window-color': windowColor,
+                        '--window-opacity': windowOpacity,
+                        '--win-rows': winRows,
+                        '--win-cols': winCols,
+                        '--glow-color': glowColor,
+                      } as React.CSSProperties}
+                    >
+                      {/* Front face with windows */}
+                      <div className="face-front">
+                        <div className="building-windows">
+                          {Array.from({ length: winRows * winCols }).map((_, w) => (
+                            <div key={w} className="building-window" />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Side face */}
+                      <div className="face-side" />
+
+                      {/* Top face (roof) */}
+                      <div className="face-top" />
+                    </div>
+
+                    {/* Progress bar (flat, outside 3D space) */}
+                    {!bld.isCompleted && bld.hasProgress && (
+                      <div className="building-progress">
+                        <div
+                          className="building-progress-fill"
+                          style={{
+                            width: `${bld.progressPct}%`,
+                            backgroundColor: zone.color,
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {/* Completed badge */}
+                    {bld.isCompleted && (
+                      <div className="building-badge">✓</div>
+                    )}
+
+                    {/* AI fire icon */}
+                    {bld.isAiRecommended && !bld.isCompleted && (
+                      <div className="building-icon">🔥</div>
+                    )}
+
+                    {/* Section icon */}
+                    {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
+                      <div className="building-icon" style={{ opacity: 0.65 }}>
+                        {bld.section.icon}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })}
+          </div>
+        </div>
+
+        {/* ===== LAYER 3: Tooltip ===== */}
         {tooltip && (
           <div
             className="absolute pointer-events-none z-20"
@@ -594,7 +573,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
         )}
       </div>
 
-      {/* Legend */}
+      {/* ===== Legend ===== */}
       <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
         {ZONES.map((zone) => (
           <div key={zone.level} className="flex items-center gap-1.5">
