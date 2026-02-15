@@ -7,9 +7,14 @@ import {
 } from '../../api/learning';
 
 /**
- * Interactive Learning Map — 3D-city-inspired SVG map
- * 4 zones: Trainee (green), Practitioner (blue), Expert (orange), Master (red)
- * Each zone contains "buildings" representing learning sections.
+ * Interactive Learning Map — city-inspired SVG map
+ * 4 zones: Стажёр (green), Практик (blue), Эксперт (orange), Мастер (red)
+ *
+ * Each section that spans multiple levels appears as a building in EACH zone it covers.
+ * Building states:
+ *   - 🟢 Green glow  = completed (all courses at this level done)
+ *   - 🔥 Orange glow = AI recommended (has pending learning tasks)
+ *   - 🔵 Dim/dark    = not started yet
  */
 
 interface Props {
@@ -17,16 +22,15 @@ interface Props {
   onOpenSection: (sectionId: string) => void;
 }
 
-// Zone layout config — positions on the SVG canvas (1200x700 viewport)
+// Zone layout config
 interface ZoneConfig {
   level: string;
   label: string;
   color: string;
   glowColor: string;
   bgGradient: [string, string];
-  // Zone polygon bounds
   cx: number; cy: number;
-  // Building positions (relative to zone center)
+  // Building positions within zone — up to 8 slots
   buildingSlots: Array<{ dx: number; dy: number }>;
 }
 
@@ -37,13 +41,16 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     glowColor: 'rgba(76,175,80,0.4)',
     bgGradient: ['#1a3a1f', '#2d5a33'],
-    cx: 200, cy: 280,
+    cx: 200, cy: 300,
     buildingSlots: [
-      { dx: -90, dy: -30 },
-      { dx: 0, dy: -50 },
-      { dx: 90, dy: -20 },
-      { dx: -45, dy: 40 },
-      { dx: 60, dy: 50 },
+      { dx: -100, dy: -50 },
+      { dx: -30, dy: -70 },
+      { dx: 50, dy: -45 },
+      { dx: 110, dy: -55 },
+      { dx: -70, dy: 15 },
+      { dx: 10, dy: 25 },
+      { dx: 80, dy: 10 },
+      { dx: -20, dy: -15 },
     ],
   },
   {
@@ -52,13 +59,16 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     glowColor: 'rgba(33,150,243,0.4)',
     bgGradient: ['#1a2a3f', '#2a4060'],
-    cx: 500, cy: 420,
+    cx: 480, cy: 430,
     buildingSlots: [
-      { dx: -100, dy: -30 },
-      { dx: -20, dy: -55 },
-      { dx: 80, dy: -20 },
-      { dx: -60, dy: 35 },
-      { dx: 50, dy: 45 },
+      { dx: -110, dy: -40 },
+      { dx: -40, dy: -65 },
+      { dx: 40, dy: -50 },
+      { dx: 110, dy: -35 },
+      { dx: -80, dy: 20 },
+      { dx: 0, dy: 30 },
+      { dx: 75, dy: 15 },
+      { dx: -30, dy: -5 },
     ],
   },
   {
@@ -67,13 +77,16 @@ const ZONES: ZoneConfig[] = [
     color: '#FF9800',
     glowColor: 'rgba(255,152,0,0.4)',
     bgGradient: ['#3a2a10', '#5a4020'],
-    cx: 800, cy: 300,
+    cx: 800, cy: 310,
     buildingSlots: [
-      { dx: -80, dy: -40 },
-      { dx: 20, dy: -55 },
-      { dx: 100, dy: -25 },
-      { dx: -40, dy: 30 },
-      { dx: 70, dy: 40 },
+      { dx: -100, dy: -45 },
+      { dx: -25, dy: -65 },
+      { dx: 55, dy: -40 },
+      { dx: 115, dy: -50 },
+      { dx: -65, dy: 20 },
+      { dx: 15, dy: 25 },
+      { dx: 85, dy: 10 },
+      { dx: -30, dy: -10 },
     ],
   },
   {
@@ -82,49 +95,113 @@ const ZONES: ZoneConfig[] = [
     color: '#F44336',
     glowColor: 'rgba(244,67,54,0.4)',
     bgGradient: ['#3a1515', '#5a2020'],
-    cx: 1050, cy: 200,
+    cx: 1060, cy: 220,
     buildingSlots: [
-      { dx: -60, dy: -30 },
-      { dx: 30, dy: -45 },
-      { dx: -20, dy: 25 },
-      { dx: 60, dy: 15 },
+      { dx: -80, dy: -40 },
+      { dx: -10, dy: -60 },
+      { dx: 60, dy: -35 },
+      { dx: -45, dy: 15 },
+      { dx: 30, dy: 20 },
+      { dx: -70, dy: -10 },
     ],
   },
 ];
 
-// Map sections to zones by their level_range.start
-function mapSectionsToZones(sections: SectionMap[]): Map<string, SectionMap[]> {
-  const map = new Map<string, SectionMap[]>();
+const LEVEL_ORDER: Record<string, number> = {
+  trainee: 0,
+  practitioner: 1,
+  expert: 2,
+  master: 3,
+};
+
+// Building data for each zone
+interface ZoneBuilding {
+  section: SectionMap;
+  levelInZone: string;
+  // Status
+  isCompleted: boolean;
+  isAiRecommended: boolean;
+  hasProgress: boolean;
+  progressPct: number;
+  coursesInLevel: number;
+  coursesCompletedInLevel: number;
+}
+
+/**
+ * Distribute sections across zones.
+ * A section spanning trainee→expert will produce a building in trainee, practitioner, AND expert zones.
+ */
+function buildZoneData(sections: SectionMap[]): Map<string, ZoneBuilding[]> {
+  const map = new Map<string, ZoneBuilding[]>();
   for (const zone of ZONES) {
     map.set(zone.level, []);
   }
+
   for (const sec of sections) {
-    const level = sec.level_range.start;
-    const arr = map.get(level);
-    if (arr) {
-      arr.push(sec);
-    } else {
-      // Fallback to trainee
-      map.get('trainee')?.push(sec);
+    const startIdx = LEVEL_ORDER[sec.level_range.start] ?? 0;
+    const endIdx = LEVEL_ORDER[sec.level_range.end] ?? 3;
+
+    for (let i = startIdx; i <= endIdx; i++) {
+      const level = ZONES[i]?.level;
+      if (!level) continue;
+
+      // Find level-specific data from section.levels array
+      const levelData = sec.levels?.find((l) => l.level === level);
+      const coursesTotal = levelData?.courses_total ?? 0;
+      const coursesCompleted = levelData?.courses_completed ?? 0;
+      const isLevelCompleted = coursesTotal > 0 && coursesCompleted >= coursesTotal;
+      const pct = coursesTotal > 0 ? (coursesCompleted / coursesTotal) * 100 : 0;
+
+      // Only add if there are courses at this level
+      if (coursesTotal > 0) {
+        map.get(level)?.push({
+          section: sec,
+          levelInZone: level,
+          isCompleted: isLevelCompleted,
+          isAiRecommended: sec.ai_recommended_count > 0,
+          hasProgress: coursesCompleted > 0,
+          progressPct: pct,
+          coursesInLevel: coursesTotal,
+          coursesCompletedInLevel: coursesCompleted,
+        });
+      }
     }
   }
+
   return map;
 }
 
 export function LearningMap({ data, onOpenSection }: Props) {
   const { user, sections } = data;
-  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+  const [hoveredBuilding, setHoveredBuilding] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<{
-    x: number; y: number; section: SectionMap;
+    x: number; y: number; building: ZoneBuilding; zoneColor: string;
   } | null>(null);
 
-  const sectionsByZone = useMemo(() => mapSectionsToZones(sections), [sections]);
-
+  const zoneData = useMemo(() => buildZoneData(sections), [sections]);
   const currentLevelIdx = ZONES.findIndex((z) => z.level === user.current_level);
+
+  // Seeded star positions (deterministic)
+  const stars = useMemo(() => {
+    const result: Array<{ x: number; y: number; r: number; o: number }> = [];
+    let seed = 42;
+    for (let i = 0; i < 50; i++) {
+      seed = (seed * 16807 + 7) % 2147483647;
+      const x = (seed % 1200);
+      seed = (seed * 16807 + 7) % 2147483647;
+      const y = (seed % 600);
+      seed = (seed * 16807 + 7) % 2147483647;
+      const r = 0.3 + (seed % 15) / 10;
+      seed = (seed * 16807 + 7) % 2147483647;
+      const o = 0.1 + (seed % 40) / 100;
+      result.push({ x, y, r, o });
+    }
+    return result;
+  }, []);
 
   return (
     <div className="relative w-full">
-      {/* User progress bar — compact */}
+      {/* User progress bar */}
       <div className="flex items-center justify-between mb-4 bg-gray-900/80 backdrop-blur rounded-xl px-5 py-3">
         <div className="flex items-center gap-3">
           <div
@@ -164,56 +241,42 @@ export function LearningMap({ data, onOpenSection }: Props) {
           style={{ minHeight: '400px' }}
         >
           <defs>
-            {/* Glow filters */}
+            {/* Glow filters for each zone */}
             {ZONES.map((zone) => (
               <filter key={`glow-${zone.level}`} id={`glow-${zone.level}`} x="-50%" y="-50%" width="200%" height="200%">
                 <feGaussianBlur in="SourceGraphic" stdDeviation="8" />
               </filter>
             ))}
-            {/* Star pattern for background */}
-            <radialGradient id="star" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#fff" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
-            </radialGradient>
+            {/* Fire glow for AI recommended */}
+            <filter id="glow-fire" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
+            </filter>
+            {/* Green glow for completed */}
+            <filter id="glow-done" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+            </filter>
           </defs>
 
-          {/* Background stars */}
-          {Array.from({ length: 40 }).map((_, i) => (
-            <circle
-              key={`star-${i}`}
-              cx={Math.random() * 1200}
-              cy={Math.random() * 600}
-              r={Math.random() * 1.5 + 0.3}
-              fill="#fff"
-              opacity={Math.random() * 0.4 + 0.1}
-            />
+          {/* Stars */}
+          {stars.map((s, i) => (
+            <circle key={`s${i}`} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />
           ))}
 
-          {/* Ground/terrain layer */}
-          <path
-            d="M0,580 Q200,540 400,560 T800,550 T1200,570 L1200,600 L0,600 Z"
-            fill="#0a1018"
-            opacity="0.6"
-          />
-          <path
-            d="M0,560 Q300,520 600,545 T1200,530 L1200,600 L0,600 Z"
-            fill="#0d1520"
-            opacity="0.4"
-          />
+          {/* Terrain layers */}
+          <path d="M0,580 Q200,540 400,560 T800,550 T1200,570 L1200,600 L0,600 Z" fill="#0a1018" opacity="0.6" />
+          <path d="M0,560 Q300,520 600,545 T1200,530 L1200,600 L0,600 Z" fill="#0d1520" opacity="0.4" />
 
-          {/* Mountain silhouettes (background) */}
+          {/* Mountains */}
           <path
             d="M-20,400 L80,250 L150,320 L250,200 L350,300 L420,220 L500,350 L600,180 L700,280 L800,150 L900,250 L1000,180 L1100,260 L1220,350 L1220,600 L-20,600Z"
-            fill="#111a25"
-            opacity="0.5"
+            fill="#111a25" opacity="0.5"
           />
           <path
             d="M-20,450 L100,350 L200,400 L320,310 L450,380 L550,300 L680,370 L800,280 L950,350 L1100,300 L1220,380 L1220,600 L-20,600Z"
-            fill="#152030"
-            opacity="0.4"
+            fill="#152030" opacity="0.4"
           />
 
-          {/* Road/path connecting zones */}
+          {/* Road connecting zones */}
           <path
             d={`M ${ZONES[0].cx},${ZONES[0].cy}
                 C ${ZONES[0].cx + 100},${ZONES[0].cy + 80} ${ZONES[1].cx - 100},${ZONES[1].cy - 50} ${ZONES[1].cx},${ZONES[1].cy}
@@ -225,7 +288,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
             strokeDasharray="12 6"
             opacity="0.6"
           />
-          {/* Glowing path overlay for unlocked portion */}
+          {/* Glowing road overlay */}
           {currentLevelIdx >= 0 && (
             <path
               d={`M ${ZONES[0].cx},${ZONES[0].cy}
@@ -239,43 +302,44 @@ export function LearningMap({ data, onOpenSection }: Props) {
             />
           )}
 
-          {/* Zones */}
-          {ZONES.map((zone, zoneIdx) => {
-            const zoneSections = sectionsByZone.get(zone.level) || [];
-            const isUnlocked = zoneIdx <= currentLevelIdx;
+          {/* === ZONES === */}
+          {ZONES.map((zone) => {
+            const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
+            // All zones are visually accessible
+            const isUnlocked = true;
 
             return (
-              <g key={zone.level} opacity={isUnlocked ? 1 : 0.35}>
-                {/* Zone glow */}
+              <g key={zone.level} opacity={isUnlocked ? 1 : 0.4}>
+                {/* Zone glow for current level */}
                 {isCurrent && (
                   <circle
                     cx={zone.cx}
                     cy={zone.cy}
-                    r={120}
+                    r={130}
                     fill={zone.glowColor}
                     filter={`url(#glow-${zone.level})`}
                   >
-                    <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.3;0.55;0.3" dur="3s" repeatCount="indefinite" />
                   </circle>
                 )}
 
-                {/* Zone platform (isometric-style ground) */}
+                {/* Zone platform */}
                 <ellipse
                   cx={zone.cx}
-                  cy={zone.cy + 40}
-                  rx={140}
-                  ry={50}
+                  cy={zone.cy + 45}
+                  rx={150}
+                  ry={55}
                   fill={zone.bgGradient[0]}
                   stroke={zone.color}
                   strokeWidth={isCurrent ? 2 : 0.5}
-                  opacity={0.6}
+                  opacity={0.5}
                 />
 
                 {/* Zone label */}
                 <text
                   x={zone.cx}
-                  y={zone.cy + 80}
+                  y={zone.cy + 85}
                   textAnchor="middle"
                   fill={zone.color}
                   fontSize="16"
@@ -286,107 +350,183 @@ export function LearningMap({ data, onOpenSection }: Props) {
                   {zone.label}
                 </text>
 
-                {/* Buildings (sections) */}
-                {zoneSections.map((sec, secIdx) => {
-                  const slot = zone.buildingSlots[secIdx % zone.buildingSlots.length];
+                {/* Zone building count */}
+                <text
+                  x={zone.cx}
+                  y={zone.cy + 100}
+                  textAnchor="middle"
+                  fill={zone.color}
+                  fontSize="10"
+                  opacity={0.6}
+                  className="select-none"
+                >
+                  {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
+                </text>
+
+                {/* === BUILDINGS === */}
+                {buildings.map((bld, bIdx) => {
+                  const slot = zone.buildingSlots[bIdx % zone.buildingSlots.length];
                   const bx = zone.cx + slot.dx;
                   const by = zone.cy + slot.dy;
-                  const isHovered = hoveredSection === sec.section_id;
-                  const progress = sec.progress?.percentage || 0;
-                  const completed = progress === 100;
+                  const bKey = `${bld.section.section_id}-${zone.level}`;
+                  const isHovered = hoveredBuilding === bKey;
+
+                  // Building height varies by course count
+                  const bHeight = 30 + Math.min(bld.coursesInLevel, 5) * 5;
+                  const bWidth = 28 + Math.min(bld.coursesInLevel, 5) * 2;
+
+                  // Building state colors
+                  let bodyColor = '#1e2d40'; // dark (not started)
+                  let roofColor = '#283848';
+                  let windowColor = '#111820';
+                  let windowOpacity = 0.3;
+                  let buildingStroke = zone.color;
+                  let buildingStrokeWidth = 0.8;
+
+                  if (bld.isCompleted) {
+                    // ✅ Completed — green glow
+                    bodyColor = '#1a4a25';
+                    roofColor = '#2a6a35';
+                    windowColor = '#4CAF50';
+                    windowOpacity = 0.9;
+                    buildingStroke = '#4CAF50';
+                    buildingStrokeWidth = 1.5;
+                  } else if (bld.isAiRecommended) {
+                    // 🔥 AI recommended — lit up / orange fire
+                    bodyColor = '#4a3010';
+                    roofColor = '#5a4020';
+                    windowColor = '#FF9800';
+                    windowOpacity = 1;
+                    buildingStroke = '#FF9800';
+                    buildingStrokeWidth = 1.5;
+                  } else if (bld.hasProgress) {
+                    // 🔵 In progress — partially lit
+                    bodyColor = '#1a2d45';
+                    roofColor = '#2a4060';
+                    windowColor = zone.glowColor;
+                    windowOpacity = 0.7;
+                    buildingStroke = zone.color;
+                    buildingStrokeWidth = 1;
+                  }
+                  // else: dark/not started — defaults above
+
+                  if (isHovered) {
+                    buildingStroke = '#fff';
+                    buildingStrokeWidth = 2;
+                  }
+
+                  // Window grid
+                  const windowRows = Math.min(Math.ceil(bHeight / 14), 3);
+                  const windowCols = 2;
 
                   return (
                     <g
-                      key={sec.section_id}
-                      className={sec.is_unlocked ? 'cursor-pointer' : 'cursor-not-allowed'}
-                      onClick={() => sec.is_unlocked && onOpenSection(sec.section_id)}
+                      key={bKey}
+                      className="cursor-pointer"
+                      onClick={() => onOpenSection(bld.section.section_id)}
                       onMouseEnter={() => {
-                        setHoveredSection(sec.section_id);
-                        setTooltip({ x: bx, y: by - 60, section: sec });
+                        setHoveredBuilding(bKey);
+                        setTooltip({ x: bx, y: by - bHeight - 15, building: bld, zoneColor: zone.color });
                       }}
                       onMouseLeave={() => {
-                        setHoveredSection(null);
+                        setHoveredBuilding(null);
                         setTooltip(null);
                       }}
                     >
-                      {/* Building shadow */}
-                      <ellipse
-                        cx={bx}
-                        cy={by + 25}
-                        rx={20}
-                        ry={6}
-                        fill="#000"
-                        opacity="0.3"
-                      />
-
-                      {/* Building body */}
-                      <rect
-                        x={bx - 16}
-                        y={by - 20}
-                        width={32}
-                        height={40}
-                        rx={3}
-                        fill={completed ? zone.color : sec.is_unlocked ? '#2a3a50' : '#1a2030'}
-                        stroke={isHovered ? '#fff' : zone.color}
-                        strokeWidth={isHovered ? 2 : 0.8}
-                        opacity={sec.is_unlocked ? 1 : 0.5}
-                      >
-                        {isHovered && (
-                          <animate attributeName="stroke-opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite" />
-                        )}
-                      </rect>
-
-                      {/* Building roof (triangle) */}
-                      <polygon
-                        points={`${bx - 20},${by - 20} ${bx},${by - 38} ${bx + 20},${by - 20}`}
-                        fill={completed ? zone.color : sec.is_unlocked ? '#354a60' : '#1a2838'}
-                        stroke={zone.color}
-                        strokeWidth="0.5"
-                        opacity={sec.is_unlocked ? 1 : 0.5}
-                      />
-
-                      {/* Building windows (lit if unlocked) */}
-                      {[0, 1, 2, 3].map((w) => (
-                        <rect
-                          key={w}
-                          x={bx - 10 + (w % 2) * 14}
-                          y={by - 12 + Math.floor(w / 2) * 14}
-                          width={6}
-                          height={8}
-                          rx={1}
-                          fill={sec.is_unlocked ? (completed ? '#fff' : zone.glowColor) : '#111'}
-                          opacity={sec.is_unlocked ? 0.8 : 0.3}
-                        />
-                      ))}
-
-                      {/* Progress indicator (small bar under building) */}
-                      {sec.is_unlocked && progress > 0 && !completed && (
-                        <>
-                          <rect x={bx - 15} y={by + 24} width={30} height={3} rx={1.5} fill="#1a2030" />
-                          <rect x={bx - 15} y={by + 24} width={30 * progress / 100} height={3} rx={1.5} fill={zone.color} />
-                        </>
-                      )}
-
-                      {/* Completed checkmark */}
-                      {completed && (
-                        <circle cx={bx + 14} cy={by - 32} r={7} fill="#4CAF50" stroke="#fff" strokeWidth="1.5">
-                          <text x={bx + 14} y={by - 29} textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">
-                            ✓
-                          </text>
+                      {/* Completed glow */}
+                      {bld.isCompleted && (
+                        <circle cx={bx} cy={by - bHeight / 2} r={25} fill="rgba(76,175,80,0.3)" filter="url(#glow-done)">
+                          <animate attributeName="opacity" values="0.5;0.8;0.5" dur="2s" repeatCount="indefinite" />
                         </circle>
                       )}
 
-                      {/* Lock icon for locked sections */}
-                      {!sec.is_unlocked && (
-                        <text x={bx} y={by + 5} textAnchor="middle" fontSize="16" opacity="0.5">
-                          🔒
+                      {/* AI recommended fire glow */}
+                      {bld.isAiRecommended && !bld.isCompleted && (
+                        <circle cx={bx} cy={by - bHeight / 2} r={25} fill="rgba(255,152,0,0.35)" filter="url(#glow-fire)">
+                          <animate attributeName="opacity" values="0.4;0.9;0.4" dur="1.5s" repeatCount="indefinite" />
+                        </circle>
+                      )}
+
+                      {/* Building shadow */}
+                      <ellipse cx={bx} cy={by + 4} rx={bWidth / 2 + 3} ry={5} fill="#000" opacity="0.3" />
+
+                      {/* Building body */}
+                      <rect
+                        x={bx - bWidth / 2}
+                        y={by - bHeight}
+                        width={bWidth}
+                        height={bHeight}
+                        rx={2}
+                        fill={bodyColor}
+                        stroke={buildingStroke}
+                        strokeWidth={buildingStrokeWidth}
+                      />
+
+                      {/* Roof */}
+                      <polygon
+                        points={`${bx - bWidth / 2 - 4},${by - bHeight} ${bx},${by - bHeight - 14} ${bx + bWidth / 2 + 4},${by - bHeight}`}
+                        fill={roofColor}
+                        stroke={buildingStroke}
+                        strokeWidth="0.5"
+                      />
+
+                      {/* Windows */}
+                      {Array.from({ length: windowRows * windowCols }).map((_, w) => {
+                        const row = Math.floor(w / windowCols);
+                        const col = w % windowCols;
+                        const wx = bx - bWidth / 4 + col * (bWidth / 2);
+                        const wy = by - bHeight + 8 + row * 12;
+                        return (
+                          <rect
+                            key={w}
+                            x={wx - 3}
+                            y={wy}
+                            width={5}
+                            height={7}
+                            rx={1}
+                            fill={windowColor}
+                            opacity={windowOpacity}
+                          >
+                            {/* Flickering effect for AI recommended */}
+                            {bld.isAiRecommended && !bld.isCompleted && (
+                              <animate
+                                attributeName="opacity"
+                                values={`${windowOpacity};${windowOpacity * 0.4};${windowOpacity}`}
+                                dur={`${1.5 + w * 0.3}s`}
+                                repeatCount="indefinite"
+                              />
+                            )}
+                          </rect>
+                        );
+                      })}
+
+                      {/* Progress bar under building */}
+                      {!bld.isCompleted && bld.hasProgress && (
+                        <>
+                          <rect x={bx - bWidth / 2} y={by + 6} width={bWidth} height={3} rx={1.5} fill="#1a2030" />
+                          <rect x={bx - bWidth / 2} y={by + 6} width={bWidth * bld.progressPct / 100} height={3} rx={1.5} fill={zone.color} />
+                        </>
+                      )}
+
+                      {/* Completed badge */}
+                      {bld.isCompleted && (
+                        <g>
+                          <circle cx={bx + bWidth / 2 - 2} cy={by - bHeight - 10} r={7} fill="#4CAF50" stroke="#fff" strokeWidth="1" />
+                          <text x={bx + bWidth / 2 - 2} y={by - bHeight - 6} textAnchor="middle" fill="#fff" fontSize="8" fontWeight="bold">✓</text>
+                        </g>
+                      )}
+
+                      {/* AI fire icon */}
+                      {bld.isAiRecommended && !bld.isCompleted && (
+                        <text x={bx} y={by - bHeight - 16} textAnchor="middle" fontSize="13">
+                          🔥
                         </text>
                       )}
 
-                      {/* Icon/emoji */}
-                      {sec.is_unlocked && sec.icon && (
-                        <text x={bx} y={by - 42} textAnchor="middle" fontSize="14">
-                          {sec.icon}
+                      {/* Section icon */}
+                      {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
+                        <text x={bx} y={by - bHeight - 16} textAnchor="middle" fontSize="12" opacity={0.7}>
+                          {bld.section.icon}
                         </text>
                       )}
                     </g>
@@ -397,7 +537,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
           })}
         </svg>
 
-        {/* Tooltip overlay (HTML for better text rendering) */}
+        {/* Tooltip */}
         {tooltip && (
           <div
             className="absolute pointer-events-none z-20"
@@ -407,38 +547,48 @@ export function LearningMap({ data, onOpenSection }: Props) {
               transform: 'translate(-50%, -100%)',
             }}
           >
-            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-4 py-3 shadow-xl min-w-[180px]">
-              <p className="text-white font-bold text-sm">{tooltip.section.title.ru}</p>
+            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-4 py-3 shadow-xl min-w-[200px]">
+              <div className="flex items-center gap-2">
+                {tooltip.building.section.icon && (
+                  <span className="text-lg">{tooltip.building.section.icon}</span>
+                )}
+                <p className="text-white font-bold text-sm">{tooltip.building.section.title.ru}</p>
+              </div>
               <p className="text-gray-400 text-xs mt-1">
-                {LEVEL_NAMES[tooltip.section.level_range.start]}
-                {tooltip.section.level_range.start !== tooltip.section.level_range.end &&
-                  ` → ${LEVEL_NAMES[tooltip.section.level_range.end]}`}
+                Уровень: {LEVEL_NAMES[tooltip.building.levelInZone]}
               </p>
-              {tooltip.section.progress && (
-                <div className="mt-2">
-                  <div className="flex justify-between text-xs text-gray-400 mb-1">
-                    <span>{tooltip.section.progress.completed}/{tooltip.section.progress.total} курсов</span>
-                    <span>{Math.round(tooltip.section.progress.percentage)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-1.5">
-                    <div
-                      className="h-1.5 rounded-full"
-                      style={{
-                        width: `${tooltip.section.progress.percentage}%`,
-                        backgroundColor: tooltip.section.color || '#2196F3',
-                      }}
-                    />
-                  </div>
+
+              {/* Status badge */}
+              <div className="mt-2">
+                {tooltip.building.isCompleted ? (
+                  <span className="text-xs px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full">✓ Пройдено</span>
+                ) : tooltip.building.isAiRecommended ? (
+                  <span className="text-xs px-2 py-0.5 bg-orange-500/20 text-orange-400 rounded-full">🔥 AI задача</span>
+                ) : tooltip.building.hasProgress ? (
+                  <span className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full">📖 В процессе</span>
+                ) : (
+                  <span className="text-xs px-2 py-0.5 bg-gray-500/20 text-gray-400 rounded-full">Не начато</span>
+                )}
+              </div>
+
+              {/* Progress */}
+              <div className="mt-2">
+                <div className="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>{tooltip.building.coursesCompletedInLevel}/{tooltip.building.coursesInLevel} курсов</span>
+                  <span>{Math.round(tooltip.building.progressPct)}%</span>
                 </div>
-              )}
-              {!tooltip.section.is_unlocked && (
-                <p className="text-yellow-400 text-xs mt-2">🔒 Заблокировано</p>
-              )}
-              {tooltip.section.ai_recommended_count > 0 && (
-                <p className="text-purple-400 text-xs mt-1">
-                  ✨ AI рекомендует {tooltip.section.ai_recommended_count} курс(ов)
-                </p>
-              )}
+                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                  <div
+                    className="h-1.5 rounded-full"
+                    style={{
+                      width: `${tooltip.building.progressPct}%`,
+                      backgroundColor: tooltip.building.isCompleted
+                        ? '#4CAF50'
+                        : tooltip.zoneColor,
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -446,23 +596,24 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
       {/* Legend */}
       <div className="flex flex-wrap items-center justify-center gap-4 mt-4 text-xs text-gray-500">
-        {ZONES.map((zone, idx) => (
+        {ZONES.map((zone) => (
           <div key={zone.level} className="flex items-center gap-1.5">
-            <div
-              className="w-3 h-3 rounded-sm"
-              style={{
-                backgroundColor: zone.color,
-                opacity: idx <= currentLevelIdx ? 1 : 0.3,
-              }}
-            />
-            <span className={idx <= currentLevelIdx ? 'text-gray-300' : 'text-gray-600'}>
-              {zone.label}
-            </span>
+            <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: zone.color }} />
+            <span className="text-gray-300">{zone.label}</span>
           </div>
         ))}
-        <div className="flex items-center gap-1.5 ml-4">
-          <div className="w-3 h-3 bg-gray-600 rounded-sm border border-dashed border-gray-400" />
-          <span>Кликните на здание для входа</span>
+        <div className="h-3 border-l border-gray-600 mx-1" />
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-green-500/60 rounded-sm" />
+          <span>Пройдено</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm">🔥</span>
+          <span>AI задача</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 bg-gray-700 rounded-sm border border-gray-500" />
+          <span>Не начато</span>
         </div>
       </div>
     </div>
