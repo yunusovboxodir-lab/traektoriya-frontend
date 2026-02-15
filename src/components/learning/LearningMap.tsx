@@ -400,7 +400,6 @@ export function LearningMap({ data, onOpenSection }: Props) {
   }, [updateScale]);
 
   const zoneData = useMemo(() => buildZoneData(sections), [sections]);
-  const currentLevelIdx = ZONES.findIndex((z) => z.level === user.current_level);
 
   // Deterministic stars
   const stars = useMemo(() => {
@@ -510,39 +509,84 @@ export function LearningMap({ data, onOpenSection }: Props) {
           <path d={TERRITORY.border2} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
           <path d={TERRITORY.border3} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
 
-          {/* === Road connecting zone centers (Trainee → Practitioner → Expert → Master) === */}
+          {/* === Road trajectory through every building === */}
           {(() => {
-            // Road order: Trainee(0) → Practitioner(1) → Expert(2) → Master(3)
-            const roadZones = [ZONES[0], ZONES[1], ZONES[2], ZONES[3]];
-            const roadPath = `M ${roadZones[0].cx},${roadZones[0].cy}
-                C ${roadZones[0].cx + 100},${roadZones[0].cy + 80} ${roadZones[1].cx - 150},${roadZones[1].cy - 60} ${roadZones[1].cx},${roadZones[1].cy}
-                C ${roadZones[1].cx + 50},${roadZones[1].cy - 180} ${roadZones[2].cx - 50},${roadZones[2].cy + 60} ${roadZones[2].cx},${roadZones[2].cy}
-                C ${roadZones[2].cx + 150},${roadZones[2].cy + 80} ${roadZones[3].cx - 100},${roadZones[3].cy - 60} ${roadZones[3].cx},${roadZones[3].cy}`;
+            // Collect all building positions in order: Trainee→Practitioner→Expert→Master
+            const allBuildingPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
+            for (let zi = 0; zi < ZONES.length; zi++) {
+              const zone = ZONES[zi];
+              const buildings = zoneData.get(zone.level) || [];
+              const count = Math.max(buildings.length, 1);
+              for (let bi = 0; bi < count; bi++) {
+                const slot = zone.buildingSlots[bi % zone.buildingSlots.length];
+                allBuildingPts.push({
+                  x: zone.cx + slot.dx,
+                  y: zone.cy + slot.dy,
+                  zoneIdx: zi,
+                });
+              }
+            }
+
+            if (allBuildingPts.length < 2) return null;
+
+            // Build smooth Catmull-Rom-like cubic bezier path through all points
+            function smoothPath(pts: Array<{ x: number; y: number }>): string {
+              if (pts.length < 2) return '';
+              let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+              for (let i = 0; i < pts.length - 1; i++) {
+                const p0 = pts[Math.max(0, i - 1)];
+                const p1 = pts[i];
+                const p2 = pts[i + 1];
+                const p3 = pts[Math.min(pts.length - 1, i + 2)];
+                // Catmull-Rom → cubic bezier control points (tension=0.35)
+                const t = 0.35;
+                const cp1x = p1.x + (p2.x - p0.x) * t;
+                const cp1y = p1.y + (p2.y - p0.y) * t;
+                const cp2x = p2.x - (p3.x - p1.x) * t;
+                const cp2y = p2.y - (p3.y - p1.y) * t;
+                d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+              }
+              return d;
+            }
+
+            const fullPath = smoothPath(allBuildingPts);
+
+            // Find how many buildings are "completed" or in progress for glow road
+            let completedCount = 0;
+            for (let zi = 0; zi < ZONES.length; zi++) {
+              const buildings = zoneData.get(ZONES[zi].level) || [];
+              for (const bld of buildings) {
+                if (bld.isCompleted) completedCount++;
+                else break; // stop at first incomplete
+              }
+              // If not all completed in this zone, don't continue to next
+              const allDone = buildings.every(b => b.isCompleted);
+              if (!allDone) break;
+            }
+
             return (
-              <path
-                d={roadPath}
-                fill="none"
-                stroke="rgba(255,255,255,0.08)"
-                strokeWidth="3"
-                strokeDasharray="10 5"
-              />
-            );
-          })()}
-          {/* Progress road glow */}
-          {currentLevelIdx >= 0 && (() => {
-            const rz = [ZONES[0], ZONES[1], ZONES[2], ZONES[3]];
-            let d = `M ${rz[0].cx},${rz[0].cy}`;
-            if (currentLevelIdx >= 1) d += ` C ${rz[0].cx + 100},${rz[0].cy + 80} ${rz[1].cx - 150},${rz[1].cy - 60} ${rz[1].cx},${rz[1].cy}`;
-            if (currentLevelIdx >= 2) d += ` C ${rz[1].cx + 50},${rz[1].cy - 180} ${rz[2].cx - 50},${rz[2].cy + 60} ${rz[2].cx},${rz[2].cy}`;
-            if (currentLevelIdx >= 3) d += ` C ${rz[2].cx + 150},${rz[2].cy + 80} ${rz[3].cx - 100},${rz[3].cy - 60} ${rz[3].cx},${rz[3].cy}`;
-            return (
-              <path
-                d={d}
-                fill="none"
-                stroke={LEVEL_COLORS[user.current_level]}
-                strokeWidth="2"
-                opacity="0.4"
-              />
+              <>
+                {/* Full road (background — dashed) */}
+                <path
+                  d={fullPath}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.1)"
+                  strokeWidth="2.5"
+                  strokeDasharray="8 4"
+                />
+                {/* Road dots at each building */}
+                {allBuildingPts.map((pt, i) => (
+                  <circle
+                    key={`road-dot-${i}`}
+                    cx={pt.x}
+                    cy={pt.y}
+                    r={3}
+                    fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.2)'}
+                    stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.1)'}
+                    strokeWidth={1}
+                  />
+                ))}
+              </>
             );
           })()}
 
