@@ -115,6 +115,91 @@ const LEVEL_ORDER: Record<string, number> = {
   master: 3,
 };
 
+// ============================================================
+// Territory path generator — organic blob boundary around zone
+// ============================================================
+
+/** Seeded pseudo-random (LCG) */
+function seededRandom(seed: number): [number, number] {
+  const next = (seed * 16807 + 7) % 2147483647;
+  return [next / 2147483647, next];
+}
+
+/**
+ * Generate a smooth organic territory path around the zone center,
+ * ensuring all building slots are enclosed within the boundary.
+ * Uses cubic bezier curves for natural-looking edges.
+ */
+function generateTerritoryPath(zone: ZoneConfig): string {
+  const { cx, cy, buildingSlots } = zone;
+
+  // Find the bounding box of all building slots + padding
+  const pad = 55; // extra padding around buildings
+  let minX = cx, maxX = cx, minY = cy, maxY = cy;
+  for (const s of buildingSlots) {
+    minX = Math.min(minX, cx + s.dx - pad);
+    maxX = Math.max(maxX, cx + s.dx + pad);
+    minY = Math.min(minY, cy + s.dy - pad);
+    maxY = Math.max(maxY, cy + s.dy + pad);
+  }
+
+  // Territory extends further in label area (below buildings)
+  maxY = Math.max(maxY, cy + 110);
+
+  const hw = (maxX - minX) / 2; // half-width
+  const hh = (maxY - minY) / 2; // half-height
+  const mcx = (minX + maxX) / 2; // midpoint x
+  const mcy = (minY + maxY) / 2; // midpoint y
+
+  // Generate 10-14 points around the perimeter with jitter
+  const numPoints = 12;
+  const points: Array<{ x: number; y: number }> = [];
+  let s = zone.cx * 7 + zone.cy * 13; // deterministic seed per zone
+
+  for (let i = 0; i < numPoints; i++) {
+    const angle = (i / numPoints) * Math.PI * 2 - Math.PI / 2;
+
+    // Elliptical base radius
+    const baseRx = hw + 10;
+    const baseRy = hh + 10;
+    const bx = mcx + Math.cos(angle) * baseRx;
+    const by = mcy + Math.sin(angle) * baseRy;
+
+    // Add organic jitter
+    let jx: number, jy: number;
+    [jx, s] = seededRandom(s);
+    [jy, s] = seededRandom(s);
+    const jitterX = (jx - 0.5) * 30;
+    const jitterY = (jy - 0.5) * 25;
+
+    points.push({ x: bx + jitterX, y: by + jitterY });
+  }
+
+  // Build closed cubic bezier path through points (Catmull-Rom → Bezier)
+  if (points.length < 3) return '';
+
+  const n = points.length;
+  let d = `M ${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
+
+  for (let i = 0; i < n; i++) {
+    const p0 = points[(i - 1 + n) % n];
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    const p3 = points[(i + 2) % n];
+
+    // Catmull-Rom to cubic bezier control points
+    const tension = 6; // higher = smoother
+    const cp1x = p1.x + (p2.x - p0.x) / tension;
+    const cp1y = p1.y + (p2.y - p0.y) / tension;
+    const cp2x = p2.x - (p3.x - p1.x) / tension;
+    const cp2y = p2.y - (p3.y - p1.y) / tension;
+
+    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  d += ' Z';
+  return d;
+}
+
 // Building data for each zone
 interface ZoneBuilding {
   section: SectionMap;
@@ -296,36 +381,41 @@ export function LearningMap({ data, onOpenSection }: Props) {
             />
           )}
 
-          {/* Zone platforms, labels, counts (NO buildings — those are in HTML layer) */}
+          {/* Zone territories — organic blob boundaries */}
           {ZONES.map((zone) => {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
+            const territoryPath = generateTerritoryPath(zone);
 
             return (
               <g key={zone.level}>
-                {/* Zone glow for current level */}
+                {/* Territory fill — zone color at low opacity */}
+                <path
+                  d={territoryPath}
+                  fill={zone.color}
+                  opacity={isCurrent ? 0.12 : 0.06}
+                />
+
+                {/* Territory glow for current level */}
                 {isCurrent && (
-                  <circle
-                    cx={zone.cx}
-                    cy={zone.cy}
-                    r={130}
+                  <path
+                    d={territoryPath}
                     fill={zone.glowColor}
                     filter={`url(#glow-${zone.level})`}
+                    opacity={0.3}
                   >
-                    <animate attributeName="opacity" values="0.3;0.55;0.3" dur="3s" repeatCount="indefinite" />
-                  </circle>
+                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
+                  </path>
                 )}
 
-                {/* Zone platform */}
-                <ellipse
-                  cx={zone.cx}
-                  cy={zone.cy + 45}
-                  rx={150}
-                  ry={55}
-                  fill={zone.bgGradient[0]}
+                {/* Territory border — dashed organic outline */}
+                <path
+                  d={territoryPath}
+                  fill="none"
                   stroke={zone.color}
-                  strokeWidth={isCurrent ? 2 : 0.5}
-                  opacity={0.5}
+                  strokeWidth={isCurrent ? 1.5 : 0.8}
+                  strokeDasharray="6 4"
+                  opacity={isCurrent ? 0.6 : 0.3}
                 />
 
                 {/* Zone label */}
@@ -337,7 +427,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                   fontSize="16"
                   fontWeight="bold"
                   className="select-none"
-                  style={{ textShadow: `0 0 10px ${zone.glowColor}` }}
+                  style={{ textShadow: `0 0 12px ${zone.glowColor}` }}
                 >
                   {zone.label}
                 </text>
