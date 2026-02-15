@@ -48,6 +48,9 @@ export interface Product {
   is_active: boolean;
   created_at: string;
   updated_at?: string;
+
+  // Computed: first image URL
+  image_url: string | null;
 }
 
 export interface ProductImage {

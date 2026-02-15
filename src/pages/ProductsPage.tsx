@@ -249,49 +249,69 @@ export function ProductsPage() {
               key={product.id}
               type="button"
               onClick={() => navigate(`/products/${product.id}`)}
-              className="text-left bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md hover:border-blue-200 transition-all group"
+              className="text-left bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all group overflow-hidden"
             >
-              {/* Brand badge */}
-              {product.brand && (
-                <span className="inline-block text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded mb-3">
-                  {product.brand}
-                </span>
-              )}
-
-              {/* Name */}
-              <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-2">
-                {product.name}
-              </h3>
-
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-                {product.category && (
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path d="M4 6h16M4 12h16M4 18h7" />
-                    </svg>
-                    {product.category}
-                  </span>
-                )}
-                {product.weight && (
-                  <span className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M8 12h8" />
-                    </svg>
-                    {product.weight}
-                  </span>
+              {/* Product image */}
+              <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100">
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="max-w-full max-h-full object-contain"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                      (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-4xl opacity-20">📦</span>';
+                    }}
+                  />
+                ) : (
+                  <span className="text-4xl opacity-20">📦</span>
                 )}
               </div>
 
-              {/* Price */}
-              {product.price_rrp != null && (
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <span className="text-sm font-semibold text-gray-800">
-                    {formatPrice(product.price_rrp)}
+              <div className="p-4">
+                {/* Brand badge */}
+                {product.brand && (
+                  <span className="inline-block text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded mb-2">
+                    {product.brand}
                   </span>
+                )}
+
+                {/* Name */}
+                <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-2 line-clamp-2">
+                  {product.name}
+                </h3>
+
+                {/* Meta row */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                  {product.category && (
+                    <span className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path d="M4 6h16M4 12h16M4 18h7" />
+                      </svg>
+                      {product.category}
+                    </span>
+                  )}
+                  {product.weight && (
+                    <span className="flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M8 12h8" />
+                      </svg>
+                      {product.weight}
+                    </span>
+                  )}
                 </div>
-              )}
+
+                {/* Price */}
+                {product.price_rrp != null && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <span className="text-sm font-semibold text-gray-800">
+                      {formatPrice(product.price_rrp)}
+                    </span>
+                  </div>
+                )}
+              </div>
             </button>
           ))}
         </div>
