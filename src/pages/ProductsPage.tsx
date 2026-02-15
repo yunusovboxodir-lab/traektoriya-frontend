@@ -11,7 +11,7 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   useEffect(() => {
@@ -32,21 +32,25 @@ export function ProductsPage() {
     }
   };
 
-  // Extract unique categories from products
-  const categories = useMemo(() => {
-    const cats = new Set<string>();
+  // Extract unique brands from products, sorted by product count (descending)
+  const brands = useMemo(() => {
+    const brandCounts = new Map<string, number>();
     products.forEach((p) => {
-      if (p.category) cats.add(p.category);
+      if (p.brand) {
+        brandCounts.set(p.brand, (brandCounts.get(p.brand) || 0) + 1);
+      }
     });
-    return Array.from(cats).sort();
+    return Array.from(brandCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([brand]) => brand);
   }, [products]);
 
-  // Filter products by search + category
+  // Filter products by search + brand
   const filtered = useMemo(() => {
     let result = products;
 
-    if (selectedCategory !== 'all') {
-      result = result.filter((p) => p.category === selectedCategory);
+    if (selectedBrand !== 'all') {
+      result = result.filter((p) => p.brand === selectedBrand);
     }
 
     if (search.trim()) {
@@ -60,7 +64,7 @@ export function ProductsPage() {
     }
 
     return result;
-  }, [products, search, selectedCategory]);
+  }, [products, search, selectedBrand]);
 
   // -- Loading skeleton --
   if (loading) {
@@ -178,32 +182,32 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* Category filter chips */}
-      {categories.length > 0 && (
+      {/* Brand filter chips */}
+      {brands.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
           <button
             type="button"
-            onClick={() => setSelectedCategory('all')}
+            onClick={() => setSelectedBrand('all')}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === 'all'
+              selectedBrand === 'all'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             Все
           </button>
-          {categories.map((cat) => (
+          {brands.map((brand) => (
             <button
-              key={cat}
+              key={brand}
               type="button"
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => setSelectedBrand(brand)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                selectedCategory === cat
+                selectedBrand === brand
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              {cat}
+              {brand}
             </button>
           ))}
         </div>
@@ -225,14 +229,14 @@ export function ProductsPage() {
             <path d="M12 22.08V12" />
           </svg>
           <p className="text-gray-500 text-lg font-medium">
-            {search.trim() || selectedCategory !== 'all'
+            {search.trim() || selectedBrand !== 'all'
               ? 'Ничего не найдено'
               : 'Товары ещё не добавлены'}
           </p>
-          {(search.trim() || selectedCategory !== 'all') && (
+          {(search.trim() || selectedBrand !== 'all') && (
             <button
               type="button"
-              onClick={() => { setSearch(''); setSelectedCategory('all'); }}
+              onClick={() => { setSearch(''); setSelectedBrand('all'); }}
               className="text-blue-600 hover:text-blue-800 text-sm mt-2"
             >
               Сбросить фильтры
