@@ -199,6 +199,15 @@ export function KnowledgeBasePage() {
   const [isDragOver, setIsDragOver] = useState(false);
   const [reindexingIds, setReindexingIds] = useState<Set<string>>(new Set());
 
+  // Bulk selection & edit state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBulkEdit, setShowBulkEdit] = useState(false);
+  const [bulkDocType, setBulkDocType] = useState('');
+  const [bulkCategory, setBulkCategory] = useState('');
+  const [bulkCategoryClear, setBulkCategoryClear] = useState(false);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ----- Derived stats -----
@@ -408,6 +417,77 @@ export function KnowledgeBasePage() {
     },
     [loadDocuments, loadStats],
   );
+
+  // ----- Bulk Selection -----
+  const toggleSelect = useCallback((docId: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(docId)) next.delete(docId);
+      else next.add(docId);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === documents.length) return new Set();
+      return new Set(documents.map((d) => d.id));
+    });
+  }, [documents]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+    setShowBulkEdit(false);
+    setBulkDeleteConfirm(false);
+  }, []);
+
+  // ----- Bulk Update -----
+  const handleBulkUpdate = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkUpdating(true);
+    try {
+      const updates: { document_type?: string; category?: string } = {};
+      if (bulkDocType) updates.document_type = bulkDocType;
+      if (bulkCategoryClear) {
+        updates.category = '';
+      } else if (bulkCategory.trim()) {
+        updates.category = bulkCategory.trim();
+      }
+      if (Object.keys(updates).length === 0) {
+        setShowBulkEdit(false);
+        return;
+      }
+      await documentsApi.bulkUpdate(Array.from(selectedIds), updates);
+      setShowBulkEdit(false);
+      clearSelection();
+      setOffset(0);
+      loadDocuments(0);
+      loadCategories();
+    } catch {
+      // Error silently
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  }, [selectedIds, bulkDocType, bulkCategory, bulkCategoryClear, loadDocuments, loadCategories, clearSelection]);
+
+  // ----- Bulk Delete -----
+  const handleBulkDelete = useCallback(async () => {
+    if (selectedIds.size === 0) return;
+    setIsBulkUpdating(true);
+    try {
+      await documentsApi.bulkDelete(Array.from(selectedIds));
+      setBulkDeleteConfirm(false);
+      clearSelection();
+      setOffset(0);
+      loadDocuments(0);
+      loadStats();
+      loadCategories();
+    } catch {
+      // Error silently
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  }, [selectedIds, loadDocuments, loadStats, loadCategories, clearSelection]);
 
   // ----- Render: Loading -----
   if (isLoading && documents.length === 0 && !error) {
@@ -678,12 +758,145 @@ export function KnowledgeBasePage() {
 
         {/* ---- Right: Document Table ---- */}
         <div className="lg:col-span-2">
+          {/* ---- Bulk Action Bar ---- */}
+          {selectedIds.size > 0 && (
+            <div className="mb-3 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+              <span className="text-sm font-medium text-blue-800">
+                Выбрано: {selectedIds.size} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
+              </span>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  type="button"
+                  onClick={() => { setShowBulkEdit(true); setBulkDocType(''); setBulkCategory(''); setBulkCategoryClear(false); }}
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                >
+                  Изменить тип / должность
+                </button>
+                {bulkDeleteConfirm ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      disabled={isBulkUpdating}
+                      className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {isBulkUpdating ? 'Удаление...' : 'Да, удалить'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBulkDeleteConfirm(false)}
+                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                      Отмена
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setBulkDeleteConfirm(true)}
+                    className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                  >
+                    Удалить
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  title="Снять выделение"
+                >
+                  <IconX className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ---- Bulk Edit Modal ---- */}
+          {showBulkEdit && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowBulkEdit(false)}>
+              <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  Массовое редактирование ({selectedIds.size} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')})
+                </h3>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Тип документа</label>
+                    <select
+                      value={bulkDocType}
+                      onChange={(e) => setBulkDocType(e.target.value)}
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    >
+                      <option value="">— Не менять —</option>
+                      {Object.entries(DOC_TYPE_LABELS).map(([key, label]) => (
+                        <option key={key} value={key}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Должность / Классификация</label>
+                    <input
+                      type="text"
+                      list="bulk-category-suggestions"
+                      value={bulkCategory}
+                      onChange={(e) => { setBulkCategory(e.target.value); setBulkCategoryClear(false); }}
+                      disabled={bulkCategoryClear}
+                      placeholder="Например: Торговый представитель"
+                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+                    />
+                    <datalist id="bulk-category-suggestions">
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
+                    <label className="flex items-center gap-2 mt-2 text-sm text-gray-600 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={bulkCategoryClear}
+                        onChange={(e) => { setBulkCategoryClear(e.target.checked); if (e.target.checked) setBulkCategory(''); }}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      Очистить должность
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowBulkEdit(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  >
+                    Отмена
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBulkUpdate}
+                    disabled={isBulkUpdating || (!bulkDocType && !bulkCategory.trim() && !bulkCategoryClear)}
+                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  >
+                    {isBulkUpdating ? 'Сохранение...' : 'Сохранить'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             {/* Table - Desktop */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
+                    <th className="w-10 px-3 py-3">
+                      <input
+                        type="checkbox"
+                        checked={documents.length > 0 && selectedIds.size === documents.length}
+                        onChange={toggleSelectAll}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                    </th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Документ</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Тип</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Должность</th>
@@ -695,7 +908,15 @@ export function KnowledgeBasePage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {documents.map((doc) => (
-                    <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={doc.id} className={`hover:bg-gray-50 transition-colors ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
+                      <td className="px-3 py-3">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(doc.id)}
+                          onChange={() => toggleSelect(doc.id)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 min-w-0">
                           <FileTypeIcon fileType={doc.file_type} />
@@ -782,9 +1003,15 @@ export function KnowledgeBasePage() {
             {/* Card list - Mobile */}
             <div className="sm:hidden divide-y divide-gray-100">
               {documents.map((doc) => (
-                <div key={doc.id} className="p-4">
+                <div key={doc.id} className={`p-4 ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(doc.id)}
+                        onChange={() => toggleSelect(doc.id)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                      />
                       <FileTypeIcon fileType={doc.file_type} />
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate" title={doc.original_filename}>

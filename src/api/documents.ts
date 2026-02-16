@@ -124,4 +124,15 @@ export const documentsApi = {
     api.post(`/api/v1/documents/${documentId}/reprocess`),
 
   delete: (documentId: string) => api.delete(`/api/v1/documents/${documentId}`),
+
+  bulkUpdate: async (documentIds: string[], updates: { document_type?: string; category?: string }) =>
+    api.patch('/api/v1/documents/bulk-update', {
+      document_ids: documentIds,
+      ...updates,
+    }),
+
+  bulkDelete: async (documentIds: string[]) =>
+    api.post('/api/v1/documents/bulk-delete', {
+      document_ids: documentIds,
+    }),
 };
