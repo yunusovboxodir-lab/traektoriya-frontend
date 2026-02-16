@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
-import { toast } from '../stores/toastStore';
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -44,14 +43,39 @@ export function DashboardPage() {
   const [stats, setStats] = useState<OverviewStats | null>(null);
 
   useEffect(() => {
-    api
-      .get<OverviewStatsRaw>('/api/v1/analytics/overview')
-      .then((res) => setStats(normalizeOverview(res.data)))
-      .catch(() => {
-        setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
-        toast.error('Не удалось загрузить статистику');
+    const role = user?.role;
+    const isAdmin = role === 'admin' || role === 'superadmin' || role === 'commercial_dir';
+
+    if (isAdmin) {
+      // Admin roles can access full analytics
+      api
+        .get<OverviewStatsRaw>('/api/v1/analytics/overview')
+        .then((res) => setStats(normalizeOverview(res.data)))
+        .catch(() => {
+          setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
+        });
+    } else {
+      // Non-admin: fetch counts from public endpoints
+      Promise.all([
+        api.get('/api/v1/products', { params: { limit: 1 } }).catch(() => ({ data: { total: 0 } })),
+        api.get('/api/v1/tasks').catch(() => ({ data: [] })),
+        api.get('/api/v1/learning/map').catch(() => ({ data: { sections: [] } })),
+      ]).then(([productsRes, tasksRes, learningRes]) => {
+        const totalProducts = (productsRes.data as any)?.total ?? (productsRes.data as any)?.length ?? 0;
+        const totalTasks = Array.isArray(tasksRes.data) ? tasksRes.data.length : (tasksRes.data as any)?.total ?? 0;
+        const sections = (learningRes.data as any)?.sections ?? learningRes.data ?? [];
+        const totalCourses = Array.isArray(sections)
+          ? sections.reduce((sum: number, s: any) => sum + (s.courses?.length ?? 0), 0)
+          : 0;
+        setStats({
+          total_products: totalProducts,
+          total_users: 0,
+          total_courses: totalCourses,
+          total_tasks: totalTasks,
+        });
       });
-  }, []);
+    }
+  }, [user?.role]);
 
   const today = new Date().toLocaleDateString('ru-RU', {
     day: 'numeric',
