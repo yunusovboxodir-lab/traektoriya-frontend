@@ -187,6 +187,20 @@ export interface ProgressResponse {
   sections_progress?: Record<string, unknown> | null;
 }
 
+// Learning modules
+export interface LearningModule {
+  role: string;
+  title: BilingualText;
+  icon: string;
+  sections_count: number;
+  courses_count: number;
+  is_available: boolean;
+}
+
+export interface LearningModulesResponse {
+  modules: LearningModule[];
+}
+
 // Level display names
 export const LEVEL_NAMES: Record<string, string> = {
   trainee: 'Стажёр',
@@ -202,9 +216,21 @@ export const LEVEL_COLORS: Record<string, string> = {
   master: '#F44336',
 };
 
+export const MODULE_ICONS: Record<string, string> = {
+  store: '🏪',
+  groups: '👔',
+  public: '🌐',
+  emoji_events: '👑',
+};
+
 export const learningApi = {
-  getMap: () =>
-    api.get<LearningMapResponse>('/api/v1/learning/map'),
+  getModules: () =>
+    api.get<LearningModulesResponse>('/api/v1/learning/modules'),
+
+  getMap: (targetRole = 'sales_rep') =>
+    api.get<LearningMapResponse>('/api/v1/learning/map', {
+      params: { target_role: targetRole },
+    }),
 
   getSectionCourses: (sectionId: string) =>
     api.get<SectionCoursesResponse>(`/api/v1/learning/sections/${sectionId}/courses`),

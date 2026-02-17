@@ -3,7 +3,9 @@ import {
   learningApi,
   LEVEL_NAMES,
   LEVEL_COLORS,
+  MODULE_ICONS,
   type LearningMapResponse,
+  type LearningModule,
   type SectionCoursesResponse,
   type CourseDetailResponse,
   type CourseItem,
@@ -13,16 +15,19 @@ import { useToastStore } from '../stores/toastStore';
 import { LearningMap } from '../components/learning/LearningMap';
 
 // ===========================================
-// LEARNING MAP — три режима отображения:
-//   1. map     — карта разделов с прогрессом
-//   2. section — курсы раздела по уровням
-//   3. course  — содержание курса (слайды + квиз)
+// LEARNING MAP — четыре режима отображения:
+//   1. modules  — выбор модуля обучения (роль)
+//   2. map      — карта разделов с прогрессом
+//   3. section  — курсы раздела по уровням
+//   4. course   — содержание курса (слайды + квиз)
 // ===========================================
 
-type View = 'map' | 'section' | 'course';
+type View = 'modules' | 'map' | 'section' | 'course';
 
 export function LearningPage() {
-  const [view, setView] = useState<View>('map');
+  const [view, setView] = useState<View>('modules');
+  const [modules, setModules] = useState<LearningModule[]>([]);
+  const [selectedRole, setSelectedRole] = useState('sales_rep');
   const [mapData, setMapData] = useState<LearningMapResponse | null>(null);
   const [sectionData, setSectionData] = useState<SectionCoursesResponse | null>(null);
   const [courseData, setCourseData] = useState<CourseDetailResponse | null>(null);
@@ -38,11 +43,30 @@ export function LearningPage() {
 
   const addToast = useToastStore((s) => s.addToast);
 
-  // Load map
-  const loadMap = useCallback(async () => {
+  // Load modules list
+  const loadModules = useCallback(async () => {
     try {
       setIsLoading(true);
-      const resp = await learningApi.getMap();
+      const resp = await learningApi.getModules();
+      setModules(resp.data.modules);
+      setError('');
+    } catch {
+      setError('Не удалось загрузить модули обучения');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadModules();
+  }, [loadModules]);
+
+  // Load map for a specific role
+  const loadMap = useCallback(async (role?: string) => {
+    const targetRole = role || selectedRole;
+    try {
+      setIsLoading(true);
+      const resp = await learningApi.getMap(targetRole);
       setMapData(resp.data);
       setError('');
     } catch {
@@ -50,11 +74,14 @@ export function LearningPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedRole]);
 
-  useEffect(() => {
-    loadMap();
-  }, [loadMap]);
+  // Select a module and load its map
+  const selectModule = async (role: string) => {
+    setSelectedRole(role);
+    await loadMap(role);
+    setView('map');
+  };
 
   // Open section
   const openSection = async (sectionId: string) => {
@@ -141,7 +168,10 @@ export function LearningPage() {
       }
     } else if (view === 'section') {
       setView('map');
-      loadMap(); // Refresh progress
+      loadMap(selectedRole); // Refresh progress
+    } else if (view === 'map') {
+      setView('modules');
+      loadModules(); // Refresh module counts
     }
   };
 
@@ -165,16 +195,28 @@ export function LearningPage() {
     return (
       <div className="p-6">
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>
-        <button onClick={loadMap} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+        <button onClick={() => { setView('modules'); loadModules(); }} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
           Попробовать снова
         </button>
       </div>
     );
   }
 
+  // ======== VIEW: MODULES ========
+  if (view === 'modules') {
+    return <ModulesView modules={modules} onSelectModule={selectModule} />;
+  }
+
   // ======== VIEW: MAP ========
   if (view === 'map' && mapData) {
-    return <LearningMap data={mapData} onOpenSection={openSection} />;
+    return (
+      <div>
+        <button onClick={goBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+          &larr; Назад к модулям
+        </button>
+        <LearningMap data={mapData} onOpenSection={openSection} />
+      </div>
+    );
   }
 
   // ======== VIEW: SECTION ========
@@ -209,6 +251,99 @@ export function LearningPage() {
 }
 
 
+
+
+// ============================================================
+// MODULES VIEW — select learning module (role)
+// ============================================================
+
+function ModulesView({
+  modules,
+  onSelectModule,
+}: {
+  modules: LearningModule[];
+  onSelectModule: (role: string) => void;
+}) {
+  const moduleColors: Record<string, string> = {
+    sales_rep: 'from-blue-500 to-blue-600',
+    supervisor: 'from-indigo-500 to-indigo-600',
+    regional_manager: 'from-teal-500 to-teal-600',
+    top_management: 'from-amber-500 to-amber-600',
+  };
+
+  const moduleBgColors: Record<string, string> = {
+    sales_rep: 'bg-blue-50 border-blue-200',
+    supervisor: 'bg-indigo-50 border-indigo-200',
+    regional_manager: 'bg-teal-50 border-teal-200',
+    top_management: 'bg-amber-50 border-amber-200',
+  };
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Обучение</h1>
+        <p className="text-gray-500 mt-1">Выберите модуль обучения по вашей роли</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {modules.map((m) => {
+          const icon = MODULE_ICONS[m.icon] || m.icon;
+          const isAvailable = m.is_available;
+
+          return (
+            <div
+              key={m.role}
+              onClick={() => isAvailable && onSelectModule(m.role)}
+              className={`
+                relative rounded-2xl border p-6 transition-all duration-200
+                ${isAvailable
+                  ? `${moduleBgColors[m.role] || 'bg-gray-50 border-gray-200'} cursor-pointer hover:shadow-lg hover:scale-[1.02]`
+                  : 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
+                }
+              `}
+            >
+              {/* Icon & Title */}
+              <div className="flex items-center gap-4 mb-4">
+                <div className={`
+                  w-14 h-14 rounded-xl flex items-center justify-center text-2xl text-white
+                  bg-gradient-to-br ${moduleColors[m.role] || 'from-gray-400 to-gray-500'}
+                  ${!isAvailable ? 'grayscale' : ''}
+                `}>
+                  {icon}
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">{m.title.ru}</h3>
+                  {m.title.uz && (
+                    <p className="text-xs text-gray-400">{m.title.uz}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              {isAvailable ? (
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <span>{m.sections_count} секций</span>
+                  <span className="text-gray-300">|</span>
+                  <span>{m.courses_count} курсов</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-400">Скоро</span>
+                  <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-500 rounded-full">В разработке</span>
+                </div>
+              )}
+
+              {/* Arrow for available modules */}
+              {isAvailable && (
+                <div className="absolute top-6 right-6 text-gray-300 text-xl">&rsaquo;</div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 
 // ============================================================
