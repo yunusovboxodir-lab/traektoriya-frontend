@@ -125,6 +125,74 @@ export interface SectionCoursesResponse {
   levels: LevelCourses[];
 }
 
+// Quiz question types
+export interface QuizSingleChoiceQuestion {
+  question: string;
+  type: 'single_choice';
+  options: string[];
+  correct_answer: number;
+  explanation?: string;
+}
+
+export interface QuizDragDropQuestion {
+  question: string;
+  type: 'drag_drop';
+  subtype: 'ordering' | 'zones';
+  items: string[];
+  correct_order?: number[];
+  zones?: string[] | null;
+  correct_answer?: Record<string, string>;
+  explanation?: string;
+}
+
+export interface QuizMatchingQuestion {
+  question: string;
+  type: 'matching';
+  left: string[];
+  right: string[];
+  correct_pairs: [number, number][];
+  explanation?: string;
+}
+
+export interface QuizHotspotQuestion {
+  question: string;
+  type: 'hotspot';
+  image_url: string;
+  hotspots: Array<{ x: number; y: number; radius: number; label: string; is_correct: boolean }>;
+  min_correct: number;
+  explanation?: string;
+}
+
+export type CourseQuizQuestion =
+  | QuizSingleChoiceQuestion
+  | QuizDragDropQuestion
+  | QuizMatchingQuestion
+  | QuizHotspotQuestion;
+
+// Flashcard
+export interface FlashCard {
+  front: string;
+  back: string;
+}
+
+// Field task
+export interface FieldTask {
+  title: string;
+  description: string;
+  criteria: string[];
+  deadline_days: number;
+}
+
+// Media prompt
+export interface MediaPrompt {
+  slide_order: number;
+  type: 'image' | 'video' | 'infographic';
+  prompt_ru: string;
+  prompt_uz?: string | null;
+  status: 'pending' | 'in_progress' | 'done';
+  media_url?: string | null;
+}
+
 // Course detail
 export interface CourseDetailResponse {
   course: {
@@ -145,15 +213,10 @@ export interface CourseDetailResponse {
   } | null;
   content: {
     slides: Array<{ order: number; type: string; title: string; content: string }>;
-    quiz: Array<{
-      question: string;
-      type: string;
-      options: string[];
-      correct_answer: number;
-      explanation?: string;
-    }>;
-    field_task?: unknown;
-    spaced_repetition_cards: unknown[];
+    quiz: CourseQuizQuestion[];
+    field_task?: FieldTask | null;
+    spaced_repetition_cards: FlashCard[];
+    media_prompts?: MediaPrompt[];
   };
 }
 

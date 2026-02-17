@@ -12,6 +12,9 @@ import { ragApi } from '../api/rag';
 const ContentModerationTab = lazy(() =>
   import('../components/moderation/ContentModerationTab').then(m => ({ default: m.ContentModerationTab }))
 );
+const MediaPromptsTab = lazy(() =>
+  import('../components/moderation/MediaPromptsTab').then(m => ({ default: m.MediaPromptsTab }))
+);
 
 // ===========================================================================
 // Helpers
@@ -118,7 +121,7 @@ const MODERATION_STYLES: Record<ModerationStatus, { label: string; bg: string; t
 // ===========================================================================
 
 export function GenerationPage() {
-  const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation'>('simple');
+  const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation' | 'media_prompts'>('simple');
 
   return (
     <div>
@@ -165,6 +168,17 @@ export function GenerationPage() {
         >
           Модерация контента
         </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('media_prompts')}
+          className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'media_prompts'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Медиа-промпты
+        </button>
       </div>
 
       {/* Tab content */}
@@ -172,9 +186,13 @@ export function GenerationPage() {
         <SimpleGeneration />
       ) : activeTab === 'wizard' ? (
         <WizardGeneration />
-      ) : (
+      ) : activeTab === 'moderation' ? (
         <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
           <ContentModerationTab />
+        </Suspense>
+      ) : (
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+          <MediaPromptsTab />
         </Suspense>
       )}
     </div>

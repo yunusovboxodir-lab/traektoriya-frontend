@@ -10,9 +10,14 @@ import {
   type CourseDetailResponse,
   type CourseItem,
   type CourseCompleteResponse,
+  type FlashCard,
+  type FieldTask,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
 import { LearningMap } from '../components/learning/LearningMap';
+import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
+import { FlashcardsView } from '../components/learning/FlashcardsView';
+import { FieldTaskCard } from '../components/learning/FieldTaskCard';
 
 // ===========================================
 // LEARNING MAP — четыре режима отображения:
@@ -37,8 +42,11 @@ export function LearningPage() {
   // Quiz state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [interactiveResults, setInteractiveResults] = useState<Record<number, boolean>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [completionResult, setCompletionResult] = useState<CourseCompleteResponse | null>(null);
+  const [flashcardsDone, setFlashcardsDone] = useState(false);
+  const [fieldTaskDone, setFieldTaskDone] = useState(false);
   const [startTime] = useState(Date.now());
 
   const addToast = useToastStore((s) => s.addToast);
@@ -106,8 +114,11 @@ export function LearningPage() {
       setCourseData(resp.data);
       setCurrentSlide(0);
       setQuizAnswers({});
+      setInteractiveResults({});
       setQuizSubmitted(false);
       setCompletionResult(null);
+      setFlashcardsDone(false);
+      setFieldTaskDone(false);
       setView('course');
       setError('');
     } catch {
@@ -118,16 +129,12 @@ export function LearningPage() {
   };
 
   // Submit quiz and complete course
-  const submitQuiz = async () => {
+  const submitQuiz = async (quizQuestions?: QuizQuestion[]) => {
     if (!courseData) return;
-    const quiz = courseData.content.quiz || [];
+    const quiz = (quizQuestions || courseData.content.quiz || []) as QuizQuestion[];
     if (quiz.length === 0) return;
 
-    let correct = 0;
-    quiz.forEach((q, i) => {
-      if (quizAnswers[i] === q.correct_answer) correct++;
-    });
-    const score = Math.round((correct / quiz.length) * 100);
+    const score = calculateQuizScore(quiz, quizAnswers, interactiveResults);
 
     try {
       const elapsed = Math.round((Date.now() - startTime) / 1000);
@@ -239,8 +246,14 @@ export function LearningPage() {
         setCurrentSlide={setCurrentSlide}
         quizAnswers={quizAnswers}
         setQuizAnswers={setQuizAnswers}
+        interactiveResults={interactiveResults}
+        setInteractiveResults={setInteractiveResults}
         quizSubmitted={quizSubmitted}
         completionResult={completionResult}
+        flashcardsDone={flashcardsDone}
+        setFlashcardsDone={setFlashcardsDone}
+        fieldTaskDone={fieldTaskDone}
+        setFieldTaskDone={setFieldTaskDone}
         onSubmitQuiz={submitQuiz}
         onBack={goBack}
       />
@@ -647,8 +660,10 @@ function parseContentBlocks(content: string): ContentBlock[] {
 
 
 // ============================================================
-// COURSE VIEW — visual micro-learning slides + quiz
+// COURSE VIEW — visual micro-learning: slides → quiz → flashcards → field task → results
 // ============================================================
+
+type CoursePhase = 'slides' | 'quiz' | 'flashcards' | 'field_task' | 'results';
 
 function CourseView({
   data,
@@ -656,8 +671,14 @@ function CourseView({
   setCurrentSlide,
   quizAnswers,
   setQuizAnswers,
+  interactiveResults,
+  setInteractiveResults,
   quizSubmitted,
   completionResult,
+  flashcardsDone,
+  setFlashcardsDone,
+  fieldTaskDone,
+  setFieldTaskDone,
   onSubmitQuiz,
   onBack,
 }: {
@@ -666,26 +687,63 @@ function CourseView({
   setCurrentSlide: (n: number) => void;
   quizAnswers: Record<number, number>;
   setQuizAnswers: (a: Record<number, number>) => void;
+  interactiveResults: Record<number, boolean>;
+  setInteractiveResults: (r: Record<number, boolean>) => void;
   quizSubmitted: boolean;
   completionResult: CourseCompleteResponse | null;
-  onSubmitQuiz: () => void;
+  flashcardsDone: boolean;
+  setFlashcardsDone: (v: boolean) => void;
+  fieldTaskDone: boolean;
+  setFieldTaskDone: (v: boolean) => void;
+  onSubmitQuiz: (questions?: QuizQuestion[]) => void;
   onBack: () => void;
 }) {
   const slides = data.content.slides || [];
-  const quiz = data.content.quiz || [];
-  const totalPages = slides.length + (quiz.length > 0 ? 1 : 0);
-  const isQuizPage = currentSlide >= slides.length;
+  const quiz = (data.content.quiz || []) as QuizQuestion[];
+  const flashcards = (data.content.spaced_repetition_cards || []) as FlashCard[];
+  const fieldTask = data.content.field_task as FieldTask | null | undefined;
+  const mediaPrompts = data.content.media_prompts || [];
 
-  // Gradient colors per slide index for visual variety
+  const hasQuiz = quiz.length > 0;
+  const hasFlashcards = flashcards.length > 0;
+  const hasFieldTask = !!fieldTask && !!fieldTask.title;
+
+  // Determine current phase
+  const phase: CoursePhase = useMemo(() => {
+    if (currentSlide < slides.length) return 'slides';
+    if (hasQuiz && !quizSubmitted) return 'quiz';
+    if (quizSubmitted && hasFlashcards && !flashcardsDone) return 'flashcards';
+    if (quizSubmitted && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
+    if (quizSubmitted) return 'results';
+    // No quiz — go straight to flashcards/field_task/done
+    if (!hasQuiz && hasFlashcards && !flashcardsDone) return 'flashcards';
+    if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
+    return 'results';
+  }, [currentSlide, slides.length, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
+
+  const totalSlidePages = slides.length + (hasQuiz ? 1 : 0);
+
+  // Get media prompt for current slide
+  const currentMediaPrompt = phase === 'slides' && slides[currentSlide]
+    ? mediaPrompts.find(p => p.slide_order === slides[currentSlide].order)
+    : null;
+
+  // Gradient colors per slide index
   const slideAccents = [
-    { bg: 'from-blue-500 to-indigo-600', light: 'bg-blue-50' },
-    { bg: 'from-violet-500 to-purple-600', light: 'bg-violet-50' },
-    { bg: 'from-emerald-500 to-teal-600', light: 'bg-emerald-50' },
-    { bg: 'from-amber-500 to-orange-600', light: 'bg-amber-50' },
-    { bg: 'from-rose-500 to-pink-600', light: 'bg-rose-50' },
-    { bg: 'from-cyan-500 to-blue-600', light: 'bg-cyan-50' },
+    { bg: 'from-blue-500 to-indigo-600' },
+    { bg: 'from-violet-500 to-purple-600' },
+    { bg: 'from-emerald-500 to-teal-600' },
+    { bg: 'from-amber-500 to-orange-600' },
+    { bg: 'from-rose-500 to-pink-600' },
+    { bg: 'from-cyan-500 to-blue-600' },
   ];
   const accent = slideAccents[currentSlide % slideAccents.length];
+
+  const handleInteractiveResult = (qi: number, isCorrect: boolean) => {
+    setInteractiveResults({ ...interactiveResults, [qi]: isCorrect });
+  };
+
+  const isAllAnswered = allQuestionsAnswered(quiz, quizAnswers, interactiveResults);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -710,90 +768,107 @@ function CourseView({
           <h2 className="text-lg font-bold leading-tight">{data.course.title.ru}</h2>
         </div>
 
-        {/* Step dots + progress */}
-        <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-2">
-          <div className="flex items-center gap-1.5 flex-1">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                onClick={() => !quizSubmitted && setCurrentSlide(i)}
-                className={`transition-all duration-300 rounded-full ${
-                  i === currentSlide
-                    ? 'w-6 h-2 bg-blue-500'
-                    : i < currentSlide
-                    ? 'w-2 h-2 bg-blue-300'
-                    : 'w-2 h-2 bg-gray-200'
-                }`}
-              />
-            ))}
+        {/* Step dots + progress (only during slides & quiz) */}
+        {(phase === 'slides' || phase === 'quiz') && (
+          <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-1">
+              {Array.from({ length: totalSlidePages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => !quizSubmitted && i < slides.length && setCurrentSlide(i)}
+                  className={`transition-all duration-300 rounded-full ${
+                    i === currentSlide
+                      ? 'w-6 h-2 bg-blue-500'
+                      : i < currentSlide
+                      ? 'w-2 h-2 bg-blue-300'
+                      : 'w-2 h-2 bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-xs text-gray-400 tabular-nums font-medium">
+              {Math.min(currentSlide + 1, totalSlidePages)}/{totalSlidePages}
+            </span>
           </div>
-          <span className="text-xs text-gray-400 tabular-nums font-medium">
-            {currentSlide + 1}/{totalPages}
-          </span>
-        </div>
+        )}
+
+        {/* Phase indicator for post-quiz phases */}
+        {(phase === 'flashcards' || phase === 'field_task') && (
+          <div className="px-6 py-2.5 border-b border-gray-100 flex items-center gap-2">
+            <div className="flex gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-blue-400" title="Слайды" />
+              <span className="w-2 h-2 rounded-full bg-blue-400" title="Квиз" />
+              <span className={`w-2 h-2 rounded-full ${phase === 'flashcards' ? 'w-6 bg-blue-500' : 'bg-blue-400'}`} title="Карточки" />
+              {hasFieldTask && (
+                <span className={`w-2 h-2 rounded-full ${phase === 'field_task' ? 'w-6 bg-blue-500' : 'bg-gray-200'}`} title="Задание" />
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Content area */}
         <div className="px-6 py-6 min-h-[320px]">
-          {!isQuizPage && slides[currentSlide] ? (
-            // ========= SLIDE =========
+          {/* ========= SLIDE ========= */}
+          {phase === 'slides' && slides[currentSlide] && (
             <div className="animate-fadeIn">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1 h-6 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
                 {slides[currentSlide].title}
               </h3>
               <RichSlideContent content={slides[currentSlide].content} />
-            </div>
 
-          ) : isQuizPage && !quizSubmitted ? (
-            // ========= QUIZ =========
-            <div className="animate-fadeIn">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-lg">?</div>
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Проверка знаний</h3>
-                  <p className="text-xs text-gray-400">{quiz.length} вопрос{quiz.length > 1 ? (quiz.length < 5 ? 'а' : 'ов') : ''}</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {quiz.map((q, qi) => (
-                  <div key={qi}>
-                    <p className="font-medium text-gray-800 mb-3 text-[15px]">
-                      <span className="text-blue-500 font-bold mr-1">{qi + 1}.</span> {q.question}
-                    </p>
-                    <div className="space-y-2">
-                      {q.options.map((opt, oi) => {
-                        const isSelected = quizAnswers[qi] === oi;
-                        const letter = String.fromCharCode(65 + oi); // A, B, C, D
-                        return (
-                          <button
-                            key={oi}
-                            onClick={() => setQuizAnswers({ ...quizAnswers, [qi]: oi })}
-                            className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition-all duration-200 border ${
-                              isSelected
-                                ? 'bg-blue-50 border-blue-300 shadow-sm shadow-blue-100'
-                                : 'bg-white border-gray-200 hover:border-blue-200 hover:bg-gray-50'
-                            }`}
-                          >
-                            <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${
-                              isSelected
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-gray-100 text-gray-500'
-                            }`}>
-                              {letter}
-                            </span>
-                            <span className={`text-sm ${isSelected ? 'text-blue-800 font-medium' : 'text-gray-700'}`}>{opt}</span>
-                          </button>
-                        );
-                      })}
+              {/* Media from prompt (if done) */}
+              {currentMediaPrompt && currentMediaPrompt.status === 'done' && currentMediaPrompt.media_url && (
+                <div className="mt-4 rounded-xl overflow-hidden border border-gray-200">
+                  {currentMediaPrompt.type === 'video' ? (
+                    <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                      <a href={currentMediaPrompt.media_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
+                        Открыть видео
+                      </a>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ) : (
+                    <img src={currentMediaPrompt.media_url} alt="" className="w-full h-auto" />
+                  )}
+                </div>
+              )}
+              {currentMediaPrompt && currentMediaPrompt.status !== 'done' && (
+                <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center text-sm text-gray-400">
+                  🎨 Медиа в разработке
+                </div>
+              )}
             </div>
+          )}
 
-          ) : quizSubmitted && completionResult ? (
-            // ========= RESULTS =========
+          {/* ========= QUIZ (all types) ========= */}
+          {phase === 'quiz' && (
+            <QuizRenderer
+              questions={quiz}
+              answers={quizAnswers}
+              interactiveResults={interactiveResults}
+              onSingleChoiceAnswer={(qi, ai) => setQuizAnswers({ ...quizAnswers, [qi]: ai })}
+              onInteractiveResult={handleInteractiveResult}
+              submitted={false}
+            />
+          )}
+
+          {/* ========= FLASHCARDS ========= */}
+          {phase === 'flashcards' && (
+            <FlashcardsView
+              cards={flashcards}
+              onComplete={() => setFlashcardsDone(true)}
+            />
+          )}
+
+          {/* ========= FIELD TASK ========= */}
+          {phase === 'field_task' && fieldTask && (
+            <FieldTaskCard
+              task={fieldTask}
+              onComplete={() => setFieldTaskDone(true)}
+            />
+          )}
+
+          {/* ========= RESULTS ========= */}
+          {phase === 'results' && completionResult ? (
             <div className="animate-fadeIn text-center py-6">
               {/* Score ring */}
               <div className="relative w-32 h-32 mx-auto mb-6">
@@ -852,9 +927,8 @@ function CourseView({
                 Продолжить обучение
               </button>
             </div>
-
-          ) : quiz.length === 0 ? (
-            // No quiz - slides complete
+          ) : phase === 'results' && !hasQuiz ? (
+            // No quiz - just slides, maybe flashcards/field_task were shown
             <div className="animate-fadeIn text-center py-10">
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-100 flex items-center justify-center">
                 <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
@@ -872,7 +946,7 @@ function CourseView({
         </div>
 
         {/* Navigation */}
-        {!quizSubmitted && (
+        {phase === 'slides' && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
             <button
               onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
@@ -883,25 +957,34 @@ function CourseView({
               Назад
             </button>
 
-            {isQuizPage && quiz.length > 0 ? (
-              <button
-                onClick={onSubmitQuiz}
-                disabled={Object.keys(quizAnswers).length < quiz.length}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all"
-              >
-                Завершить
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-              </button>
-            ) : (
-              <button
-                onClick={() => setCurrentSlide(Math.min(totalPages - 1, currentSlide + 1))}
-                disabled={currentSlide >= totalPages - 1}
-                className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all"
-              >
-                Далее
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-              </button>
-            )}
+            <button
+              onClick={() => setCurrentSlide(currentSlide + 1)}
+              className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all"
+            >
+              {currentSlide === slides.length - 1 && hasQuiz ? 'К проверке знаний' : currentSlide === slides.length - 1 ? 'Завершить' : 'Далее'}
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </div>
+        )}
+
+        {phase === 'quiz' && (
+          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+            <button
+              onClick={() => setCurrentSlide(slides.length - 1)}
+              className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-all rounded-xl hover:bg-white"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              К слайдам
+            </button>
+
+            <button
+              onClick={() => onSubmitQuiz(quiz)}
+              disabled={!isAllAnswered}
+              className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all"
+            >
+              Завершить
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            </button>
           </div>
         )}
       </div>
