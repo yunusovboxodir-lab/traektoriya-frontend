@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
 import {
   generationApi,
   type GenerateLessonResponse,
@@ -8,6 +8,10 @@ import {
 } from '../api/generation';
 import { documentsApi, type DocumentResponse } from '../api/documents';
 import { ragApi } from '../api/rag';
+
+const ContentModerationTab = lazy(() =>
+  import('../components/moderation/ContentModerationTab').then(m => ({ default: m.ContentModerationTab }))
+);
 
 // ===========================================================================
 // Helpers
@@ -114,7 +118,7 @@ const MODERATION_STYLES: Record<ModerationStatus, { label: string; bg: string; t
 // ===========================================================================
 
 export function GenerationPage() {
-  const [activeTab, setActiveTab] = useState<'simple' | 'wizard'>('simple');
+  const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation'>('simple');
 
   return (
     <div>
@@ -127,7 +131,7 @@ export function GenerationPage() {
       </div>
 
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 max-w-md">
+      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 max-w-2xl">
         <button
           type="button"
           onClick={() => setActiveTab('simple')}
@@ -150,10 +154,29 @@ export function GenerationPage() {
         >
           Из должностной инструкции
         </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('moderation')}
+          className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'moderation'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Модерация контента
+        </button>
       </div>
 
       {/* Tab content */}
-      {activeTab === 'simple' ? <SimpleGeneration /> : <WizardGeneration />}
+      {activeTab === 'simple' ? (
+        <SimpleGeneration />
+      ) : activeTab === 'wizard' ? (
+        <WizardGeneration />
+      ) : (
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+          <ContentModerationTab />
+        </Suspense>
+      )}
     </div>
   );
 }
