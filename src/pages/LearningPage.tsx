@@ -269,6 +269,8 @@ function ModulesView({
     supervisor: 'from-indigo-500 to-indigo-600',
     regional_manager: 'from-teal-500 to-teal-600',
     top_management: 'from-amber-500 to-amber-600',
+    production_worker: 'from-orange-500 to-orange-600',
+    production_manager: 'from-rose-500 to-rose-600',
   };
 
   const moduleBgColors: Record<string, string> = {
@@ -276,6 +278,8 @@ function ModulesView({
     supervisor: 'bg-indigo-50 border-indigo-200',
     regional_manager: 'bg-teal-50 border-teal-200',
     top_management: 'bg-amber-50 border-amber-200',
+    production_worker: 'bg-orange-50 border-orange-200',
+    production_manager: 'bg-rose-50 border-rose-200',
   };
 
   return (

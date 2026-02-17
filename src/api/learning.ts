@@ -221,6 +221,8 @@ export const MODULE_ICONS: Record<string, string> = {
   groups: '👔',
   public: '🌐',
   emoji_events: '👑',
+  precision_manufacturing: '🏭',
+  engineering: '⚙️',
 };
 
 export const learningApi = {
