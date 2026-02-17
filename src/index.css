@@ -23,6 +23,22 @@ body {
   animation: slide-in 0.3s ease-out;
 }
 
+/* Micro-learning fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.35s ease-out;
+}
+
 /* ===== Learning Map — 3D Isometric Houses ===== */
 
 /* Overlay container for HTML buildings on top of SVG background */
