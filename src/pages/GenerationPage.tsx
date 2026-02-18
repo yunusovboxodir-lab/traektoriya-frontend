@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from 'react';
 import {
   generationApi,
   type GenerateLessonResponse,
@@ -8,14 +8,15 @@ import {
 } from '../api/generation';
 import { documentsApi, type DocumentResponse } from '../api/documents';
 import { ragApi } from '../api/rag';
+import { lazyWithRetry } from '../utils/lazyWithRetry';
 
-const ContentModerationTab = lazy(() =>
+const ContentModerationTab = lazyWithRetry(() =>
   import('../components/moderation/ContentModerationTab').then(m => ({ default: m.ContentModerationTab }))
 );
-const MediaPromptsTab = lazy(() =>
+const MediaPromptsTab = lazyWithRetry(() =>
   import('../components/moderation/MediaPromptsTab').then(m => ({ default: m.MediaPromptsTab }))
 );
-const ContentKanbanTab = lazy(() =>
+const ContentKanbanTab = lazyWithRetry(() =>
   import('../components/moderation/ContentKanbanTab').then(m => ({ default: m.ContentKanbanTab }))
 );
 

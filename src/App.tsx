@@ -1,29 +1,30 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useScopeStore } from './stores/scopeStore';
 import { Layout } from './components/layout';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { lazyWithRetry } from './utils/lazyWithRetry';
 
-// Lazy-loaded pages for code splitting
-const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const LearningPage = lazy(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
-const ProductsPage = lazy(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
-const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
-const TasksPage = lazy(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
-const TeamPage = lazy(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })));
-const AssessmentsPage = lazy(() => import('./pages/AssessmentsPage').then(m => ({ default: m.AssessmentsPage })));
-const GenerationPage = lazy(() => import('./pages/GenerationPage').then(m => ({ default: m.GenerationPage })));
-const PlanogramPage = lazy(() => import('./pages/PlanogramPage').then(m => ({ default: m.PlanogramPage })));
-const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
-const KnowledgeBasePage = lazy(() => import('./pages/KnowledgeBasePage').then(m => ({ default: m.KnowledgeBasePage })));
-const KPIPage = lazy(() => import('./pages/KPIPage').then(m => ({ default: m.KPIPage })));
-const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
-const QuizPage = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
-const RolesPage = lazy(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
-const GoalsPage = lazy(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
+// Lazy-loaded pages for code splitting (with auto-retry on chunk load errors)
+const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
+const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
+const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
+const TeamPage = lazyWithRetry(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })));
+const AssessmentsPage = lazyWithRetry(() => import('./pages/AssessmentsPage').then(m => ({ default: m.AssessmentsPage })));
+const GenerationPage = lazyWithRetry(() => import('./pages/GenerationPage').then(m => ({ default: m.GenerationPage })));
+const PlanogramPage = lazyWithRetry(() => import('./pages/PlanogramPage').then(m => ({ default: m.PlanogramPage })));
+const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
+const KnowledgeBasePage = lazyWithRetry(() => import('./pages/KnowledgeBasePage').then(m => ({ default: m.KnowledgeBasePage })));
+const KPIPage = lazyWithRetry(() => import('./pages/KPIPage').then(m => ({ default: m.KPIPage })));
+const ChatPage = lazyWithRetry(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
+const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
+const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT

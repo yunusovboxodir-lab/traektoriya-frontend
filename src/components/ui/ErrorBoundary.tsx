@@ -10,6 +10,16 @@ interface State {
   error: Error | null;
 }
 
+function isChunkLoadError(error: Error | null): boolean {
+  if (!error) return false;
+  return (
+    error.message?.includes('Failed to fetch dynamically imported module') ||
+    error.message?.includes('Loading chunk') ||
+    error.message?.includes('Loading CSS chunk') ||
+    error.name === 'ChunkLoadError'
+  );
+}
+
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -28,27 +38,37 @@ export class ErrorBoundary extends Component<Props, State> {
     this.setState({ hasError: false, error: null });
   };
 
+  handleReload = () => {
+    window.location.reload();
+  };
+
   render() {
     if (this.state.hasError) {
+      const chunkError = isChunkLoadError(this.state.error);
+
       return (
         <div className="min-h-[400px] flex items-center justify-center p-8">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
-            <div className="text-5xl mb-4">💥</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Что-то пошло не так</h2>
+            <div className="text-5xl mb-4">{chunkError ? '🔄' : '💥'}</div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">
+              {chunkError ? 'Обновление приложения' : 'Что-то пошло не так'}
+            </h2>
             <p className="text-gray-500 mb-2 text-sm">
-              Произошла непредвиденная ошибка. Попробуйте обновить страницу.
+              {chunkError
+                ? 'Вышла новая версия приложения. Нажмите «Обновить» для загрузки.'
+                : 'Произошла непредвиденная ошибка. Попробуйте обновить страницу.'}
             </p>
-            {this.state.error && (
+            {this.state.error && !chunkError && (
               <p className="text-xs text-red-400 bg-red-50 rounded-lg p-2 mb-4 font-mono break-all">
                 {this.state.error.message}
               </p>
             )}
             <div className="flex gap-3 justify-center">
               <button
-                onClick={this.handleReset}
+                onClick={chunkError ? this.handleReload : this.handleReset}
                 className="px-5 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
               >
-                Попробовать снова
+                {chunkError ? 'Обновить' : 'Попробовать снова'}
               </button>
               <button
                 onClick={() => window.location.assign('/dashboard')}
