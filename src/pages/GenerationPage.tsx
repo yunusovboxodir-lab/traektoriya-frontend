@@ -15,6 +15,9 @@ const ContentModerationTab = lazy(() =>
 const MediaPromptsTab = lazy(() =>
   import('../components/moderation/MediaPromptsTab').then(m => ({ default: m.MediaPromptsTab }))
 );
+const ContentKanbanTab = lazy(() =>
+  import('../components/moderation/ContentKanbanTab').then(m => ({ default: m.ContentKanbanTab }))
+);
 
 // ===========================================================================
 // Helpers
@@ -121,7 +124,7 @@ const MODERATION_STYLES: Record<ModerationStatus, { label: string; bg: string; t
 // ===========================================================================
 
 export function GenerationPage() {
-  const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation' | 'media_prompts'>('simple');
+  const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation' | 'media_prompts' | 'kanban'>('simple');
 
   return (
     <div>
@@ -179,6 +182,17 @@ export function GenerationPage() {
         >
           Медиа-промпты
         </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('kanban')}
+          className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'kanban'
+              ? 'bg-white text-gray-900 shadow-sm'
+              : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Kanban
+        </button>
       </div>
 
       {/* Tab content */}
@@ -190,9 +204,13 @@ export function GenerationPage() {
         <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
           <ContentModerationTab />
         </Suspense>
-      ) : (
+      ) : activeTab === 'media_prompts' ? (
         <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
           <MediaPromptsTab />
+        </Suspense>
+      ) : (
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+          <ContentKanbanTab />
         </Suspense>
       )}
     </div>

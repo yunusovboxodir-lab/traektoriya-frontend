@@ -15,6 +15,7 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   chat: '/chat',
   planogram: '/planogram',
   analytics: '/analytics',
+  goals: '/goals',
   'admin-roles': '/admin/roles',
 };
 

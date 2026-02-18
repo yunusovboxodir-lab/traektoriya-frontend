@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
+import { NudgesWidget } from '../components/dashboard/NudgesWidget';
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -305,18 +306,8 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Recent Activity Placeholder ── */}
-      <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-gray-800">Последняя активность</h2>
-        </div>
-        <p className="text-sm text-gray-400">Данные скоро будут доступны</p>
-      </div>
+      {/* ── Nudges Widget ── */}
+      <NudgesWidget />
     </div>
   );
 }

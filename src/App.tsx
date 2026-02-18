@@ -23,6 +23,7 @@ const KPIPage = lazy(() => import('./pages/KPIPage').then(m => ({ default: m.KPI
 const ChatPage = lazy(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
 const QuizPage = lazy(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazy(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
+const GoalsPage = lazy(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -222,6 +223,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="chat">
             <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Цели и достижения */}
+      <Route
+        path="/goals"
+        element={
+          <ProtectedRoute pageKey="goals">
+            <GoalsPage />
           </ProtectedRoute>
         }
       />
