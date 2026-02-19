@@ -125,7 +125,6 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
 
 export function TasksPage() {
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
   const [board, setBoard] = useState<KanbanBoard>({ todo: [], in_progress: [], review: [], done: [] });
   const [stats, setStats] = useState<TaskStats>({ total: 0, todo: 0, in_progress: 0, done: 0 });
   const [loading, setLoading] = useState(true);

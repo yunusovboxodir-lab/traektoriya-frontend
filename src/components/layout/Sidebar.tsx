@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
-import { useLangStore, useT, type Lang } from '../../stores/langStore';
+import { useLangStore, useT } from '../../stores/langStore';
 
 // ---------------------------------------------------------------------------
 // Types

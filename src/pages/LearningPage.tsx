@@ -14,7 +14,7 @@ import {
   type FieldTask,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
-import { useT, useLangStore } from '../stores/langStore';
+import { useT } from '../stores/langStore';
 import { LearningMap } from '../components/learning/LearningMap';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
@@ -280,7 +280,6 @@ function ModulesView({
   onSelectModule: (role: string) => void;
 }) {
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
   const moduleColors: Record<string, string> = {
     sales_rep: 'from-blue-500 to-blue-600',
     supervisor: 'from-indigo-500 to-indigo-600',
@@ -381,7 +380,6 @@ function SectionView({
   onOpenCourse: (id: string) => void;
 }) {
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
   return (
     <div className="max-w-3xl mx-auto">
       {/* Back */}

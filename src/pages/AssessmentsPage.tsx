@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assessmentsApi, type Assessment } from '../api/assessments';
-import { useT, useLangStore } from '../stores/langStore';
+import { useT } from '../stores/langStore';
 
 const TERRITORY_TABS = [
   { key: 'all', label: 'Все' },
@@ -27,7 +27,6 @@ const TERRITORY_BADGE_COLORS: Record<string, string> = {
 export function AssessmentsPage() {
   const navigate = useNavigate();
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
 
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
