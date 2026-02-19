@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { tasksApi, type Task, type KanbanBoard, type TaskStats } from '../api/tasks';
+import { useT, useLangStore } from '../stores/langStore';
 
 const COLUMNS = [
-  { key: 'todo', label: 'К выполнению', color: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-500', dot: 'bg-slate-400' },
-  { key: 'in_progress', label: 'В работе', color: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-500', dot: 'bg-blue-400' },
-  { key: 'review', label: 'На проверке', color: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-500', dot: 'bg-amber-400' },
-  { key: 'done', label: 'Выполнено', color: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-500', dot: 'bg-emerald-400' },
+  { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-500', dot: 'bg-slate-400' },
+  { key: 'in_progress', labelKey: 'tasks.columns.in_progress', color: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-500', dot: 'bg-blue-400' },
+  { key: 'review', labelKey: 'tasks.columns.review', color: 'bg-amber-50', border: 'border-amber-200', badge: 'bg-amber-500', dot: 'bg-amber-400' },
+  { key: 'done', labelKey: 'tasks.columns.done', color: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-500', dot: 'bg-emerald-400' },
 ] as const;
 
 const PRIORITY_STYLES: Record<string, { bg: string; text: string; border: string; icon: string }> = {
@@ -15,14 +16,16 @@ const PRIORITY_STYLES: Record<string, { bg: string; text: string; border: string
   low: { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-200', icon: '-' },
 };
 
-const PRIORITY_LABELS: Record<string, string> = {
-  urgent: 'Срочно',
-  high: 'Высокий',
-  medium: 'Средний',
-  low: 'Низкий',
+const PRIORITY_LABEL_KEYS: Record<string, string> = {
+  urgent: 'tasks.priority.urgent',
+  high: 'tasks.priority.high',
+  medium: 'tasks.priority.medium',
+  low: 'tasks.priority.low',
 };
 
 function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: string, status: string) => void }) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const style = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
 
   return (
@@ -30,7 +33,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
       {/* Priority + Title */}
       <div className="flex items-start gap-2 mb-2">
         <span className={`flex-shrink-0 mt-0.5 text-[10px] px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
-          {PRIORITY_LABELS[task.priority] || task.priority}
+          {t(PRIORITY_LABEL_KEYS[task.priority]) || task.priority}
         </span>
         <h4 className="font-medium text-sm text-gray-900 leading-snug flex-1 group-hover:text-blue-700 transition-colors">
           {task.title}
@@ -50,7 +53,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
               </svg>
-              {new Date(task.due_date).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
+              {new Date(task.due_date).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', { day: 'numeric', month: 'short' })}
             </span>
           )}
           {task.task_type && task.task_type !== 'other' && (
@@ -79,7 +82,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            В работу
+            {t('tasks.actions.toWork')}
           </button>
         )}
         {task.status === 'in_progress' && (
@@ -90,7 +93,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
             </svg>
-            На проверку
+            {t('tasks.actions.toReview')}
           </button>
         )}
         {task.status !== 'done' && (
@@ -101,7 +104,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            Готово
+            {t('tasks.actions.done')}
           </button>
         )}
         {task.status === 'done' && (
@@ -112,7 +115,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path d="M3 12a9 9 0 109-9" /><polyline points="3 3 3 9 9 9" transform="translate(0, -3)" />
             </svg>
-            Вернуть
+            {t('tasks.actions.return')}
           </button>
         )}
       </div>
@@ -121,6 +124,8 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
 }
 
 export function TasksPage() {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const [board, setBoard] = useState<KanbanBoard>({ todo: [], in_progress: [], review: [], done: [] });
   const [stats, setStats] = useState<TaskStats>({ total: 0, todo: 0, in_progress: 0, done: 0 });
   const [loading, setLoading] = useState(true);
@@ -144,7 +149,7 @@ export function TasksPage() {
       setBoard(kanbanRes.data);
       setStats(statsRes.data);
     } catch {
-      setError('Не удалось загрузить задачи');
+      setError(t('tasks.errors.loadFailed'));
       setBoard({ todo: [], in_progress: [], review: [], done: [] });
       setStats({ total: 0, todo: 0, in_progress: 0, done: 0 });
     } finally {
@@ -161,7 +166,7 @@ export function TasksPage() {
       await tasksApi.update(taskId, { status: newStatus } as Partial<Task>);
       await loadData();
     } catch {
-      setError('Не удалось обновить статус задачи');
+      setError(t('tasks.errors.updateFailed'));
     }
   };
 
@@ -181,7 +186,7 @@ export function TasksPage() {
       setShowCreate(false);
       await loadData();
     } catch {
-      setError('Не удалось создать задачу');
+      setError(t('tasks.errors.createFailed'));
     } finally {
       setCreating(false);
     }
@@ -192,8 +197,8 @@ export function TasksPage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Задачи</h1>
-          <p className="text-sm text-gray-500 mt-1">Kanban-доска управления задачами</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('tasks.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('tasks.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
@@ -202,17 +207,17 @@ export function TasksPage() {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Новая задача
+          {t('tasks.newTask')}
         </button>
       </div>
 
       {/* Stats bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Всего задач', value: stats.total, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', color: 'text-gray-700', bg: 'bg-gray-50' },
-          { label: 'К выполнению', value: stats.todo, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-slate-600', bg: 'bg-slate-50' },
-          { label: 'В работе', value: stats.in_progress, icon: 'M13 10V3L4 14h7v7l9-11h-7z', color: 'text-blue-600', bg: 'bg-blue-50' },
-          { label: 'Выполнено', value: stats.done, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: t('tasks.stats.total'), value: stats.total, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', color: 'text-gray-700', bg: 'bg-gray-50' },
+          { label: t('tasks.stats.todo'), value: stats.todo, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-slate-600', bg: 'bg-slate-50' },
+          { label: t('tasks.stats.inProgress'), value: stats.in_progress, icon: 'M13 10V3L4 14h7v7l9-11h-7z', color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: t('tasks.stats.done'), value: stats.done, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-emerald-600', bg: 'bg-emerald-50' },
         ].map((s) => (
           <div key={s.label} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
             <div className="flex items-center gap-3">
@@ -235,7 +240,7 @@ export function TasksPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-gray-900">Новая задача</h3>
+              <h3 className="text-lg font-bold text-gray-900">{t('tasks.create.title')}</h3>
               <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path d="M6 18L18 6M6 6l12 12" />
@@ -244,10 +249,10 @@ export function TasksPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Название</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('tasks.create.nameLabel')}</label>
                 <input
                   type="text"
-                  placeholder="Что нужно сделать?"
+                  placeholder={t('tasks.create.namePlaceholder')}
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -255,9 +260,9 @@ export function TasksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Описание</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('tasks.create.descLabel')}</label>
                 <textarea
-                  placeholder="Детали задачи (необязательно)"
+                  placeholder={t('tasks.create.descPlaceholder')}
                   value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
                   rows={3}
@@ -265,7 +270,7 @@ export function TasksPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Приоритет</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('tasks.create.priorityLabel')}</label>
                 <div className="flex gap-2">
                   {(['low', 'medium', 'high', 'urgent'] as const).map((p) => {
                     const s = PRIORITY_STYLES[p];
@@ -280,7 +285,7 @@ export function TasksPage() {
                             : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100'
                         }`}
                       >
-                        {PRIORITY_LABELS[p]}
+                        {t(PRIORITY_LABEL_KEYS[p])}
                       </button>
                     );
                   })}
@@ -292,14 +297,14 @@ export function TasksPage() {
                 onClick={() => setShowCreate(false)}
                 className="px-4 py-2.5 text-sm text-gray-600 hover:text-gray-800 font-medium rounded-xl hover:bg-gray-100 transition-colors"
               >
-                Отмена
+                {t('tasks.create.cancel')}
               </button>
               <button
                 onClick={handleCreate}
                 disabled={!newTitle.trim() || creating}
                 className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm transition-all"
               >
-                {creating ? 'Создание...' : 'Создать задачу'}
+                {creating ? t('tasks.create.creating') : t('tasks.create.submit')}
               </button>
             </div>
           </div>
@@ -334,7 +339,7 @@ export function TasksPage() {
               <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
             </svg>
             <p className="text-red-600 text-sm flex-1">{error}</p>
-            <button onClick={loadData} className="text-red-600 hover:text-red-800 text-sm font-medium underline">Повторить</button>
+            <button onClick={loadData} className="text-red-600 hover:text-red-800 text-sm font-medium underline">{t('tasks.retry')}</button>
           </div>
         </div>
       )}
@@ -350,7 +355,7 @@ export function TasksPage() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-                    <h3 className="font-semibold text-sm text-gray-700">{col.label}</h3>
+                    <h3 className="font-semibold text-sm text-gray-700">{t(col.labelKey)}</h3>
                   </div>
                   <span className={`${col.badge} text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold`}>
                     {tasks.length}
@@ -367,7 +372,7 @@ export function TasksPage() {
                       <svg className="mx-auto w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
-                      <p className="text-gray-400 text-xs">Нет задач</p>
+                      <p className="text-gray-400 text-xs">{t('tasks.empty')}</p>
                     </div>
                   )}
                 </div>

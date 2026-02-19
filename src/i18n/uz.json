@@ -1,0 +1,295 @@
+{
+  "nav": {
+    "dashboard": "Bosh sahifa",
+    "learning": "O'qitish",
+    "products": "Mahsulotlar",
+    "tasks": "Vazifalar",
+    "team": "Jamoa",
+    "assessments": "Baholash",
+    "generation": "AI Generatsiya",
+    "knowledgeBase": "Bilimlar bazasi",
+    "goals": "Maqsadlar",
+    "kpi": "KPI",
+    "chat": "AI Chat",
+    "planogram": "Planogramma",
+    "analytics": "Tahlil",
+    "adminRoles": "Rollar boshqaruvi",
+    "collapse": "Yig'ish",
+    "expand": "Yoyish",
+    "logout": "Chiqish"
+  },
+  "roles": {
+    "superadmin": "Superadmin",
+    "commercial_dir": "Kom. direktor",
+    "regional_manager": "Hud. menejer",
+    "admin": "Admin",
+    "supervisor": "Supervayzer",
+    "sales_rep": "Sotuvchi",
+    "manager": "Menejer",
+    "user": "Xodim"
+  },
+  "login": {
+    "title": "TRAEKTORIYA",
+    "subtitle": "N'Medov savdo vakillari uchun o'quv platformasi",
+    "heading": "Tizimga kirish",
+    "subheading": "Hisob ma'lumotlaringizni kiriting",
+    "employeeId": "Xodim ID",
+    "employeePlaceholder": "Xodim ID kiriting",
+    "password": "Parol",
+    "passwordPlaceholder": "Parolni kiriting",
+    "showPassword": "Parolni ko'rsatish",
+    "hidePassword": "Parolni yashirish",
+    "submit": "Kirish",
+    "loading": "Kirish...",
+    "error": "Kirish xatosi. Ma'lumotlarni tekshiring.",
+    "demoAccess": "Demo kirish"
+  },
+  "dashboard": {
+    "welcome": "Xush kelibsiz",
+    "platformDesc": "Savdo vakillari uchun o'quv platformasi — kurslar, vazifalar va tahlillarni bir joyda boshqaring.",
+    "sections": "Platforma bo'limlari",
+    "stats": {
+      "products": "Mahsulotlar",
+      "users": "Foydalanuvchilar",
+      "courses": "Kurslar",
+      "tasks": "Vazifalar"
+    },
+    "cards": {
+      "learningDesc": "Kurslar, treninglar va o'quv materiallari",
+      "productsDesc": "Mahsulotlar kutubxonasi va kompaniya katalogi",
+      "tasksDesc": "Vazifalarni boshqarish uchun Kanban-doska",
+      "teamDesc": "Xodimlar va tashkilot tuzilmasini boshqarish",
+      "assessmentsDesc": "Attestatsiya, testlar va kompetensiyalarni baholash",
+      "generationDesc": "Sun'iy intellekt yordamida darslar va kontent yaratish",
+      "planogramDesc": "Kompyuter ko'rish yordamida tovar joylashuvini tahlil qilish",
+      "analyticsDesc": "Statistika, hisobotlar va samaradorlik ko'rsatkichlari"
+    }
+  },
+  "tasks": {
+    "title": "Vazifalar",
+    "subtitle": "Vazifalarni boshqarish uchun Kanban-doska",
+    "newTask": "Yangi vazifa",
+    "columns": {
+      "todo": "Bajarilishi kerak",
+      "in_progress": "Jarayonda",
+      "review": "Tekshiruvda",
+      "done": "Bajarildi"
+    },
+    "priority": {
+      "urgent": "Shoshilinch",
+      "high": "Yuqori",
+      "medium": "O'rta",
+      "low": "Past"
+    },
+    "actions": {
+      "toWork": "Ishga",
+      "toReview": "Tekshiruvga",
+      "done": "Tayyor",
+      "return": "Qaytarish"
+    },
+    "stats": {
+      "total": "Jami vazifalar",
+      "todo": "Bajarilishi kerak",
+      "inProgress": "Jarayonda",
+      "done": "Bajarildi"
+    },
+    "create": {
+      "title": "Yangi vazifa",
+      "nameLabel": "Nomi",
+      "namePlaceholder": "Nima qilish kerak?",
+      "descLabel": "Tavsif",
+      "descPlaceholder": "Vazifa tafsilotlari (ixtiyoriy)",
+      "priorityLabel": "Muhimlik",
+      "cancel": "Bekor qilish",
+      "creating": "Yaratilmoqda...",
+      "submit": "Vazifa yaratish"
+    },
+    "errors": {
+      "loadFailed": "Vazifalarni yuklash imkoni bo'lmadi",
+      "updateFailed": "Vazifa holatini yangilash imkoni bo'lmadi",
+      "createFailed": "Vazifani yaratish imkoni bo'lmadi"
+    },
+    "empty": "Vazifalar yo'q",
+    "retry": "Qayta urinish"
+  },
+  "team": {
+    "title": "Jamoa",
+    "subtitle": "Xodimlar va rollarni boshqarish",
+    "stats": {
+      "total": "Jami",
+      "active": "Faol",
+      "activity": "Faollik",
+      "supervisors": "Supervayzerlar"
+    },
+    "search": "Ism yoki ID bo'yicha qidirish...",
+    "allRoles": "Barcha rollar",
+    "status": {
+      "active": "Faol",
+      "inactive": "Nofaol"
+    },
+    "detail": {
+      "registration": "Ro'yxatdan o'tish",
+      "lastLogin": "Oxirgi kirish"
+    },
+    "empty": "Xodimlar topilmadi",
+    "emptyHint": "So'rovni o'zgartirib ko'ring",
+    "shown": "Ko'rsatildi: {filtered} / {total} xodim",
+    "loadError": "Xodimlar ro'yxatini yuklash imkoni bo'lmadi",
+    "retry": "Qayta urinish",
+    "relativeTime": {
+      "never": "hech qachon",
+      "justNow": "hozirgina",
+      "minAgo": "{n} daq oldin",
+      "hourAgo": "{n} soat oldin",
+      "yesterday": "kecha",
+      "daysAgo": "{n} kun oldin",
+      "weeksAgo": "{n} hafta oldin"
+    }
+  },
+  "products": {
+    "title": "Mahsulotlar kutubxonasi",
+    "skuCount": "{brand}: {count} / {total} SKU",
+    "add": "Qo'shish",
+    "addProduct": "+ Mahsulot qo'shish",
+    "searchPlaceholder": "Nomi bo'yicha qidirish...",
+    "comingSoon": "TEZ KUNDA",
+    "nothingFound": "Hech narsa topilmadi",
+    "resetSearch": "Qidiruvni tozalash",
+    "tryAgain": "Qayta urinish",
+    "loadError": "Mahsulotlarni yuklash imkoni bo'lmadi",
+    "edit": "Tahrirlash",
+    "delete": "O'chirish",
+    "cards": "Kartochkalar",
+    "table": "Jadval",
+    "tableHeaders": {
+      "name": "Nomi",
+      "subcategory": "Subkategoriya",
+      "weight": "Og'irlik",
+      "price": "Narx",
+      "actions": "Amallar"
+    },
+    "expecting": "Yana {count} kutilmoqda",
+    "currency": "so'm"
+  },
+  "learning": {
+    "title": "O'qitish",
+    "subtitle": "Rolingiz bo'yicha o'quv modulini tanlang",
+    "sections": "bo'lim",
+    "courses": "kurs",
+    "soon": "Tez kunda",
+    "inDevelopment": "Ishlab chiqilmoqda",
+    "loading": "Yuklanmoqda...",
+    "tryAgain": "Qayta urinish",
+    "backToModules": "Modullarga qaytish",
+    "backToMap": "Xaritaga qaytish",
+    "back": "Orqaga",
+    "progress": "Progress",
+    "completed": "O'tilgan",
+    "sectionLocked": "Bo'lim bloklangan",
+    "coursesLater": "{count} kurs — keyinroq ochiladi",
+    "min": "daq",
+    "aiRecommendation": "AI tavsiya",
+    "toQuiz": "Bilimni tekshirish",
+    "finish": "Yakunlash",
+    "next": "Keyingi",
+    "toSlides": "Slaydlarga",
+    "submit": "Yakunlash",
+    "mediaDev": "Media ishlab chiqilmoqda",
+    "openVideo": "Videoni ochish",
+    "result": "natija",
+    "greatJob": "Ajoyib natija!",
+    "canBeBetter": "Yaxshiroq bo'lishi mumkin!",
+    "coursePassed": "Siz kursni muvaffaqiyatli o'tdingiz",
+    "tryAgainCourse": "Materialni takrorlang",
+    "level": "Daraja",
+    "passed": "O'tilgan",
+    "streak": "Ketma-ketlik",
+    "days": "kun",
+    "continueLearn": "O'qishni davom ettirish",
+    "materialDone": "Material o'rganildi",
+    "allSlidesDone": "Siz ushbu kursning barcha slaydlarini ko'rib chiqdingiz",
+    "goBack": "Qaytish",
+    "errors": {
+      "modules": "O'quv modullarini yuklash imkoni bo'lmadi",
+      "map": "O'quv xaritasini yuklash imkoni bo'lmadi",
+      "section": "Bo'limni yuklash imkoni bo'lmadi",
+      "course": "Kursni yuklash imkoni bo'lmadi",
+      "submit": "Natijani yuborishda xatolik",
+      "alreadyCompleted": "Bu kurs allaqachon o'tilgan"
+    }
+  },
+  "kpi": {
+    "title": "KPI va Reyting",
+    "recalculate": "KPI ni qayta hisoblash",
+    "totalKpi": "Umumiy KPI",
+    "aiProducts": "AI / Mahsulotlar (40%)",
+    "lmsLearning": "LMS / O'qitish (30%)",
+    "crmTasks": "CRM / Vazifalar (30%)",
+    "tabs": {
+      "my": "Mening KPI",
+      "leaderboard": "Liderlar",
+      "teams": "Jamoalar reytingi"
+    },
+    "detail": {
+      "title": "KPI tafsilotlari",
+      "formula": "Formula",
+      "aiTests": "AI / Mahsulot testlari",
+      "lmsLearning": "LMS / O'qitish",
+      "crmTasks": "CRM / Vazifalar",
+      "total": "Jami KPI"
+    },
+    "leaderboard": {
+      "employee": "Xodim",
+      "noData": "Joriy davr uchun ma'lumot yo'q"
+    },
+    "teamRatings": {
+      "team": "Jamoa",
+      "leader": "Rahbar",
+      "members": "A'zolar",
+      "leaderKpi": "Rahbar KPI",
+      "rating": "Reyting",
+      "formula": "Formula: (Rahbar KPI + Xodimlar KPI yig'indisi) / (soni + 1)",
+      "noData": "Joriy davr uchun ma'lumot yo'q"
+    },
+    "loadError": "KPI ma'lumotlarini yuklash imkoni bo'lmadi",
+    "tryAgain": "Qayta urinish"
+  },
+  "chat": {
+    "title": "AI-Maslahatchi",
+    "subtitle": "Mahsulotlar, sotuv, KPI va ish jarayonlari haqida savollar bering",
+    "emptyTitle": "Qanday yordam bera olaman?",
+    "emptyDesc": "Men N'Medov mahsulotlari, sotuv texnikasi, merchandayzing va KPI haqida bilaman.",
+    "inputPlaceholder": "Savolingizni kiriting...",
+    "errorMessage": "Kechirasiz, xatolik yuz berdi. Keyinroq urinib ko'ring.",
+    "sources": "Manbalar:",
+    "document": "Hujjat",
+    "helpful": "Foydali javob",
+    "unhelpful": "Foydasiz javob",
+    "suggestions": [
+      "\"Qimmat\" e'tiroziga qanday javob berish kerak?",
+      "N'Medov sut mahsulotlari haqida gapiring",
+      "KPI ni qanday oshirish mumkin?",
+      "Tovar joylash qoidalari"
+    ]
+  },
+  "assessments": {
+    "title": "Bilimlarni baholash",
+    "subtitle": "Bilim darajangizni tasdiqlash uchun attestatsiyadan o'ting",
+    "all": "Barchasi",
+    "loadError": "Attestatsiyalarni yuklash imkoni bo'lmadi",
+    "tryAgain": "Qayta urinish",
+    "noAssessments": "Attestatsiyalar hali yaratilmagan",
+    "noAssessmentsForLevel": "\"{level}\" darajasi uchun attestatsiyalar yo'q",
+    "threshold": "Chegara: {value}%",
+    "min": "daq"
+  },
+  "common": {
+    "retry": "Qayta urinish",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "close": "Yopish",
+    "loading": "Yuklanmoqda...",
+    "error": "Xatolik",
+    "language": "Til"
+  }
+}

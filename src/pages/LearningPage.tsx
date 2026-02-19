@@ -14,6 +14,7 @@ import {
   type FieldTask,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
+import { useT, useLangStore } from '../stores/langStore';
 import { LearningMap } from '../components/learning/LearningMap';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
@@ -30,6 +31,7 @@ import { FieldTaskCard } from '../components/learning/FieldTaskCard';
 type View = 'modules' | 'map' | 'section' | 'course';
 
 export function LearningPage() {
+  const t = useT();
   const [view, setView] = useState<View>('modules');
   const [modules, setModules] = useState<LearningModule[]>([]);
   const [selectedRole, setSelectedRole] = useState('sales_rep');
@@ -59,7 +61,7 @@ export function LearningPage() {
       setModules(resp.data.modules);
       setError('');
     } catch {
-      setError('Не удалось загрузить модули обучения');
+      setError(t('learning.errors.modules'));
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +80,7 @@ export function LearningPage() {
       setMapData(resp.data);
       setError('');
     } catch {
-      setError('Не удалось загрузить карту обучения');
+      setError(t('learning.errors.map'));
     } finally {
       setIsLoading(false);
     }
@@ -100,7 +102,7 @@ export function LearningPage() {
       setView('section');
       setError('');
     } catch {
-      setError('Не удалось загрузить раздел');
+      setError(t('learning.errors.section'));
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +124,7 @@ export function LearningPage() {
       setView('course');
       setError('');
     } catch {
-      setError('Не удалось загрузить курс');
+      setError(t('learning.errors.course'));
     } finally {
       setIsLoading(false);
     }
@@ -148,16 +150,16 @@ export function LearningPage() {
       if (resp.data.level_up) {
         addToast('success', resp.data.level_up.message);
       } else if (resp.data.passed) {
-        addToast('success', `Курс пройден! Результат: ${score}%`);
+        addToast('success', t('learning.coursePassed') + ` (${score}%)`);
       } else {
-        addToast('warning', `Результат: ${score}%. Попробуйте пройти ещё раз.`);
+        addToast('warning', `${t('learning.tryAgainCourse')} (${score}%)`);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Ошибка при отправке результата';
+      const msg = err instanceof Error ? err.message : t('learning.errors.submit');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const resp = (err as { response?: { status?: number } }).response;
         if (resp?.status === 409) {
-          addToast('info', 'Этот курс уже пройден');
+          addToast('info', t('learning.errors.alreadyCompleted'));
           return;
         }
       }
@@ -191,7 +193,7 @@ export function LearningPage() {
             <div className="absolute inset-0 rounded-full border-4 border-blue-100" />
             <div className="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin" />
           </div>
-          <p className="text-gray-400 text-sm">Загрузка...</p>
+          <p className="text-gray-400 text-sm">{t('learning.loading')}</p>
         </div>
       </div>
     );
@@ -203,7 +205,7 @@ export function LearningPage() {
       <div className="p-6">
         <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">{error}</div>
         <button onClick={() => { setView('modules'); loadModules(); }} className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-          Попробовать снова
+          {t('learning.tryAgain')}
         </button>
       </div>
     );
@@ -219,7 +221,7 @@ export function LearningPage() {
     return (
       <div>
         <button onClick={goBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
-          &larr; Назад к модулям
+          &larr; {t('learning.backToModules')}
         </button>
         <LearningMap data={mapData} onOpenSection={openSection} />
       </div>
@@ -277,6 +279,8 @@ function ModulesView({
   modules: LearningModule[];
   onSelectModule: (role: string) => void;
 }) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const moduleColors: Record<string, string> = {
     sales_rep: 'from-blue-500 to-blue-600',
     supervisor: 'from-indigo-500 to-indigo-600',
@@ -298,8 +302,8 @@ function ModulesView({
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Обучение</h1>
-        <p className="text-gray-500 mt-1">Выберите модуль обучения по вашей роли</p>
+        <h1 className="text-2xl font-bold text-gray-900">{t('learning.title')}</h1>
+        <p className="text-gray-500 mt-1">{t('learning.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -339,14 +343,14 @@ function ModulesView({
               {/* Stats */}
               {isAvailable ? (
                 <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <span>{m.sections_count} секций</span>
+                  <span>{m.sections_count} {t('learning.sections')}</span>
                   <span className="text-gray-300">|</span>
-                  <span>{m.courses_count} курсов</span>
+                  <span>{m.courses_count} {t('learning.courses')}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">Скоро</span>
-                  <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-500 rounded-full">В разработке</span>
+                  <span className="text-sm text-gray-400">{t('learning.soon')}</span>
+                  <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-500 rounded-full">{t('learning.inDevelopment')}</span>
                 </div>
               )}
 
@@ -376,12 +380,14 @@ function SectionView({
   onBack: () => void;
   onOpenCourse: (id: string) => void;
 }) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
   return (
     <div className="max-w-3xl mx-auto">
       {/* Back */}
       <button onClick={onBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 group">
         <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        Назад к карте
+        {t('learning.backToMap')}
       </button>
 
       {/* Section Header Card */}
@@ -393,7 +399,7 @@ function SectionView({
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-slate-400">Прогресс</span>
+              <span className="text-slate-400">{t('learning.progress')}</span>
               <span className="text-white font-semibold">{data.user_progress.completed}/{data.user_progress.total}</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2">
@@ -427,6 +433,7 @@ function LevelBlock({
   level: { level: string; level_name: { ru: string }; is_unlocked: boolean; is_completed: boolean; courses?: CourseItem[] | null; courses_preview_count?: number | null; unlock_message?: string | null };
   onOpenCourse: (id: string) => void;
 }) {
+  const t = useT();
   const levelColor = LEVEL_COLORS[level.level] || '#666';
 
   return (
@@ -441,7 +448,7 @@ function LevelBlock({
         {level.is_completed && (
           <span className="ml-auto text-xs px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
-            Пройден
+            {t('learning.completed')}
           </span>
         )}
         {!level.is_unlocked && level.unlock_message && (
@@ -464,8 +471,8 @@ function LevelBlock({
           <div className="text-2xl mb-2 opacity-30">🔒</div>
           <p className="text-sm text-gray-400">
             {level.courses_preview_count
-              ? `${level.courses_preview_count} курсов — откроется позже`
-              : 'Раздел заблокирован'}
+              ? t('learning.coursesLater', { count: level.courses_preview_count })
+              : t('learning.sectionLocked')}
           </p>
         </div>
       ) : null}
@@ -483,6 +490,7 @@ function CourseRow({
   index: number;
   onClick: () => void;
 }) {
+  const t = useT();
   const isCompleted = course.status === 'completed';
   const isRecommended = course.is_ai_recommended;
 
@@ -520,7 +528,7 @@ function CourseRow({
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            {course.duration_minutes} мин
+            {course.duration_minutes} {t('learning.min')}
           </span>
           {isCompleted && course.quiz_score != null && (
             <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
@@ -528,7 +536,7 @@ function CourseRow({
             }`}>{course.quiz_score}%</span>
           )}
           {isRecommended && !isCompleted && (
-            <span className="text-xs text-violet-500 font-medium">AI рекомендация</span>
+            <span className="text-xs text-violet-500 font-medium">{t('learning.aiRecommendation')}</span>
           )}
         </div>
       </div>
@@ -698,6 +706,7 @@ function CourseView({
   onSubmitQuiz: (questions?: QuizQuestion[]) => void;
   onBack: () => void;
 }) {
+  const t = useT();
   const slides = data.content.slides || [];
   const quiz = (data.content.quiz || []) as QuizQuestion[];
   const flashcards = (data.content.spaced_repetition_cards || []) as FlashCard[];
@@ -750,7 +759,7 @@ function CourseView({
       {/* Back */}
       <button onClick={onBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 group">
         <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        Назад
+        {t('learning.back')}
       </button>
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
@@ -762,7 +771,7 @@ function CourseView({
             </span>
             <span className="text-xs text-white/80 flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              {data.course.duration_minutes} мин
+              {data.course.duration_minutes} {t('learning.min')}
             </span>
           </div>
           <h2 className="text-lg font-bold leading-tight">{data.course.title.ru}</h2>
@@ -823,7 +832,7 @@ function CourseView({
                   {currentMediaPrompt.type === 'video' ? (
                     <div className="aspect-video bg-gray-900 flex items-center justify-center">
                       <a href={currentMediaPrompt.media_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
-                        Открыть видео
+                        {t('learning.openVideo')}
                       </a>
                     </div>
                   ) : (
@@ -833,7 +842,7 @@ function CourseView({
               )}
               {currentMediaPrompt && currentMediaPrompt.status !== 'done' && (
                 <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-center text-sm text-gray-400">
-                  🎨 Медиа в разработке
+                  🎨 {t('learning.mediaDev')}
                 </div>
               )}
             </div>
@@ -885,30 +894,30 @@ function CourseView({
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-3xl font-bold text-gray-900">{completionResult.quiz_score}%</span>
-                  <span className="text-xs text-gray-400">результат</span>
+                  <span className="text-xs text-gray-400">{t('learning.result')}</span>
                 </div>
               </div>
 
               <h3 className="text-xl font-bold text-gray-900 mb-1">
-                {completionResult.passed ? 'Отличная работа!' : 'Можно лучше!'}
+                {completionResult.passed ? t('learning.greatJob') : t('learning.canBeBetter')}
               </h3>
               <p className="text-gray-500 mb-6">
-                {completionResult.passed ? 'Вы успешно прошли курс' : 'Попробуйте повторить материал'}
+                {completionResult.passed ? t('learning.coursePassed') : t('learning.tryAgainCourse')}
               </p>
 
               {/* Stats cards */}
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-blue-50 rounded-xl py-3 px-2">
                   <p className="text-lg font-bold text-blue-600">{LEVEL_NAMES[completionResult.new_level]}</p>
-                  <p className="text-[10px] text-blue-400 uppercase tracking-wide">Уровень</p>
+                  <p className="text-[10px] text-blue-400 uppercase tracking-wide">{t('learning.level')}</p>
                 </div>
                 <div className="bg-emerald-50 rounded-xl py-3 px-2">
                   <p className="text-lg font-bold text-emerald-600">{completionResult.total_courses_completed}</p>
-                  <p className="text-[10px] text-emerald-400 uppercase tracking-wide">Пройдено</p>
+                  <p className="text-[10px] text-emerald-400 uppercase tracking-wide">{t('learning.passed')}</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl py-3 px-2">
-                  <p className="text-lg font-bold text-amber-600">{completionResult.streak_days} дн.</p>
-                  <p className="text-[10px] text-amber-400 uppercase tracking-wide">Серия</p>
+                  <p className="text-lg font-bold text-amber-600">{completionResult.streak_days} {t('learning.days')}</p>
+                  <p className="text-[10px] text-amber-400 uppercase tracking-wide">{t('learning.streak')}</p>
                 </div>
               </div>
 
@@ -924,7 +933,7 @@ function CourseView({
                 onClick={onBack}
                 className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all font-medium"
               >
-                Продолжить обучение
+                {t('learning.continueLearn')}
               </button>
             </div>
           ) : phase === 'results' && !hasQuiz ? (
@@ -933,13 +942,13 @@ function CourseView({
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-100 flex items-center justify-center">
                 <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">Материал изучен</h3>
-              <p className="text-gray-500 mb-6">Вы просмотрели все слайды этого курса</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">{t('learning.materialDone')}</h3>
+              <p className="text-gray-500 mb-6">{t('learning.allSlidesDone')}</p>
               <button
                 onClick={onBack}
                 className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
               >
-                Вернуться
+                {t('learning.goBack')}
               </button>
             </div>
           ) : null}
@@ -954,14 +963,14 @@ function CourseView({
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all rounded-xl hover:bg-white"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              Назад
+              {t('learning.back')}
             </button>
 
             <button
               onClick={() => setCurrentSlide(currentSlide + 1)}
               className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all"
             >
-              {currentSlide === slides.length - 1 && hasQuiz ? 'К проверке знаний' : currentSlide === slides.length - 1 ? 'Завершить' : 'Далее'}
+              {currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
@@ -974,7 +983,7 @@ function CourseView({
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-all rounded-xl hover:bg-white"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              К слайдам
+              {t('learning.toSlides')}
             </button>
 
             <button
@@ -982,7 +991,7 @@ function CourseView({
               disabled={!isAllAnswered}
               className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-emerald-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none transition-all"
             >
-              Завершить
+              {t('learning.submit')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
             </button>
           </div>

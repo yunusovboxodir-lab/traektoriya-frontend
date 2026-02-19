@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
+import { useLangStore, useT, type Lang } from '../../stores/langStore';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,20 +34,8 @@ const ROLE_COLORS: Record<string, string> = {
   sales_rep: 'bg-gray-500',
 };
 
-const ROLE_LABELS: Record<string, string> = {
-  superadmin: 'Суперадмин',
-  commercial_dir: 'Ком. директор',
-  admin: 'Админ',
-  supervisor: 'Супервайзер',
-  sales_rep: 'Продавец',
-};
-
 function getRoleBadgeClass(role: string): string {
   return ROLE_COLORS[role] ?? 'bg-gray-500';
-}
-
-function getRoleLabel(role: string): string {
-  return ROLE_LABELS[role] ?? role;
 }
 
 // ---------------------------------------------------------------------------
@@ -257,25 +246,26 @@ const ROLE_HIERARCHY: Record<string, number> = {
 // Navigation items
 // ---------------------------------------------------------------------------
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Главная', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
-  { label: 'Обучение', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
-  { label: 'Товары', path: '/products', icon: <IconBox />, pageKey: 'products' },
-  { label: 'Задачи', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },
-  { label: 'Команда', path: '/team', icon: <IconUsers />, pageKey: 'team' },
-  { label: 'Оценка', path: '/assessments', icon: <IconCheckSquare />, pageKey: 'assessments' },
-  { label: 'AI Генерация', path: '/generation', icon: <IconAI />, pageKey: 'generation' },
-  { label: 'База знаний', path: '/knowledge-base', icon: <IconDatabase />, pageKey: 'knowledge-base' },
-  { label: 'Цели', path: '/goals', icon: <IconTrophy />, pageKey: 'goals' },
-  { label: 'KPI', path: '/kpi', icon: <IconTarget />, pageKey: 'kpi' },
-  { label: 'AI Чат', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
-  { label: 'Планограмма', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
-  { label: 'Аналитика', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },
-];
+// Label keys map to i18n: nav.dashboard, nav.learning, etc.
+const NAV_ITEMS_DEF = [
+  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
+  { labelKey: 'nav.learning', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
+  { labelKey: 'nav.products', path: '/products', icon: <IconBox />, pageKey: 'products' },
+  { labelKey: 'nav.tasks', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },
+  { labelKey: 'nav.team', path: '/team', icon: <IconUsers />, pageKey: 'team' },
+  { labelKey: 'nav.assessments', path: '/assessments', icon: <IconCheckSquare />, pageKey: 'assessments' },
+  { labelKey: 'nav.generation', path: '/generation', icon: <IconAI />, pageKey: 'generation' },
+  { labelKey: 'nav.knowledgeBase', path: '/knowledge-base', icon: <IconDatabase />, pageKey: 'knowledge-base' },
+  { labelKey: 'nav.goals', path: '/goals', icon: <IconTrophy />, pageKey: 'goals' },
+  { labelKey: 'nav.kpi', path: '/kpi', icon: <IconTarget />, pageKey: 'kpi' },
+  { labelKey: 'nav.chat', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
+  { labelKey: 'nav.planogram', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
+  { labelKey: 'nav.analytics', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },
+] as const;
 
-const ADMIN_NAV_ITEM: NavItem = {
-  label: 'Управление ролями', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles',
-};
+const ADMIN_NAV_DEF = {
+  labelKey: 'nav.adminRoles', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles',
+} as const;
 
 // ---------------------------------------------------------------------------
 // Sidebar Component
@@ -289,6 +279,9 @@ export function Sidebar({
 }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
 
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -296,6 +289,20 @@ export function Sidebar({
 
   const userRole = user?.role || 'sales_rep';
   const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
+
+  // Resolve translated labels for nav items
+  const NAV_ITEMS: NavItem[] = NAV_ITEMS_DEF.map((item) => ({
+    label: t(item.labelKey),
+    path: item.path,
+    icon: item.icon,
+    pageKey: item.pageKey,
+  }));
+  const ADMIN_NAV_ITEM: NavItem = {
+    label: t(ADMIN_NAV_DEF.labelKey),
+    path: ADMIN_NAV_DEF.path,
+    icon: ADMIN_NAV_DEF.icon,
+    pageKey: ADMIN_NAV_DEF.pageKey,
+  };
 
   // Filter nav items by role scopes + add admin item
   const visibleItems = NAV_ITEMS.filter((item) => isPageAllowed(item.pageKey));
@@ -365,7 +372,7 @@ export function Sidebar({
               <span
                 className={`inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium text-white ${getRoleBadgeClass(user.role)}`}
               >
-                {getRoleLabel(user.role)}
+                {t(`roles.${user.role}`)}
               </span>
             </div>
           )}
@@ -400,24 +407,43 @@ export function Sidebar({
         })}
       </nav>
 
-      {/* Bottom section: collapse toggle + logout */}
+      {/* Bottom section: language toggle + collapse toggle + logout */}
       <div className="mt-auto border-t border-gray-700 p-2 flex-shrink-0 space-y-1">
+        {/* Language toggle */}
+        <button
+          type="button"
+          onClick={() => setLang(lang === 'ru' ? 'uz' : 'ru')}
+          className={`w-full flex items-center gap-3 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors duration-150 ${collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'}`}
+          title={t('common.language')}
+        >
+          <span className="flex items-center justify-center w-5 h-5 text-xs font-bold flex-shrink-0">
+            {lang === 'ru' ? 'RU' : 'UZ'}
+          </span>
+          {!collapsed && (
+            <span className="flex items-center gap-2">
+              <span className={lang === 'ru' ? 'text-white font-semibold' : 'text-gray-500'}>RU</span>
+              <span className="text-gray-600">/</span>
+              <span className={lang === 'uz' ? 'text-white font-semibold' : 'text-gray-500'}>UZ</span>
+            </span>
+          )}
+        </button>
+
         {/* Collapse toggle (desktop only, hidden on mobile overlay) */}
         <button
           type="button"
           onClick={onToggleCollapse}
           className="hidden lg:flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-300 hover:bg-gray-800/50 hover:text-white transition-colors duration-150"
-          title={collapsed ? 'Развернуть' : 'Свернуть'}
+          title={collapsed ? t('nav.expand') : t('nav.collapse')}
         >
           {collapsed ? <IconChevronRight /> : <IconChevronLeft />}
-          {!collapsed && <span>Свернуть</span>}
+          {!collapsed && <span>{t('nav.collapse')}</span>}
         </button>
 
         {/* Logout */}
         <button
           type="button"
           onClick={handleLogout}
-          title={collapsed ? 'Выйти' : undefined}
+          title={collapsed ? t('nav.logout') : undefined}
           className={`
             w-full flex items-center gap-3 rounded-lg text-sm font-medium
             text-gray-300 hover:bg-red-600/20 hover:text-red-400 transition-colors duration-150
@@ -425,7 +451,7 @@ export function Sidebar({
           `}
         >
           <IconLogout />
-          {!collapsed && <span>Выйти</span>}
+          {!collapsed && <span>{t('nav.logout')}</span>}
         </button>
       </div>
     </div>

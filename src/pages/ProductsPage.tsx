@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productsApi, type Product } from '../api/products';
 import { useAuthStore } from '../stores/authStore';
+import { useT, useLangStore } from '../stores/langStore';
 import { BRAND_TABS } from '../config/brands';
 import { ProductFormModal } from '../components/products/ProductFormModal';
 import { DeleteConfirmModal } from '../components/products/DeleteConfirmModal';
@@ -12,6 +13,8 @@ export function ProductsPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === 'superadmin' || user?.role === 'manager';
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,10 +40,14 @@ export function ProductsPage() {
       const data = res.data;
       setProducts(Array.isArray(data) ? data : data.items ?? []);
     } catch {
-      setError('Не удалось загрузить товары');
+      setError(t('products.loadError'));
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatPrice = (v: number): string => {
+    return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : 'ru-RU').format(v) + ' ' + t('products.currency');
   };
 
   const currentBrand = BRAND_TABS[selectedTab];
@@ -108,7 +115,7 @@ export function ProductsPage() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600 text-sm">{error}</p>
           <button onClick={loadProducts} className="text-red-600 underline text-sm mt-1">
-            Попробовать снова
+            {t('products.tryAgain')}
           </button>
         </div>
       </div>
@@ -120,9 +127,9 @@ export function ProductsPage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Библиотека товаров</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('products.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {currentBrand.label}: {filtered.length} из {currentBrand.expectedSKU} SKU
+            {t('products.skuCount', { brand: currentBrand.label, count: filtered.length, total: currentBrand.expectedSKU })}
           </p>
         </div>
 
@@ -137,7 +144,7 @@ export function ProductsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path d="M12 5v14m-7-7h14" />
               </svg>
-              Добавить
+              {t('products.add')}
             </button>
           )}
 
@@ -151,7 +158,7 @@ export function ProductsPage() {
                   ? 'bg-white shadow-sm text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
-              title="Карточки"
+              title={t('products.cards')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <rect x="3" y="3" width="7" height="7" rx="1" />
@@ -168,7 +175,7 @@ export function ProductsPage() {
                   ? 'bg-white shadow-sm text-blue-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
-              title="Таблица"
+              title={t('products.table')}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path d="M3 6h18M3 12h18M3 18h18" />
@@ -214,7 +221,7 @@ export function ProductsPage() {
           </svg>
           <input
             type="text"
-            placeholder="Поиск по названию..."
+            placeholder={t('products.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -238,7 +245,7 @@ export function ProductsPage() {
                   <button
                     onClick={(e) => { e.stopPropagation(); setEditingProduct(product); }}
                     className="p-1.5 bg-white/90 rounded-lg shadow-sm hover:bg-blue-50 text-gray-500 hover:text-blue-600"
-                    title="Редактировать"
+                    title={t('products.edit')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -247,7 +254,7 @@ export function ProductsPage() {
                   <button
                     onClick={(e) => { e.stopPropagation(); setDeletingProduct(product); }}
                     className="p-1.5 bg-white/90 rounded-lg shadow-sm hover:bg-red-50 text-gray-500 hover:text-red-600"
-                    title="Удалить"
+                    title={t('products.delete')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                       <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -326,7 +333,7 @@ export function ProductsPage() {
                 <path d="M12 22.08V12" />
               </svg>
               <span className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                СКОРО БУДЕТ
+                {t('products.comingSoon')}
               </span>
               {isAdmin && (
                 <button
@@ -334,7 +341,7 @@ export function ProductsPage() {
                   onClick={() => setShowCreateModal(true)}
                   className="mt-3 text-xs text-blue-500 hover:text-blue-700 font-medium"
                 >
-                  + Добавить товар
+                  {t('products.addProduct')}
                 </button>
               )}
             </div>
@@ -352,20 +359,20 @@ export function ProductsPage() {
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
-                      Название
+                      {t('products.tableHeaders.name')}
                     </th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
-                      Подкатегория
+                      {t('products.tableHeaders.subcategory')}
                     </th>
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
-                      Вес
+                      {t('products.tableHeaders.weight')}
                     </th>
                     <th className="text-right text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
-                      Цена
+                      {t('products.tableHeaders.price')}
                     </th>
                     {isAdmin && (
                       <th className="text-center text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3 w-24">
-                        Действия
+                        {t('products.tableHeaders.actions')}
                       </th>
                     )}
                   </tr>
@@ -395,7 +402,7 @@ export function ProductsPage() {
                             <button
                               onClick={(e) => { e.stopPropagation(); setEditingProduct(product); }}
                               className="p-1.5 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600"
-                              title="Редактировать"
+                              title={t('products.edit')}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                                 <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -404,7 +411,7 @@ export function ProductsPage() {
                             <button
                               onClick={(e) => { e.stopPropagation(); setDeletingProduct(product); }}
                               className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600"
-                              title="Удалить"
+                              title={t('products.delete')}
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                                 <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -425,8 +432,7 @@ export function ProductsPage() {
           {placeholderCount > 0 && (
             <div className="mt-4 px-4 py-3 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
               <span className="text-sm text-gray-400">
-                Ожидается ещё {placeholderCount}{' '}
-                {pluralize(placeholderCount, 'товар', 'товара', 'товаров')} для бренда{' '}
+                {t('products.expecting', { count: placeholderCount })}{' '}
                 <span className="font-medium">{currentBrand.label}</span>
               </span>
               {isAdmin && (
@@ -435,7 +441,7 @@ export function ProductsPage() {
                   onClick={() => setShowCreateModal(true)}
                   className="ml-3 text-sm text-blue-500 hover:text-blue-700 font-medium"
                 >
-                  + Добавить
+                  {t('products.addProduct')}
                 </button>
               )}
             </div>
@@ -446,13 +452,13 @@ export function ProductsPage() {
       {/* Empty state (when search finds nothing) */}
       {filtered.length === 0 && placeholderCount === 0 && (
         <div className="text-center py-16">
-          <p className="text-gray-500 text-lg font-medium">Ничего не найдено</p>
+          <p className="text-gray-500 text-lg font-medium">{t('products.nothingFound')}</p>
           <button
             type="button"
             onClick={() => setSearch('')}
             className="text-blue-600 hover:text-blue-800 text-sm mt-2"
           >
-            Сбросить поиск
+            {t('products.resetSearch')}
           </button>
         </div>
       )}
@@ -476,19 +482,4 @@ export function ProductsPage() {
       )}
     </div>
   );
-}
-
-// -- helpers --
-
-function formatPrice(v: number): string {
-  return new Intl.NumberFormat('ru-RU').format(v) + ' сум';
-}
-
-function pluralize(n: number, one: string, few: string, many: string): string {
-  const abs = Math.abs(n) % 100;
-  const last = abs % 10;
-  if (abs > 10 && abs < 20) return many;
-  if (last > 1 && last < 5) return few;
-  if (last === 1) return one;
-  return many;
 }

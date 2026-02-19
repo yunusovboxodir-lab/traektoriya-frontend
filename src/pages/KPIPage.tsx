@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { kpiApi } from '../api/kpi';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 
 // ───────────────────────────────────────
 // Types
@@ -75,6 +76,7 @@ function KPIGauge({ value, label, color }: { value: number; label: string; color
 // ───────────────────────────────────────
 
 export function KPIPage() {
+  const t = useT();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'commercial_dir';
 
@@ -105,10 +107,10 @@ export function KPIPage() {
       if (teamRes.status === 'fulfilled') setTeams(teamRes.value.data?.teams ?? []);
 
       if (kpiRes.status === 'rejected' && leaderRes.status === 'rejected') {
-        setError('Не удалось загрузить KPI данные');
+        setError(t('kpi.loadError'));
       }
     } catch {
-      setError('Не удалось загрузить KPI данные');
+      setError(t('kpi.loadError'));
     } finally {
       setLoading(false);
     }
@@ -136,7 +138,7 @@ export function KPIPage() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
           <p className="text-red-600 text-sm">{error}</p>
           <button onClick={loadData} className="text-red-600 underline text-sm mt-1">
-            Попробовать снова
+            {t('kpi.tryAgain')}
           </button>
         </div>
       </div>
@@ -147,7 +149,7 @@ export function KPIPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">KPI и Рейтинг</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('kpi.title')}</h1>
         {isAdmin && (
           <button
             onClick={async () => {
@@ -158,7 +160,7 @@ export function KPIPage() {
             }}
             className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Пересчитать KPI
+            {t('kpi.recalculate')}
           </button>
         )}
       </div>
@@ -167,23 +169,23 @@ export function KPIPage() {
       {myKPI && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center">
-            <KPIGauge value={myKPI.total_kpi} label="Общий KPI" color="#3b82f6" />
+            <KPIGauge value={myKPI.total_kpi} label={t('kpi.totalKpi')} color="#3b82f6" />
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center">
-            <KPIGauge value={myKPI.ai_score} label="AI / Товары (40%)" color="#8b5cf6" />
+            <KPIGauge value={myKPI.ai_score} label={t('kpi.aiProducts')} color="#8b5cf6" />
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center">
-            <KPIGauge value={myKPI.lms_score} label="LMS / Обучение (30%)" color="#10b981" />
+            <KPIGauge value={myKPI.lms_score} label={t('kpi.lmsLearning')} color="#10b981" />
           </div>
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex flex-col items-center">
-            <KPIGauge value={myKPI.crm_score} label="CRM / Задачи (30%)" color="#f59e0b" />
+            <KPIGauge value={myKPI.crm_score} label={t('kpi.crmTasks')} color="#f59e0b" />
           </div>
         </div>
       )}
 
       {/* Tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit overflow-x-auto">
-        {([['my', 'Мой KPI'], ['leaderboard', 'Лидерборд'], ['teams', 'Рейтинг команд']] as const).map(([key, label]) => (
+        {([['my', t('kpi.tabs.my')], ['leaderboard', t('kpi.tabs.leaderboard')], ['teams', t('kpi.tabs.teams')]] as [typeof tab, string][]).map(([key, label]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
@@ -200,20 +202,20 @@ export function KPIPage() {
       {tab === 'my' && myKPI && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Детали KPI — {myKPI.period}
+            {t('kpi.detail.title')} — {myKPI.period}
           </h3>
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-600">Формула</span>
+              <span className="text-gray-600">{t('kpi.detail.formula')}</span>
               <span className="text-sm font-mono bg-gray-50 px-3 py-1 rounded">
                 AI×0.4 + LMS×0.3 + CRM×0.3
               </span>
             </div>
             {(['ai_score', 'lms_score', 'crm_score'] as const).map((key) => {
               const labels: Record<string, string> = {
-                ai_score: 'AI / Товарные тесты',
-                lms_score: 'LMS / Обучение',
-                crm_score: 'CRM / Задачи',
+                ai_score: t('kpi.detail.aiTests'),
+                lms_score: t('kpi.detail.lmsLearning'),
+                crm_score: t('kpi.detail.crmTasks'),
               };
               const weights: Record<string, number> = { ai_score: 40, lms_score: 30, crm_score: 30 };
               const val = myKPI[key];
@@ -233,7 +235,7 @@ export function KPIPage() {
               );
             })}
             <div className="pt-3 border-t flex justify-between font-semibold">
-              <span>Итого KPI</span>
+              <span>{t('kpi.detail.total')}</span>
               <span className="text-blue-600 text-lg">{myKPI.total_kpi.toFixed(1)}</span>
             </div>
           </div>
@@ -248,7 +250,7 @@ export function KPIPage() {
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">#</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Сотрудник</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">{t('kpi.leaderboard.employee')}</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">AI</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">LMS</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-500">CRM</th>
@@ -259,7 +261,7 @@ export function KPIPage() {
               {leaders.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-gray-400">
-                    Нет данных за текущий период
+                    {t('kpi.leaderboard.noData')}
                   </td>
                 </tr>
               )}
@@ -300,29 +302,29 @@ export function KPIPage() {
             <thead className="bg-gray-50 border-b">
               <tr>
                 <th className="text-left px-4 py-3 font-medium text-gray-500">#</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Команда</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Руководитель</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">Членов</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">KPI рук.</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">Рейтинг</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">{t('kpi.teamRatings.team')}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500">{t('kpi.teamRatings.leader')}</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-500">{t('kpi.teamRatings.members')}</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-500">{t('kpi.teamRatings.leaderKpi')}</th>
+                <th className="text-right px-4 py-3 font-medium text-gray-500">{t('kpi.teamRatings.rating')}</th>
               </tr>
             </thead>
             <tbody>
               {teams.length === 0 && (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-gray-400">
-                    Нет данных за текущий период
+                    {t('kpi.teamRatings.noData')}
                   </td>
                 </tr>
               )}
-              {teams.map((t, i) => (
-                <tr key={t.team_id} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
+              {teams.map((tm, i) => (
+                <tr key={tm.team_id} className={i % 2 === 0 ? '' : 'bg-gray-50'}>
                   <td className="px-4 py-3 text-gray-500">{i + 1}</td>
-                  <td className="px-4 py-3 font-medium text-gray-900">{t.team_name}</td>
-                  <td className="px-4 py-3 text-gray-600">{t.supervisor_name || '—'}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{t.member_count}</td>
-                  <td className="px-4 py-3 text-right text-gray-600">{t.supervisor_kpi.toFixed(1)}</td>
-                  <td className="px-4 py-3 text-right font-bold text-blue-600">{t.rating.toFixed(1)}</td>
+                  <td className="px-4 py-3 font-medium text-gray-900">{tm.team_name}</td>
+                  <td className="px-4 py-3 text-gray-600">{tm.supervisor_name || '—'}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{tm.member_count}</td>
+                  <td className="px-4 py-3 text-right text-gray-600">{tm.supervisor_kpi.toFixed(1)}</td>
+                  <td className="px-4 py-3 text-right font-bold text-blue-600">{tm.rating.toFixed(1)}</td>
                 </tr>
               ))}
             </tbody>
@@ -330,7 +332,7 @@ export function KPIPage() {
           </div>
           {teams.length > 0 && (
             <div className="px-4 py-3 bg-gray-50 border-t text-xs text-gray-400">
-              Формула: (KPI руководителя + Сумма KPI сотрудников) / (кол-во + 1)
+              {t('kpi.teamRatings.formula')}
             </div>
           )}
         </div>

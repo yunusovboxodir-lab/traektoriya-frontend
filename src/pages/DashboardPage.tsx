@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
 import { NudgesWidget } from '../components/dashboard/NudgesWidget';
+import { useT, useLangStore } from '../stores/langStore';
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -32,16 +33,11 @@ function normalizeOverview(raw: OverviewStatsRaw): OverviewStats {
   };
 }
 
-const roleBadge: Record<string, string> = {
-  admin: 'Администратор',
-  manager: 'Менеджер',
-  trainer: 'Тренер',
-  employee: 'Сотрудник',
-};
-
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const [stats, setStats] = useState<OverviewStats | null>(null);
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
 
   useEffect(() => {
     const role = user?.role;
@@ -78,7 +74,7 @@ export function DashboardPage() {
     }
   }, [user?.role]);
 
-  const today = new Date().toLocaleDateString('ru-RU', {
+  const today = new Date().toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -86,7 +82,7 @@ export function DashboardPage() {
 
   const statCards = [
     {
-      label: 'Товары',
+      label: t('dashboard.stats.products'),
       value: stats?.total_products,
       bg: 'bg-cyan-50',
       text: 'text-cyan-700',
@@ -97,7 +93,7 @@ export function DashboardPage() {
       ),
     },
     {
-      label: 'Пользователи',
+      label: t('dashboard.stats.users'),
       value: stats?.total_users,
       bg: 'bg-green-50',
       text: 'text-green-700',
@@ -108,7 +104,7 @@ export function DashboardPage() {
       ),
     },
     {
-      label: 'Курсы',
+      label: t('dashboard.stats.courses'),
       value: stats?.total_courses,
       bg: 'bg-blue-50',
       text: 'text-blue-700',
@@ -119,7 +115,7 @@ export function DashboardPage() {
       ),
     },
     {
-      label: 'Задачи',
+      label: t('dashboard.stats.tasks'),
       value: stats?.total_tasks,
       bg: 'bg-amber-50',
       text: 'text-amber-700',
@@ -133,8 +129,8 @@ export function DashboardPage() {
 
   const navCards = [
     {
-      title: 'Обучение',
-      desc: 'Курсы, тренинги и учебные материалы для развития навыков',
+      title: t('nav.learning'),
+      desc: t('dashboard.cards.learningDesc'),
       path: '/learning',
       gradient: 'from-blue-500 to-blue-600',
       icon: (
@@ -144,8 +140,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Товары',
-      desc: 'Библиотека товаров и каталог продукции компании',
+      title: t('nav.products'),
+      desc: t('dashboard.cards.productsDesc'),
       path: '/products',
       gradient: 'from-cyan-500 to-cyan-600',
       icon: (
@@ -155,8 +151,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Задачи',
-      desc: 'Kanban-доска для управления задачами и проектами',
+      title: t('nav.tasks'),
+      desc: t('dashboard.cards.tasksDesc'),
       path: '/tasks',
       gradient: 'from-amber-500 to-amber-600',
       icon: (
@@ -166,8 +162,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Команда',
-      desc: 'Управление персоналом и структурой организации',
+      title: t('nav.team'),
+      desc: t('dashboard.cards.teamDesc'),
       path: '/team',
       gradient: 'from-green-500 to-green-600',
       icon: (
@@ -177,8 +173,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Оценка',
-      desc: 'Аттестации, тесты и оценка компетенций сотрудников',
+      title: t('nav.assessments'),
+      desc: t('dashboard.cards.assessmentsDesc'),
       path: '/assessments',
       gradient: 'from-rose-500 to-rose-600',
       icon: (
@@ -188,8 +184,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'AI Генерация',
-      desc: 'Создание уроков и контента с помощью искусственного интеллекта',
+      title: t('nav.generation'),
+      desc: t('dashboard.cards.generationDesc'),
       path: '/generation',
       gradient: 'from-indigo-500 to-indigo-600',
       icon: (
@@ -199,8 +195,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Планограмма AI',
-      desc: 'Анализ выкладки товаров с помощью компьютерного зрения',
+      title: t('nav.planogram'),
+      desc: t('dashboard.cards.planogramDesc'),
       path: '/planogram',
       gradient: 'from-purple-500 to-purple-600',
       icon: (
@@ -211,8 +207,8 @@ export function DashboardPage() {
       ),
     },
     {
-      title: 'Аналитика',
-      desc: 'Статистика, отчёты и ключевые показатели эффективности',
+      title: t('nav.analytics'),
+      desc: t('dashboard.cards.analyticsDesc'),
       path: '/analytics',
       gradient: 'from-teal-500 to-teal-600',
       icon: (
@@ -233,12 +229,11 @@ export function DashboardPage() {
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-2xl font-bold sm:text-3xl">
-                Добро пожаловать{user?.full_name ? `, ${user.full_name}` : ''}!
+                {t('dashboard.welcome')}{user?.full_name ? `, ${user.full_name}` : ''}!
               </h1>
               <p className="mt-1 text-blue-100">{today}</p>
               <p className="mt-3 max-w-lg text-sm text-blue-200">
-                Платформа обучения торговых представителей — управляйте курсами, задачами и аналитикой
-                в&nbsp;одном&nbsp;месте.
+                {t('dashboard.platformDesc')}
               </p>
             </div>
             {user?.role && (
@@ -246,7 +241,7 @@ export function DashboardPage() {
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {roleBadge[user.role] ?? user.role}
+                {t(`roles.${user.role}`)}
               </span>
             )}
           </div>
@@ -275,7 +270,7 @@ export function DashboardPage() {
 
       {/* ── Navigation Cards ── */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">Разделы платформы</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-800">{t('dashboard.sections')}</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {navCards.map((card) => (
             <Link

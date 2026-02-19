@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { chatApi, type ChatMessage, type ChatSource } from '../api/chat';
+import { useT, useLangStore } from '../stores/langStore';
 
 // ───────────────────────────────────────
 // Types
@@ -18,6 +19,8 @@ interface DisplayMessage {
 // ───────────────────────────────────────
 
 export function ChatPage() {
+  const t = useT();
+  const strings = useLangStore((s) => s.strings);
   const [messages, setMessages] = useState<DisplayMessage[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -69,7 +72,7 @@ export function ChatPage() {
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: 'Извините, произошла ошибка. Попробуйте позже.',
+          content: t('chat.errorMessage'),
           timestamp: new Date().toISOString(),
         },
       ]);
@@ -98,9 +101,9 @@ export function ChatPage() {
     <div className="flex flex-col h-[calc(100vh-80px)]">
       {/* Header */}
       <div className="flex-none px-4 sm:px-6 py-3 sm:py-4 border-b bg-white">
-        <h1 className="text-lg sm:text-xl font-bold text-gray-900">AI-Консультант</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900">{t('chat.title')}</h1>
         <p className="text-sm text-gray-500">
-          Задавайте вопросы о продуктах, продажах, KPI и рабочих процессах
+          {t('chat.subtitle')}
         </p>
       </div>
 
@@ -114,17 +117,12 @@ export function ChatPage() {
                   d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-gray-700 mb-2">Чем могу помочь?</h3>
+            <h3 className="text-lg font-medium text-gray-700 mb-2">{t('chat.emptyTitle')}</h3>
             <p className="text-sm text-gray-500 max-w-md mx-auto mb-6">
-              Я знаю о продукции N'Medov, техниках продаж, мерчандайзинге и KPI.
+              {t('chat.emptyDesc')}
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                'Как работать с возражением "дорого"?',
-                'Расскажи о молочной продукции N\'Medov',
-                'Как повысить свой KPI?',
-                'Правила выкладки товара',
-              ].map((q) => (
+              {(strings.chat.suggestions as string[]).map((q) => (
                 <button
                   key={q}
                   onClick={() => { setInput(q); inputRef.current?.focus(); }}
@@ -154,10 +152,10 @@ export function ChatPage() {
               {/* Sources */}
               {msg.sources && msg.sources.length > 0 && (
                 <div className="mt-3 pt-2 border-t border-gray-100">
-                  <p className="text-xs text-gray-400 mb-1">Источники:</p>
+                  <p className="text-xs text-gray-400 mb-1">{t('chat.sources')}</p>
                   {msg.sources.map((src, i) => (
                     <div key={i} className="text-xs text-gray-500 truncate">
-                      {src.document_title || 'Документ'} — {src.chunk_preview.slice(0, 60)}...
+                      {src.document_title || t('chat.document')} — {src.chunk_preview.slice(0, 60)}...
                     </div>
                   ))}
                 </div>
@@ -169,7 +167,7 @@ export function ChatPage() {
                   <button
                     onClick={() => handleFeedback(msg.id, 'up')}
                     className="text-gray-400 hover:text-green-600 transition-colors"
-                    title="Полезный ответ"
+                    title={t('chat.helpful')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -179,7 +177,7 @@ export function ChatPage() {
                   <button
                     onClick={() => handleFeedback(msg.id, 'down')}
                     className="text-gray-400 hover:text-red-600 transition-colors"
-                    title="Неполезный ответ"
+                    title={t('chat.unhelpful')}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
@@ -216,7 +214,7 @@ export function ChatPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Введите вопрос..."
+            placeholder={t('chat.inputPlaceholder')}
             rows={1}
             className="flex-1 resize-none rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />

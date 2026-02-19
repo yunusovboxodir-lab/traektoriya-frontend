@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assessmentsApi, type Assessment } from '../api/assessments';
+import { useT, useLangStore } from '../stores/langStore';
 
 const TERRITORY_TABS = [
   { key: 'all', label: 'Все' },
@@ -25,6 +26,8 @@ const TERRITORY_BADGE_COLORS: Record<string, string> = {
 
 export function AssessmentsPage() {
   const navigate = useNavigate();
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
 
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +46,7 @@ export function AssessmentsPage() {
       const data = res.data;
       setAssessments(Array.isArray(data) ? data : data.items ?? []);
     } catch {
-      setError('Не удалось загрузить аттестации');
+      setError(t('assessments.loadError'));
     } finally {
       setLoading(false);
     }
@@ -73,7 +76,7 @@ export function AssessmentsPage() {
             onClick={loadAssessments}
             className="text-red-600 underline text-sm mt-1"
           >
-            Попробовать снова
+            {t('assessments.tryAgain')}
           </button>
         </div>
       </div>
@@ -84,9 +87,9 @@ export function AssessmentsPage() {
     <div>
       {/* Page header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Оценка знаний</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('assessments.title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Пройдите аттестацию для подтверждения уровня знаний
+          {t('assessments.subtitle')}
         </p>
       </div>
 
@@ -103,7 +106,7 @@ export function AssessmentsPage() {
                 : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
             }`}
           >
-            {tab.label}
+            {tab.key === 'all' ? t('assessments.all') : tab.label}
           </button>
         ))}
       </div>
@@ -124,8 +127,8 @@ export function AssessmentsPage() {
           </svg>
           <p className="text-gray-500 text-lg font-medium">
             {activeTerritory !== 'all'
-              ? `Нет аттестаций для уровня "${activeTerritory}"`
-              : 'Аттестации ещё не созданы'}
+              ? t('assessments.noAssessmentsForLevel', { level: activeTerritory })
+              : t('assessments.noAssessments')}
           </p>
         </div>
       )}
@@ -180,20 +183,14 @@ export function AssessmentsPage() {
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  {assessment.question_count}{' '}
-                  {pluralize(
-                    assessment.question_count,
-                    'вопрос',
-                    'вопроса',
-                    'вопросов',
-                  )}
+                  {assessment.question_count}
                 </span>
 
                 <span className="flex items-center gap-1">
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  Порог: {assessment.pass_threshold}%
+                  {t('assessments.threshold', { value: assessment.pass_threshold })}
                 </span>
 
                 {assessment.time_limit_minutes != null && (
@@ -202,7 +199,7 @@ export function AssessmentsPage() {
                       <circle cx="12" cy="12" r="10" />
                       <path d="M12 6v6l4 2" />
                     </svg>
-                    {assessment.time_limit_minutes} мин
+                    {assessment.time_limit_minutes} {t('assessments.min')}
                   </span>
                 )}
               </div>
@@ -214,13 +211,3 @@ export function AssessmentsPage() {
   );
 }
 
-// -- helpers --
-
-function pluralize(n: number, one: string, few: string, many: string): string {
-  const abs = Math.abs(n) % 100;
-  const last = abs % 10;
-  if (abs > 10 && abs < 20) return many;
-  if (last > 1 && last < 5) return few;
-  if (last === 1) return one;
-  return many;
-}

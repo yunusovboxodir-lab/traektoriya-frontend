@@ -1,16 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 
 // ===========================================
 // СТРАНИЦА ВХОДА В СИСТЕМУ
 // ===========================================
-
-const demoCredentials = [
-  { id: 'admin', password: 'admin123', role: 'Суперадмин', color: 'bg-red-100 text-red-700' },
-  { id: 'supervisor1', password: 'supervisor123', role: 'Супервайзер', color: 'bg-amber-100 text-amber-700' },
-  { id: 'seller1', password: 'seller123', role: 'Продавец', color: 'bg-green-100 text-green-700' },
-];
 
 export function LoginPage() {
   const [employeeId, setEmployeeId] = useState('');
@@ -21,6 +16,13 @@ export function LoginPage() {
 
   const { login } = useAuthStore();
   const navigate = useNavigate();
+  const t = useT();
+
+  const demoCredentials = [
+    { id: 'admin', password: 'admin123', roleKey: 'roles.superadmin' as const, color: 'bg-red-100 text-red-700' },
+    { id: 'supervisor1', password: 'supervisor123', roleKey: 'roles.supervisor' as const, color: 'bg-amber-100 text-amber-700' },
+    { id: 'seller1', password: 'seller123', roleKey: 'roles.sales_rep' as const, color: 'bg-green-100 text-green-700' },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +34,7 @@ export function LoginPage() {
       navigate('/dashboard');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string } } };
-      setError(axiosErr.response?.data?.detail || 'Ошибка входа. Проверьте данные.');
+      setError(axiosErr.response?.data?.detail || t('login.error'));
     } finally {
       setIsLoading(false);
     }
@@ -79,7 +81,7 @@ export function LoginPage() {
             TRAEKTORIYA
           </h1>
           <p className="text-blue-200/80 text-sm lg:text-base max-w-xs mx-auto leading-relaxed">
-            Платформа обучения торговых представителей N&#39;Medov
+            {t('login.subtitle')}
           </p>
         </div>
       </div>
@@ -89,8 +91,8 @@ export function LoginPage() {
         <div className="w-full max-w-sm">
           {/* Header */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Вход в систему</h2>
-            <p className="text-gray-500 mt-1 text-sm">Введите свои учетные данные</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('login.heading')}</h2>
+            <p className="text-gray-500 mt-1 text-sm">{t('login.subheading')}</p>
           </div>
 
           {/* Form */}
@@ -98,7 +100,7 @@ export function LoginPage() {
             {/* Employee ID field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                ID Сотрудника
+                {t('login.employeeId')}
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -110,7 +112,7 @@ export function LoginPage() {
                   type="text"
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
-                  placeholder="Введите ID сотрудника"
+                  placeholder={t('login.employeePlaceholder')}
                   className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
                   required
                   autoFocus
@@ -121,7 +123,7 @@ export function LoginPage() {
             {/* Password field */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Пароль
+                {t('login.password')}
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -133,7 +135,7 @@ export function LoginPage() {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Введите пароль"
+                  placeholder={t('login.passwordPlaceholder')}
                   className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-11 pr-11 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
                   required
                 />
@@ -142,7 +144,7 @@ export function LoginPage() {
                   onClick={() => setShowPassword((v) => !v)}
                   className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 transition-colors"
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                  aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                 >
                   {showPassword ? (
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -185,10 +187,10 @@ export function LoginPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Вход...
+                  {t('login.loading')}
                 </span>
               ) : (
-                'Войти'
+                t('login.submit')
               )}
             </button>
           </form>
@@ -200,7 +202,7 @@ export function LoginPage() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-gray-400">Демо доступы</span>
+                <span className="bg-white px-3 text-xs text-gray-400">{t('login.demoAccess')}</span>
               </div>
             </div>
 
@@ -213,7 +215,7 @@ export function LoginPage() {
                   className="group rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-left transition hover:border-blue-300 hover:bg-blue-50/50"
                 >
                   <span className={'inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ' + cred.color}>
-                    {cred.role}
+                    {t(cred.roleKey)}
                   </span>
                   <p className="mt-1.5 text-xs font-medium text-gray-700 group-hover:text-blue-700">
                     {cred.id}
