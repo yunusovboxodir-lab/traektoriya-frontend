@@ -5,6 +5,7 @@ import { useT, useLangStore } from '../stores/langStore';
 const ROLE_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
   superadmin: { bg: 'bg-purple-50', text: 'text-purple-700', labelKey: 'roles.superadmin' },
   commercial_dir: { bg: 'bg-indigo-50', text: 'text-indigo-700', labelKey: 'roles.commercial_dir' },
+  regional_manager: { bg: 'bg-teal-50', text: 'text-teal-700', labelKey: 'roles.regional_manager' },
   admin: { bg: 'bg-blue-50', text: 'text-blue-700', labelKey: 'roles.admin' },
   supervisor: { bg: 'bg-amber-50', text: 'text-amber-700', labelKey: 'roles.supervisor' },
   sales_rep: { bg: 'bg-green-50', text: 'text-green-700', labelKey: 'roles.sales_rep' },

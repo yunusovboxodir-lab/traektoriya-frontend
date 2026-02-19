@@ -29,6 +29,7 @@ interface SidebarProps {
 const ROLE_COLORS: Record<string, string> = {
   superadmin: 'bg-purple-600',
   commercial_dir: 'bg-blue-600',
+  regional_manager: 'bg-teal-600',
   admin: 'bg-green-600',
   supervisor: 'bg-orange-500',
   sales_rep: 'bg-gray-500',
@@ -237,6 +238,7 @@ function IconShield() {
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
   commercial_dir: 4,
+  regional_manager: 4,
   admin: 3,
   supervisor: 2,
   sales_rep: 1,

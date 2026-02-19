@@ -10,8 +10,9 @@ import { useT } from '../stores/langStore';
 // ---------------------------------------------------------------------------
 
 const ROLE_HIERARCHY: Record<string, number> = {
-  superadmin: 5,
-  commercial_dir: 4,
+  superadmin: 6,
+  commercial_dir: 5,
+  regional_manager: 4,
   admin: 3,
   supervisor: 2,
   sales_rep: 1,
@@ -20,6 +21,7 @@ const ROLE_HIERARCHY: Record<string, number> = {
 const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Суперадмин',
   commercial_dir: 'Ком. директор',
+  regional_manager: 'Рег. менеджер',
   admin: 'Админ',
   supervisor: 'Супервайзер',
   sales_rep: 'Продавец',
@@ -28,12 +30,13 @@ const ROLE_LABELS: Record<string, string> = {
 const ROLE_COLORS: Record<string, string> = {
   superadmin: 'bg-purple-100 text-purple-800',
   commercial_dir: 'bg-blue-100 text-blue-800',
+  regional_manager: 'bg-teal-100 text-teal-800',
   admin: 'bg-green-100 text-green-800',
   supervisor: 'bg-orange-100 text-orange-800',
   sales_rep: 'bg-gray-100 text-gray-800',
 };
 
-const ROLES_ORDER = ['superadmin', 'commercial_dir', 'admin', 'supervisor', 'sales_rep'];
+const ROLES_ORDER = ['superadmin', 'commercial_dir', 'regional_manager', 'admin', 'supervisor', 'sales_rep'];
 
 // ---------------------------------------------------------------------------
 // Component

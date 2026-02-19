@@ -41,7 +41,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     const role = user?.role;
-    const isAdmin = role === 'admin' || role === 'superadmin' || role === 'commercial_dir';
+    const isAdmin = role === 'admin' || role === 'superadmin' || role === 'commercial_dir' || role === 'regional_manager';
 
     if (isAdmin) {
       // Admin roles can access full analytics
