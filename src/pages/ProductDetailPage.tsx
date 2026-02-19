@@ -1,25 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productsApi, type ProductDetail, type ProductHPV, type ProductTest } from '../api/products';
+import { useT } from '../stores/langStore';
 
 type Tab = 'info' | 'merch' | 'sales' | 'hpv' | 'test';
 
-const TABS: { key: Tab; label: string; icon: string }[] = [
-  { key: 'info', label: 'Карточка', icon: '📋' },
-  { key: 'merch', label: 'Мерчандайзинг', icon: '🏪' },
-  { key: 'sales', label: 'Продажи', icon: '💼' },
-  { key: 'hpv', label: 'ХПВ', icon: '💡' },
-  { key: 'test', label: 'Тест', icon: '✅' },
-];
 
 export function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
+  const t = useT();
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('info');
+
+  const tabs: { key: Tab; label: string; icon: string }[] = [
+    { key: 'info', label: t('productDetail.tabs.info'), icon: '📋' },
+    { key: 'merch', label: t('productDetail.tabs.merch'), icon: '🏪' },
+    { key: 'sales', label: t('productDetail.tabs.sales'), icon: '💼' },
+    { key: 'hpv', label: t('productDetail.tabs.hpv'), icon: '💡' },
+    { key: 'test', label: t('productDetail.tabs.test'), icon: '✅' },
+  ];
 
   // HPV refresh
   const [hpv, setHpv] = useState<ProductHPV | null>(null);
@@ -39,7 +42,7 @@ export function ProductDetailPage() {
       setProduct(data);
       setHpv(data.hpv);
     } catch {
-      setError('Не удалось загрузить товар');
+      setError(t('productDetail.loadError'));
     } finally {
       setLoading(false);
     }
@@ -81,9 +84,9 @@ export function ProductDetailPage() {
     return (
       <div className="max-w-xl mx-auto mt-12">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600 text-sm">{error || 'Товар не найден'}</p>
+          <p className="text-red-600 text-sm">{error || t('productDetail.notFound')}</p>
           <button onClick={() => navigate('/products')} className="text-red-600 underline text-sm mt-1">
-            Вернуться к списку
+            {t('productDetail.backToList')}
           </button>
         </div>
       </div>
@@ -101,7 +104,7 @@ export function ProductDetailPage() {
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
-        Назад к товарам
+        {t('productDetail.backToProducts')}
       </button>
 
       {/* Header with product image */}
@@ -141,9 +144,9 @@ export function ProductDetailPage() {
                 <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2.5 py-1 rounded">{product.flavor}</span>
               )}
               {product.is_active ? (
-                <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded">Активен</span>
+                <span className="text-xs font-medium text-green-700 bg-green-50 px-2.5 py-1 rounded">{t('productDetail.active')}</span>
               ) : (
-                <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded">Неактивен</span>
+                <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded">{t('productDetail.inactive')}</span>
               )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">{product.name}</h1>
@@ -162,7 +165,7 @@ export function ProductDetailPage() {
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex gap-1 -mb-px overflow-x-auto">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <button
               key={tab.key}
               type="button"
@@ -250,51 +253,52 @@ function TextBlock({ label, value }: { label: string; value: string | null | und
 // ============================================================================
 
 function InfoTab({ product }: { product: ProductDetail }) {
+  const t = useT();
   return (
     <div className="space-y-4">
       {/* Block 1: Identification */}
-      <SectionCard title="Идентификация" icon="🏷️" color="blue">
+      <SectionCard title={t('productDetail.identification')} icon="🏷️" color="blue">
         <div className="divide-y divide-gray-100">
-          <InfoRow label="Бренд" value={product.brand} />
-          <InfoRow label="Категория" value={product.category} />
-          <InfoRow label="Подкатегория" value={product.subcategory} />
-          <InfoRow label="Вкус" value={product.flavor} />
-          <InfoRow label="Вес / Объём" value={product.weight} />
-          <InfoRow label="Штрихкод" value={product.barcode} />
-          <InfoRow label="Артикул (SKU)" value={product.sku_code} />
+          <InfoRow label={t('productDetail.brand')} value={product.brand} />
+          <InfoRow label={t('productDetail.categoryLabel')} value={product.category} />
+          <InfoRow label={t('productDetail.subcategory')} value={product.subcategory} />
+          <InfoRow label={t('productDetail.flavor')} value={product.flavor} />
+          <InfoRow label={t('productDetail.weight')} value={product.weight} />
+          <InfoRow label={t('productDetail.barcode')} value={product.barcode} />
+          <InfoRow label={t('productDetail.sku')} value={product.sku_code} />
         </div>
       </SectionCard>
 
       {/* Block 3: Description */}
       {(product.description || product.composition || product.target_audience || product.consumption_occasion) && (
-        <SectionCard title="Описание и характеристики" icon="📝" color="gray">
+        <SectionCard title={t('productDetail.descriptionTitle')} icon="📝" color="gray">
           <div className="space-y-1 divide-y divide-gray-100">
-            <TextBlock label="Описание" value={product.description} />
-            <TextBlock label="Состав" value={product.composition} />
-            <TextBlock label="Целевая аудитория" value={product.target_audience} />
-            <TextBlock label="Повод потребления" value={product.consumption_occasion} />
+            <TextBlock label={t('productDetail.description')} value={product.description} />
+            <TextBlock label={t('productDetail.composition')} value={product.composition} />
+            <TextBlock label={t('productDetail.targetAudience')} value={product.target_audience} />
+            <TextBlock label={t('productDetail.consumptionOccasion')} value={product.consumption_occasion} />
           </div>
         </SectionCard>
       )}
 
       {/* Block 4: Commerce */}
-      <SectionCard title="Коммерческие условия" icon="💰" color="green">
+      <SectionCard title={t('productDetail.commerce')} icon="💰" color="green">
         <div className="divide-y divide-gray-100">
-          <InfoRow label="РРЦ" value={product.price_rrp != null ? `${new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум` : null} />
-          <InfoRow label="Цена дистрибьютора" value={product.distributor_price != null ? `${new Intl.NumberFormat('ru-RU').format(product.distributor_price)} сум` : null} />
-          <InfoRow label="Маржа" value={product.margin_percentage != null ? `${product.margin_percentage}%` : null} />
-          <InfoRow label="Мин. заказ" value={product.min_order != null ? `${product.min_order} шт.` : null} />
-          <InfoRow label="Срок годности" value={product.shelf_life} />
-          <InfoRow label="Условия хранения" value={product.storage_conditions} />
+          <InfoRow label={t('productDetail.rrp')} value={product.price_rrp != null ? `${new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум` : null} />
+          <InfoRow label={t('productDetail.distributorPrice')} value={product.distributor_price != null ? `${new Intl.NumberFormat('ru-RU').format(product.distributor_price)} сум` : null} />
+          <InfoRow label={t('productDetail.margin')} value={product.margin_percentage != null ? `${product.margin_percentage}%` : null} />
+          <InfoRow label={t('productDetail.minOrder')} value={product.min_order != null ? `${product.min_order} шт.` : null} />
+          <InfoRow label={t('productDetail.shelfLife')} value={product.shelf_life} />
+          <InfoRow label={t('productDetail.storageConditions')} value={product.storage_conditions} />
         </div>
       </SectionCard>
 
       {/* Block 5: Logistics */}
       {(product.units_per_box != null || product.units_per_pallet != null) && (
-        <SectionCard title="Логистика" icon="📦" color="gray">
+        <SectionCard title={t('productDetail.logistics')} icon="📦" color="gray">
           <div className="divide-y divide-gray-100">
-            <InfoRow label="Штук в коробке" value={product.units_per_box} />
-            <InfoRow label="Штук на паллете" value={product.units_per_pallet} />
+            <InfoRow label={t('productDetail.unitsPerBox')} value={product.units_per_box} />
+            <InfoRow label={t('productDetail.unitsPerPallet')} value={product.units_per_pallet} />
           </div>
         </SectionCard>
       )}
@@ -307,20 +311,21 @@ function InfoTab({ product }: { product: ProductDetail }) {
 // ============================================================================
 
 function MerchTab({ product }: { product: ProductDetail }) {
+  const t = useT();
   const hasData = product.shelf_placement || product.display_standard || product.shelf_neighbors || product.recommended_facing != null;
 
   if (!hasData) {
-    return <EmptyState icon="🏪" text="Данные мерчандайзинга будут добавлены позже" />;
+    return <EmptyState icon="🏪" text={t('productDetail.merchEmpty')} />;
   }
 
   return (
     <div className="space-y-4">
-      <SectionCard title="Планограмма и выкладка" icon="📐" color="indigo">
+      <SectionCard title={t('productDetail.planogram')} icon="📐" color="indigo">
         <div className="space-y-1 divide-y divide-gray-100">
-          <TextBlock label="Размещение на полке" value={product.shelf_placement} />
-          <InfoRow label="Рекомендуемый фейсинг" value={product.recommended_facing != null ? `${product.recommended_facing} шт.` : null} />
-          <TextBlock label="Соседство на полке" value={product.shelf_neighbors} />
-          <TextBlock label="Стандарт выкладки" value={product.display_standard} />
+          <TextBlock label={t('productDetail.shelfPlacement')} value={product.shelf_placement} />
+          <InfoRow label={t('productDetail.recommendedFacing')} value={product.recommended_facing != null ? `${product.recommended_facing} шт.` : null} />
+          <TextBlock label={t('productDetail.shelfNeighbors')} value={product.shelf_neighbors} />
+          <TextBlock label={t('productDetail.displayStandard')} value={product.display_standard} />
         </div>
       </SectionCard>
     </div>
@@ -332,37 +337,38 @@ function MerchTab({ product }: { product: ProductDetail }) {
 // ============================================================================
 
 function SalesTab({ product }: { product: ProductDetail }) {
+  const t = useT();
   const hasCompetitors = product.competitors && product.competitors.length > 0;
   const hasObjections = product.common_objections && product.common_objections.length > 0;
   const hasAdvantage = !!product.competitive_advantage;
 
   if (!hasCompetitors && !hasObjections && !hasAdvantage) {
-    return <EmptyState icon="💼" text="Информация для продаж будет добавлена позже" />;
+    return <EmptyState icon="💼" text={t('productDetail.salesEmpty')} />;
   }
 
   return (
     <div className="space-y-4">
       {/* Competitive advantage */}
       {hasAdvantage && (
-        <SectionCard title="Конкурентное преимущество" icon="⚡" color="green">
+        <SectionCard title={t('productDetail.competitiveAdvantage')} icon="⚡" color="green">
           <p className="text-sm text-gray-800 leading-relaxed">{product.competitive_advantage}</p>
         </SectionCard>
       )}
 
       {/* Competitors */}
       {hasCompetitors && (
-        <SectionCard title="Анализ конкурентов" icon="🎯" color="orange">
+        <SectionCard title={t('productDetail.competitorAnalysis')} icon="🎯" color="orange">
           <div className="space-y-3">
             {product.competitors!.map((c, idx) => (
               <div key={idx} className="bg-white rounded-lg border border-gray-100 p-4">
                 <h4 className="text-sm font-semibold text-gray-900 mb-2">{c.name}</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <p className="text-xs font-medium text-green-600 mb-1">Сильные стороны</p>
+                    <p className="text-xs font-medium text-green-600 mb-1">{t('productDetail.strengths')}</p>
                     <p className="text-xs text-gray-600">{c.strengths}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-red-600 mb-1">Слабые стороны</p>
+                    <p className="text-xs font-medium text-red-600 mb-1">{t('productDetail.weaknesses')}</p>
                     <p className="text-xs text-gray-600">{c.weaknesses}</p>
                   </div>
                 </div>
@@ -374,19 +380,19 @@ function SalesTab({ product }: { product: ProductDetail }) {
 
       {/* Objections */}
       {hasObjections && (
-        <SectionCard title="Работа с возражениями" icon="🗣️" color="purple">
+        <SectionCard title={t('productDetail.objections')} icon="🗣️" color="purple">
           <div className="space-y-3">
             {product.common_objections!.map((o, idx) => (
               <div key={idx} className="rounded-lg border border-gray-100 overflow-hidden">
                 <div className="bg-red-50 px-4 py-2.5 border-b border-red-100">
                   <p className="text-sm text-red-800 font-medium">
-                    <span className="text-red-400 mr-1.5">Возражение:</span>
+                    <span className="text-red-400 mr-1.5">{t('productDetail.objection')}</span>
                     &laquo;{o.objection}&raquo;
                   </p>
                 </div>
                 <div className="bg-green-50 px-4 py-2.5">
                   <p className="text-sm text-green-800">
-                    <span className="text-green-500 mr-1.5 font-medium">Ответ:</span>
+                    <span className="text-green-500 mr-1.5 font-medium">{t('productDetail.response')}</span>
                     {o.response}
                   </p>
                 </div>
@@ -412,21 +418,22 @@ function HpvTab({
   loading: boolean;
   onRefresh: () => void;
 }) {
+  const t = useT();
   if (!hpv) {
-    return <EmptyState icon="💡" text="ХПВ будет доступно после генерации" sub="Варианты Характеристика-Преимущество-Выгода генерируются через ИИ" />;
+    return <EmptyState icon="💡" text={t('productDetail.hpvEmpty')} sub={t('productDetail.hpvSub')} />;
   }
 
   const cards = [
-    { letter: 'Х', title: 'Характеристика', value: hpv.characteristic, bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900', letterBg: 'bg-blue-600' },
-    { letter: 'П', title: 'Преимущество', value: hpv.advantage, bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-900', letterBg: 'bg-green-600' },
-    { letter: 'В', title: 'Выгода', value: hpv.benefit, bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', letterBg: 'bg-purple-600' },
+    { letter: 'Х', title: t('productDetail.characteristic'), value: hpv.characteristic, bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-900', letterBg: 'bg-blue-600' },
+    { letter: 'П', title: t('productDetail.advantage'), value: hpv.advantage, bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-900', letterBg: 'bg-green-600' },
+    { letter: 'В', title: t('productDetail.benefit'), value: hpv.benefit, bg: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-900', letterBg: 'bg-purple-600' },
   ];
 
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
         <p className="text-sm text-gray-500">
-          Вариант <span className="font-semibold text-gray-700">#{hpv.variant_number}</span> из 100
+          {t('productDetail.hpvVariant')} <span className="font-semibold text-gray-700">#{hpv.variant_number}</span> из 100
         </p>
         <button
           type="button"
@@ -437,7 +444,7 @@ function HpvTab({
           <svg className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          Обновить ХПВ
+          {t('productDetail.refreshHpv')}
         </button>
       </div>
       <div className="space-y-4">
@@ -450,7 +457,7 @@ function HpvTab({
               <h3 className={`text-sm font-semibold ${card.text}`}>{card.title}</h3>
             </div>
             <p className={`text-sm leading-relaxed ${card.text}`}>
-              {card.value || <span className="italic opacity-60">Не указано</span>}
+              {card.value || <span className="italic opacity-60">{t('productDetail.notSpecified')}</span>}
             </p>
           </div>
         ))}
@@ -464,8 +471,9 @@ function HpvTab({
 // ============================================================================
 
 function TestTab({ questions }: { questions: ProductTest[] }) {
+  const t = useT();
   if (!questions || questions.length === 0) {
-    return <EmptyState icon="✅" text="Тесты скоро будут доступны" sub="Вопросы по товару генерируются автоматически через ИИ" />;
+    return <EmptyState icon="✅" text={t('productDetail.testEmpty')} sub={t('productDetail.testSub')} />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { roleScopesApi, type PageInfo } from '../api/roleScopes';
 import { toast } from '../stores/toastStore';
+import { useT } from '../stores/langStore';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -39,6 +40,7 @@ const ROLES_ORDER = ['superadmin', 'commercial_dir', 'admin', 'supervisor', 'sal
 // ---------------------------------------------------------------------------
 
 export function RolesPage() {
+  const t = useT();
   const user = useAuthStore((s) => s.user);
   const userRole = user?.role || 'sales_rep';
   const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
@@ -62,11 +64,11 @@ export function RolesPage() {
       setAllPages(response.data.all_pages);
       setHasChanges(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Ошибка загрузки скопов');
+      toast.error(err.response?.data?.detail || t('rolesPage.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleToggle = useCallback((role: string, pageKey: string) => {
     // superadmin is always full access
@@ -103,14 +105,14 @@ export function RolesPage() {
         }
       }
       await roleScopesApi.update(scopesToSave);
-      toast.success('Скопы ролей сохранены');
+      toast.success(t('rolesPage.scopesSaved'));
       setHasChanges(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.detail || 'Ошибка сохранения');
+      toast.error(err.response?.data?.detail || t('rolesPage.saveError'));
     } finally {
       setSaving(false);
     }
-  }, [scopes]);
+  }, [scopes, t]);
 
   // Non-admin users get redirected
   if (!isAdmin) {
@@ -130,9 +132,9 @@ export function RolesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Управление ролями</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('rolesPage.title')}</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Настройте доступ к разделам для каждой роли
+            {t('rolesPage.subtitle')}
           </p>
         </div>
         <button
@@ -144,7 +146,7 @@ export function RolesPage() {
               : 'bg-gray-400 cursor-not-allowed'
             }`}
         >
-          {saving ? 'Сохранение...' : 'Сохранить'}
+          {saving ? t('rolesPage.saving') : t('rolesPage.save')}
         </button>
       </div>
 
@@ -155,7 +157,7 @@ export function RolesPage() {
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-32 sm:w-48">
-                  Роль
+                  {t('rolesPage.role')}
                 </th>
                 {allPages.map((page) => (
                   <th
@@ -166,7 +168,7 @@ export function RolesPage() {
                   </th>
                 ))}
                 <th className="px-2 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Все
+                  {t('rolesPage.allAccess')}
                 </th>
               </tr>
             </thead>
@@ -186,7 +188,7 @@ export function RolesPage() {
                         {ROLE_LABELS[role] || role}
                       </span>
                       {isSuperadmin && (
-                        <span className="ml-2 text-xs text-gray-400">полный доступ</span>
+                        <span className="ml-2 text-xs text-gray-400">{t('rolesPage.fullAccess')}</span>
                       )}
                     </td>
                     {allPages.map((page) => {
@@ -223,9 +225,7 @@ export function RolesPage() {
       {/* Info */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-800">
-          <strong>Примечание:</strong> Суперадмин всегда имеет полный доступ ко всем разделам.
-          Изменения вступают в силу после сохранения и перезагрузки страницы пользователем.
-          Если для роли не настроены скопы, все разделы доступны по умолчанию.
+          {t('rolesPage.note')}
         </p>
       </div>
     </div>

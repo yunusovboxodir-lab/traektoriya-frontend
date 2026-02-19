@@ -9,6 +9,7 @@ import {
 import { documentsApi, type DocumentResponse } from '../api/documents';
 import { ragApi } from '../api/rag';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
+import { useT } from '../stores/langStore';
 
 const ContentModerationTab = lazyWithRetry(() =>
   import('../components/moderation/ContentModerationTab').then(m => ({ default: m.ContentModerationTab }))
@@ -43,12 +44,6 @@ function formatFileSize(bytes: number): string {
   return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
 }
 
-const DIFFICULTY_MAP: Record<number, string> = {
-  1: 'Начальный',
-  2: 'Средний',
-  3: 'Продвинутый',
-  4: 'Экспертный',
-};
 
 const BLOOM_COLORS: Record<string, string> = {
   knowledge: 'bg-blue-100 text-blue-700',
@@ -59,11 +54,6 @@ const BLOOM_COLORS: Record<string, string> = {
   evaluation: 'bg-red-100 text-red-700',
 };
 
-const KSA_LABELS: Record<string, string> = {
-  knowledge: 'Знания',
-  skill: 'Навыки',
-  attitude: 'Установки',
-};
 
 const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt'];
 
@@ -125,15 +115,16 @@ const MODERATION_STYLES: Record<ModerationStatus, { label: string; bg: string; t
 // ===========================================================================
 
 export function GenerationPage() {
+  const t = useT();
   const [activeTab, setActiveTab] = useState<'simple' | 'wizard' | 'moderation' | 'media_prompts' | 'kanban'>('simple');
 
   return (
     <div>
       {/* Page header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">AI Генерация</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('generation.title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Создание учебных материалов с помощью искусственного интеллекта
+          {t('generation.subtitle')}
         </p>
       </div>
 
@@ -148,7 +139,7 @@ export function GenerationPage() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Быстрая генерация
+          {t('generation.tabs.simple')}
         </button>
         <button
           type="button"
@@ -159,7 +150,7 @@ export function GenerationPage() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Из должностной инструкции
+          {t('generation.tabs.wizard')}
         </button>
         <button
           type="button"
@@ -170,7 +161,7 @@ export function GenerationPage() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Модерация контента
+          {t('generation.tabs.moderation')}
         </button>
         <button
           type="button"
@@ -181,7 +172,7 @@ export function GenerationPage() {
               : 'text-gray-500 hover:text-gray-700'
           }`}
         >
-          Медиа-промпты
+          {t('generation.tabs.mediaPrompts')}
         </button>
         <button
           type="button"
@@ -202,15 +193,15 @@ export function GenerationPage() {
       ) : activeTab === 'wizard' ? (
         <WizardGeneration />
       ) : activeTab === 'moderation' ? (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
           <ContentModerationTab />
         </Suspense>
       ) : activeTab === 'media_prompts' ? (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
           <MediaPromptsTab />
         </Suspense>
       ) : (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">Загрузка...</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
           <ContentKanbanTab />
         </Suspense>
       )}
@@ -223,6 +214,7 @@ export function GenerationPage() {
 // ===========================================================================
 
 function SimpleGeneration() {
+  const t = useT();
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState(2);
   const [includeQuiz, setIncludeQuiz] = useState(true);
@@ -252,7 +244,7 @@ function SimpleGeneration() {
       setResult(resp.data);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } }; message?: string };
-      const msg = e.response?.data?.detail || e.message || 'Ошибка генерации';
+      const msg = e.response?.data?.detail || e.message || t('generation.errorGeneration');
       setError(typeof msg === 'string' ? msg : JSON.stringify(msg));
     } finally {
       setIsGenerating(false);
@@ -285,16 +277,16 @@ function SimpleGeneration() {
       {/* ---------- LEFT: FORM ---------- */}
       <div className="space-y-6">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-5">Параметры генерации</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-5">{t('generation.params')}</h2>
 
           {/* Topic */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Тема урока *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.topicLabel')}</label>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              placeholder="Например: Техника СПИН продаж"
+              placeholder={t('generation.topicPlaceholder')}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
             />
@@ -302,7 +294,7 @@ function SimpleGeneration() {
 
           {/* Difficulty */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Уровень сложности</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.difficultyLabel')}</label>
             <div className="grid grid-cols-2 sm:flex gap-2">
               {[1, 2, 3, 4].map((d) => (
                 <button
@@ -315,7 +307,7 @@ function SimpleGeneration() {
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
                 >
-                  {DIFFICULTY_MAP[d]}
+                  {t('generation.difficulty.' + d)}
                 </button>
               ))}
             </div>
@@ -330,7 +322,7 @@ function SimpleGeneration() {
                 onChange={(e) => setIncludeQuiz(e.target.checked)}
                 className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
-              <span className="text-sm font-medium text-gray-700">Включить тест</span>
+              <span className="text-sm font-medium text-gray-700">{t('generation.includeQuiz')}</span>
             </label>
           </div>
 
@@ -344,12 +336,12 @@ function SimpleGeneration() {
             {isGenerating ? (
               <>
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Генерация... (~30 сек)
+                {t('generation.generating')}
               </>
             ) : (
               <>
                 <IconSparkles className="w-5 h-5" />
-                Сгенерировать урок
+                {t('generation.generate')}
               </>
             )}
           </button>
@@ -367,16 +359,16 @@ function SimpleGeneration() {
         {!result && !isGenerating && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
             <IconSparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-400 mb-1">Результат появится здесь</h3>
-            <p className="text-sm text-gray-400">Введите тему и нажмите «Сгенерировать урок»</p>
+            <h3 className="text-lg font-semibold text-gray-400 mb-1">{t('generation.emptyTitle')}</h3>
+            <p className="text-sm text-gray-400">{t('generation.emptyDesc')}</p>
           </div>
         )}
 
         {isGenerating && (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
             <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-1">AI генерирует урок...</h3>
-            <p className="text-sm text-gray-400">Тема: «{topic}»</p>
+            <h3 className="text-lg font-semibold text-gray-600 mb-1">{t('generation.aiGenerating')}</h3>
+            <p className="text-sm text-gray-400">{t('generation.topic')}: «{topic}»</p>
           </div>
         )}
 
@@ -390,18 +382,18 @@ function SimpleGeneration() {
               <div className="flex flex-wrap gap-2 mb-4">
                 {lesson.difficulty && (
                   <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                    {DIFFICULTY_MAP[Number(lesson.difficulty)] || lesson.difficulty}
+                    {t('generation.difficulty.' + Number(lesson.difficulty)) || lesson.difficulty}
                   </span>
                 )}
                 {lesson.estimated_duration_minutes && (
                   <span className="px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                    {lesson.estimated_duration_minutes} мин
+                    {lesson.estimated_duration_minutes} {t('generation.min')}
                   </span>
                 )}
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   lesson.is_grounded ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                 }`}>
-                  {lesson.is_grounded ? 'На основе документов' : 'Из знаний AI'}
+                  {lesson.is_grounded ? t('generation.grounded') : t('generation.aiKnowledge')}
                 </span>
               </div>
 
@@ -422,7 +414,7 @@ function SimpleGeneration() {
             {/* Key points */}
             {lesson.key_points && lesson.key_points.length > 0 && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-3">Ключевые моменты</h3>
+                <h3 className="text-base font-semibold text-gray-900 mb-3">{t('generation.keyPoints')}</h3>
                 <ul className="space-y-2">
                   {lesson.key_points.map((point, i) => (
                     <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
@@ -442,7 +434,7 @@ function SimpleGeneration() {
                   onClick={() => setShowQuiz(!showQuiz)}
                   className="w-full flex items-center justify-between text-base font-semibold text-gray-900"
                 >
-                  <span>Тест ({quizQuestions.length} вопросов)</span>
+                  <span>{t('generation.testCount', { count: quizQuestions.length })}</span>
                   <svg className={`w-5 h-5 transition-transform ${showQuiz ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -510,7 +502,7 @@ function SimpleGeneration() {
                         onClick={() => setQuizChecked(true)}
                         className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition text-sm"
                       >
-                        Проверить ответы
+                        {t('generation.checkAnswers')}
                       </button>
                     ) : (
                       <div className="text-center p-4 bg-gray-50 rounded-lg">
@@ -524,8 +516,8 @@ function SimpleGeneration() {
                             : 'text-red-600'
                         }`}>
                           {getQuizScore().correct / Math.max(getQuizScore().total, 1) >= 0.7
-                            ? 'Отлично!'
-                            : 'Стоит повторить материал'}
+                            ? t('generation.excellent')
+                            : t('generation.repeatMaterial')}
                         </p>
                       </div>
                     )}
@@ -541,7 +533,7 @@ function SimpleGeneration() {
                 onClick={handleCopy}
                 className="flex-1 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition"
               >
-                {copied ? 'Скопировано!' : 'Копировать урок'}
+                {copied ? t('generation.copied') : t('generation.copyLesson')}
               </button>
               <button
                 type="button"
@@ -554,7 +546,7 @@ function SimpleGeneration() {
                 }}
                 className="flex-1 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition"
               >
-                Сгенерировать заново
+                {t('generation.regenerate')}
               </button>
             </div>
           </>
@@ -568,16 +560,18 @@ function SimpleGeneration() {
 // TAB 2: WIZARD (5 STEPS)
 // ===========================================================================
 
-const WIZARD_STEPS = [
-  { num: 1, label: 'Загрузка ДИ' },
-  { num: 2, label: 'Компетенции' },
-  { num: 3, label: 'Источники' },
-  { num: 4, label: 'Генерация' },
-  { num: 5, label: 'Модерация' },
-];
 
 function WizardGeneration() {
+  const t = useT();
   const [step, setStep] = useState(1);
+
+  const wizardSteps = [
+    { num: 1, label: t('generation.wizard.steps.upload') },
+    { num: 2, label: t('generation.wizard.steps.competencies') },
+    { num: 3, label: t('generation.wizard.steps.sources') },
+    { num: 4, label: t('generation.wizard.steps.generation') },
+    { num: 5, label: t('generation.wizard.steps.moderation') },
+  ];
 
   // Step 1: Upload
   const [uploadedDoc, setUploadedDoc] = useState<DocumentResponse | null>(null);
@@ -655,7 +649,7 @@ function WizardGeneration() {
         ? detail
         : Array.isArray(detail)
           ? detail.map((d: { msg?: string }) => d.msg).join('; ')
-          : e.message || 'Ошибка загрузки';
+          : e.message || t('generation.wizard.uploadError');
       setUploadError(msg);
     } finally {
       setIsUploading(false);
@@ -691,7 +685,7 @@ function WizardGeneration() {
         ? detail
         : Array.isArray(detail)
           ? detail.map((d: { msg?: string }) => d.msg).join('; ')
-          : e.message || 'Ошибка извлечения компетенций';
+          : e.message || t('generation.wizard.extractionError');
       setExtractError(msg);
     } finally {
       setIsExtracting(false);
@@ -798,10 +792,10 @@ function WizardGeneration() {
         });
       } catch (err: unknown) {
         const e = err as { response?: { data?: { detail?: string } }; message?: string };
-        const errorMsg = e.response?.data?.detail || e.message || 'Не удалось сгенерировать';
+        const errorMsg = e.response?.data?.detail || e.message || t('generation.wizard.failedGenerate');
         results.push({
           lesson: {
-            title: `Ошибка: ${comp.name}`,
+            title: `${t('generation.wizard.errorPrefix')}: ${comp.name}`,
             content: typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg),
           } as GeneratedLesson,
           competencyName: comp.name,
@@ -852,7 +846,7 @@ function WizardGeneration() {
       {/* Step indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between max-w-3xl overflow-x-auto">
-          {WIZARD_STEPS.map((s, i) => {
+          {wizardSteps.map((s, i) => {
             const isActive = step === s.num;
             const isDone = step > s.num;
             return (
@@ -873,7 +867,7 @@ function WizardGeneration() {
                     {s.label}
                   </span>
                 </div>
-                {i < WIZARD_STEPS.length - 1 && (
+                {i < wizardSteps.length - 1 && (
                   <div className={`w-12 sm:w-20 h-0.5 mx-2 mt-[-18px] ${isDone ? 'bg-green-400' : 'bg-gray-200'}`} />
                 )}
               </div>
@@ -983,12 +977,13 @@ function StepUpload({
   onRemoveFile: () => void;
   onUpload: () => void;
 }) {
+  const t = useT();
   return (
     <div className="max-w-xl">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">Загрузка должностной инструкции</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('generation.wizard.uploadTitle')}</h2>
         <p className="text-sm text-gray-500 mb-5">
-          Загрузите файл ДИ для автоматического извлечения компетенций и генерации курса
+          {t('generation.wizard.uploadDesc')}
         </p>
 
         {/* Drop zone */}
@@ -1004,7 +999,7 @@ function StepUpload({
           }`}
         >
           <IconUploadCloud className={`w-12 h-12 mb-3 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
-          <p className="text-sm text-gray-600 text-center">Перетащите файл сюда или нажмите для выбора</p>
+          <p className="text-sm text-gray-600 text-center">{t('generation.wizard.dragDrop')}</p>
           <p className="text-xs text-gray-400 mt-1">PDF, DOCX, DOC, TXT</p>
           <input
             ref={fileInputRef}
@@ -1048,10 +1043,10 @@ function StepUpload({
           {isUploading ? (
             <>
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Загрузка и обработка...
+              {t('generation.wizard.uploading')}
             </>
           ) : (
-            'Загрузить и продолжить'
+            t('generation.wizard.uploadContinue')
           )}
         </button>
       </div>
@@ -1084,13 +1079,14 @@ function StepCompetencies({
   onNext: () => void;
   onBack: () => void;
 }) {
+  const t = useT();
   if (isExtracting) {
     return (
       <div className="max-w-2xl">
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
           <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-1">Извлечение компетенций...</h3>
-          <p className="text-sm text-gray-400">AI анализирует должностную инструкцию</p>
+          <h3 className="text-lg font-semibold text-gray-600 mb-1">{t('generation.wizard.extracting')}</h3>
+          <p className="text-sm text-gray-400">{t('generation.wizard.aiAnalyzing')}</p>
         </div>
       </div>
     );
@@ -1105,10 +1101,10 @@ function StepCompetencies({
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-              Назад
+              {t('generation.wizard.back')}
             </button>
             <button type="button" onClick={onRetry} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-              Попробовать снова
+              {t('generation.wizard.tryAgain')}
             </button>
           </div>
         </div>
@@ -1123,13 +1119,13 @@ function StepCompetencies({
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Матрица компетенций</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t('generation.wizard.competencyMatrix')}</h2>
             {extraction.role_name && (
-              <p className="text-sm text-gray-500 mt-0.5">Должность: {extraction.role_name}</p>
+              <p className="text-sm text-gray-500 mt-0.5">{t('generation.wizard.position')}: {extraction.role_name}</p>
             )}
           </div>
           <span className="text-sm text-gray-500">
-            {selectedCompetencies.size} из {extraction.competencies.length} выбрано
+            {t('generation.wizard.selectedOf', { selected: selectedCompetencies.size, total: extraction.competencies.length })}
           </span>
         </div>
 
@@ -1140,7 +1136,7 @@ function StepCompetencies({
             onClick={onToggleAll}
             className="text-sm text-blue-600 hover:text-blue-700 font-medium"
           >
-            {selectedCompetencies.size === extraction.competencies.length ? 'Снять все' : 'Выбрать все'}
+            {selectedCompetencies.size === extraction.competencies.length ? t('generation.wizard.deselectAll') : t('generation.wizard.selectAll')}
           </button>
         </div>
 
@@ -1178,12 +1174,12 @@ function StepCompetencies({
                     )}
                     {comp.ksa_type && (
                       <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                        {KSA_LABELS[comp.ksa_type] || comp.ksa_type}
+                        {t('generation.ksa.' + comp.ksa_type) || comp.ksa_type}
                       </span>
                     )}
                     {comp.suggested_difficulty && (
                       <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                        {DIFFICULTY_MAP[comp.suggested_difficulty]}
+                        {t('generation.difficulty.' + comp.suggested_difficulty)}
                       </span>
                     )}
                   </div>
@@ -1196,7 +1192,7 @@ function StepCompetencies({
         {/* Navigation */}
         <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
           <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-            Назад
+            {t('generation.wizard.back')}
           </button>
           <button
             type="button"
@@ -1204,7 +1200,7 @@ function StepCompetencies({
             disabled={selectedCompetencies.size === 0}
             className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            Далее: Источники
+            {t('generation.wizard.nextSources')}
           </button>
         </div>
       </div>
@@ -1235,6 +1231,7 @@ function StepSources({
   onNext: () => void;
   onBack: () => void;
 }) {
+  const t = useT();
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   // Get unique categories from documents
@@ -1267,9 +1264,9 @@ function StepSources({
   return (
     <div className="max-w-3xl">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">Выбор источников из Базы знаний</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('generation.wizard.sourcesTitle')}</h2>
         <p className="text-sm text-gray-500 mb-5">
-          Выберите стандарты и документы, которые AI будет использовать для обоснования уроков (RAG)
+          {t('generation.wizard.sourcesDesc')}
         </p>
 
         {isLoading ? (
@@ -1278,8 +1275,8 @@ function StepSources({
           </div>
         ) : documents.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
-            <p className="text-base font-medium mb-1">Стандарты не найдены</p>
-            <p className="text-sm">Загрузите документы типа «Стандарт» в Базу знаний</p>
+            <p className="text-base font-medium mb-1">{t('generation.wizard.noStandards')}</p>
+            <p className="text-sm">{t('generation.wizard.uploadStandards')}</p>
           </div>
         ) : (
           <>
@@ -1291,11 +1288,11 @@ function StepSources({
                   onChange={(e) => setCategoryFilter(e.target.value)}
                   className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
-                  <option value="all">Все должности</option>
+                  <option value="all">{t('generation.wizard.allPositions')}</option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
-                  <option value="uncategorized">Без классификации</option>
+                  <option value="uncategorized">{t('generation.wizard.uncategorized')}</option>
                 </select>
               )}
               <button
@@ -1303,7 +1300,7 @@ function StepSources({
                 onClick={handleToggleAll}
                 className="text-sm text-blue-600 hover:text-blue-800 font-medium"
               >
-                {allFilteredSelected ? 'Снять все' : 'Выбрать все'}
+                {allFilteredSelected ? t('generation.wizard.deselectAll') : t('generation.wizard.selectAll')}
               </button>
               {someFilteredSelected && !allFilteredSelected && (
                 <button
@@ -1311,7 +1308,7 @@ function StepSources({
                   onClick={onDeselectAll}
                   className="text-sm text-gray-500 hover:text-gray-700"
                 >
-                  Сбросить выбор
+                  {t('generation.wizard.resetSelection')}
                 </button>
               )}
             </div>
@@ -1341,7 +1338,7 @@ function StepSources({
                           <span className="text-purple-600 ml-2">{doc.category}</span>
                         )}
                         {doc.status === 'processed' || doc.status === 'completed' ? (
-                          <span className="text-green-600 ml-2">Проиндексирован</span>
+                          <span className="text-green-600 ml-2">{t('generation.wizard.indexed')}</span>
                         ) : (
                           <span className="text-yellow-600 ml-2">{doc.status}</span>
                         )}
@@ -1352,7 +1349,7 @@ function StepSources({
               })}
               {filteredDocs.length === 0 && (
                 <div className="text-center py-6 text-gray-400 text-sm">
-                  Нет документов для выбранной должности
+                  {t('generation.wizard.noDocsForPosition')}
                 </div>
               )}
             </div>
@@ -1361,21 +1358,21 @@ function StepSources({
 
         {/* Info */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-          Выбор источников необязателен. Без источников AI будет генерировать из собственных знаний.
-          {selectedSources.size > 0 && ` Выбрано: ${selectedSources.size} документов.`}
+          {t('generation.wizard.sourcesOptional')}
+          {selectedSources.size > 0 && ` ${t('generation.wizard.selectedDocs', { count: selectedSources.size })}`}
         </div>
 
         {/* Navigation */}
         <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
           <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-            Назад
+            {t('generation.wizard.back')}
           </button>
           <button
             type="button"
             onClick={onNext}
             className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
           >
-            Начать генерацию
+            {t('generation.wizard.startGeneration')}
           </button>
         </div>
       </div>
@@ -1400,22 +1397,23 @@ function StepGenerate({
   error: string;
   onNext: () => void;
 }) {
+  const t = useT();
   const pct = progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0;
 
   return (
     <div className="max-w-3xl">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Генерация уроков</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('generation.wizard.generationTitle')}</h2>
 
         {/* Progress bar */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
             <span>
               {isGenerating
-                ? `Генерация урока ${progress.current} из ${progress.total}...`
+                ? t('generation.wizard.generatingLesson', { current: progress.current, total: progress.total })
                 : progress.total > 0
-                  ? `Готово: ${progress.current} из ${progress.total}`
-                  : 'Запуск генерации...'}
+                  ? t('generation.wizard.done', { current: progress.current, total: progress.total })
+                  : t('generation.wizard.starting')}
             </span>
             <span>{pct}%</span>
           </div>
@@ -1433,9 +1431,9 @@ function StepGenerate({
             {lessons.map((l, i) => (
               <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  l.lesson.title?.startsWith('Ошибка') ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'
+                  l.lesson.title?.startsWith(t('generation.wizard.errorPrefix')) ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'
                 }`}>
-                  {l.lesson.title?.startsWith('Ошибка') ? (
+                  {l.lesson.title?.startsWith(t('generation.wizard.errorPrefix')) ? (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -1463,7 +1461,7 @@ function StepGenerate({
               onClick={onNext}
               className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
             >
-              Перейти к модерации
+              {t('generation.wizard.goToModeration')}
             </button>
           </div>
         )}
@@ -1491,6 +1489,7 @@ function StepModeration({
   onUpdateContent: (idx: number, content: string) => void;
   onBack: () => void;
 }) {
+  const t = useT();
   const approvedCount = lessons.filter((l) => l.status === 'approved').length;
   const reviewCount = lessons.filter((l) => l.status === 'review').length;
 
@@ -1498,17 +1497,17 @@ function StepModeration({
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Модерация уроков</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('generation.wizard.moderationTitle')}</h2>
           <p className="text-sm text-gray-500 mt-0.5">
-            Проверьте, отредактируйте и утвердите сгенерированные уроки
+            {t('generation.wizard.moderationDesc')}
           </p>
         </div>
         <div className="flex gap-2">
           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-            Утверждено: {approvedCount}
+            {t('generation.wizard.approvedCount', { count: approvedCount })}
           </span>
           <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
-            На проверке: {reviewCount}
+            {t('generation.wizard.onReviewCount', { count: reviewCount })}
           </span>
         </div>
       </div>
@@ -1524,7 +1523,7 @@ function StepModeration({
                   <span className="text-sm font-semibold text-gray-500">#{idx + 1}</span>
                   <h3 className="text-sm font-medium text-gray-900 truncate">{lesson.lesson.title}</h3>
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.text}`}>
-                    {style.label}
+                    {t('generation.status.' + lesson.status)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
@@ -1548,14 +1547,14 @@ function StepModeration({
                         onClick={() => onSaveEdit(idx)}
                         className="px-4 py-1.5 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
                       >
-                        Сохранить
+                        {t('generation.wizard.save')}
                       </button>
                       <button
                         type="button"
                         onClick={() => onToggleEdit(idx)}
                         className="px-4 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
                       >
-                        Отмена
+                        {t('generation.wizard.cancel')}
                       </button>
                     </div>
                   </div>
@@ -1575,7 +1574,7 @@ function StepModeration({
                     onClick={() => onToggleEdit(idx)}
                     className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
                   >
-                    Редактировать
+                    {t('generation.wizard.edit')}
                   </button>
                   {lesson.status !== 'review' && (
                     <button
@@ -1583,7 +1582,7 @@ function StepModeration({
                       onClick={() => onSetStatus(idx, 'review')}
                       className="px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100"
                     >
-                      На проверку
+                      {t('generation.wizard.toReview')}
                     </button>
                   )}
                   {lesson.status !== 'approved' && (
@@ -1592,7 +1591,7 @@ function StepModeration({
                       onClick={() => onSetStatus(idx, 'approved')}
                       className="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100"
                     >
-                      Утвердить
+                      {t('generation.wizard.approve')}
                     </button>
                   )}
                   {lesson.status !== 'draft' && (
@@ -1601,7 +1600,7 @@ function StepModeration({
                       onClick={() => onSetStatus(idx, 'draft')}
                       className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200"
                     >
-                      Вернуть в черновик
+                      {t('generation.wizard.toDraft')}
                     </button>
                   )}
                 </div>
@@ -1614,12 +1613,12 @@ function StepModeration({
       {/* Bottom navigation */}
       <div className="flex justify-between mt-6">
         <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
-          Назад к генерации
+          {t('generation.wizard.backToGeneration')}
         </button>
         <div className="text-sm text-gray-500 self-center">
           {approvedCount === lessons.length && lessons.length > 0
-            ? 'Все уроки утверждены!'
-            : `${approvedCount} из ${lessons.length} утверждено`}
+            ? t('generation.wizard.allApproved')
+            : t('generation.wizard.approvedOf', { approved: approvedCount, total: lessons.length })}
         </div>
       </div>
     </div>

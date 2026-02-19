@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { analyticsApi } from '../api/analytics';
+import { useT } from '../stores/langStore';
 
 // ---------------------------------------------------------------------------
 // Interfaces
@@ -65,6 +66,7 @@ const BAR_COLORS = [
 // ---------------------------------------------------------------------------
 
 export function AnalyticsPage() {
+  const t = useT();
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [learning, setLearning] = useState<LearningMetrics | null>(null);
   const [productStats, setProductStats] = useState<ProductStats | null>(null);
@@ -95,10 +97,10 @@ export function AnalyticsPage() {
         learningRes.status === 'rejected' &&
         productsRes.status === 'rejected'
       ) {
-        setError('Не удалось загрузить аналитику');
+        setError(t('analytics.loadError'));
       }
     } catch {
-      setError('Не удалось загрузить аналитику');
+      setError(t('analytics.loadError'));
     } finally {
       setLoading(false);
     }
@@ -174,7 +176,7 @@ export function AnalyticsPage() {
             onClick={loadData}
             className="text-red-600 underline text-sm mt-1"
           >
-            Попробовать снова
+            {t('analytics.tryAgain')}
           </button>
         </div>
       </div>
@@ -184,7 +186,7 @@ export function AnalyticsPage() {
   // -- Stat cards definition --
   const statCards: StatCardDef[] = [
     {
-      label: 'Пользователи',
+      label: t('analytics.users'),
       value: overview?.total_users ?? '---',
       trend: '+12%',
       trendUp: true,
@@ -202,7 +204,7 @@ export function AnalyticsPage() {
       ),
     },
     {
-      label: 'Курсы',
+      label: t('analytics.courses'),
       value: overview?.total_courses ?? '---',
       trend: '+3',
       trendUp: true,
@@ -218,7 +220,7 @@ export function AnalyticsPage() {
       ),
     },
     {
-      label: 'Задачи',
+      label: t('analytics.tasks'),
       value: overview?.total_tasks ?? '---',
       trend: '+8',
       trendUp: true,
@@ -235,7 +237,7 @@ export function AnalyticsPage() {
       ),
     },
     {
-      label: 'Товары',
+      label: t('analytics.products'),
       value: overview?.total_products ?? '---',
       trend: '+5',
       trendUp: true,
@@ -264,15 +266,15 @@ export function AnalyticsPage() {
       {/* Page header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-          Аналитика
+          {t('analytics.title')}
         </h1>
         <p className="text-sm text-gray-500 mt-1">
-          Общая статистика платформы
+          {t('analytics.subtitle')}
         </p>
       </div>
 
       {/* ── Overview stat cards ── */}
-      <SectionTitle title="Обзор" />
+      <SectionTitle title={t('analytics.overview')} />
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {statCards.map((card) => (
           <StatCard key={card.label} card={card} />
@@ -282,29 +284,29 @@ export function AnalyticsPage() {
       {/* ── Learning metrics ── */}
       {learning && (
         <>
-          <SectionTitle title="Метрики обучения" />
+          <SectionTitle title={t('analytics.learningMetrics')} />
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               <MetricBar
-                label="Завершаемость"
+                label={t('analytics.completion')}
                 value={learning.completion_rate ?? 0}
                 max={100}
                 suffix="%"
                 color="bg-blue-500"
               />
               <MetricBar
-                label="Средний балл"
+                label={t('analytics.avgScore')}
                 value={learning.average_score ?? 0}
                 max={100}
                 suffix="%"
                 color="bg-green-500"
               />
               <MetricValue
-                label="Активных учащихся"
+                label={t('analytics.activeLearners')}
                 value={learning.active_learners ?? 0}
               />
               <MetricValue
-                label="Курсов завершено"
+                label={t('analytics.coursesCompleted')}
                 value={learning.courses_completed ?? 0}
               />
             </div>
@@ -315,27 +317,27 @@ export function AnalyticsPage() {
       {/* ── Product knowledge ── */}
       {productStats && (
         <>
-          <SectionTitle title="Знание товаров" />
+          <SectionTitle title={t('analytics.productKnowledge')} />
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
             {/* Top row: simple metric cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <MetricValue
-                label="Всего товаров"
+                label={t('analytics.totalProducts')}
                 value={productStats.total_products ?? 0}
               />
               <MetricValue
-                label="Товаров с ХПВ"
+                label={t('analytics.productsWithHpv')}
                 value={productStats.products_with_hpv ?? 0}
               />
               <MetricBar
-                label="Средний балл теста"
+                label={t('analytics.avgTestScore')}
                 value={productStats.average_test_score ?? 0}
                 max={100}
                 suffix="%"
                 color="bg-purple-500"
               />
               <MetricValue
-                label="Тестов пройдено"
+                label={t('analytics.testsCompleted')}
                 value={productStats.tests_completed ?? 0}
               />
             </div>
@@ -348,7 +350,7 @@ export function AnalyticsPage() {
               {/* Donut chart */}
               <div className="flex flex-col items-center">
                 <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  Покрытие ХПВ
+                  {t('analytics.hpvCoverage')}
                 </h3>
                 <DonutChart
                   total={productStats.total_products ?? 0}
@@ -359,7 +361,7 @@ export function AnalyticsPage() {
               {/* Horizontal bar chart */}
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  Категории товаров
+                  {t('analytics.categories')}
                 </h3>
                 <HorizontalBarChart categories={categories} />
               </div>
@@ -448,6 +450,7 @@ function StatCard({ card }: { card: StatCardDef }) {
 // ---------------------------------------------------------------------------
 
 function DonutChart({ total, filled }: { total: number; filled: number }) {
+  const t = useT();
   const mounted = useRef(false);
   const [animated, setAnimated] = useState(false);
 
@@ -496,13 +499,11 @@ function DonutChart({ total, filled }: { total: number; filled: number }) {
         <span className="text-2xl font-bold text-gray-900">
           {Math.round(pct * 100)}%
         </span>
-        <span className="text-xs text-gray-500">ХПВ</span>
+        <span className="text-xs text-gray-500">{t('analytics.hpv')}</span>
       </div>
       {/* Bottom label */}
       <p className="mt-3 text-sm text-gray-600">
-        Товаров с ХПВ:{' '}
-        <span className="font-semibold text-gray-900">{filled}</span> из{' '}
-        <span className="font-semibold text-gray-900">{total}</span>
+        {t('analytics.hpvOf', { filled, total })}
       </p>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { documentsApi, type DocumentResponse, type DocumentStats } from '../api/documents';
 import { ragApi } from '../api/rag';
+import { useT } from '../stores/langStore';
 
 // ---------------------------------------------------------------------------
 // Constants & Helpers
@@ -15,15 +16,6 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   other: 'Прочее',
 };
 
-const FILTER_TABS: { label: string; value: string | null }[] = [
-  { label: 'Все', value: null },
-  { label: 'Стандарты', value: 'standard' },
-  { label: 'Продукты', value: 'product' },
-  { label: 'ДИ', value: 'job_description' },
-  { label: 'Политики', value: 'policy' },
-  { label: 'Учебные', value: 'training' },
-  { label: 'Прочее', value: 'other' },
-];
 
 const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.zip'];
 const PAGE_SIZE = 20;
@@ -116,31 +108,32 @@ function FileTypeIcon({ fileType }: { fileType: string }) {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const t = useT();
   switch (status) {
     case 'uploaded':
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          Загружен
+          {t('kb.statuses.uploaded')}
         </span>
       );
     case 'processing':
     case 'extracting_text':
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 animate-pulse">
-          Индексируется...
+          {t('kb.statuses.processing')}
         </span>
       );
     case 'processed':
     case 'completed':
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-          Готов
+          {t('kb.statuses.processed')}
         </span>
       );
     case 'failed':
       return (
         <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          Ошибка
+          {t('kb.statuses.failed')}
         </span>
       );
     default:
@@ -181,6 +174,8 @@ function StatCard({
 // ---------------------------------------------------------------------------
 
 export function KnowledgeBasePage() {
+  const t = useT();
+
   // ----- State -----
   const [documents, setDocuments] = useState<DocumentResponse[]>([]);
   const [stats, setStats] = useState<DocumentStats | null>(null);
@@ -243,7 +238,7 @@ export function KnowledgeBasePage() {
         }
         setTotal(data.total || 0);
       } catch (e: unknown) {
-          setError('Не удалось загрузить документы');
+          setError(t('kb.loadError'));
       } finally {
         setIsLoading(false);
       }
@@ -511,7 +506,7 @@ export function KnowledgeBasePage() {
             }}
             className="text-red-600 underline text-sm mt-1"
           >
-            Попробовать снова
+            {t('kb.tryAgain')}
           </button>
         </div>
       </div>
@@ -520,20 +515,30 @@ export function KnowledgeBasePage() {
 
   const hasMore = documents.length < total;
 
+  const filterTabs = [
+    { label: t('kb.filters.all'), value: null },
+    { label: t('kb.filters.standard'), value: 'standard' },
+    { label: t('kb.filters.product'), value: 'product' },
+    { label: t('kb.filters.job_description'), value: 'job_description' },
+    { label: t('kb.filters.policy'), value: 'policy' },
+    { label: t('kb.filters.training'), value: 'training' },
+    { label: t('kb.filters.other'), value: 'other' },
+  ];
+
   return (
     <div>
       {/* ---- Page Header ---- */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">База знаний</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{t('kb.title')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          Управление документами и индексацией для RAG-системы
+          {t('kb.subtitle')}
         </p>
       </div>
 
       {/* ---- Stats Row ---- */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         <StatCard
-          label="Всего документов"
+          label={t('kb.totalDocs')}
           value={stats?.total_documents ?? 0}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -542,7 +547,7 @@ export function KnowledgeBasePage() {
           }
         />
         <StatCard
-          label="Размер базы"
+          label={t('kb.dbSize')}
           value={stats ? (stats.total_size_mb ?? 0).toFixed(1) + ' МБ' : '0 МБ'}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -551,7 +556,7 @@ export function KnowledgeBasePage() {
           }
         />
         <StatCard
-          label="Проиндексировано"
+          label={t('kb.indexed')}
           value={indexedCount}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -560,7 +565,7 @@ export function KnowledgeBasePage() {
           }
         />
         <StatCard
-          label="Ожидают обработки"
+          label={t('kb.pending')}
           value={pendingCount}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -573,7 +578,7 @@ export function KnowledgeBasePage() {
       {/* ---- Filter Tabs ---- */}
       <div className="mb-6 overflow-x-auto">
         <div className="flex gap-2 min-w-max">
-          {FILTER_TABS.map((tab) => {
+          {filterTabs.map((tab) => {
             const isActive = activeFilter === tab.value;
             return (
               <button
@@ -600,13 +605,13 @@ export function KnowledgeBasePage() {
           <div className="lg:sticky lg:top-4 space-y-4">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
               <h2 className="text-base font-semibold text-gray-900 mb-4">
-                Загрузка документов
+                {t('kb.uploadTitle')}
               </h2>
 
               {/* Document type selector */}
               <div className="mb-3">
                 <label htmlFor="upload-doc-type" className="block text-sm font-medium text-gray-700 mb-1">
-                  Тип документа
+                  {t('kb.docType')}
                 </label>
                 <select
                   id="upload-doc-type"
@@ -614,9 +619,9 @@ export function KnowledgeBasePage() {
                   onChange={(e) => setUploadDocType(e.target.value)}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 >
-                  {Object.entries(DOC_TYPE_LABELS).map(([key, label]) => (
+                  {Object.keys(DOC_TYPE_LABELS).map((key) => (
                     <option key={key} value={key}>
-                      {label}
+                      {t('kb.docTypes.' + key)}
                     </option>
                   ))}
                 </select>
@@ -625,7 +630,7 @@ export function KnowledgeBasePage() {
               {/* Category / Position selector */}
               <div className="mb-4">
                 <label htmlFor="upload-category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Должность / Классификация
+                  {t('kb.positionLabel')}
                 </label>
                 <input
                   id="upload-category"
@@ -633,7 +638,7 @@ export function KnowledgeBasePage() {
                   list="category-suggestions"
                   value={uploadCategory}
                   onChange={(e) => setUploadCategory(e.target.value)}
-                  placeholder="Например: Торговый представитель"
+                  placeholder={t('kb.positionPlaceholder')}
                   className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
                 />
                 <datalist id="category-suggestions">
@@ -642,7 +647,7 @@ export function KnowledgeBasePage() {
                   ))}
                 </datalist>
                 <p className="text-xs text-gray-400 mt-1">
-                  К какой должности относится документ (необязательно)
+                  {t('kb.positionHint')}
                 </p>
               </div>
 
@@ -662,7 +667,7 @@ export function KnowledgeBasePage() {
                   className={`w-10 h-10 mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}
                 />
                 <p className="text-sm text-gray-600 text-center">
-                  Перетащите файлы сюда или нажмите для выбора
+                  {t('kb.dragDrop')}
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
                   PDF, DOCX, DOC, TXT, ZIP
@@ -681,7 +686,7 @@ export function KnowledgeBasePage() {
               {selectedFiles.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Выбрано {selectedFiles.length}{' '}
+                    {t('kb.selectedFiles', { count: selectedFiles.length })}{' '}
                     {pluralize(selectedFiles.length, 'файл', 'файла', 'файлов')}
                   </p>
                   <ul className="space-y-1.5 max-h-48 overflow-y-auto">
@@ -721,10 +726,10 @@ export function KnowledgeBasePage() {
                 {isUploading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Загрузка...
+                    {t('kb.uploading')}
                   </>
                 ) : (
-                  'Загрузить'
+                  t('kb.upload')
                 )}
               </button>
 
@@ -762,7 +767,7 @@ export function KnowledgeBasePage() {
           {selectedIds.size > 0 && (
             <div className="mb-3 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
               <span className="text-sm font-medium text-blue-800">
-                Выбрано: {selectedIds.size} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
+                {t('kb.selected', { count: selectedIds.size })} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
               </span>
               <div className="flex items-center gap-2 ml-auto">
                 <button
@@ -770,7 +775,7 @@ export function KnowledgeBasePage() {
                   onClick={() => { setShowBulkEdit(true); setBulkDocType(''); setBulkCategory(''); setBulkCategoryClear(false); }}
                   className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                 >
-                  Изменить тип / должность
+                  {t('kb.changeTypePosition')}
                 </button>
                 {bulkDeleteConfirm ? (
                   <div className="flex items-center gap-1">
@@ -780,14 +785,14 @@ export function KnowledgeBasePage() {
                       disabled={isBulkUpdating}
                       className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
                     >
-                      {isBulkUpdating ? 'Удаление...' : 'Да, удалить'}
+                      {isBulkUpdating ? t('kb.deleting') : t('kb.yesDelete')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setBulkDeleteConfirm(false)}
                       className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                     >
-                      Отмена
+                      {t('kb.cancel')}
                     </button>
                   </div>
                 ) : (
@@ -796,7 +801,7 @@ export function KnowledgeBasePage() {
                     onClick={() => setBulkDeleteConfirm(true)}
                     className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
                   >
-                    Удалить
+                    {t('kb.delete')}
                   </button>
                 )}
                 <button
@@ -816,33 +821,33 @@ export function KnowledgeBasePage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowBulkEdit(false)}>
               <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Массовое редактирование ({selectedIds.size} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')})
+                  {t('kb.bulkEdit', { count: selectedIds.size })}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Тип документа</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('kb.docType')}</label>
                     <select
                       value={bulkDocType}
                       onChange={(e) => setBulkDocType(e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                     >
-                      <option value="">— Не менять —</option>
-                      {Object.entries(DOC_TYPE_LABELS).map(([key, label]) => (
-                        <option key={key} value={key}>{label}</option>
+                      <option value="">{t('kb.noChange')}</option>
+                      {Object.keys(DOC_TYPE_LABELS).map((key) => (
+                        <option key={key} value={key}>{t('kb.docTypes.' + key)}</option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Должность / Классификация</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('kb.positionLabel')}</label>
                     <input
                       type="text"
                       list="bulk-category-suggestions"
                       value={bulkCategory}
                       onChange={(e) => { setBulkCategory(e.target.value); setBulkCategoryClear(false); }}
                       disabled={bulkCategoryClear}
-                      placeholder="Например: Торговый представитель"
+                      placeholder={t('kb.positionPlaceholder')}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
                     />
                     <datalist id="bulk-category-suggestions">
@@ -857,7 +862,7 @@ export function KnowledgeBasePage() {
                         onChange={(e) => { setBulkCategoryClear(e.target.checked); if (e.target.checked) setBulkCategory(''); }}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      Очистить должность
+                      {t('kb.clearPosition')}
                     </label>
                   </div>
                 </div>
@@ -868,7 +873,7 @@ export function KnowledgeBasePage() {
                     onClick={() => setShowBulkEdit(false)}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                   >
-                    Отмена
+                    {t('kb.cancel')}
                   </button>
                   <button
                     type="button"
@@ -876,7 +881,7 @@ export function KnowledgeBasePage() {
                     disabled={isBulkUpdating || (!bulkDocType && !bulkCategory.trim() && !bulkCategoryClear)}
                     className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors"
                   >
-                    {isBulkUpdating ? 'Сохранение...' : 'Сохранить'}
+                    {isBulkUpdating ? t('kb.saving') : t('kb.save')}
                   </button>
                 </div>
               </div>
@@ -897,13 +902,13 @@ export function KnowledgeBasePage() {
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Документ</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Тип</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Должность</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Размер</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Статус</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Дата</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">Действия</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.document')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.type')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.position')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.size')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.status')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.date')}</th>
+                    <th className="text-right px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -928,7 +933,7 @@ export function KnowledgeBasePage() {
                       <td className="px-4 py-3">
                         {doc.document_type ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                            {DOC_TYPE_LABELS[doc.document_type] || doc.document_type}
+                            {t('kb.docTypes.' + doc.document_type) || doc.document_type}
                           </span>
                         ) : (
                           <span className="text-gray-400 text-xs">--</span>
@@ -972,14 +977,14 @@ export function KnowledgeBasePage() {
                                 onClick={() => handleDelete(doc.id)}
                                 className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                               >
-                                Да
+                                {t('kb.yes')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setDeleteConfirmId(null)}
                                 className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                               >
-                                Нет
+                                {t('kb.no')}
                               </button>
                             </div>
                           ) : (
@@ -1020,7 +1025,7 @@ export function KnowledgeBasePage() {
                         <div className="flex items-center gap-2 mt-1">
                           {doc.document_type && (
                             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                              {DOC_TYPE_LABELS[doc.document_type] || doc.document_type}
+                              {t('kb.docTypes.' + doc.document_type) || doc.document_type}
                             </span>
                           )}
                           <StatusBadge status={doc.status} />
@@ -1045,14 +1050,14 @@ export function KnowledgeBasePage() {
                             onClick={() => handleDelete(doc.id)}
                             className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
                           >
-                            Да
+                            {t('kb.yes')}
                           </button>
                           <button
                             type="button"
                             onClick={() => setDeleteConfirmId(null)}
                             className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
                           >
-                            Нет
+                            {t('kb.no')}
                           </button>
                         </div>
                       ) : (
@@ -1079,10 +1084,10 @@ export function KnowledgeBasePage() {
               <div className="text-center py-16 px-4">
                 <IconDocument className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg font-medium">
-                  Документы ещё не загружены
+                  {t('kb.emptyTitle')}
                 </p>
                 <p className="text-gray-400 text-sm mt-1">
-                  Загрузите файлы для создания базы знаний
+                  {t('kb.emptyDesc')}
                 </p>
               </div>
             )}
@@ -1102,14 +1107,7 @@ export function KnowledgeBasePage() {
                   onClick={handleLoadMore}
                   className="w-full py-2.5 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
                 >
-                  Показать ещё ({total - documents.length}{' '}
-                  {pluralize(
-                    total - documents.length,
-                    'документ',
-                    'документа',
-                    'документов',
-                  )}
-                  )
+                  {t('kb.showMore', { count: total - documents.length })}
                 </button>
               </div>
             )}
@@ -1118,8 +1116,7 @@ export function KnowledgeBasePage() {
             {documents.length > 0 && (
               <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
                 <p className="text-xs text-gray-500">
-                  Показано {documents.length} из {total}{' '}
-                  {pluralize(total, 'документа', 'документов', 'документов')}
+                  {t('kb.shown', { shown: documents.length, total })}
                 </p>
               </div>
             )}

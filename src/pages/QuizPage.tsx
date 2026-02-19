@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { learningApi } from '../api/learning';
 import { toast } from '../stores/toastStore';
+import { useT } from '../stores/langStore';
 
 // ===========================================
 // ИНТЕРФЕЙСЫ
@@ -38,6 +39,7 @@ export function QuizPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const t = useT();
 
   // Данные квиза из router state
   const quizItem = (location.state as { quiz?: QuizItem })?.quiz;
@@ -89,10 +91,10 @@ export function QuizPage() {
           time_spent_seconds: Math.round((Date.now() - startTime) / 1000),
         });
         if (resp.data.level_up) {
-          toast.success(`Уровень повышен: ${resp.data.level_up.from} → ${resp.data.level_up.to}`);
+          toast.success(t('quiz.levelUp', { from: resp.data.level_up.from, to: resp.data.level_up.to }));
         }
       } catch {
-        toast.error('Не удалось сохранить результат теста на сервере');
+        toast.error(t('quiz.saveError'));
       }
     }
   }, [answers, questions, quizItem, courseId, passingScore, startTime]);
@@ -108,11 +110,6 @@ export function QuizPage() {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  const difficultyLabels: Record<string, string> = {
-    beginner: 'Начальный',
-    intermediate: 'Средний',
-    advanced: 'Продвинутый',
-  };
 
   // Если нет данных квиза
   if (!quizItem || questions.length === 0) {
@@ -120,10 +117,10 @@ export function QuizPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
           <div className="text-6xl mb-4">❓</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Тест не найден</h2>
-          <p className="text-gray-500 mb-6">Данные теста не загружены. Вернитесь к курсу и попробуйте снова.</p>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">{t('quiz.notFound')}</h2>
+          <p className="text-gray-500 mb-6">{t('quiz.notFoundDesc')}</p>
           <Link to="/learning" className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition">
-            📚 К курсам
+            📚 {t('quiz.toCourses')}
           </Link>
         </div>
       </div>
@@ -151,7 +148,7 @@ export function QuizPage() {
               </span>
             )}
             <span className="text-white/80 text-sm hidden sm:inline">{user?.full_name}</span>
-            <button onClick={handleLogout} className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">Выйти</button>
+            <button onClick={handleLogout} className="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-lg text-sm transition">{t('quiz.logout')}</button>
           </div>
         </div>
       </header>
@@ -164,11 +161,11 @@ export function QuizPage() {
             <h2 className="text-2xl font-bold text-gray-800 mb-2">{quizItem.title}</h2>
             <div className="flex flex-wrap justify-center gap-2 my-4">
               <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
-                📋 {questions.length} вопросов
+                📋 {t('quiz.questions', { count: questions.length })}
               </span>
               {quizItem.difficulty && (
                 <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                  📊 {difficultyLabels[quizItem.difficulty] || quizItem.difficulty}
+                  📊 {t('quiz.difficulty.' + quizItem.difficulty) || quizItem.difficulty}
                 </span>
               )}
               {timeLimit && (
@@ -177,14 +174,14 @@ export function QuizPage() {
                 </span>
               )}
               <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
-                ✅ Проходной: {passingScore}%
+                ✅ {t('quiz.passing', { score: passingScore })}
               </span>
             </div>
             <button
               onClick={() => { setStage('quiz'); setTimeLeft(timeLimit ? timeLimit * 60 : 0); }}
               className="mt-6 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-bold text-lg hover:from-indigo-700 hover:to-purple-700 shadow-lg transition"
             >
-              Начать тест 🚀
+              {t('quiz.startTest')} 🚀
             </button>
           </div>
         )}
@@ -195,8 +192,8 @@ export function QuizPage() {
             {/* Прогресс */}
             <div className="mb-6">
               <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Вопрос {currentQ + 1} из {questions.length}</span>
-                <span>{Object.keys(answers).length} из {questions.length} отвечено</span>
+                <span>{t('quiz.questionOf', { current: currentQ + 1, total: questions.length })}</span>
+                <span>{t('quiz.answeredOf', { answered: Object.keys(answers).length, total: questions.length })}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
@@ -244,7 +241,7 @@ export function QuizPage() {
                 disabled={currentQ === 0}
                 className="flex-1 py-3 bg-white border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
               >
-                ← Предыдущий
+                ← {t('quiz.prev')}
               </button>
               {currentQ < questions.length - 1 ? (
                 <button
@@ -252,14 +249,14 @@ export function QuizPage() {
                   disabled={!answers[currentQ]}
                   className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
                 >
-                  Следующий →
+                  {t('quiz.next')} →
                 </button>
               ) : (
                 <button
                   onClick={finishQuiz}
                   className="flex-1 py-3 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition"
                 >
-                  ✅ Завершить тест
+                  ✅ {t('quiz.finishTest')}
                 </button>
               )}
             </div>
@@ -306,22 +303,22 @@ export function QuizPage() {
               </div>
 
               <h2 className={`text-2xl font-bold ${score >= passingScore ? 'text-green-600' : 'text-red-600'}`}>
-                {score >= passingScore ? '🎉 Тест пройден!' : '📖 Не пройден'}
+                {score >= passingScore ? '🎉 ' + t('quiz.passed') : '📖 ' + t('quiz.notPassed')}
               </h2>
 
               <p className="text-gray-600 mt-2">
-                Вы набрали: {questions.filter((q, i) => answers[i] === q.correct_answer).length} из {questions.length}
+                {t('quiz.youScored', { correct: questions.filter((q, i) => answers[i] === q.correct_answer).length, total: questions.length })}
                 {' '}({score}%)
               </p>
 
               <p className="text-gray-400 text-sm mt-1">
-                Время: {formatTime(Math.round((Date.now() - startTime) / 1000))}
+                {t('quiz.timeTaken')}: {formatTime(Math.round((Date.now() - startTime) / 1000))}
               </p>
             </div>
 
             {/* Разбор ответов */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">📋 Разбор ответов</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-4">📋 {t('quiz.reviewTitle')}</h3>
               <div className="space-y-4">
                 {questions.map((q, i) => {
                   const isCorrect = answers[i] === q.correct_answer;
@@ -332,14 +329,14 @@ export function QuizPage() {
                         <div className="flex-1">
                           <p className="font-medium text-gray-800">{i + 1}. {q.question}</p>
                           <p className="text-sm mt-1">
-                            <span className="text-gray-500">Ваш ответ: </span>
+                            <span className="text-gray-500">{t('quiz.yourAnswer')} </span>
                             <span className={isCorrect ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
-                              {answers[i] || 'Нет ответа'}
+                              {answers[i] || t('quiz.noAnswer')}
                             </span>
                             {!isCorrect && (
                               <>
                                 <span className="text-gray-400 mx-2">|</span>
-                                <span className="text-green-700 font-medium">Правильно: {q.correct_answer}</span>
+                                <span className="text-green-700 font-medium">{t('quiz.correctAnswer', { answer: q.correct_answer })}</span>
                               </>
                             )}
                           </p>
@@ -367,13 +364,13 @@ export function QuizPage() {
                 }}
                 className="flex-1 py-3 bg-white border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition"
               >
-                🔄 Пройти заново
+                🔄 {t('quiz.retake')}
               </button>
               <Link
                 to="/learning"
                 className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold text-center hover:bg-indigo-700 transition"
               >
-                📚 Вернуться к курсу
+                📚 {t('quiz.backToCourse')}
               </Link>
             </div>
           </div>

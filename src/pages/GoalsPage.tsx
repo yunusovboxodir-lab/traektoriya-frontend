@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGoalsStore } from '../stores/goalsStore';
+import { useT } from '../stores/langStore';
 import type { Goal, UserAchievement, AchievementCatalogItem } from '../api/goals';
 
 // ───────────────────────────────────────
@@ -13,12 +14,6 @@ const TIER_COLORS: Record<string, { bg: string; text: string; ring: string }> = 
   platinum: { bg: 'bg-indigo-100', text: 'text-indigo-700', ring: 'ring-indigo-400' },
 };
 
-const GOAL_TYPE_LABELS: Record<string, string> = {
-  learning: 'Обучение',
-  shelf_quality: 'Полка',
-  kpi: 'KPI',
-  custom: 'Другое',
-};
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   active: { bg: 'bg-blue-100', text: 'text-blue-700' },
@@ -37,6 +32,7 @@ function formatDeadline(iso: string | null): string {
 // ───────────────────────────────────────
 
 function GoalCard({ goal }: { goal: Goal }) {
+  const t = useT();
   const sc = STATUS_COLORS[goal.status] || STATUS_COLORS.active;
   const pct = Math.min(goal.percentage, 100);
 
@@ -51,13 +47,13 @@ function GoalCard({ goal }: { goal: Goal }) {
           )}
         </div>
         <span className={`flex-shrink-0 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
-          {goal.status === 'active' ? 'Активна' : goal.status === 'completed' ? 'Выполнена' : goal.status === 'failed' ? 'Не выполнена' : 'Пауза'}
+          {t('goals.goalStatus.' + goal.status)}
         </span>
       </div>
 
       {/* Type + Deadline */}
       <div className="flex items-center gap-2 text-xs text-gray-400 mb-3">
-        <span className="bg-gray-100 px-2 py-0.5 rounded">{GOAL_TYPE_LABELS[goal.type] || goal.type}</span>
+        <span className="bg-gray-100 px-2 py-0.5 rounded">{t('goals.goalType.' + goal.type) || goal.type}</span>
         {goal.deadline && (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -92,6 +88,7 @@ function GoalCard({ goal }: { goal: Goal }) {
 // ───────────────────────────────────────
 
 function AchievementBadge({ item, earned }: { item: AchievementCatalogItem | UserAchievement; earned: boolean }) {
+  const t = useT();
   const tc = TIER_COLORS[item.tier] || TIER_COLORS.bronze;
 
   return (
@@ -109,7 +106,7 @@ function AchievementBadge({ item, earned }: { item: AchievementCatalogItem | Use
       <span className={`mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${
         earned ? `${tc.bg} ${tc.text}` : 'bg-gray-100 text-gray-400'
       }`}>
-        {item.points} очк.
+        {item.points} {t('goals.pts')}
       </span>
     </div>
   );
@@ -122,6 +119,7 @@ function AchievementBadge({ item, earned }: { item: AchievementCatalogItem | Use
 type Tab = 'all' | 'active' | 'completed';
 
 export function GoalsPage() {
+  const t = useT();
   const { goals, achievements, catalog, totalPoints, loading, fetchGoals, fetchAchievements, fetchCatalog } =
     useGoalsStore();
 
@@ -160,22 +158,22 @@ export function GoalsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Цели и достижения</h1>
-          <p className="text-sm text-gray-500 mt-1">Отслеживайте прогресс и зарабатывайте награды</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('goals.title')}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t('goals.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl">
             <span className="text-xl">🏆</span>
             <div>
               <p className="text-lg font-bold text-amber-700">{totalPoints}</p>
-              <p className="text-[10px] text-amber-600 leading-tight">очков</p>
+              <p className="text-[10px] text-amber-600 leading-tight">{t('goals.points')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
             <span className="text-xl">🎖️</span>
             <div>
               <p className="text-lg font-bold text-blue-700">{achievements.length}</p>
-              <p className="text-[10px] text-blue-600 leading-tight">достижений</p>
+              <p className="text-[10px] text-blue-600 leading-tight">{t('goals.achievements')}</p>
             </div>
           </div>
         </div>
@@ -183,10 +181,10 @@ export function GoalsPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">
-        {([['all', 'Все'], ['active', 'Активные'], ['completed', 'Завершённые']] as const).map(([key, label]) => (
+        {([['all', t('goals.tabs.all')], ['active', t('goals.tabs.active')], ['completed', t('goals.tabs.completed')]] as [string, string][]).map(([key, label]) => (
           <button
             key={key}
-            onClick={() => setTab(key)}
+            onClick={() => setTab(key as Tab)}
             className={`px-3 sm:px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               tab === key ? 'bg-white shadow text-blue-600' : 'text-gray-600 hover:text-gray-900'
             }`}
@@ -199,14 +197,14 @@ export function GoalsPage() {
       {/* Goals Grid */}
       <div>
         <h2 className="text-base font-semibold text-gray-800 mb-3">
-          Цели {tab === 'active' ? '(активные)' : tab === 'completed' ? '(завершённые)' : ''}
+          {t('goals.goalsTitle')} {tab === 'active' ? t('goals.goalsActive') : tab === 'completed' ? t('goals.goalsCompleted') : ''}
         </h2>
         {filteredGoals.length === 0 ? (
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
             <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
             </svg>
-            <p className="text-gray-400 text-sm">Нет целей в этой категории</p>
+            <p className="text-gray-400 text-sm">{t('goals.noGoals')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -220,7 +218,7 @@ export function GoalsPage() {
       {/* My Achievements */}
       {achievements.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-gray-800 mb-3">Мои достижения</h2>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">{t('goals.myAchievements')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {achievements.map((a) => (
               <AchievementBadge key={a.id} item={a} earned />
@@ -232,7 +230,7 @@ export function GoalsPage() {
       {/* Catalog */}
       {catalog.length > 0 && (
         <div>
-          <h2 className="text-base font-semibold text-gray-800 mb-3">Каталог достижений</h2>
+          <h2 className="text-base font-semibold text-gray-800 mb-3">{t('goals.catalog')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {catalog.map((item) => (
               <AchievementBadge key={item.id} item={item} earned={earnedCodes.has(item.code)} />
