@@ -170,7 +170,12 @@
     },
     "detail": {
       "registration": "Ro'yxatdan o'tish",
-      "lastLogin": "Oxirgi kirish"
+      "lastLogin": "Oxirgi kirish",
+      "activeTime": "Platformada",
+      "noActivity": "Ma'lumot yo'q",
+      "hours": "{h} soat",
+      "mins": "{m} daq",
+      "hoursAndMins": "{h} soat {m} daq"
     },
     "empty": "Xodimlar topilmadi",
     "emptyHint": "So'rovni o'zgartirib ko'ring",

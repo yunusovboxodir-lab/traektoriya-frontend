@@ -170,7 +170,12 @@
     },
     "detail": {
       "registration": "Регистрация",
-      "lastLogin": "Последний вход"
+      "lastLogin": "Последний вход",
+      "activeTime": "На платформе",
+      "noActivity": "Нет данных",
+      "hours": "{h} ч",
+      "mins": "{m} мин",
+      "hoursAndMins": "{h} ч {m} мин"
     },
     "empty": "Сотрудники не найдены",
     "emptyHint": "Попробуйте изменить запрос",

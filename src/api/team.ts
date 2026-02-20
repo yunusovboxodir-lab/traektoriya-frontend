@@ -13,6 +13,7 @@ export interface TeamMember {
   tenant_id: string;
   created_at: string;
   last_login: string | null;
+  total_active_minutes: number;
 }
 
 // --- Team Learning Analytics ---

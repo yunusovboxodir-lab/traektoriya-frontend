@@ -60,6 +60,16 @@ export function TeamPage() {
     return new Date(dateStr).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU');
   }, [t, lang]);
 
+  /** Format total active minutes into human-readable duration */
+  const formatActiveTime = useCallback((totalMins: number): string => {
+    if (!totalMins || totalMins <= 0) return t('team.detail.noActivity');
+    const hours = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+    if (hours > 0 && mins > 0) return t('team.detail.hoursAndMins', { h: hours, m: mins });
+    if (hours > 0) return t('team.detail.hours', { h: hours });
+    return t('team.detail.mins', { m: mins });
+  }, [t]);
+
   useEffect(() => {
     loadMembers();
   }, []);
@@ -290,7 +300,7 @@ export function TeamPage() {
                   {/* Expanded detail */}
                   {isExpanded && (
                     <div className="px-4 pb-4 border-t border-gray-100">
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                         <div className="text-center p-3 bg-gray-50 rounded-xl">
                           <div className="text-sm font-bold text-gray-700 truncate">{m.email || '\u2014'}</div>
                           <div className="text-xs text-gray-500">Email</div>
@@ -302,6 +312,10 @@ export function TeamPage() {
                         <div className="text-center p-3 bg-emerald-50 rounded-xl">
                           <div className="text-sm font-bold text-emerald-700">{relativeTime(m.last_login)}</div>
                           <div className="text-xs text-emerald-500">{t('team.detail.lastLogin')}</div>
+                        </div>
+                        <div className="text-center p-3 bg-amber-50 rounded-xl">
+                          <div className="text-sm font-bold text-amber-700">{formatActiveTime(m.total_active_minutes)}</div>
+                          <div className="text-xs text-amber-500">{t('team.detail.activeTime')}</div>
                         </div>
                       </div>
                     </div>
