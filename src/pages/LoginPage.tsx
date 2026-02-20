@@ -18,12 +18,6 @@ export function LoginPage() {
   const navigate = useNavigate();
   const t = useT();
 
-  const demoCredentials = [
-    { id: 'admin', password: 'admin123', roleKey: 'roles.superadmin' as const, color: 'bg-red-100 text-red-700' },
-    { id: 'supervisor1', password: 'supervisor123', roleKey: 'roles.supervisor' as const, color: 'bg-amber-100 text-amber-700' },
-    { id: 'seller1', password: 'seller123', roleKey: 'roles.sales_rep' as const, color: 'bg-green-100 text-green-700' },
-  ];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -38,12 +32,6 @@ export function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillCredentials = (id: string, pw: string) => {
-    setEmployeeId(id);
-    setPassword(pw);
-    setError('');
   };
 
   return (
@@ -194,37 +182,6 @@ export function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* ===== DEMO CREDENTIALS ===== */}
-          <div className="mt-8">
-            <div className="relative mb-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center">
-                <span className="bg-white px-3 text-xs text-gray-400">{t('login.demoAccess')}</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {demoCredentials.map((cred) => (
-                <button
-                  key={cred.id}
-                  type="button"
-                  onClick={() => fillCredentials(cred.id, cred.password)}
-                  className="group rounded-lg border border-gray-200 bg-gray-50 p-2.5 text-left transition hover:border-blue-300 hover:bg-blue-50/50"
-                >
-                  <span className={'inline-block rounded px-1.5 py-0.5 text-[10px] font-semibold leading-tight ' + cred.color}>
-                    {t(cred.roleKey)}
-                  </span>
-                  <p className="mt-1.5 text-xs font-medium text-gray-700 group-hover:text-blue-700">
-                    {cred.id}
-                  </p>
-                  <p className="text-[11px] text-gray-400">{cred.password}</p>
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* ===== FOOTER ===== */}
           <p className="mt-10 text-center text-xs text-gray-400">

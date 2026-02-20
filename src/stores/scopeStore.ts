@@ -39,8 +39,8 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
       const response = await roleScopesApi.getMyScopes();
       set({ allowedPages: response.data.allowed_pages, isLoaded: true });
     } catch {
-      // If fetch fails, allow all pages (backwards compatible)
-      set({ allowedPages: null, isLoaded: true });
+      // If fetch fails, allow only dashboard (safe fallback)
+      set({ allowedPages: ['dashboard'], isLoaded: true });
     }
   },
 

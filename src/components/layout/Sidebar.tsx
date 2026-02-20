@@ -252,7 +252,7 @@ function IconScissors() {
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
   commercial_dir: 4,
-  regional_manager: 4,
+  regional_manager: 2,
   admin: 3,
   supervisor: 2,
   sales_rep: 1,
