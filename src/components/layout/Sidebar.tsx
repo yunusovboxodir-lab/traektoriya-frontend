@@ -265,6 +265,7 @@ const ROLE_HIERARCHY: Record<string, number> = {
 // Label keys map to i18n: nav.dashboard, nav.learning, etc.
 const NAV_ITEMS_DEF = [
   { labelKey: 'nav.dashboard', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
+  { labelKey: 'nav.rating', path: '/rating', icon: <IconTrophy />, pageKey: 'kpi' },
   { labelKey: 'nav.learning', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
   { labelKey: 'nav.products', path: '/products', icon: <IconBox />, pageKey: 'products' },
   { labelKey: 'nav.tasks', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },
@@ -272,8 +273,7 @@ const NAV_ITEMS_DEF = [
   { labelKey: 'nav.assessments', path: '/assessments', icon: <IconCheckSquare />, pageKey: 'assessments' },
   { labelKey: 'nav.generation', path: '/generation', icon: <IconAI />, pageKey: 'generation' },
   { labelKey: 'nav.knowledgeBase', path: '/knowledge-base', icon: <IconDatabase />, pageKey: 'knowledge-base' },
-  { labelKey: 'nav.goals', path: '/goals', icon: <IconTrophy />, pageKey: 'goals' },
-  { labelKey: 'nav.kpi', path: '/kpi', icon: <IconTarget />, pageKey: 'kpi' },
+  { labelKey: 'nav.goals', path: '/goals', icon: <IconTarget />, pageKey: 'goals' },
   { labelKey: 'nav.chat', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
   { labelKey: 'nav.planogram', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
   { labelKey: 'nav.analytics', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },

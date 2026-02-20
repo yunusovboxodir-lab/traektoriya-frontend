@@ -12,6 +12,7 @@
     "kpi": "KPI",
     "chat": "AI Chat",
     "planogram": "Planogramma",
+    "rating": "Reyting",
     "analytics": "Tahlil",
     "adminRoles": "Rollar boshqaruvi",
     "reports": "Hisobotlar",
@@ -296,16 +297,17 @@
     }
   },
   "kpi": {
-    "title": "KPI va Reyting",
-    "recalculate": "KPI ni qayta hisoblash",
+    "title": "Reyting",
+    "subtitle": "Xodimlarning jonli reytingi KPI bo'yicha — real vaqtda yangilanadi",
+    "recalculate": "Qayta hisoblash",
     "totalKpi": "Umumiy KPI",
     "aiProducts": "AI / Mahsulotlar (40%)",
     "lmsLearning": "LMS / O'qitish (30%)",
     "crmTasks": "CRM / Vazifalar (30%)",
     "tabs": {
-      "my": "Mening KPI",
       "leaderboard": "Liderlar",
-      "teams": "Jamoalar reytingi"
+      "my": "Mening KPI",
+      "teams": "Jamoalar"
     },
     "detail": {
       "title": "KPI tafsilotlari",
@@ -317,7 +319,10 @@
     },
     "leaderboard": {
       "employee": "Xodim",
-      "noData": "Joriy davr uchun ma'lumot yo'q"
+      "noData": "Joriy davr uchun ma'lumot yo'q",
+      "yourPosition": "Sizning o'rningiz",
+      "liveUpdate": "Real vaqtda yangilanadi",
+      "place": "o'rin"
     },
     "teamRatings": {
       "team": "Jamoa",
@@ -328,7 +333,22 @@
       "formula": "Formula: (Rahbar KPI + Xodimlar KPI yig'indisi) / (soni + 1)",
       "noData": "Joriy davr uchun ma'lumot yo'q"
     },
-    "loadError": "KPI ma'lumotlarini yuklash imkoni bo'lmadi",
+    "guide": {
+      "title": "Reyting qanday shakllanadi",
+      "description": "Reyting 3 ta KPI komponentiga asoslanadi. Har bir komponent avtomatik yangilanadi.",
+      "aiTitle": "AI / Mahsulot testlari (40%)",
+      "aiDesc": "N'Medov mahsulotlari bo'yicha AI-testlarni topshirish ballari. Har bir test XPV, tarkib va saqlash shartlarini tekshiradi.",
+      "aiSource": "Manba: Mahsulotlar → Test",
+      "lmsTitle": "LMS / O'qitish (30%)",
+      "lmsDesc": "O'quv kurslarini o'tish jarayoni: o'tilgan darslar, testlar va o'rtacha ball.",
+      "lmsSource": "Manba: O'qitish → kurslar jarayoni",
+      "crmTitle": "CRM / Vazifalar (30%)",
+      "crmDesc": "Vazifalarni bajarish: tashriflar, fotohisobotlar, merchandayzing. Faqat tugallangan vazifalar hisobga olinadi.",
+      "crmSource": "Manba: Vazifalar → bajarilgan",
+      "formulaTitle": "Yakuniy KPI formulasi",
+      "formulaText": "KPI = AI × 0.4 + LMS × 0.3 + CRM × 0.3"
+    },
+    "loadError": "Reyting ma'lumotlarini yuklash imkoni bo'lmadi",
     "tryAgain": "Qayta urinish"
   },
   "chat": {

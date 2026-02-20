@@ -209,15 +209,17 @@ function AppRoutes() {
         }
       />
 
-      {/* KPI и Рейтинг */}
+      {/* Рейтинг (formerly KPI) */}
       <Route
-        path="/kpi"
+        path="/rating"
         element={
           <ProtectedRoute pageKey="kpi">
             <KPIPage />
           </ProtectedRoute>
         }
       />
+      {/* Legacy /kpi redirect */}
+      <Route path="/kpi" element={<Navigate to="/rating" replace />} />
 
       {/* AI-Консультант */}
       <Route
