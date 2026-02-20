@@ -14,6 +14,7 @@
     "planogram": "Planogramma",
     "analytics": "Tahlil",
     "adminRoles": "Rollar boshqaruvi",
+    "reports": "Hisobotlar",
     "collapse": "Yig'ish",
     "expand": "Yoyish",
     "logout": "Chiqish"
@@ -603,6 +604,30 @@
     "loadError": "Sozlamalarni yuklash xatosi",
     "saveError": "Saqlash xatosi",
     "note": "Superadmin har doim barcha bo'limlarga to'liq kirish huquqiga ega. O'zgarishlar saqlash va foydalanuvchi sahifani qayta yuklagandan keyin kuchga kiradi. Agar rol uchun sozlamalar o'rnatilmagan bo'lsa, barcha bo'limlar sukut bo'yicha mavjud."
+  },
+  "reports": {
+    "title": "Hisobotlar",
+    "subtitle": "RM dan skrinshotlar va qayta aloqa",
+    "status": "Holat",
+    "statusNew": "Yangi",
+    "statusReviewed": "Ko'rib chiqilgan",
+    "statusResolved": "Hal qilingan",
+    "all": "Barchasi",
+    "noReports": "Hisobotlar hali yo'q",
+    "date": "Sana",
+    "author": "Muallif",
+    "screenshot": "Skrinshot",
+    "comment": "Izoh",
+    "context": "Kontekst",
+    "currentData": "Joriy ma'lumotlar",
+    "atMoment": "Hisobot paytida",
+    "noScreenshot": "Skrinshot mavjud emas",
+    "noContext": "Kontekst ko'rsatilmagan",
+    "adminComment": "Admin izohi",
+    "adminCommentPlaceholder": "Javob yozing...",
+    "markReviewed": "Ko'rib chiqildi",
+    "markResolved": "Hal qilindi",
+    "saveComment": "Izohni saqlash"
   },
   "common": {
     "retry": "Qayta urinish",

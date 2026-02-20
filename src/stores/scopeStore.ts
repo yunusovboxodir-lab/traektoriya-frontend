@@ -16,6 +16,7 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   planogram: '/planogram',
   analytics: '/analytics',
   goals: '/goals',
+  reports: '/reports',
   'admin-roles': '/admin/roles',
 };
 
