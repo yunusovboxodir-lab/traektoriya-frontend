@@ -145,6 +145,43 @@
       "yesterday": "вчера",
       "daysAgo": "{n} дн назад",
       "weeksAgo": "{n} нед назад"
+    },
+    "tabs": {
+      "members": "Сотрудники",
+      "learning": "Обучение"
+    },
+    "learning": {
+      "avgCompletion": "Среднее прохождение",
+      "avgScore": "Средний балл",
+      "activeThisWeek": "Активны за неделю",
+      "needAttention": "Требуют внимания",
+      "levelDistribution": "Распределение по уровням",
+      "memberProgress": "Прогресс сотрудников",
+      "sortBy": "Сортировать",
+      "sortCompletion": "По прохождению",
+      "sortScore": "По баллу",
+      "sortActivity": "По активности",
+      "noActivity": "Нет активности",
+      "daysAgo": "{n} дн назад",
+      "today": "Сегодня",
+      "completed": "Пройдено",
+      "score": "Балл",
+      "streak": "Серия",
+      "days": "дн",
+      "loadError": "Не удалось загрузить данные обучения",
+      "noData": "Данные обучения пока недоступны",
+      "levels": {
+        "trainee": "Стажёр",
+        "practitioner": "Практик",
+        "expert": "Эксперт",
+        "master": "Мастер"
+      },
+      "attention": {
+        "no_training": "Нет обучения >7 дней",
+        "low_score": "Балл ниже 70%",
+        "low_completion": "Низкое прохождение",
+        "low_lms": "Низкий LMS KPI"
+      }
     }
   },
   "products": {

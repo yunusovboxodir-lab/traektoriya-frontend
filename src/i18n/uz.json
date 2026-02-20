@@ -145,6 +145,43 @@
       "yesterday": "kecha",
       "daysAgo": "{n} kun oldin",
       "weeksAgo": "{n} hafta oldin"
+    },
+    "tabs": {
+      "members": "Xodimlar",
+      "learning": "O'qitish"
+    },
+    "learning": {
+      "avgCompletion": "O'rtacha o'tish",
+      "avgScore": "O'rtacha ball",
+      "activeThisWeek": "Hafta davomida faol",
+      "needAttention": "E'tibor kerak",
+      "levelDistribution": "Daraja bo'yicha taqsimot",
+      "memberProgress": "Xodimlar progressi",
+      "sortBy": "Saralash",
+      "sortCompletion": "O'tish bo'yicha",
+      "sortScore": "Ball bo'yicha",
+      "sortActivity": "Faollik bo'yicha",
+      "noActivity": "Faollik yo'q",
+      "daysAgo": "{n} kun oldin",
+      "today": "Bugun",
+      "completed": "O'tildi",
+      "score": "Ball",
+      "streak": "Ketma-ket",
+      "days": "kun",
+      "loadError": "O'qitish ma'lumotlarini yuklash imkoni bo'lmadi",
+      "noData": "O'qitish ma'lumotlari hali mavjud emas",
+      "levels": {
+        "trainee": "Stajer",
+        "practitioner": "Praktik",
+        "expert": "Ekspert",
+        "master": "Master"
+      },
+      "attention": {
+        "no_training": "7+ kun o'qitmagan",
+        "low_score": "Ball 70% dan past",
+        "low_completion": "Kam o'tgan",
+        "low_lms": "Past LMS KPI"
+      }
     }
   },
   "products": {

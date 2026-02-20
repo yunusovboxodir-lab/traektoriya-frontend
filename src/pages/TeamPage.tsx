@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { teamApi, type TeamMember } from '../api/team';
 import { useT, useLangStore } from '../stores/langStore';
+import { useAuthStore } from '../stores/authStore';
+import { TeamLearningTab } from '../components/team/TeamLearningTab';
+
+const SUPERVISOR_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
 const ROLE_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
   superadmin: { bg: 'bg-purple-50', text: 'text-purple-700', labelKey: 'roles.superadmin' },
@@ -27,7 +31,10 @@ const AVATAR_COLORS = [
 export function TeamPage() {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
+  const userRole = useAuthStore((s) => s.user?.role || 'sales_rep');
+  const showLearningTab = SUPERVISOR_ROLES.includes(userRole);
 
+  const [activeTab, setActiveTab] = useState<'members' | 'learning'>('members');
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -90,6 +97,37 @@ export function TeamPage() {
         <p className="text-sm text-gray-500 mt-1">{t('team.subtitle')}</p>
       </div>
 
+      {/* Tabs (only for supervisor+ roles) */}
+      {showLearningTab && (
+        <div className="flex gap-1 mb-6 bg-gray-100 rounded-xl p-1 w-fit">
+          <button
+            onClick={() => setActiveTab('members')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'members'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t('team.tabs.members')}
+          </button>
+          <button
+            onClick={() => setActiveTab('learning')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'learning'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t('team.tabs.learning')}
+          </button>
+        </div>
+      )}
+
+      {/* Learning tab content */}
+      {activeTab === 'learning' && showLearningTab ? (
+        <TeamLearningTab />
+      ) : (
+      <>
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
@@ -279,6 +317,8 @@ export function TeamPage() {
             </p>
           )}
         </div>
+      )}
+      </>
       )}
     </div>
   );
