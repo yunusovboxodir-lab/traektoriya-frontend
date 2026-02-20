@@ -129,12 +129,20 @@
       "submit": "Vazifa yaratish"
     },
     "generate": {
-      "button": "📚 Ta'lim berish",
-      "generating": "Yaratilmoqda...",
-      "tooltip": "O'tilmagan kurslar bo'yicha avtomatik vazifalar yaratish",
-      "success": "✅ {users} xodim uchun {count} ta vazifa yaratildi",
-      "noNew": "Joriy darajadagi barcha kurslar tayinlangan yoki o'tilgan",
+      "learning": "📚 O'quv",
+      "practical": "🔧 Amaliy",
+      "tooltipLearning": "O'tilmagan kurslar bo'yicha o'quv vazifalar yaratish",
+      "tooltipPractical": "Amaliy vazifalar yaratish (tashriflar, merchandayzing)",
+      "successLearning": "✅ {users} xodim uchun {count} ta o'quv vazifa yaratildi",
+      "successPractical": "✅ {users} xodim uchun {count} ta amaliy vazifa yaratildi",
+      "noNewLearning": "Joriy darajadagi barcha kurslar tayinlangan yoki o'tilgan",
+      "noNewPractical": "Bugungi amaliy vazifalar allaqachon tayinlangan",
       "error": "❌ Vazifalarni yaratish imkoni bo'lmadi"
+    },
+    "norm": {
+      "allMet": "✅ Norma bajarildi",
+      "notMet": "⚠️ Vazifalar tayinlang",
+      "description": "Vazifalar tayinlangan: {total} dan {met}"
     },
     "errors": {
       "loadFailed": "Vazifalarni yuklash imkoni bo'lmadi",

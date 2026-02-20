@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { tasksApi, type Task, type KanbanBoard, type TaskStats } from '../api/tasks';
+import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormResponse } from '../api/tasks';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 
@@ -143,20 +143,29 @@ export function TasksPage() {
   const [newPriority, setNewPriority] = useState('medium');
   const [creating, setCreating] = useState(false);
 
-  // Generate learning tasks
-  const [generating, setGenerating] = useState(false);
+  // Generate tasks
+  const [generating, setGenerating] = useState<'learning' | 'practical' | null>(null);
   const [genResult, setGenResult] = useState<string | null>(null);
+
+  // Daily norm
+  const [norm, setNorm] = useState<DailyNormResponse | null>(null);
 
   const loadData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [kanbanRes, statsRes] = await Promise.all([
+      const promises: Promise<unknown>[] = [
         tasksApi.getKanban(undefined, scope),
         tasksApi.getStats(scope),
-      ]);
-      setBoard(kanbanRes.data);
-      setStats(statsRes.data);
+      ];
+      if (isManager) promises.push(tasksApi.getDailyNorm());
+
+      const results = await Promise.all(promises);
+      setBoard((results[0] as { data: KanbanBoard }).data);
+      setStats((results[1] as { data: TaskStats }).data);
+      if (isManager && results[2]) {
+        setNorm((results[2] as { data: DailyNormResponse }).data);
+      }
     } catch {
       setError(t('tasks.errors.loadFailed'));
       setBoard({ todo: [], in_progress: [], review: [], done: [] });
@@ -179,23 +188,27 @@ export function TasksPage() {
     }
   };
 
-  const handleGenerateLearning = async () => {
-    setGenerating(true);
+  const handleGenerate = async (type: 'learning' | 'practical') => {
+    setGenerating(type);
     setGenResult(null);
     try {
-      const genScope = isManager ? 'my_team' : 'my';
-      const res = await tasksApi.generateLearning({ scope: genScope, due_days: 7, max_per_user: 3 });
+      const res = type === 'learning'
+        ? await tasksApi.generateLearning({ scope: isManager ? 'my_team' : 'my', due_days: 7, max_per_user: 3 })
+        : await tasksApi.generatePractical({ due_days: 1, max_per_user: 1 });
       const data = res.data;
       if (data.total_created > 0) {
-        setGenResult(t('tasks.generate.success', { count: data.total_created, users: data.users_with_tasks }));
+        setGenResult(t(
+          type === 'learning' ? 'tasks.generate.successLearning' : 'tasks.generate.successPractical',
+          { count: data.total_created, users: data.users_with_tasks }
+        ));
         await loadData();
       } else {
-        setGenResult(t('tasks.generate.noNew'));
+        setGenResult(t(type === 'learning' ? 'tasks.generate.noNewLearning' : 'tasks.generate.noNewPractical'));
       }
     } catch {
       setGenResult(t('tasks.generate.error'));
     } finally {
-      setGenerating(false);
+      setGenerating(null);
       setTimeout(() => setGenResult(null), 5000);
     }
   };
@@ -258,23 +271,34 @@ export function TasksPage() {
           </div>
           {/* Generate learning tasks */}
           <button
-            onClick={handleGenerateLearning}
-            disabled={generating}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md text-sm font-medium"
-            title={t('tasks.generate.tooltip')}
+            onClick={() => handleGenerate('learning')}
+            disabled={!!generating}
+            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-xs font-medium"
+            title={t('tasks.generate.tooltipLearning')}
           >
-            {generating ? (
-              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
+            {generating === 'learning' ? (
+              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
             ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
             )}
-            {generating ? t('tasks.generate.generating') : t('tasks.generate.button')}
+            {t('tasks.generate.learning')}
           </button>
+          {/* Generate practical tasks */}
+          {isManager && (
+            <button
+              onClick={() => handleGenerate('practical')}
+              disabled={!!generating}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-3 py-2 rounded-xl hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-xs font-medium"
+              title={t('tasks.generate.tooltipPractical')}
+            >
+              {generating === 'practical' ? (
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" /></svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+              )}
+              {t('tasks.generate.practical')}
+            </button>
+          )}
           <button
             onClick={() => setShowCreate(true)}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
@@ -292,7 +316,7 @@ export function TasksPage() {
         <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 animate-in ${
           genResult.includes('❌') || genResult === t('tasks.generate.error')
             ? 'bg-red-50 text-red-700 border border-red-200'
-            : genResult === t('tasks.generate.noNew')
+            : genResult.includes(t('tasks.generate.noNewLearning')) || genResult.includes(t('tasks.generate.noNewPractical'))
               ? 'bg-amber-50 text-amber-700 border border-amber-200'
               : 'bg-green-50 text-green-700 border border-green-200'
         }`}>
@@ -302,6 +326,36 @@ export function TasksPage() {
               <path d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
+        </div>
+      )}
+
+      {/* Daily norm indicator */}
+      {isManager && norm && norm.is_manager && norm.total_subordinates !== undefined && norm.total_subordinates > 0 && (
+        <div className={`mb-4 px-4 py-3 rounded-xl border flex items-center gap-3 ${
+          norm.all_met
+            ? 'bg-green-50 border-green-200'
+            : 'bg-amber-50 border-amber-200'
+        }`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+            norm.all_met ? 'bg-green-500 text-white' : 'bg-amber-500 text-white'
+          }`}>
+            {norm.norm_met_count}/{norm.norm_total}
+          </div>
+          <div className="flex-1">
+            <div className="text-sm font-medium text-gray-800">
+              {norm.all_met ? t('tasks.norm.allMet') : t('tasks.norm.notMet')}
+            </div>
+            <div className="text-xs text-gray-500">
+              {t('tasks.norm.description', { met: norm.norm_met_count ?? 0, total: norm.norm_total ?? 0 })}
+            </div>
+          </div>
+          {/* Mini progress bar */}
+          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${norm.all_met ? 'bg-green-500' : 'bg-amber-500'}`}
+              style={{ width: `${norm.norm_total ? ((norm.norm_met_count ?? 0) / norm.norm_total) * 100 : 0}%` }}
+            />
+          </div>
         </div>
       )}
 

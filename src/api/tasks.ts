@@ -86,10 +86,20 @@ export const tasksApi = {
     priority?: string;
     max_per_user?: number;
   }) =>
-    api.post<GenerateLearningResponse>('/api/v1/tasks/generate-learning', params || {}),
+    api.post<GenerateTasksResponse>('/api/v1/tasks/generate-learning', params || {}),
+
+  generatePractical: (params?: {
+    due_days?: number;
+    priority?: string;
+    max_per_user?: number;
+  }) =>
+    api.post<GenerateTasksResponse>('/api/v1/tasks/generate-practical', params || {}),
+
+  getDailyNorm: () =>
+    api.get<DailyNormResponse>('/api/v1/tasks/daily-norm'),
 };
 
-export interface GenerateLearningResponse {
+export interface GenerateTasksResponse {
   status: string;
   total_created: number;
   users_processed: number;
@@ -98,8 +108,23 @@ export interface GenerateLearningResponse {
     user_id: string;
     name: string;
     role: string;
-    level: string;
+    level?: string;
     tasks_created: number;
+  }>;
+}
+
+export interface DailyNormResponse {
+  is_manager: boolean;
+  total_subordinates?: number;
+  norm_met_count?: number;
+  norm_total?: number;
+  all_met?: boolean;
+  subordinates: Array<{
+    user_id: string;
+    name: string;
+    role: string;
+    tasks_today: number;
+    norm_met: boolean;
   }>;
 }
 
