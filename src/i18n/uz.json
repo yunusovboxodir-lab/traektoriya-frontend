@@ -128,6 +128,14 @@
       "creating": "Yaratilmoqda...",
       "submit": "Vazifa yaratish"
     },
+    "generate": {
+      "button": "📚 Ta'lim berish",
+      "generating": "Yaratilmoqda...",
+      "tooltip": "O'tilmagan kurslar bo'yicha avtomatik vazifalar yaratish",
+      "success": "✅ {users} xodim uchun {count} ta vazifa yaratildi",
+      "noNew": "Joriy darajadagi barcha kurslar tayinlangan yoki o'tilgan",
+      "error": "❌ Vazifalarni yaratish imkoni bo'lmadi"
+    },
     "errors": {
       "loadFailed": "Vazifalarni yuklash imkoni bo'lmadi",
       "updateFailed": "Vazifa holatini yangilash imkoni bo'lmadi",

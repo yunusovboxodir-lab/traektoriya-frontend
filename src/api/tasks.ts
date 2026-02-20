@@ -79,7 +79,29 @@ export const tasksApi = {
 
   addComment: (taskId: string, content: string) =>
     api.post('/api/v1/tasks/' + taskId + '/comments', { content }),
+
+  generateLearning: (params?: {
+    scope?: 'my' | 'my_team' | 'all';
+    due_days?: number;
+    priority?: string;
+    max_per_user?: number;
+  }) =>
+    api.post<GenerateLearningResponse>('/api/v1/tasks/generate-learning', params || {}),
 };
+
+export interface GenerateLearningResponse {
+  status: string;
+  total_created: number;
+  users_processed: number;
+  users_with_tasks: number;
+  details: Array<{
+    user_id: string;
+    name: string;
+    role: string;
+    level: string;
+    tasks_created: number;
+  }>;
+}
 
 export const dashboardApi = {
   getWidgets: () =>

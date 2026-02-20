@@ -143,6 +143,10 @@ export function TasksPage() {
   const [newPriority, setNewPriority] = useState('medium');
   const [creating, setCreating] = useState(false);
 
+  // Generate learning tasks
+  const [generating, setGenerating] = useState(false);
+  const [genResult, setGenResult] = useState<string | null>(null);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -172,6 +176,27 @@ export function TasksPage() {
       await loadData();
     } catch {
       setError(t('tasks.errors.updateFailed'));
+    }
+  };
+
+  const handleGenerateLearning = async () => {
+    setGenerating(true);
+    setGenResult(null);
+    try {
+      const genScope = isManager ? 'my_team' : 'my';
+      const res = await tasksApi.generateLearning({ scope: genScope, due_days: 7, max_per_user: 3 });
+      const data = res.data;
+      if (data.total_created > 0) {
+        setGenResult(t('tasks.generate.success', { count: data.total_created, users: data.users_with_tasks }));
+        await loadData();
+      } else {
+        setGenResult(t('tasks.generate.noNew'));
+      }
+    } catch {
+      setGenResult(t('tasks.generate.error'));
+    } finally {
+      setGenerating(false);
+      setTimeout(() => setGenResult(null), 5000);
     }
   };
 
@@ -231,6 +256,25 @@ export function TasksPage() {
               </button>
             )}
           </div>
+          {/* Generate learning tasks */}
+          <button
+            onClick={handleGenerateLearning}
+            disabled={generating}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2.5 rounded-xl hover:from-purple-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md text-sm font-medium"
+            title={t('tasks.generate.tooltip')}
+          >
+            {generating ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            )}
+            {generating ? t('tasks.generate.generating') : t('tasks.generate.button')}
+          </button>
           <button
             onClick={() => setShowCreate(true)}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
@@ -242,6 +286,24 @@ export function TasksPage() {
           </button>
         </div>
       </div>
+
+      {/* Generation result toast */}
+      {genResult && (
+        <div className={`mb-4 px-4 py-3 rounded-xl text-sm font-medium flex items-center gap-2 animate-in ${
+          genResult.includes('❌') || genResult === t('tasks.generate.error')
+            ? 'bg-red-50 text-red-700 border border-red-200'
+            : genResult === t('tasks.generate.noNew')
+              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+              : 'bg-green-50 text-green-700 border border-green-200'
+        }`}>
+          <span>{genResult}</span>
+          <button onClick={() => setGenResult(null)} className="ml-auto text-current opacity-50 hover:opacity-100">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Stats bar */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
