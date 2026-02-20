@@ -89,6 +89,10 @@
     "title": "Vazifalar",
     "subtitle": "Vazifalarni boshqarish uchun Kanban-doska",
     "newTask": "Yangi vazifa",
+    "scope": {
+      "my": "Mening vazifalarim",
+      "all": "Barcha vazifalar"
+    },
     "columns": {
       "todo": "Bajarilishi kerak",
       "in_progress": "Jarayonda",

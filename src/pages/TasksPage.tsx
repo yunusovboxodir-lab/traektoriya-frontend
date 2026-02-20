@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { tasksApi, type Task, type KanbanBoard, type TaskStats } from '../api/tasks';
+import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
+
+const MANAGER_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
 const COLUMNS = [
   { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-slate-50', border: 'border-slate-200', badge: 'bg-slate-500', dot: 'bg-slate-400' },
@@ -125,6 +128,9 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
 
 export function TasksPage() {
   const t = useT();
+  const user = useAuthStore((s) => s.user);
+  const isManager = MANAGER_ROLES.includes(user?.role || '');
+  const [scope, setScope] = useState<'my' | 'all'>('my');
   const [board, setBoard] = useState<KanbanBoard>({ todo: [], in_progress: [], review: [], done: [] });
   const [stats, setStats] = useState<TaskStats>({ total: 0, todo: 0, in_progress: 0, done: 0 });
   const [loading, setLoading] = useState(true);
@@ -142,8 +148,8 @@ export function TasksPage() {
       setLoading(true);
       setError(null);
       const [kanbanRes, statsRes] = await Promise.all([
-        tasksApi.getKanban(),
-        tasksApi.getStats(),
+        tasksApi.getKanban(undefined, scope),
+        tasksApi.getStats(scope),
       ]);
       setBoard(kanbanRes.data);
       setStats(statsRes.data);
@@ -158,7 +164,7 @@ export function TasksPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [scope]);
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     try {
@@ -199,15 +205,42 @@ export function TasksPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('tasks.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('tasks.subtitle')}</p>
         </div>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          {t('tasks.newTask')}
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Scope toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-0.5">
+            <button
+              onClick={() => setScope('my')}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                scope === 'my'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t('tasks.scope.my')}
+            </button>
+            {isManager && (
+              <button
+                onClick={() => setScope('all')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  scope === 'all'
+                    ? 'bg-white text-blue-700 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {t('tasks.scope.all')}
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            {t('tasks.newTask')}
+          </button>
+        </div>
       </div>
 
       {/* Stats bar */}

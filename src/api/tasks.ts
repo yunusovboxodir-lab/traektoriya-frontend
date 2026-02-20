@@ -49,13 +49,18 @@ export interface DashboardData {
 }
 
 export const tasksApi = {
-  getKanban: (assigneeId?: string) => {
-    const params = assigneeId ? { assignee_id: assigneeId } : {};
+  getKanban: (assigneeId?: string, scope?: 'my' | 'all') => {
+    const params: Record<string, string> = {};
+    if (assigneeId) params.assignee_id = assigneeId;
+    if (scope) params.scope = scope;
     return api.get<KanbanBoard>('/api/v1/tasks/kanban', { params });
   },
 
-  getStats: () =>
-    api.get<TaskStats>('/api/v1/tasks/stats'),
+  getStats: (scope?: 'my' | 'all') => {
+    const params: Record<string, string> = {};
+    if (scope) params.scope = scope;
+    return api.get<TaskStats>('/api/v1/tasks/stats', { params });
+  },
 
   getAll: (params?: { status?: string; priority?: string; assignee_id?: string }) =>
     api.get<{ items: Task[]; total: number }>('/api/v1/tasks', { params }),
