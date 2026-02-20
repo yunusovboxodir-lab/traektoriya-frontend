@@ -2,32 +2,43 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { assessmentsApi, type Assessment } from '../api/assessments';
 import { useT } from '../stores/langStore';
+// import { useAuthStore } from '../stores/authStore';
 
-const TERRITORY_TABS = [
-  { key: 'all', label: 'Все' },
-  { key: 'Новичок', label: 'Новичок' },
-  { key: 'Агент', label: 'Агент' },
-  { key: 'Эксперт', label: 'Эксперт' },
-  { key: 'Мастер', label: 'Мастер' },
+/* ── territory mapping: backend value → i18n key ── */
+const TERRITORY_LEVELS = [
+  { value: 'novice',  i18nKey: 'assessments.levels.trainee' },
+  { value: 'agent',   i18nKey: 'assessments.levels.practitioner' },
+  { value: 'expert',  i18nKey: 'assessments.levels.expert' },
+  { value: 'master',  i18nKey: 'assessments.levels.master' },
 ] as const;
+
+const TERRITORY_BADGE_COLORS: Record<string, string> = {
+  novice:  'bg-emerald-50 text-emerald-700',
+  agent:   'bg-sky-50 text-sky-700',
+  expert:  'bg-amber-50 text-amber-700',
+  master:  'bg-red-50 text-red-700',
+};
+
+const TERRITORY_PROGRESS_COLORS: Record<string, string> = {
+  novice:  'bg-emerald-500',
+  agent:   'bg-sky-500',
+  expert:  'bg-amber-500',
+  master:  'bg-red-500',
+};
 
 const TYPE_BADGE_COLORS: Record<string, string> = {
   knowledge: 'bg-blue-50 text-blue-700',
   skills: 'bg-green-50 text-green-700',
   certification: 'bg-purple-50 text-purple-700',
-};
-
-const TERRITORY_BADGE_COLORS: Record<string, string> = {
-  'Новичок': 'bg-gray-100 text-gray-700',
-  'Агент': 'bg-sky-50 text-sky-700',
-  'Эксперт': 'bg-amber-50 text-amber-700',
-  'Мастер': 'bg-red-50 text-red-700',
+  territory_test: 'bg-indigo-50 text-indigo-700',
+  product_test: 'bg-teal-50 text-teal-700',
+  final_exam: 'bg-rose-50 text-rose-700',
+  practice: 'bg-orange-50 text-orange-700',
 };
 
 export function AssessmentsPage() {
   const navigate = useNavigate();
   const t = useT();
-
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -51,10 +62,27 @@ export function AssessmentsPage() {
     }
   };
 
+  /* filter by territory (using backend values: novice, agent, expert, master) */
   const filtered = useMemo(() => {
     if (activeTerritory === 'all') return assessments;
     return assessments.filter((a) => a.territory === activeTerritory);
   }, [assessments, activeTerritory]);
+
+  /* count assessments per level for progress indicators */
+  const levelCounts = useMemo(() => {
+    const counts: Record<string, { total: number; passed: number }> = {};
+    for (const lev of TERRITORY_LEVELS) {
+      const inLevel = assessments.filter((a) => a.territory === lev.value);
+      counts[lev.value] = { total: inLevel.length, passed: 0 };
+    }
+    return counts;
+  }, [assessments]);
+
+  /* helper: translate territory value to display label */
+  const territoryLabel = (value: string) => {
+    const lev = TERRITORY_LEVELS.find((l) => l.value === value);
+    return lev ? t(lev.i18nKey) : value;
+  };
 
   // -- Loading --
   if (loading) {
@@ -92,22 +120,58 @@ export function AssessmentsPage() {
         </p>
       </div>
 
-      {/* Territory filter tabs */}
+      {/* Territory level tabs with progress */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {TERRITORY_TABS.map((tab) => (
-          <button
-            key={tab.key}
-            type="button"
-            onClick={() => setActiveTerritory(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              activeTerritory === tab.key
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
-            }`}
-          >
-            {tab.key === 'all' ? t('assessments.all') : tab.label}
-          </button>
-        ))}
+        {/* "All" tab */}
+        <button
+          type="button"
+          onClick={() => setActiveTerritory('all')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+            activeTerritory === 'all'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+          }`}
+        >
+          {t('assessments.all')}
+        </button>
+
+        {/* Level tabs: Стажёр / Практик / Эксперт / Мастер */}
+        {TERRITORY_LEVELS.map((lev) => {
+          const counts = levelCounts[lev.value] || { total: 0, passed: 0 };
+          const isActive = activeTerritory === lev.value;
+          return (
+            <button
+              key={lev.value}
+              type="button"
+              onClick={() => setActiveTerritory(lev.value)}
+              className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors overflow-hidden ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                {t(lev.i18nKey)}
+                {counts.total > 0 && (
+                  <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-white/20' : 'bg-gray-100'
+                  }`}>
+                    {counts.total}
+                  </span>
+                )}
+              </span>
+              {/* progress bar at bottom of tab */}
+              {counts.total > 0 && (
+                <div className={`absolute bottom-0 left-0 right-0 h-0.5 ${isActive ? 'bg-white/30' : 'bg-gray-100'}`}>
+                  <div
+                    className={`h-full transition-all ${isActive ? 'bg-white' : TERRITORY_PROGRESS_COLORS[lev.value] || 'bg-blue-500'}`}
+                    style={{ width: `${counts.total > 0 ? Math.max((counts.passed / counts.total) * 100, 5) : 0}%` }}
+                  />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Empty state */}
@@ -159,7 +223,7 @@ export function AssessmentsPage() {
                       'bg-gray-100 text-gray-600'
                     }`}
                   >
-                    {assessment.territory}
+                    {territoryLabel(assessment.territory)}
                   </span>
                 )}
               </div>

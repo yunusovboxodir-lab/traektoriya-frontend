@@ -358,7 +358,19 @@
     "noAssessments": "Аттестации ещё не созданы",
     "noAssessmentsForLevel": "Нет аттестаций для уровня \"{level}\"",
     "threshold": "Порог: {value}%",
-    "min": "мин"
+    "min": "мин",
+    "levels": {
+      "trainee": "Стажёр",
+      "practitioner": "Практик",
+      "expert": "Эксперт",
+      "master": "Мастер"
+    },
+    "types": {
+      "territory_test": "Территориальный тест",
+      "product_test": "Товарный тест",
+      "final_exam": "Финальный экзамен",
+      "practice": "Практика"
+    }
   },
   "analytics": {
     "title": "Аналитика",

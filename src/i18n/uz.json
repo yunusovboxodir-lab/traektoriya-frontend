@@ -358,7 +358,19 @@
     "noAssessments": "Attestatsiyalar hali yaratilmagan",
     "noAssessmentsForLevel": "\"{level}\" darajasi uchun attestatsiyalar yo'q",
     "threshold": "Chegara: {value}%",
-    "min": "daq"
+    "min": "daq",
+    "levels": {
+      "trainee": "Stajiyor",
+      "practitioner": "Amaliyotchi",
+      "expert": "Ekspert",
+      "master": "Usta"
+    },
+    "types": {
+      "territory_test": "Hududiy test",
+      "product_test": "Mahsulot testi",
+      "final_exam": "Yakuniy imtihon",
+      "practice": "Amaliyot"
+    }
   },
   "analytics": {
     "title": "Tahlil",
