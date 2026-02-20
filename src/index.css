@@ -2,9 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent pull-to-refresh in standalone PWA mode */
+html {
+  overscroll-behavior: none;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f8fafc;
+  /* iPhone safe area support (notch, home indicator) */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Smooth momentum scrolling on iOS */
+* {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Toast slide-in animation */
