@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
+import { FloatingScreenshotButton } from '../FloatingScreenshotButton';
 
 // ---------------------------------------------------------------------------
 // LocalStorage key for sidebar collapse state
@@ -117,6 +118,9 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </div>
       </main>
+
+      {/* Floating screenshot button — always visible, bottom-right */}
+      <FloatingScreenshotButton />
     </div>
   );
 }

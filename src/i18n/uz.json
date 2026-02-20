@@ -753,5 +753,9 @@
     "back": "Orqaga",
     "yes": "Ha",
     "no": "Yo'q"
+  },
+  "screenshot": {
+    "button": "Skrinshot",
+    "title": "Ekran skrinshoti"
   }
 }
