@@ -55,6 +55,25 @@
       "courses": "Kurslar",
       "tasks": "Vazifalar"
     },
+    "leaderboard": {
+      "title": "O'qish reytingi",
+      "goToLearning": "O'qishga",
+      "yourRank": "Sizning reyting",
+      "of": "dan",
+      "courses": "Kurslar",
+      "score": "Ball",
+      "streak": "Ketma-ketlik",
+      "days": "kun",
+      "tableTitle": "Lavozim bo'yicha reyting",
+      "you": "siz",
+      "loadError": "Reytingni yuklashda xatolik",
+      "levels": {
+        "trainee": "Stajyor",
+        "practitioner": "Amaliyotchi",
+        "expert": "Ekspert",
+        "master": "Usta"
+      }
+    },
     "cards": {
       "learningDesc": "Kurslar, treninglar va o'quv materiallari",
       "productsDesc": "Mahsulotlar kutubxonasi va kompaniya katalogi",

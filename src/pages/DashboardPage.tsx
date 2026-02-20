@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { Link } from 'react-router-dom';
 import { NudgesWidget } from '../components/dashboard/NudgesWidget';
+import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { useT, useLangStore } from '../stores/langStore';
 
 interface OverviewStatsRaw {
@@ -300,6 +301,9 @@ export function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Learning Rank Widget ── */}
+      <LearningRankWidget />
 
       {/* ── Nudges Widget ── */}
       <NudgesWidget />

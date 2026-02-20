@@ -250,6 +250,27 @@ export interface ProgressResponse {
   sections_progress?: Record<string, unknown> | null;
 }
 
+// Leaderboard
+export interface LeaderboardEntry {
+  rank: number;
+  user_id: string;
+  full_name: string;
+  employee_id: string;
+  role: string;
+  current_level: string;
+  courses_completed: number;
+  avg_quiz_score: number;
+  current_streak_days: number;
+  is_current_user: boolean;
+}
+
+export interface LeaderboardResponse {
+  my_rank: number;
+  total_in_group: number;
+  my_progress: ProgressResponse | null;
+  leaderboard: LeaderboardEntry[];
+}
+
 // Learning modules
 export interface LearningModule {
   role: string;
@@ -317,4 +338,9 @@ export const learningApi = {
 
   getProgress: () =>
     api.get<ProgressResponse>('/api/v1/learning/progress'),
+
+  getLeaderboard: (limit = 20) =>
+    api.get<LeaderboardResponse>('/api/v1/learning/leaderboard', {
+      params: { limit },
+    }),
 };
