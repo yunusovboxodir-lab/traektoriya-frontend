@@ -1,4 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import type { Lang } from '../../stores/langStore';
+import type { BilingualText } from '../../api/learning';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
 
 const PAIR_COLORS = [
   { bg: 'bg-blue-100', border: 'border-blue-400', text: 'text-blue-700', line: '#3b82f6' },
@@ -10,21 +19,22 @@ const PAIR_COLORS = [
 ];
 
 export interface MatchingQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'matching';
-  left: string[];
-  right: string[];
+  left: (string | BilingualText)[];
+  right: (string | BilingualText)[];
   correct_pairs: [number, number][];
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 interface QuizMatchingProps {
   data: MatchingQuestion;
+  lang: Lang;
   questionIndex: number;
   onResult: (questionIndex: number, isCorrect: boolean) => void;
 }
 
-export function QuizMatching({ data, questionIndex, onResult }: QuizMatchingProps) {
+export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchingProps) {
   // pairs: { leftIdx, rightIdx }[]
   const [pairs, setPairs] = useState<{ left: number; right: number }[]>([]);
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
@@ -111,7 +121,7 @@ export function QuizMatching({ data, questionIndex, onResult }: QuizMatchingProp
   return (
     <div>
       <p className="font-medium text-gray-800 mb-1 text-[15px]">
-        <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {data.question}
+        <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {bl(data.question, lang)}
       </p>
       <p className="text-xs text-gray-400 mb-3">Нажмите элемент слева, затем справа, чтобы соединить пары</p>
 
@@ -165,7 +175,7 @@ export function QuizMatching({ data, questionIndex, onResult }: QuizMatchingProp
                       : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300'
                   } ${checked ? 'cursor-default' : ''}`}
                 >
-                  {item}
+                  {bl(item, lang)}
                 </div>
               );
             })}
@@ -202,7 +212,7 @@ export function QuizMatching({ data, questionIndex, onResult }: QuizMatchingProp
                       : 'bg-white border-gray-200 text-gray-700'
                   } ${checked ? 'cursor-default' : ''}`}
                 >
-                  {item}
+                  {bl(item, lang)}
                 </div>
               );
             })}
@@ -236,7 +246,7 @@ export function QuizMatching({ data, questionIndex, onResult }: QuizMatchingProp
           isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
         }`}>
           <span className="shrink-0 mt-0.5">{isCorrect ? '✅' : '❌'}</span>
-          <span>{isCorrect ? 'Все пары соединены правильно!' : `Неверно. ${data.explanation || ''}`}</span>
+          <span>{isCorrect ? 'Все пары соединены правильно!' : `Неверно. ${bl(data.explanation, lang) || ''}`}</span>
         </div>
       )}
     </div>

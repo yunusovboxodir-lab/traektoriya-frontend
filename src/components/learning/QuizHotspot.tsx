@@ -1,4 +1,13 @@
 import { useState } from 'react';
+import type { Lang } from '../../stores/langStore';
+import type { BilingualText } from '../../api/learning';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
 
 interface Hotspot {
   x: number;     // % from left
@@ -9,21 +18,22 @@ interface Hotspot {
 }
 
 export interface HotspotQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'hotspot';
   image_url: string;
   hotspots: Hotspot[];
   min_correct: number;
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 interface QuizHotspotProps {
   data: HotspotQuestion;
+  lang: Lang;
   questionIndex: number;
   onResult: (questionIndex: number, isCorrect: boolean) => void;
 }
 
-export function QuizHotspot({ data, questionIndex, onResult }: QuizHotspotProps) {
+export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspotProps) {
   const [clicked, setClicked] = useState<Set<number>>(new Set());
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -55,7 +65,7 @@ export function QuizHotspot({ data, questionIndex, onResult }: QuizHotspotProps)
   return (
     <div>
       <p className="font-medium text-gray-800 mb-1 text-[15px]">
-        <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {data.question}
+        <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {bl(data.question, lang)}
       </p>
       <p className="text-xs text-gray-400 mb-3">
         Нажмите на проблемные области на изображении (найдите минимум {data.min_correct} из {correctCount})
@@ -142,7 +152,7 @@ export function QuizHotspot({ data, questionIndex, onResult }: QuizHotspotProps)
           isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
         }`}>
           <span className="shrink-0 mt-0.5">{isCorrect ? '✅' : '❌'}</span>
-          <span>{isCorrect ? 'Все проблемные области найдены!' : `${data.explanation || 'Не все области найдены верно.'}`}</span>
+          <span>{isCorrect ? 'Все проблемные области найдены!' : `${bl(data.explanation, lang) || 'Не все области найдены верно.'}`}</span>
         </div>
       )}
     </div>

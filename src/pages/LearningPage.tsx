@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   learningApi,
   LEVEL_NAMES,
+  LEVEL_NAMES_UZ,
   LEVEL_COLORS,
   MODULE_ICONS,
   type LearningMapResponse,
@@ -14,7 +15,14 @@ import {
   type FieldTask,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
-import { useT } from '../stores/langStore';
+import { useT, useLangStore, type Lang } from '../stores/langStore';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | { ru: string; uz?: string | null } | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
 import { LearningMap } from '../components/learning/LearningMap';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
@@ -280,6 +288,7 @@ function ModulesView({
   onSelectModule: (role: string) => void;
 }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const moduleColors: Record<string, string> = {
     sales_rep: 'from-blue-500 to-blue-600',
     supervisor: 'from-indigo-500 to-indigo-600',
@@ -332,10 +341,7 @@ function ModulesView({
                   {icon}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">{m.title.ru}</h3>
-                  {m.title.uz && (
-                    <p className="text-xs text-gray-400">{m.title.uz}</p>
-                  )}
+                  <h3 className="text-lg font-bold text-gray-900">{bl(m.title, lang)}</h3>
                 </div>
               </div>
 
@@ -380,6 +386,7 @@ function SectionView({
   onOpenCourse: (id: string) => void;
 }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   return (
     <div className="max-w-3xl mx-auto">
       {/* Back */}
@@ -390,9 +397,9 @@ function SectionView({
 
       {/* Section Header Card */}
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 mb-6 text-white shadow-xl">
-        <h2 className="text-xl font-bold mb-1">{data.section.title.ru}</h2>
-        {data.section.description?.ru && (
-          <p className="text-slate-300 text-sm mb-4">{data.section.description.ru}</p>
+        <h2 className="text-xl font-bold mb-1">{bl(data.section.title, lang)}</h2>
+        {bl(data.section.description, lang) && (
+          <p className="text-slate-300 text-sm mb-4">{bl(data.section.description, lang)}</p>
         )}
         <div className="flex items-center gap-4">
           <div className="flex-1">
@@ -428,10 +435,11 @@ function LevelBlock({
   level,
   onOpenCourse,
 }: {
-  level: { level: string; level_name: { ru: string }; is_unlocked: boolean; is_completed: boolean; courses?: CourseItem[] | null; courses_preview_count?: number | null; unlock_message?: string | null };
+  level: { level: string; level_name: { ru: string; uz?: string | null }; is_unlocked: boolean; is_completed: boolean; courses?: CourseItem[] | null; courses_preview_count?: number | null; unlock_message?: string | null };
   onOpenCourse: (id: string) => void;
 }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const levelColor = LEVEL_COLORS[level.level] || '#666';
 
   return (
@@ -442,7 +450,7 @@ function LevelBlock({
           className="w-2.5 h-2.5 rounded-full ring-4 ring-opacity-20"
           style={{ backgroundColor: levelColor, boxShadow: `0 0 0 4px ${levelColor}33` }}
         />
-        <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">{level.level_name.ru}</h3>
+        <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">{bl(level.level_name, lang)}</h3>
         {level.is_completed && (
           <span className="ml-auto text-xs px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
@@ -489,6 +497,7 @@ function CourseRow({
   onClick: () => void;
 }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const isCompleted = course.status === 'completed';
   const isRecommended = course.is_ai_recommended;
 
@@ -521,7 +530,7 @@ function CourseRow({
       {/* Course info */}
       <div className="flex-1 min-w-0">
         <p className={`font-medium text-[15px] leading-tight ${isCompleted ? 'text-gray-400' : 'text-gray-800'}`}>
-          {course.title.ru}
+          {bl(course.title, lang)}
         </p>
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-gray-400 flex items-center gap-1">
@@ -705,6 +714,7 @@ function CourseView({
   onBack: () => void;
 }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const slides = data.content.slides || [];
   const quiz = (data.content.quiz || []) as QuizQuestion[];
   const flashcards = (data.content.spaced_repetition_cards || []) as FlashCard[];
@@ -765,14 +775,14 @@ function CourseView({
         <div className={`bg-gradient-to-r ${accent.bg} px-6 py-5 text-white`}>
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium px-2.5 py-1 bg-white/20 rounded-full backdrop-blur-sm">
-              {LEVEL_NAMES[data.course.level] || data.course.level}
+              {(lang === 'uz' ? LEVEL_NAMES_UZ[data.course.level] : LEVEL_NAMES[data.course.level]) || data.course.level}
             </span>
             <span className="text-xs text-white/80 flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
               {data.course.duration_minutes} {t('learning.min')}
             </span>
           </div>
-          <h2 className="text-lg font-bold leading-tight">{data.course.title.ru}</h2>
+          <h2 className="text-lg font-bold leading-tight">{bl(data.course.title, lang)}</h2>
         </div>
 
         {/* Step dots + progress (only during slides & quiz) */}
@@ -820,9 +830,9 @@ function CourseView({
             <div className="animate-fadeIn">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <span className="w-1 h-6 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
-                {slides[currentSlide].title}
+                {bl(slides[currentSlide].title, lang)}
               </h3>
-              <RichSlideContent content={slides[currentSlide].content} />
+              <RichSlideContent content={bl(slides[currentSlide].content, lang)} />
 
               {/* Media from prompt (if done) */}
               {currentMediaPrompt && currentMediaPrompt.status === 'done' && currentMediaPrompt.media_url && (
@@ -906,7 +916,7 @@ function CourseView({
               {/* Stats cards */}
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-blue-50 rounded-xl py-3 px-2">
-                  <p className="text-lg font-bold text-blue-600">{LEVEL_NAMES[completionResult.new_level]}</p>
+                  <p className="text-lg font-bold text-blue-600">{(lang === 'uz' ? LEVEL_NAMES_UZ[completionResult.new_level] : LEVEL_NAMES[completionResult.new_level]) || completionResult.new_level}</p>
                   <p className="text-[10px] text-blue-400 uppercase tracking-wide">{t('learning.level')}</p>
                 </div>
                 <div className="bg-emerald-50 rounded-xl py-3 px-2">

@@ -1,4 +1,13 @@
 import { useState } from 'react';
+import type { Lang } from '../../stores/langStore';
+import type { BilingualText } from '../../api/learning';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
 
 // ─── Ordering subtype ───────────────────────────────────
 interface OrderingProps {
@@ -290,30 +299,31 @@ function DragDropZones({
 
 // ─── Main export ────────────────────────────────────────
 export interface DragDropQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'drag_drop';
   subtype: 'ordering' | 'zones';
-  items: string[];
+  items: (string | BilingualText)[];
   correct_order?: number[];
-  zones?: string[] | null;
+  zones?: (string | BilingualText)[] | null;
   correct_answer?: Record<string, string>;
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 interface QuizDragDropProps {
   data: DragDropQuestion;
+  lang: Lang;
   questionIndex: number;
   onResult: (questionIndex: number, isCorrect: boolean) => void;
 }
 
-export function QuizDragDrop({ data, questionIndex, onResult }: QuizDragDropProps) {
+export function QuizDragDrop({ data, lang, questionIndex, onResult }: QuizDragDropProps) {
   if (data.subtype === 'ordering' && data.correct_order) {
     return (
       <DragDropOrdering
-        question={data.question}
-        items={data.items}
+        question={bl(data.question, lang)}
+        items={data.items.map(item => bl(item, lang))}
         correctOrder={data.correct_order}
-        explanation={data.explanation}
+        explanation={bl(data.explanation, lang)}
         questionIndex={questionIndex}
         onResult={onResult}
       />
@@ -323,11 +333,11 @@ export function QuizDragDrop({ data, questionIndex, onResult }: QuizDragDropProp
   if (data.subtype === 'zones' && data.zones && data.correct_answer) {
     return (
       <DragDropZones
-        question={data.question}
-        items={data.items}
-        zones={data.zones}
+        question={bl(data.question, lang)}
+        items={data.items.map(item => bl(item, lang))}
+        zones={data.zones.map(zone => bl(zone, lang))}
         correctAnswer={data.correct_answer}
-        explanation={data.explanation}
+        explanation={bl(data.explanation, lang)}
         questionIndex={questionIndex}
         onResult={onResult}
       />

@@ -127,40 +127,40 @@ export interface SectionCoursesResponse {
 
 // Quiz question types
 export interface QuizSingleChoiceQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'single_choice';
-  options: string[];
+  options: (string | BilingualText)[];
   correct_answer: number;
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 export interface QuizDragDropQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'drag_drop';
   subtype: 'ordering' | 'zones';
-  items: string[];
+  items: (string | BilingualText)[];
   correct_order?: number[];
-  zones?: string[] | null;
+  zones?: (string | BilingualText)[] | null;
   correct_answer?: Record<string, string>;
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 export interface QuizMatchingQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'matching';
-  left: string[];
-  right: string[];
+  left: (string | BilingualText)[];
+  right: (string | BilingualText)[];
   correct_pairs: [number, number][];
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 export interface QuizHotspotQuestion {
-  question: string;
+  question: string | BilingualText;
   type: 'hotspot';
   image_url: string;
   hotspots: Array<{ x: number; y: number; radius: number; label: string; is_correct: boolean }>;
   min_correct: number;
-  explanation?: string;
+  explanation?: string | BilingualText;
 }
 
 export type CourseQuizQuestion =
@@ -171,15 +171,15 @@ export type CourseQuizQuestion =
 
 // Flashcard
 export interface FlashCard {
-  front: string;
-  back: string;
+  front: string | BilingualText;
+  back: string | BilingualText;
 }
 
 // Field task
 export interface FieldTask {
-  title: string;
-  description: string;
-  criteria: string[];
+  title: string | BilingualText;
+  description: string | BilingualText;
+  criteria: (string | BilingualText)[];
   deadline_days: number;
 }
 
@@ -212,7 +212,7 @@ export interface CourseDetailResponse {
     custom_task?: unknown;
   } | null;
   content: {
-    slides: Array<{ order: number; type: string; title: string; content: string }>;
+    slides: Array<{ order: number; type: string; title: string | BilingualText; content: string | BilingualText }>;
     quiz: CourseQuizQuestion[];
     field_task?: FieldTask | null;
     spaced_repetition_cards: FlashCard[];
@@ -270,6 +270,13 @@ export const LEVEL_NAMES: Record<string, string> = {
   practitioner: 'Практик',
   expert: 'Эксперт',
   master: 'Мастер',
+};
+
+export const LEVEL_NAMES_UZ: Record<string, string> = {
+  trainee: 'Stajyor',
+  practitioner: 'Amaliyotchi',
+  expert: 'Ekspert',
+  master: 'Usta',
 };
 
 export const LEVEL_COLORS: Record<string, string> = {

@@ -1,7 +1,17 @@
+import { useLangStore, type Lang } from '../../stores/langStore';
+import type { BilingualText } from '../../api/learning';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
+
 interface FieldTask {
-  title: string;
-  description: string;
-  criteria: string[];
+  title: string | BilingualText;
+  description: string | BilingualText;
+  criteria: (string | BilingualText)[];
   deadline_days: number;
 }
 
@@ -11,6 +21,7 @@ interface FieldTaskCardProps {
 }
 
 export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
+  const lang = useLangStore((s) => s.lang);
   return (
     <div className="animate-fadeIn">
       {/* Header */}
@@ -26,8 +37,8 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
 
       {/* Task card */}
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 p-6 mb-6">
-        <h4 className="text-lg font-bold text-amber-900 mb-3">{task.title}</h4>
-        <p className="text-sm text-amber-800 leading-relaxed mb-4">{task.description}</p>
+        <h4 className="text-lg font-bold text-amber-900 mb-3">{bl(task.title, lang)}</h4>
+        <p className="text-sm text-amber-800 leading-relaxed mb-4">{bl(task.description, lang)}</p>
 
         {/* Deadline */}
         <div className="flex items-center gap-2 mb-4 text-sm text-amber-700">
@@ -46,7 +57,7 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
                 <div className="w-5 h-5 rounded border-2 border-amber-300 bg-white flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-[10px] text-amber-400">{i + 1}</span>
                 </div>
-                <span className="text-sm text-amber-800">{criterion}</span>
+                <span className="text-sm text-amber-800">{bl(criterion, lang)}</span>
               </div>
             ))}
           </div>

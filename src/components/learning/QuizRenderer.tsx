@@ -2,15 +2,24 @@ import { QuizSingleChoice } from './QuizSingleChoice';
 import { QuizDragDrop, type DragDropQuestion } from './QuizDragDrop';
 import { QuizMatching, type MatchingQuestion } from './QuizMatching';
 import { QuizHotspot, type HotspotQuestion } from './QuizHotspot';
+import { useLangStore, type Lang } from '../../stores/langStore';
+import type { BilingualText } from '../../api/learning';
+
+/** Pick the right language from a bilingual value or return plain string as-is. */
+function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
+}
 
 // ─── Union type for all quiz questions ──────────────────
 export type QuizQuestion =
   | {
-      question: string;
+      question: string | BilingualText;
       type: 'single_choice';
-      options: string[];
+      options: (string | BilingualText)[];
       correct_answer: number;
-      explanation?: string;
+      explanation?: string | BilingualText;
     }
   | DragDropQuestion
   | MatchingQuestion
@@ -33,6 +42,8 @@ export function QuizRenderer({
   onInteractiveResult,
   submitted,
 }: QuizRendererProps) {
+  const lang = useLangStore((s) => s.lang);
+
   return (
     <div className="animate-fadeIn">
       <div className="flex items-center gap-3 mb-6">
@@ -54,14 +65,14 @@ export function QuizRenderer({
               return (
                 <QuizSingleChoice
                   key={qi}
-                  question={q.question}
-                  options={q.options}
+                  question={bl(q.question, lang)}
+                  options={q.options.map(o => bl(o, lang))}
                   questionIndex={qi}
                   selectedAnswer={answers[qi]}
                   onAnswer={onSingleChoiceAnswer}
                   submitted={submitted}
                   correctAnswer={submitted ? q.correct_answer : undefined}
-                  explanation={q.explanation}
+                  explanation={bl(q.explanation, lang)}
                 />
               );
             case 'drag_drop':
@@ -69,6 +80,7 @@ export function QuizRenderer({
                 <QuizDragDrop
                   key={qi}
                   data={q}
+                  lang={lang}
                   questionIndex={qi}
                   onResult={onInteractiveResult}
                 />
@@ -78,6 +90,7 @@ export function QuizRenderer({
                 <QuizMatching
                   key={qi}
                   data={q}
+                  lang={lang}
                   questionIndex={qi}
                   onResult={onInteractiveResult}
                 />
@@ -87,6 +100,7 @@ export function QuizRenderer({
                 <QuizHotspot
                   key={qi}
                   data={q}
+                  lang={lang}
                   questionIndex={qi}
                   onResult={onInteractiveResult}
                 />
