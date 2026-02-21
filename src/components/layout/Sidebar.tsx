@@ -264,8 +264,8 @@ const ROLE_HIERARCHY: Record<string, number> = {
 
 // Label keys map to i18n: nav.dashboard, nav.learning, etc.
 const NAV_ITEMS_DEF = [
-  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
   { labelKey: 'nav.rating', path: '/rating', icon: <IconTrophy />, pageKey: 'kpi' },
+  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
   { labelKey: 'nav.learning', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
   { labelKey: 'nav.products', path: '/products', icon: <IconBox />, pageKey: 'products' },
   { labelKey: 'nav.tasks', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },

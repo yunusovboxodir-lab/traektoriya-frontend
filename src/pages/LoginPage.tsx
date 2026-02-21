@@ -25,7 +25,7 @@ export function LoginPage() {
 
     try {
       await login(employeeId, password);
-      navigate('/dashboard');
+      navigate('/rating');
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string } } };
       setError(axiosErr.response?.data?.detail || t('login.error'));

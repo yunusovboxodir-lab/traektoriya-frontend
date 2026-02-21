@@ -53,10 +53,10 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
 
   getFirstAllowedPath: () => {
     const { allowedPages } = get();
-    // null = not loaded → default to dashboard
-    if (allowedPages === null || allowedPages.length === 0) return '/dashboard';
+    // null = not loaded → default to rating (KPI leaderboard)
+    if (allowedPages === null || allowedPages.length === 0) return '/rating';
     const firstKey = allowedPages[0];
-    return PAGE_KEY_TO_PATH[firstKey] || '/dashboard';
+    return PAGE_KEY_TO_PATH[firstKey] || '/rating';
   },
 
   reset: () => set({ allowedPages: null, isLoaded: false }),
