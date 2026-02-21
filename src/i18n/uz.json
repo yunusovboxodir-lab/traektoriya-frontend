@@ -769,6 +769,13 @@
   },
   "screenshot": {
     "button": "Skrinshot",
-    "title": "Ekran skrinshoti"
+    "title": "Ekran tasviri",
+    "preview": "Ko'rib chiqish",
+    "commentPlaceholder": "Muammoni yoki taklifni tavsiflang...",
+    "sendToAdmin": "Adminga yuborish",
+    "cancel": "Bekor qilish",
+    "sending": "Yuborilmoqda...",
+    "sent": "Yuborildi!",
+    "error": "Yuborishda xatolik"
   }
 }

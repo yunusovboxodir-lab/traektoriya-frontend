@@ -25,6 +25,23 @@ export interface ScreenshotReportList {
 }
 
 export const reportsApi = {
+  /** Submit a screenshot report (any authenticated user) */
+  submit: (data: {
+    screenshot: Blob;
+    comment: string;
+    currentRoute?: string;
+    screenName?: string;
+  }) => {
+    const formData = new FormData();
+    formData.append('screenshot', data.screenshot, 'screenshot.png');
+    formData.append('comment', data.comment);
+    if (data.currentRoute) formData.append('current_route', data.currentRoute);
+    if (data.screenName) formData.append('screen_name', data.screenName);
+    return api.post('/api/v1/reports/screenshot', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
   list: (params?: { skip?: number; limit?: number; status?: string; user_id?: string }) =>
     api.get<ScreenshotReportList>('/api/v1/reports/screenshots', { params }),
 
