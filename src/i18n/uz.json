@@ -327,7 +327,20 @@
       "noData": "Joriy davr uchun ma'lumot yo'q",
       "yourPosition": "Sizning o'rningiz",
       "liveUpdate": "Real vaqtda yangilanadi",
-      "place": "o'rin"
+      "place": "o'rin",
+      "trend": "Trend",
+      "boostRating": "Reytingni oshirish",
+      "boostTitle": "Reytingni qanday oshirish mumkin?",
+      "boostWeakest": "Eng zaif soha",
+      "boostTipAi": "Mahsulotlar bo'yicha AI-testdan o'ting",
+      "boostTipLms": "O'quv kursni yakunlang",
+      "boostTipCrm": "Ochiq vazifalarni bajaring",
+      "boostGoTo": "O'tish",
+      "rankUp": "Ko'tarildi",
+      "rankDown": "Tushdi",
+      "rankSame": "O'zgarishsiz",
+      "top3": "Top-3",
+      "kpiScore": "KPI ball"
     },
     "teamRatings": {
       "team": "Jamoa",

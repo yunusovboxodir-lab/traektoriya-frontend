@@ -22,4 +22,7 @@ export const kpiApi = {
       task_id: taskId,
       base_points: basePoints ?? 10,
     }),
+
+  getBoostTips: () =>
+    api.get('/api/v1/kpi/boost-tips'),
 };
