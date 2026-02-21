@@ -184,35 +184,37 @@ function Podium({ leaders }: { leaders: LeaderEntry[] }) {
   const delays = ['0.15s', '0s', '0.3s'];
 
   return (
-    <div className="flex items-end justify-center gap-2 sm:gap-4 py-4">
-      {order.map((leader, i) => (
-        <div
-          key={leader.user_id}
-          className="flex flex-col items-center kpi-fade-in"
-          style={{ animationDelay: delays[i] }}
-        >
-          {/* Medal + Name */}
-          <span className="text-3xl sm:text-4xl mb-1">{medals[i]}</span>
-          <div className="text-center mb-2">
-            <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[80px] sm:max-w-[120px]">
-              {leader.full_name.split(' ')[0]}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
+      <div className="flex items-end justify-center gap-3 sm:gap-6 lg:gap-10">
+        {order.map((leader, i) => (
+          <div
+            key={leader.user_id}
+            className="flex-1 max-w-[200px] flex flex-col items-center kpi-fade-in"
+            style={{ animationDelay: delays[i] }}
+          >
+            {/* Medal + Name */}
+            <span className="text-3xl sm:text-4xl mb-1">{medals[i]}</span>
+            <div className="text-center mb-2">
+              <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate max-w-[100px] sm:max-w-[160px]">
+                {leader.full_name}
+              </div>
+              <div className="flex items-center justify-center gap-1 mt-0.5">
+                <span className="text-sm sm:text-base font-bold text-gray-800">
+                  {leader.total_kpi.toFixed(1)}
+                </span>
+                <TrendBadge change={leader.rank_change} />
+              </div>
             </div>
-            <div className="flex items-center justify-center gap-1 mt-0.5">
-              <span className="text-sm sm:text-base font-bold text-gray-800">
-                {leader.total_kpi.toFixed(1)}
-              </span>
-              <TrendBadge change={leader.rank_change} />
-            </div>
-          </div>
 
-          {/* Podium pillar */}
-          <div className={`${heights[i]} w-20 sm:w-28 rounded-t-xl bg-gradient-to-b ${gradients[i]} flex items-center justify-center shadow-md`}>
-            <span className="text-white font-bold text-lg sm:text-xl opacity-80">
-              #{leader.rank}
-            </span>
+            {/* Podium pillar */}
+            <div className={`${heights[i]} w-full rounded-t-xl bg-gradient-to-b ${gradients[i]} flex items-center justify-center shadow-md`}>
+              <span className="text-white font-bold text-xl sm:text-2xl opacity-80">
+                #{leader.rank}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
