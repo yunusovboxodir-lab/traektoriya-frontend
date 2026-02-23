@@ -7,7 +7,7 @@ export const kpiApi = {
   getUserKPI: (userId: string, period?: string) =>
     api.get(`/api/v1/kpi/${userId}`, { params: period ? { period } : {} }),
 
-  getLeaderboard: (params?: { period?: string; limit?: number }) =>
+  getLeaderboard: (params?: { period?: string; limit?: number; role?: string }) =>
     api.get('/api/v1/kpi/leaderboard/top', { params }),
 
   getTeamRatings: (period?: string) =>

@@ -341,7 +341,14 @@
       "rankDown": "Tushdi",
       "rankSame": "O'zgarishsiz",
       "top3": "Top-3",
-      "kpiScore": "KPI ball"
+      "kpiScore": "KPI ball",
+      "roleFilter": "Rol bo'yicha reyting"
+    },
+    "roles": {
+      "sales_rep": "Savdo vakillari",
+      "supervisor": "Supervayzerlar",
+      "regional_manager": "Mintaqa menejerlari",
+      "commercial_dir": "Direktorlar"
     },
     "teamRatings": {
       "team": "Jamoa",

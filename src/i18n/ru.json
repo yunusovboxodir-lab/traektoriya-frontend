@@ -341,7 +341,14 @@
       "rankDown": "Опустился на",
       "rankSame": "Без изменений",
       "top3": "Топ-3",
-      "kpiScore": "баллов KPI"
+      "kpiScore": "баллов KPI",
+      "roleFilter": "Рейтинг по роли"
+    },
+    "roles": {
+      "sales_rep": "Торг. представители",
+      "supervisor": "Супервайзеры",
+      "regional_manager": "Рег. менеджеры",
+      "commercial_dir": "Директора"
     },
     "teamRatings": {
       "team": "Команда",

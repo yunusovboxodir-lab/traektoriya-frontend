@@ -422,6 +422,14 @@ export function KPIPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'leaderboard' | 'my' | 'teams'>('leaderboard');
+  const [roleFilter, setRoleFilter] = useState<string | undefined>(user?.role);
+
+  // Set roleFilter when user loads (user may be null on first render)
+  useEffect(() => {
+    if (user?.role && !roleFilter) {
+      setRoleFilter(user.role);
+    }
+  }, [user?.role]);
 
   // Sticky "your position" card
   const myCardRef = useRef<HTMLDivElement>(null);
@@ -441,7 +449,7 @@ export function KPIPage() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [roleFilter]);
 
   // IntersectionObserver for sticky card
   useEffect(() => {
@@ -463,7 +471,7 @@ export function KPIPage() {
 
       const [kpiRes, leaderRes, teamRes] = await Promise.allSettled([
         kpiApi.getMyKPI(),
-        kpiApi.getLeaderboard({ limit: 100 }),
+        kpiApi.getLeaderboard({ limit: 100, role: roleFilter }),
         isAdmin ? kpiApi.getTeamRatings() : Promise.resolve({ data: { teams: [] } }),
       ]);
 
@@ -605,6 +613,31 @@ export function KPIPage() {
       {/* Tab: Leaderboard (default, first) */}
       {tab === 'leaderboard' && (
         <>
+          {/* Role filter for admins/directors */}
+          {isAdmin && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-500">{t('kpi.leaderboard.roleFilter')}:</span>
+              {[
+                { value: 'sales_rep', label: t('kpi.roles.sales_rep') },
+                { value: 'supervisor', label: t('kpi.roles.supervisor') },
+                { value: 'regional_manager', label: t('kpi.roles.regional_manager') },
+                { value: 'commercial_dir', label: t('kpi.roles.commercial_dir') },
+              ].map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => setRoleFilter(value)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    roleFilter === value
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+
           {/* Podium Top-3 */}
           <Podium leaders={leaders} />
 
