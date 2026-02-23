@@ -26,6 +26,7 @@ const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ def
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const ReportsPage = lazyWithRetry(() => import('./pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
+const SupervisorDashboardPage = lazyWithRetry(() => import('./pages/SupervisorDashboardPage').then(m => ({ default: m.SupervisorDashboardPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -237,6 +238,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="goals">
             <GoalsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Дашборд супервайзера */}
+      <Route
+        path="/supervisor"
+        element={
+          <ProtectedRoute pageKey="supervisor">
+            <SupervisorDashboardPage />
           </ProtectedRoute>
         }
       />

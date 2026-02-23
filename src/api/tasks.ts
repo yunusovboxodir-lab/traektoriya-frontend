@@ -18,6 +18,7 @@ export interface Task {
   progress: number;
   estimated_time: number | null;
   actual_time: number | null;
+  extra_data: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }

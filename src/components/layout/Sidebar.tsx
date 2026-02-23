@@ -277,6 +277,7 @@ const NAV_ITEMS_DEF = [
   { labelKey: 'nav.chat', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
   { labelKey: 'nav.planogram', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
   { labelKey: 'nav.analytics', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },
+  { labelKey: 'nav.supervisor', path: '/supervisor', icon: <IconUsers />, pageKey: 'supervisor' },
   { labelKey: 'nav.reports', path: '/reports', icon: <IconScissors />, pageKey: 'reports' },
 ] as const;
 

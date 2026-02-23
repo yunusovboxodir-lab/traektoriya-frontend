@@ -43,6 +43,17 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
         </h4>
       </div>
 
+      {/* ShelfScan AI marker */}
+      {task.extra_data?.source === 'shelfscan_ai' && (
+        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-indigo-50 border border-indigo-200 rounded-lg">
+          <span className="text-sm">📸</span>
+          <span className="text-[10px] font-semibold text-indigo-700">ShelfScan AI</span>
+          {typeof task.extra_data.kpi_bonus === 'number' && task.extra_data.kpi_bonus > 0 && (
+            <span className="ml-auto text-[10px] font-bold text-green-600">+{task.extra_data.kpi_bonus}% KPI</span>
+          )}
+        </div>
+      )}
+
       {/* Description */}
       {task.description && (
         <p className="text-xs text-gray-400 mb-3 line-clamp-2 pl-0.5">{task.description}</p>

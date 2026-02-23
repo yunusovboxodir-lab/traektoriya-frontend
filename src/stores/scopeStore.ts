@@ -17,6 +17,7 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   analytics: '/analytics',
   goals: '/goals',
   reports: '/reports',
+  supervisor: '/supervisor',
   'admin-roles': '/admin/roles',
 };
 

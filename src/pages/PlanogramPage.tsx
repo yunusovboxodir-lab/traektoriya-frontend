@@ -93,6 +93,33 @@ export function PlanogramPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Track task action status: 'pending' | 'completing' | 'completed' | 'skipping' | 'skipped'
+  const [taskStatuses, setTaskStatuses] = useState<Record<string, string>>({});
+
+  const handleCompleteTask = async (taskId: string) => {
+    setTaskStatuses(prev => ({ ...prev, [taskId]: 'completing' }));
+    try {
+      await api.patch(`/api/v1/shelf/tasks/${taskId}/complete`);
+      setTaskStatuses(prev => ({ ...prev, [taskId]: 'completed' }));
+      toast.success(t('planogram.taskCompleted') || 'Задача выполнена! KPI-бонус начислен');
+    } catch {
+      setTaskStatuses(prev => ({ ...prev, [taskId]: 'pending' }));
+      toast.error(t('planogram.taskCompleteFailed') || 'Ошибка при выполнении задачи');
+    }
+  };
+
+  const handleSkipTask = async (taskId: string) => {
+    setTaskStatuses(prev => ({ ...prev, [taskId]: 'skipping' }));
+    try {
+      await api.patch(`/api/v1/shelf/tasks/${taskId}/skip`, { reason: null });
+      setTaskStatuses(prev => ({ ...prev, [taskId]: 'skipped' }));
+      toast.success(t('planogram.taskSkipped') || 'Задача пропущена — супервайзер будет уведомлён');
+    } catch {
+      setTaskStatuses(prev => ({ ...prev, [taskId]: 'pending' }));
+      toast.error(t('planogram.taskSkipFailed') || 'Ошибка при пропуске задачи');
+    }
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -285,16 +312,61 @@ export function PlanogramPage() {
                   <div className="bg-white rounded-xl p-6 shadow-sm">
                     <h3 className="font-bold mb-3">📋 {t('planogram.tasksTitle')} (+{result.tasks.reduce((s, task) => s + task.bonus_if_today, 0).toFixed(0)}% KPI)</h3>
                     <div className="space-y-3">
-                      {result.tasks.map((task) => (
-                        <div key={task.id} className={`p-4 rounded-lg border-l-4 ${task.priority === 'high' ? 'border-red-500 bg-red-50' : task.priority === 'medium' ? 'border-yellow-500 bg-yellow-50' : 'border-green-500 bg-green-50'}`}>
-                          <div className="font-medium text-sm">{task.action}</div>
-                          <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                            <span className="font-bold text-blue-600">+{task.bonus_if_today}% {t('planogram.today')}</span>
-                            <span>+{task.bonus_if_tomorrow}% {t('planogram.tomorrow')}</span>
-                            {task.estimated_time && <span>~{task.estimated_time} мин</span>}
+                      {result.tasks.map((task) => {
+                        const status = taskStatuses[task.id] || 'pending';
+                        const isDone = status === 'completed';
+                        const isSkipped = status === 'skipped';
+                        const isBusy = status === 'completing' || status === 'skipping';
+
+                        return (
+                          <div key={task.id} className={`p-4 rounded-lg border-l-4 transition-all ${
+                            isDone ? 'border-green-500 bg-green-50 opacity-75' :
+                            isSkipped ? 'border-orange-400 bg-orange-50 opacity-75' :
+                            task.priority === 'high' ? 'border-red-500 bg-red-50' :
+                            task.priority === 'medium' ? 'border-yellow-500 bg-yellow-50' :
+                            'border-green-500 bg-green-50'
+                          }`}>
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className={`font-medium text-sm ${isDone ? 'line-through text-gray-500' : isSkipped ? 'line-through text-orange-500' : ''}`}>
+                                  {isDone && '✅ '}{isSkipped && '⏭ '}{task.action}
+                                </div>
+                                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                                  <span className="font-bold text-blue-600">+{task.bonus_if_today}% {t('planogram.today')}</span>
+                                  <span>+{task.bonus_if_tomorrow}% {t('planogram.tomorrow')}</span>
+                                  {task.estimated_time && <span>~{task.estimated_time} мин</span>}
+                                </div>
+                              </div>
+                              {isDone && <span className="text-green-600 font-bold text-xs">{t('planogram.done') || 'Готово'}</span>}
+                              {isSkipped && <span className="text-orange-500 font-bold text-xs">{t('planogram.skippedLabel') || 'Пропущено'}</span>}
+                            </div>
+
+                            {/* Action buttons */}
+                            {!isDone && !isSkipped && (
+                              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-200/50">
+                                <button
+                                  onClick={() => handleCompleteTask(task.id)}
+                                  disabled={isBusy}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  {status === 'completing' ? (
+                                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                  ) : '✅'} {t('planogram.completeTask') || 'Выполнить'}
+                                </button>
+                                <button
+                                  onClick={() => handleSkipTask(task.id)}
+                                  disabled={isBusy}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-lg hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                  {status === 'skipping' ? (
+                                    <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+                                  ) : '⏭'} {t('planogram.skipTask') || 'Пропустить'}
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
