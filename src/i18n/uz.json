@@ -76,6 +76,24 @@
         "master": "Usta"
       }
     },
+    "shelfScan": {
+      "title": "ShelfScan AI",
+      "viewAll": "Barcha tahlillar",
+      "empty": "Tahlillar hali yo'q",
+      "startScan": "Birinchi tahlilni qilish",
+      "analysis": "Javon tahlili",
+      "tasksGen": "vazifa"
+    },
+    "streak": {
+      "title": "Yutuqlar va ketma-ketlik",
+      "viewAll": "Barcha yutuqlar",
+      "days": "Ketma-ket (kun)",
+      "best": "Rekord (kun)",
+      "points": "Ball",
+      "recentAchievements": "Oxirgi yutuqlar",
+      "noAchievements": "Hali yutuqlar yo'q",
+      "startLearning": "O'qishni boshlash"
+    },
     "cards": {
       "learningDesc": "Kurslar, treninglar va o'quv materiallari",
       "productsDesc": "Mahsulotlar kutubxonasi va kompaniya katalogi",
@@ -441,7 +459,30 @@
     "hpvCoverage": "XPV qamrovi",
     "hpv": "XPV",
     "hpvOf": "XPV bilan: {filled} / {total}",
-    "categories": "Mahsulot kategoriyalari"
+    "categories": "Mahsulot kategoriyalari",
+    "leaderboard": "Reyting",
+    "name": "Ism",
+    "role": "Rol",
+    "region": "Hudud",
+    "tasksCompleted": "Bajarilgan vazifalar",
+    "periodWeek": "Hafta",
+    "periodMonth": "Oy",
+    "periodQuarter": "Chorak",
+    "periodAll": "Hammasi",
+    "export": "Eksport",
+    "byTerritory": "Hududlar bo'yicha",
+    "byCourse": "Kurslar bo'yicha",
+    "courseName": "Kurs",
+    "enrolled": "Ro'yxatdan",
+    "completed": "Yakunlangan",
+    "productDetails": "Mahsulotlar tafsiloti",
+    "productName": "Mahsulot",
+    "attempts": "Urinishlar",
+    "passRate": "O'tish foizi",
+    "avgLessonTime": "O'rt. dars vaqti",
+    "totalHours": "Jami soatlar",
+    "min": "daq",
+    "hours": "s"
   },
   "generation": {
     "title": "AI Generatsiya",

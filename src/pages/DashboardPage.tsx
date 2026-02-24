@@ -4,6 +4,8 @@ import { api } from '../api/client';
 import { Link } from 'react-router-dom';
 import { NudgesWidget } from '../components/dashboard/NudgesWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
+import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
+import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
 import { useT, useLangStore } from '../stores/langStore';
 
 interface OverviewStatsRaw {
@@ -300,6 +302,12 @@ export function DashboardPage() {
             </Link>
           ))}
         </div>
+      </div>
+
+      {/* ── ShelfScan + Streak / Achievements ── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <ShelfScanHistoryWidget />
+        <StreakAchievementWidget />
       </div>
 
       {/* ── Learning Rank Widget ── */}

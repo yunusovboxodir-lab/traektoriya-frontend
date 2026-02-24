@@ -76,6 +76,24 @@
         "master": "Мастер"
       }
     },
+    "shelfScan": {
+      "title": "ShelfScan AI",
+      "viewAll": "Все анализы",
+      "empty": "Анализов пока нет",
+      "startScan": "Сделать первый анализ",
+      "analysis": "Анализ полки",
+      "tasksGen": "задач"
+    },
+    "streak": {
+      "title": "Достижения и серия",
+      "viewAll": "Все достижения",
+      "days": "Серия (дн.)",
+      "best": "Рекорд (дн.)",
+      "points": "Очки",
+      "recentAchievements": "Последние достижения",
+      "noAchievements": "Пока нет достижений",
+      "startLearning": "Начать обучение"
+    },
     "cards": {
       "learningDesc": "Курсы, тренинги и учебные материалы для развития навыков",
       "productsDesc": "Библиотека товаров и каталог продукции компании",
@@ -441,7 +459,30 @@
     "hpvCoverage": "Покрытие ХПВ",
     "hpv": "ХПВ",
     "hpvOf": "Товаров с ХПВ: {filled} из {total}",
-    "categories": "Категории товаров"
+    "categories": "Категории товаров",
+    "leaderboard": "Лидерборд",
+    "name": "Имя",
+    "role": "Роль",
+    "region": "Регион",
+    "tasksCompleted": "Задач выполнено",
+    "periodWeek": "Неделя",
+    "periodMonth": "Месяц",
+    "periodQuarter": "Квартал",
+    "periodAll": "Всё время",
+    "export": "Экспорт",
+    "byTerritory": "По территориям",
+    "byCourse": "По курсам",
+    "courseName": "Курс",
+    "enrolled": "Записано",
+    "completed": "Завершено",
+    "productDetails": "Детализация по товарам",
+    "productName": "Товар",
+    "attempts": "Попыток",
+    "passRate": "Pass rate",
+    "avgLessonTime": "Ср. время урока",
+    "totalHours": "Всего часов",
+    "min": "мин",
+    "hours": "ч"
   },
   "generation": {
     "title": "AI Генерация",
