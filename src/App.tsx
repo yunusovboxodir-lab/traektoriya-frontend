@@ -8,6 +8,7 @@ import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // Lazy-loaded pages for code splitting (with auto-retry on chunk load errors)
+const LandingPage = lazyWithRetry(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
@@ -72,7 +73,7 @@ function SmartRedirect() {
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/landing" replace />;
   }
   return <Navigate to={getFirstAllowedPath()} replace />;
 }
@@ -92,6 +93,9 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
     <Routes>
+      {/* Лендинг (доступен всегда) */}
+      <Route path="/landing" element={<LandingPage />} />
+
       {/* Страница входа (публичная) */}
       <Route
         path="/login"
