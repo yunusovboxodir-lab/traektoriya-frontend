@@ -201,11 +201,11 @@ export function AnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadData(period);
-  }, [period, loadData]);
+  }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExport = async () => {
     try {
