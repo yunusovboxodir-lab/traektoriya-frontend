@@ -37,9 +37,9 @@ export const reportsApi = {
     formData.append('comment', data.comment);
     if (data.currentRoute) formData.append('current_route', data.currentRoute);
     if (data.screenName) formData.append('screen_name', data.screenName);
-    return api.post('/api/v1/reports/screenshot', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    // Don't set Content-Type manually — Axios + browser auto-add
+    // multipart boundary. Manual header breaks the request.
+    return api.post('/api/v1/reports/screenshot', formData);
   },
 
   list: (params?: { skip?: number; limit?: number; status?: string; user_id?: string }) =>
