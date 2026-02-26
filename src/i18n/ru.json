@@ -16,6 +16,8 @@
     "analytics": "Аналитика",
     "adminRoles": "Управление ролями",
     "reports": "Отчёты",
+    "competencyMatrix": "Матрица компетенций",
+    "competencyProfiles": "Профили должностей",
     "supervisor": "Моя команда",
     "collapse": "Свернуть",
     "expand": "Развернуть",

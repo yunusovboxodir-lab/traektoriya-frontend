@@ -19,6 +19,8 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   reports: '/reports',
   supervisor: '/supervisor',
   'admin-roles': '/admin/roles',
+  'competency-matrix': '/competency-matrix',
+  'competency-profiles': '/competency-profiles',
 };
 
 interface ScopeState {

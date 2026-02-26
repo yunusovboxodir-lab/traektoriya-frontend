@@ -28,6 +28,8 @@ const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ d
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const ReportsPage = lazyWithRetry(() => import('./pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
 const SupervisorDashboardPage = lazyWithRetry(() => import('./pages/SupervisorDashboardPage').then(m => ({ default: m.SupervisorDashboardPage })));
+const CompetencyMatrixPage = lazyWithRetry(() => import('./pages/CompetencyMatrixPage').then(m => ({ default: m.CompetencyMatrixPage })));
+const CompetencyProfilePage = lazyWithRetry(() => import('./pages/CompetencyProfilePage').then(m => ({ default: m.CompetencyProfilePage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -262,6 +264,26 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="reports">
             <ReportsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Матрица компетенций */}
+      <Route
+        path="/competency-matrix"
+        element={
+          <ProtectedRoute pageKey="competency-matrix">
+            <CompetencyMatrixPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Профили должностей */}
+      <Route
+        path="/competency-profiles"
+        element={
+          <ProtectedRoute pageKey="competency-profiles">
+            <CompetencyProfilePage />
           </ProtectedRoute>
         }
       />

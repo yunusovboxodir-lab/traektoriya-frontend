@@ -10,6 +10,7 @@ interface User {
   role: string;
   is_active: boolean;
   last_login?: string;
+  team_id?: string;
 }
 
 interface AuthState {
