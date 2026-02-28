@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
+import { NotificationBell } from './NotificationBell';
 import { FloatingScreenshotButton } from '../FloatingScreenshotButton';
 
 // ---------------------------------------------------------------------------
@@ -104,6 +105,9 @@ export function Layout({ children }: LayoutProps) {
         <span className="ml-3 text-lg font-semibold text-gray-900">
           Traektoriya
         </span>
+        <div className="ml-auto">
+          <NotificationBell mobile />
+        </div>
       </header>
 
       {/* Main content area */}

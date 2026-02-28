@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
 import { useLangStore, useT } from '../../stores/langStore';
+import { NotificationBell } from './NotificationBell';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -374,7 +375,7 @@ export function Sidebar({
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center h-16 px-4 border-b border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
             <span className="text-white font-bold text-sm">T</span>
@@ -385,6 +386,7 @@ export function Sidebar({
             </span>
           )}
         </div>
+        {!collapsed && <NotificationBell />}
       </div>
 
       {/* User info */}
