@@ -30,6 +30,7 @@ const ReportsPage = lazyWithRetry(() => import('./pages/ReportsPage').then(m => 
 const SupervisorDashboardPage = lazyWithRetry(() => import('./pages/SupervisorDashboardPage').then(m => ({ default: m.SupervisorDashboardPage })));
 const CompetencyMatrixPage = lazyWithRetry(() => import('./pages/CompetencyMatrixPage').then(m => ({ default: m.CompetencyMatrixPage })));
 const CompetencyProfilePage = lazyWithRetry(() => import('./pages/CompetencyProfilePage').then(m => ({ default: m.CompetencyProfilePage })));
+const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -294,6 +295,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="admin-roles">
             <RolesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Коррекция ShelfScan (admin/supervisor) */}
+      <Route
+        path="/shelf-corrections"
+        element={
+          <ProtectedRoute pageKey="shelf-corrections">
+            <ShelfCorrectionPage />
           </ProtectedRoute>
         }
       />

@@ -828,5 +828,23 @@
     "sending": "Yuborilmoqda...",
     "sent": "Yuborildi!",
     "error": "Yuborishda xatolik"
+  },
+  "shelfCorrections": {
+    "title": "ShelfScan Korreksiyasi",
+    "all": "Barchasi",
+    "pending": "Tekshirilishi kutilmoqda",
+    "corrected": "Tuzatilgan",
+    "correctedBadge": "Tuzatilgan",
+    "correctBtn": "Tuzatish",
+    "correctedScore": "Tuzatilgan ball",
+    "realBrands": "Javondagi haqiqiy brendlar",
+    "addBrand": "Brend qo'shish...",
+    "feedback": "Administrator izohi",
+    "save": "Korreksiyani saqlash",
+    "cancel": "Bekor qilish",
+    "successMsg": "Korreksiya saqlandi",
+    "aiAnalysis": "AI tahlil",
+    "adminCorrection": "Administrator korreksiyasi",
+    "unknownOutlet": "Noma'lum nuqta"
   }
 }

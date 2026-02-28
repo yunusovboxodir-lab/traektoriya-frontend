@@ -828,5 +828,23 @@
     "sending": "Отправка...",
     "sent": "Отправлено!",
     "error": "Ошибка отправки"
+  },
+  "shelfCorrections": {
+    "title": "Коррекция ShelfScan",
+    "all": "Все",
+    "pending": "Ожидают проверки",
+    "corrected": "Исправлены",
+    "correctedBadge": "Исправлено",
+    "correctBtn": "Исправить",
+    "correctedScore": "Исправленная оценка",
+    "realBrands": "Реальные бренды на полке",
+    "addBrand": "Добавить бренд...",
+    "feedback": "Комментарий администратора",
+    "save": "Сохранить коррекцию",
+    "cancel": "Отмена",
+    "successMsg": "Коррекция сохранена",
+    "aiAnalysis": "AI анализ",
+    "adminCorrection": "Коррекция администратора",
+    "unknownOutlet": "Неизвестная точка"
   }
 }

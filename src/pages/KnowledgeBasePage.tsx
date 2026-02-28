@@ -16,6 +16,16 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   other: 'Прочее',
 };
 
+const TYPE_ORDER = ['standard', 'product', 'job_description', 'policy', 'training', 'other'];
+const TYPE_ICONS: Record<string, string> = {
+  job_description: '📋',
+  standard: '📐',
+  product: '📦',
+  policy: '📜',
+  training: '🎓',
+  other: '📁',
+};
+
 
 const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt', '.zip'];
 const PAGE_SIZE = 20;
@@ -170,6 +180,202 @@ function StatCard({
 }
 
 // ---------------------------------------------------------------------------
+// FolderSidebar Component
+// ---------------------------------------------------------------------------
+
+function FolderSidebar({
+  documents,
+  activeFilter,
+  activeCategory,
+  expandedTypes,
+  typeCount,
+  folderTree,
+  setActiveFilter,
+  setActiveCategory,
+  setExpandedTypes,
+}: {
+  documents: DocumentResponse[];
+  activeFilter: string | null;
+  activeCategory: string | null;
+  expandedTypes: Set<string>;
+  typeCount: Record<string, number>;
+  folderTree: Record<string, string[]>;
+  setActiveFilter: (f: string | null) => void;
+  setActiveCategory: (c: string | null) => void;
+  setExpandedTypes: (updater: Set<string> | ((prev: Set<string>) => Set<string>)) => void;
+}) {
+  const toggleType = (type: string) => {
+    setExpandedTypes((prev) => {
+      const s = new Set(prev);
+      s.has(type) ? s.delete(type) : s.add(type);
+      return s;
+    });
+  };
+
+  return (
+    <nav className="bg-white rounded-xl border border-gray-200 shadow-sm p-2 space-y-0.5">
+      {/* Все */}
+      <button
+        type="button"
+        onClick={() => { setActiveFilter(null); setActiveCategory(null); }}
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+          !activeFilter ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-gray-50 text-gray-700'
+        }`}
+      >
+        <span>📂 Все</span>
+        <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full text-gray-600">
+          {documents.length}
+        </span>
+      </button>
+
+      {/* Типы */}
+      {TYPE_ORDER.map((type) => {
+        const count = typeCount[type] || 0;
+        if (count === 0) return null;
+        const cats = folderTree[type] || [];
+        const isOpen = expandedTypes.has(type);
+        const isActive = activeFilter === type && !activeCategory;
+        return (
+          <div key={type}>
+            <button
+              type="button"
+              onClick={() => { setActiveFilter(type); setActiveCategory(null); toggleType(type); }}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-gray-50 text-gray-700'
+              }`}
+            >
+              <span>{TYPE_ICONS[type]} {DOC_TYPE_LABELS[type]}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full text-gray-600">
+                  {count}
+                </span>
+                {cats.length > 0 && (
+                  <span className="text-gray-400 text-xs">{isOpen ? '▾' : '▸'}</span>
+                )}
+              </div>
+            </button>
+
+            {isOpen && cats.length > 0 && (
+              <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-gray-100 pl-2">
+                {cats.map((cat) => {
+                  const catCount = documents.filter(
+                    (d) => (d.document_type || 'other') === type && d.category === cat,
+                  ).length;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => { setActiveFilter(type); setActiveCategory(cat); }}
+                      className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
+                        activeCategory === cat
+                          ? 'bg-blue-50 text-blue-700 font-medium'
+                          : 'hover:bg-gray-50 text-gray-600'
+                      }`}
+                    >
+                      <span className="truncate">{cat}</span>
+                      <span className="text-gray-400">{catCount}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </nav>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SmartFilterBar Component
+// ---------------------------------------------------------------------------
+
+function SmartFilterBar({
+  searchQuery,
+  onSearch,
+  sortBy,
+  sortDir,
+  onSort,
+  statusFilter,
+  onStatus,
+  showUpload,
+  onToggleUpload,
+  resultCount,
+}: {
+  searchQuery: string;
+  onSearch: (q: string) => void;
+  sortBy: 'date' | 'name' | 'size';
+  sortDir: 'asc' | 'desc';
+  onSort: (s: 'date' | 'name' | 'size', d: 'asc' | 'desc') => void;
+  statusFilter: string | null;
+  onStatus: (s: string | null) => void;
+  showUpload: boolean;
+  onToggleUpload: () => void;
+  resultCount: number;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2 items-center mb-3">
+      {/* Search */}
+      <div className="relative flex-1 min-w-[160px]">
+        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input
+          type="text"
+          placeholder="Поиск по имени..."
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+        />
+      </div>
+
+      {/* Sort */}
+      <select
+        value={`${sortBy}_${sortDir}`}
+        onChange={(e) => {
+          const [s, d] = e.target.value.split('_');
+          onSort(s as 'date' | 'name' | 'size', d as 'asc' | 'desc');
+        }}
+        className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="date_desc">Дата ↓</option>
+        <option value="date_asc">Дата ↑</option>
+        <option value="name_asc">Имя А–Я</option>
+        <option value="name_desc">Имя Я–А</option>
+        <option value="size_desc">Размер ↓</option>
+        <option value="size_asc">Размер ↑</option>
+      </select>
+
+      {/* Status */}
+      <select
+        value={statusFilter || ''}
+        onChange={(e) => onStatus(e.target.value || null)}
+        className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Все статусы</option>
+        <option value="processed">✅ Готово</option>
+        <option value="processing">🔄 В обработке</option>
+        <option value="failed">❌ Ошибка</option>
+      </select>
+
+      {/* Count */}
+      <span className="text-sm text-gray-400 whitespace-nowrap">{resultCount} файлов</span>
+
+      {/* Upload toggle */}
+      <button
+        type="button"
+        onClick={onToggleUpload}
+        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
+          showUpload
+            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
+        }`}
+      >
+        📤 Загрузить
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Main Component
 // ---------------------------------------------------------------------------
 
@@ -203,6 +409,15 @@ export function KnowledgeBasePage() {
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
+  // Folder tree & smart filter state
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'size'>('date');
+  const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set());
+  const [showUpload, setShowUpload] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ----- Derived stats -----
@@ -216,17 +431,63 @@ export function KnowledgeBasePage() {
     return Math.max(0, stats.total_documents - indexedCount);
   }, [stats, indexedCount]);
 
+  // Build folder tree: type → list of categories
+  const folderTree = useMemo(() => {
+    const tree: Record<string, string[]> = {};
+    for (const tp of TYPE_ORDER) tree[tp] = [];
+    for (const doc of documents) {
+      const tp = doc.document_type || 'other';
+      if (!tree[tp]) tree[tp] = [];
+      const cat = doc.category?.trim() || '';
+      if (cat && !tree[tp].includes(cat)) tree[tp].push(cat);
+    }
+    return tree;
+  }, [documents]);
+
+  const typeCount = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const doc of documents) {
+      const tp = doc.document_type || 'other';
+      m[tp] = (m[tp] || 0) + 1;
+    }
+    return m;
+  }, [documents]);
+
+  // Client-side filtered + sorted documents for display
+  const displayedDocs = useMemo(() => {
+    let r = [...documents];
+    if (activeFilter) r = r.filter(d => (d.document_type || 'other') === activeFilter);
+    if (activeCategory === '__none__') r = r.filter(d => !d.category?.trim());
+    else if (activeCategory) r = r.filter(d => d.category === activeCategory);
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      r = r.filter(d =>
+        d.original_filename.toLowerCase().includes(q) ||
+        (d.title?.toLowerCase().includes(q))
+      );
+    }
+    if (statusFilter) r = r.filter(d => d.status === statusFilter);
+    r.sort((a, b) => {
+      const cmp =
+        sortBy === 'date' ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        : sortBy === 'name' ? a.original_filename.localeCompare(b.original_filename, 'ru')
+        : b.file_size - a.file_size;
+      return sortDir === 'asc' ? -cmp : cmp;
+    });
+    return r;
+  }, [documents, activeFilter, activeCategory, searchQuery, statusFilter, sortBy, sortDir]);
+
   // ----- Data Fetching -----
   const loadDocuments = useCallback(
-    async (currentOffset = 0, currentFilter: string | null = activeFilter) => {
+    async (currentOffset = 0) => {
       try {
         setIsLoading(true);
         setError(null);
         const params: Record<string, unknown> = {
-          limit: PAGE_SIZE,
+          limit: 200,
           offset: currentOffset,
         };
-        if (currentFilter) params.document_type = currentFilter;
+        // Filtering done client-side via displayedDocs useMemo
 
         const res = await documentsApi.list(params as Parameters<typeof documentsApi.list>[0]);
         const data = res.data;
@@ -243,7 +504,7 @@ export function KnowledgeBasePage() {
         setIsLoading(false);
       }
     },
-    [activeFilter],
+    [],
   );
 
   const loadStats = useCallback(async () => {
@@ -272,12 +533,12 @@ export function KnowledgeBasePage() {
 
   // ----- Filter -----
   const handleFilterChange = useCallback(
-    (value: string | null) => {
+    (value: string | null, category: string | null = null) => {
       setActiveFilter(value);
+      setActiveCategory(category);
       setOffset(0);
-      loadDocuments(0, value);
     },
-    [loadDocuments],
+    [],
   );
 
   // ----- Pagination -----
@@ -425,10 +686,10 @@ export function KnowledgeBasePage() {
 
   const toggleSelectAll = useCallback(() => {
     setSelectedIds((prev) => {
-      if (prev.size === documents.length) return new Set();
-      return new Set(documents.map((d) => d.id));
+      if (prev.size === displayedDocs.length) return new Set();
+      return new Set(displayedDocs.map((d) => d.id));
     });
-  }, [documents]);
+  }, [displayedDocs]);
 
   const clearSelection = useCallback(() => {
     setSelectedIds(new Set());
@@ -515,16 +776,6 @@ export function KnowledgeBasePage() {
 
   const hasMore = documents.length < total;
 
-  const filterTabs = [
-    { label: t('kb.filters.all'), value: null },
-    { label: t('kb.filters.standard'), value: 'standard' },
-    { label: t('kb.filters.product'), value: 'product' },
-    { label: t('kb.filters.job_description'), value: 'job_description' },
-    { label: t('kb.filters.policy'), value: 'policy' },
-    { label: t('kb.filters.training'), value: 'training' },
-    { label: t('kb.filters.other'), value: 'other' },
-  ];
-
   return (
     <div>
       {/* ---- Page Header ---- */}
@@ -575,38 +826,44 @@ export function KnowledgeBasePage() {
         />
       </div>
 
-      {/* ---- Filter Tabs ---- */}
-      <div className="mb-6 overflow-x-auto">
-        <div className="flex gap-2 min-w-max">
-          {filterTabs.map((tab) => {
-            const isActive = activeFilter === tab.value;
-            return (
-              <button
-                key={tab.label}
-                type="button"
-                onClick={() => handleFilterChange(tab.value)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  isActive
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+      {/* ---- Folder + Content Layout ---- */}
+      <div className="flex gap-5">
+        {/* Folder Sidebar */}
+        <div className="w-52 flex-shrink-0 hidden lg:block">
+          <div className="sticky top-4">
+            <FolderSidebar
+              documents={documents}
+              activeFilter={activeFilter}
+              activeCategory={activeCategory}
+              expandedTypes={expandedTypes}
+              typeCount={typeCount}
+              folderTree={folderTree}
+              setActiveFilter={(f) => handleFilterChange(f)}
+              setActiveCategory={setActiveCategory}
+              setExpandedTypes={setExpandedTypes}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* ---- Two-Column Layout ---- */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ---- Left: Upload Section ---- */}
-        <div className="lg:col-span-1">
-          <div className="lg:sticky lg:top-4 space-y-4">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-              <h2 className="text-base font-semibold text-gray-900 mb-4">
-                {t('kb.uploadTitle')}
-              </h2>
+        {/* Main content column */}
+        <div className="flex-1 min-w-0">
+          <SmartFilterBar
+            searchQuery={searchQuery}
+            onSearch={setSearchQuery}
+            sortBy={sortBy}
+            sortDir={sortDir}
+            onSort={(s, d) => { setSortBy(s); setSortDir(d); }}
+            statusFilter={statusFilter}
+            onStatus={setStatusFilter}
+            showUpload={showUpload}
+            onToggleUpload={() => setShowUpload((v) => !v)}
+            resultCount={displayedDocs.length}
+          />
+          {showUpload && (
+          <div className="mb-4 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <h2 className="text-base font-semibold text-gray-900 mb-4">
+              {t('kb.uploadTitle')}
+            </h2>
 
               {/* Document type selector */}
               <div className="mb-3">
@@ -757,12 +1014,9 @@ export function KnowledgeBasePage() {
                   ))}
                 </div>
               )}
-            </div>
           </div>
-        </div>
+          )}
 
-        {/* ---- Right: Document Table ---- */}
-        <div className="lg:col-span-2">
           {/* ---- Bulk Action Bar ---- */}
           {selectedIds.size > 0 && (
             <div className="mb-3 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
@@ -897,7 +1151,7 @@ export function KnowledgeBasePage() {
                     <th className="w-10 px-3 py-3">
                       <input
                         type="checkbox"
-                        checked={documents.length > 0 && selectedIds.size === documents.length}
+                        checked={displayedDocs.length > 0 && selectedIds.size === displayedDocs.length}
                         onChange={toggleSelectAll}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
@@ -912,7 +1166,7 @@ export function KnowledgeBasePage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {documents.map((doc) => (
+                  {displayedDocs.map((doc) => (
                     <tr key={doc.id} className={`hover:bg-gray-50 transition-colors ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
                       <td className="px-3 py-3">
                         <input
@@ -1007,7 +1261,7 @@ export function KnowledgeBasePage() {
 
             {/* Card list - Mobile */}
             <div className="sm:hidden divide-y divide-gray-100">
-              {documents.map((doc) => (
+              {displayedDocs.map((doc) => (
                 <div key={doc.id} className={`p-4 ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
@@ -1080,7 +1334,7 @@ export function KnowledgeBasePage() {
             </div>
 
             {/* Empty state */}
-            {!isLoading && documents.length === 0 && (
+            {!isLoading && displayedDocs.length === 0 && (
               <div className="text-center py-16 px-4">
                 <IconDocument className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <p className="text-gray-500 text-lg font-medium">
@@ -1113,10 +1367,10 @@ export function KnowledgeBasePage() {
             )}
 
             {/* Document count footer */}
-            {documents.length > 0 && (
+            {displayedDocs.length > 0 && (
               <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
                 <p className="text-xs text-gray-500">
-                  {t('kb.shown', { shown: documents.length, total })}
+                  {t('kb.shown', { shown: displayedDocs.length, total })}
                 </p>
               </div>
             )}
