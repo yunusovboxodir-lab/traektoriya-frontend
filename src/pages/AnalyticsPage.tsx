@@ -169,6 +169,7 @@ export function AnalyticsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [exportMenu, setExportMenu] = useState(false);
 
   const loadData = useCallback(async (p: string) => {
     try {
@@ -207,17 +208,18 @@ export function AnalyticsPage() {
     loadData(period);
   }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleExport = async () => {
+  const handleExport = async (type: 'kpi' | 'tasks' | 'overview') => {
+    setExportMenu(false);
     try {
       setExporting(true);
-      const res = await analyticsApi.exportAnalytics('overview');
-      const blob = new Blob([JSON.stringify(res.data, null, 2)], {
-        type: 'application/json',
+      const res = await analyticsApi.exportAnalytics(type);
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `analytics-${period}-${new Date().toISOString().slice(0, 10)}.json`;
+      a.download = `traektoriya_${type}_${new Date().toISOString().slice(0, 10)}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -404,17 +406,41 @@ export function AnalyticsPage() {
               </button>
             ))}
           </div>
-          {/* Export */}
-          <button
-            onClick={handleExport}
-            disabled={exporting}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-              <path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            {t('analytics.export')}
-          </button>
+          {/* Export dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setExportMenu((v) => !v)}
+              disabled={exporting}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {exporting ? 'Загрузка...' : t('analytics.export')}
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {exportMenu && (
+              <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                {([
+                  { type: 'kpi' as const, icon: '📊', label: 'KPI сотрудников' },
+                  { type: 'tasks' as const, icon: '📋', label: 'Задачи' },
+                  { type: 'overview' as const, icon: '📈', label: 'Обзор платформы' },
+                ] as const).map(({ type, icon, label }) => (
+                  <button
+                    key={type}
+                    onClick={() => handleExport(type)}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <span>{icon}</span>
+                    {label}
+                    <span className="ml-auto text-gray-400 text-[10px]">.xlsx</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -11,6 +11,9 @@ export const analyticsApi = {
     api.get(`/api/v1/analytics/team/${teamId}`),
   getUserStats: (userId: string) =>
     api.get(`/api/v1/analytics/user/${userId}`),
-  exportAnalytics: (reportType: string) =>
-    api.get('/api/v1/analytics/export', { params: { report_type: reportType } }),
+  exportAnalytics: (reportType: 'kpi' | 'tasks' | 'overview', period?: string) =>
+    api.get('/api/v1/analytics/export', {
+      params: { report_type: reportType, ...(period ? { period } : {}) },
+      responseType: 'blob',
+    }),
 };
