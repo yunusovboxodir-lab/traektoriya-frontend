@@ -18,6 +18,7 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   goals: '/goals',
   reports: '/reports',
   supervisor: '/supervisor',
+  'admin-users': '/admin/users',
   'admin-roles': '/admin/roles',
   'competency-matrix': '/competency-matrix',
   'competency-profiles': '/competency-profiles',

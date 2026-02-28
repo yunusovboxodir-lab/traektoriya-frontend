@@ -297,9 +297,10 @@ const NAV_ITEMS_DEF = [
   { labelKey: 'nav.reports', path: '/reports', icon: <IconScissors />, pageKey: 'reports' },
 ] as const;
 
-const ADMIN_NAV_DEF = {
-  labelKey: 'nav.adminRoles', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles',
-} as const;
+const ADMIN_NAV_ITEMS_DEF = [
+  { labelKey: 'nav.adminUsers', path: '/admin/users', icon: <IconUsers />, pageKey: 'admin-users' },
+  { labelKey: 'nav.adminRoles', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles' },
+] as const;
 
 // ---------------------------------------------------------------------------
 // Sidebar Component
@@ -331,16 +332,16 @@ export function Sidebar({
     icon: item.icon,
     pageKey: item.pageKey,
   }));
-  const ADMIN_NAV_ITEM: NavItem = {
-    label: t(ADMIN_NAV_DEF.labelKey),
-    path: ADMIN_NAV_DEF.path,
-    icon: ADMIN_NAV_DEF.icon,
-    pageKey: ADMIN_NAV_DEF.pageKey,
-  };
+  const ADMIN_NAV_ITEMS: NavItem[] = ADMIN_NAV_ITEMS_DEF.map((item) => ({
+    label: t(item.labelKey),
+    path: item.path,
+    icon: item.icon,
+    pageKey: item.pageKey,
+  }));
 
-  // Filter nav items by role scopes + add admin item
+  // Filter nav items by role scopes + add admin items
   const visibleItems = NAV_ITEMS.filter((item) => isPageAllowed(item.pageKey));
-  const allNavItems = isAdmin ? [...visibleItems, ADMIN_NAV_ITEM] : visibleItems;
+  const allNavItems = isAdmin ? [...visibleItems, ...ADMIN_NAV_ITEMS] : visibleItems;
 
   const handleLogout = useCallback(async () => {
     await logout();
