@@ -908,36 +908,57 @@ function WizardGeneration() {
       const comp = extraction.competencies[v.competencyIdx];
       setGenerationProgress({ current: i + 1, total: variants.length });
 
-      try {
-        const resp = await generationApi.generateLessonFromCompetency({
-          competency_id: comp.id || '',
-          difficulty: v.difficulty,
-          use_rag_context: selectedSources.size > 0,
-          save_to_db: true,
-          language,
-          use_mock: false,
-        });
+      // Retry logic: retry once on 502/503 (pipeline/queue errors)
+      let lastError: string | null = null;
+      let success = false;
 
-        // V2 response — convert to legacy format for UI compatibility
-        const legacyResult = convertV2ToLegacy(resp.data);
-        const lessonData = legacyResult.lesson || (legacyResult as unknown as GeneratedLesson);
-        results.push({
-          lesson: lessonData,
-          metadata: legacyResult.metadata,
-          competencyName: comp.name,
-          territory: v.difficulty,
-          territoryName: v.territoryName,
-          status: 'draft',
-          isEditing: false,
-          editContent: lessonData.content || '',
-        });
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { detail?: string } }; message?: string };
-        const errorMsg = e.response?.data?.detail || e.message || t('generation.wizard.failedGenerate');
+      for (let attempt = 0; attempt < 2 && !success; attempt++) {
+        try {
+          if (attempt > 0) {
+            // Wait 10s before retry
+            await new Promise((r) => setTimeout(r, 10000));
+          }
+
+          const resp = await generationApi.generateLessonFromCompetency({
+            competency_id: comp.id || '',
+            difficulty: v.difficulty,
+            use_rag_context: selectedSources.size > 0,
+            save_to_db: true,
+            language,
+            use_mock: false,
+          });
+
+          // V2 response — convert to legacy format for UI compatibility
+          const legacyResult = convertV2ToLegacy(resp.data);
+          const lessonData = legacyResult.lesson || (legacyResult as unknown as GeneratedLesson);
+          results.push({
+            lesson: lessonData,
+            metadata: legacyResult.metadata,
+            competencyName: comp.name,
+            territory: v.difficulty,
+            territoryName: v.territoryName,
+            status: 'draft',
+            isEditing: false,
+            editContent: lessonData.content || '',
+          });
+          success = true;
+        } catch (err: unknown) {
+          const e = err as { response?: { status?: number; data?: { detail?: string } }; message?: string };
+          const status = e.response?.status;
+          lastError = e.response?.data?.detail || e.message || t('generation.wizard.failedGenerate');
+
+          // Retry on 502 (pipeline error) or 503 (queue full)
+          if ((status === 502 || status === 503) && attempt === 0) {
+            continue;
+          }
+        }
+      }
+
+      if (!success && lastError) {
         results.push({
           lesson: {
             title: `${t('generation.wizard.errorPrefix')}: ${comp.name}`,
-            content: typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg),
+            content: typeof lastError === 'string' ? lastError : JSON.stringify(lastError),
           } as GeneratedLesson,
           competencyName: comp.name,
           territory: v.difficulty,

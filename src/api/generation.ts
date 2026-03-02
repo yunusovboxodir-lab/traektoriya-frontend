@@ -333,28 +333,44 @@ export interface EnrichLessonResponse {
   message: string;
 }
 
+// ======== Constants ========
+
+// Generation requests can take 2-5 minutes (4-step AI pipeline).
+// Browser default timeout (~2 min) is too short.
+const GENERATION_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+
 // ======== API Methods ========
 
 export const generationApi = {
   // Generate lesson from topic text — V2 (Problem-First pipeline)
   generateLessonFromText: (data: GenerateLessonFromTextRequest) =>
-    api.post<GeneratedLessonV2Response>('/api/v1/generate/lesson-v2-from-text', data),
+    api.post<GeneratedLessonV2Response>('/api/v1/generate/lesson-v2-from-text', data, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 
   // Generate lesson from topic text — V1 (legacy, for fallback)
   generateLessonFromTextV1: (data: GenerateLessonFromTextRequest) =>
-    api.post<GenerateLessonResponse>('/api/v1/generate/lesson-from-text', data),
+    api.post<GenerateLessonResponse>('/api/v1/generate/lesson-from-text', data, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 
   // Extract competencies from uploaded document
   extractCompetencies: (data: ExtractCompetenciesRequest) =>
-    api.post<ExtractionResponse>('/api/v1/generate/extract-competencies', data),
+    api.post<ExtractionResponse>('/api/v1/generate/extract-competencies', data, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 
   // Generate lesson from competency ID — V2 (Problem-First pipeline)
   generateLessonFromCompetency: (data: GenerateLessonFromCompetencyRequest) =>
-    api.post<GeneratedLessonV2Response>('/api/v1/generate/lesson-v2', data),
+    api.post<GeneratedLessonV2Response>('/api/v1/generate/lesson-v2', data, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 
   // Generate lesson from competency ID — V1 (legacy, for fallback)
   generateLessonFromCompetencyV1: (data: GenerateLessonFromCompetencyRequest) =>
-    api.post<GenerateLessonResponse>('/api/v1/generate/lesson', data),
+    api.post<GenerateLessonResponse>('/api/v1/generate/lesson', data, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 
   // Get generation service status
   getStatus: () => api.get('/api/v1/generate/status'),
@@ -365,5 +381,7 @@ export const generationApi = {
 
   // Enrich an existing lesson with RAG corporate standards
   enrichLesson: (contentItemId: string, data?: EnrichLessonRequest) =>
-    api.post<EnrichLessonResponse>(`/api/v1/generate/lesson/${contentItemId}/enrich`, data || {}),
+    api.post<EnrichLessonResponse>(`/api/v1/generate/lesson/${contentItemId}/enrich`, data || {}, {
+      timeout: GENERATION_TIMEOUT,
+    }),
 };
