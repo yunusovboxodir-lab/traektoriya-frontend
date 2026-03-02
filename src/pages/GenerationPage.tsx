@@ -46,15 +46,96 @@ function formatFileSize(bytes: number): string {
 }
 
 
-const BLOOM_COLORS: Record<string, string> = {
-  knowledge: 'bg-blue-100 text-blue-700',
-  comprehension: 'bg-cyan-100 text-cyan-700',
-  application: 'bg-green-100 text-green-700',
-  analysis: 'bg-yellow-100 text-yellow-700',
-  synthesis: 'bg-orange-100 text-orange-700',
-  evaluation: 'bg-red-100 text-red-700',
-};
+// BLOOM_COLORS removed — territory system uses its own color scheme
 
+// ===========================================================================
+// Territory (difficulty level) system — 4 course sections
+// ===========================================================================
+
+interface Territory {
+  level: number;
+  name: string;
+  icon: string;
+  borderColor: string;
+  bgColor: string;
+  badgeColor: string;
+  minLessons: number;
+  maxLessons: number;
+}
+
+const TERRITORIES: Territory[] = [
+  { level: 1, name: 'Стажёр',  icon: '\uD83C\uDF31', borderColor: 'border-green-300',  bgColor: 'bg-green-50',  badgeColor: 'bg-green-100 text-green-700',  minLessons: 5, maxLessons: 10 },
+  { level: 2, name: 'Практик', icon: '\uD83D\uDCBC', borderColor: 'border-blue-300',   bgColor: 'bg-blue-50',   badgeColor: 'bg-blue-100 text-blue-700',    minLessons: 5, maxLessons: 10 },
+  { level: 3, name: 'Эксперт', icon: '\u2B50',       borderColor: 'border-orange-300', bgColor: 'bg-orange-50', badgeColor: 'bg-orange-100 text-orange-700', minLessons: 5, maxLessons: 10 },
+  { level: 4, name: 'Мастер',  icon: '\uD83C\uDFC6', borderColor: 'border-purple-300', bgColor: 'bg-purple-50', badgeColor: 'bg-purple-100 text-purple-700', minLessons: 5, maxLessons: 10 },
+];
+
+interface LessonVariant {
+  competencyIdx: number;
+  difficulty: number;
+  territoryName: string;
+}
+
+type TerritoryMap = Record<number, number[]>; // level → competency indices
+
+/**
+ * Auto-distribute competencies across 4 territories.
+ * Step 1: Group by suggested_difficulty.
+ * Step 2: If a territory has < 5, borrow from neighbours.
+ * Step 3: If a territory has < 5 even after borrowing, duplicate competencies at different difficulty.
+ */
+function autoDistribute(
+  competencies: { suggested_difficulty?: number; bloom_level?: string }[],
+): TerritoryMap {
+  const map: TerritoryMap = { 1: [], 2: [], 3: [], 4: [] };
+
+  // Step 1: Distribute by suggested_difficulty
+  competencies.forEach((comp, idx) => {
+    const diff = comp.suggested_difficulty || 2;
+    const clamped = Math.max(1, Math.min(4, diff));
+    map[clamped].push(idx);
+  });
+
+  // Step 2: Balance — if a level has < 5, borrow duplicates from busiest neighbours
+  for (const level of [1, 2, 3, 4]) {
+    if (map[level].length >= 5) continue;
+
+    // Find neighbours sorted by size descending
+    const neighbours = [1, 2, 3, 4]
+      .filter((l) => l !== level)
+      .sort((a, b) => Math.abs(a - level) - Math.abs(b - level)); // closest first
+
+    for (const neighbour of neighbours) {
+      if (map[level].length >= 5) break;
+      // Get competencies from neighbour that are NOT already in this level
+      const candidates = map[neighbour].filter((idx) => !map[level].includes(idx));
+      const needed = 5 - map[level].length;
+      map[level].push(...candidates.slice(0, needed));
+    }
+  }
+
+  return map;
+}
+
+/**
+ * Build flat list of lesson variants from territory map.
+ */
+function buildVariantsFromTerritories(
+  territoryMap: TerritoryMap,
+): LessonVariant[] {
+  const variants: LessonVariant[] = [];
+  for (const territory of TERRITORIES) {
+    const indices = territoryMap[territory.level] || [];
+    for (const idx of indices) {
+      variants.push({
+        competencyIdx: idx,
+        difficulty: territory.level,
+        territoryName: territory.name,
+      });
+    }
+  }
+  return variants;
+}
 
 const ACCEPTED_EXTENSIONS = ['.pdf', '.docx', '.doc', '.txt'];
 
@@ -100,6 +181,8 @@ interface ModerationLesson {
   lesson: GeneratedLesson;
   metadata?: { model?: string; tokens_used?: number; generation_time_seconds?: number };
   competencyName: string;
+  territory: number; // 1-4 difficulty level
+  territoryName: string; // "Стажёр" / "Практик" / "Эксперт" / "Мастер"
   status: ModerationStatus;
   isEditing: boolean;
   editContent: string;
@@ -620,9 +703,10 @@ function WizardGeneration() {
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Step 2: Competencies
+  // Step 2: Competencies + Territory distribution
   const [extraction, setExtraction] = useState<ExtractionResponse | null>(null);
   const [selectedCompetencies, setSelectedCompetencies] = useState<Set<number>>(new Set());
+  const [territoryMap, setTerritoryMap] = useState<TerritoryMap>({ 1: [], 2: [], 3: [], 4: [] });
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractError, setExtractError] = useState('');
 
@@ -720,6 +804,8 @@ function WizardGeneration() {
       const allIdxs = new Set<number>();
       resp.data.competencies.forEach((_, i) => allIdxs.add(i));
       setSelectedCompetencies(allIdxs);
+      // Auto-distribute across 4 territories
+      setTerritoryMap(autoDistribute(resp.data.competencies));
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: unknown } }; message?: string };
       const detail = e.response?.data?.detail;
@@ -797,27 +883,35 @@ function WizardGeneration() {
     setSelectedSources(new Set());
   }, []);
 
-  // ---- Step 4: Generate lessons ----
+  // ---- Step 4: Generate lessons (by territories) ----
+  const lessonVariants = useMemo(
+    () => buildVariantsFromTerritories(territoryMap),
+    [territoryMap],
+  );
+
+  const totalExpectedLessons = lessonVariants.length;
+
   const handleGenerateLessons = useCallback(async () => {
     if (!extraction) return;
-    const selected = extraction.competencies.filter((_, i) => selectedCompetencies.has(i));
-    if (selected.length === 0) return;
+    const variants = buildVariantsFromTerritories(territoryMap);
+    if (variants.length === 0) return;
 
     setIsGeneratingBatch(true);
     setGenError('');
     setGeneratedLessons([]);
-    setGenerationProgress({ current: 0, total: selected.length });
+    setGenerationProgress({ current: 0, total: variants.length });
 
     const results: ModerationLesson[] = [];
 
-    for (let i = 0; i < selected.length; i++) {
-      const comp = selected[i];
-      setGenerationProgress({ current: i + 1, total: selected.length });
+    for (let i = 0; i < variants.length; i++) {
+      const v = variants[i];
+      const comp = extraction.competencies[v.competencyIdx];
+      setGenerationProgress({ current: i + 1, total: variants.length });
 
       try {
         const resp = await generationApi.generateLessonFromCompetency({
           competency_id: comp.id || '',
-          difficulty: comp.suggested_difficulty || 2,
+          difficulty: v.difficulty,
           use_rag_context: selectedSources.size > 0,
           save_to_db: true,
           language,
@@ -831,6 +925,8 @@ function WizardGeneration() {
           lesson: lessonData,
           metadata: legacyResult.metadata,
           competencyName: comp.name,
+          territory: v.difficulty,
+          territoryName: v.territoryName,
           status: 'draft',
           isEditing: false,
           editContent: lessonData.content || '',
@@ -844,6 +940,8 @@ function WizardGeneration() {
             content: typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg),
           } as GeneratedLesson,
           competencyName: comp.name,
+          territory: v.difficulty,
+          territoryName: v.territoryName,
           status: 'draft',
           isEditing: false,
           editContent: '',
@@ -855,7 +953,7 @@ function WizardGeneration() {
 
     setIsGeneratingBatch(false);
     setStep(5);
-  }, [extraction, selectedCompetencies, selectedSources]);
+  }, [extraction, territoryMap, selectedSources, language]);
 
   // ---- Step 5: Moderation actions ----
   const setLessonStatus = useCallback((idx: number, status: ModerationStatus) => {
@@ -998,6 +1096,9 @@ function WizardGeneration() {
           isExtracting={isExtracting}
           extractError={extractError}
           selectedCompetencies={selectedCompetencies}
+          territoryMap={territoryMap}
+          totalExpectedLessons={totalExpectedLessons}
+          onTerritoryMapChange={setTerritoryMap}
           onToggle={toggleCompetency}
           onToggleAll={toggleAllCompetencies}
           onRetry={extractCompetencies}
@@ -1165,9 +1266,12 @@ function StepCompetencies({
   extraction,
   isExtracting,
   extractError,
-  selectedCompetencies,
-  onToggle,
-  onToggleAll,
+  selectedCompetencies: _selectedCompetencies,
+  territoryMap,
+  totalExpectedLessons,
+  onTerritoryMapChange,
+  onToggle: _onToggle,
+  onToggleAll: _onToggleAll,
   onRetry,
   onNext,
   onBack,
@@ -1176,6 +1280,9 @@ function StepCompetencies({
   isExtracting: boolean;
   extractError: string;
   selectedCompetencies: Set<number>;
+  territoryMap: TerritoryMap;
+  totalExpectedLessons: number;
+  onTerritoryMapChange: (map: TerritoryMap) => void;
   onToggle: (idx: number) => void;
   onToggleAll: () => void;
   onRetry: () => void;
@@ -1183,6 +1290,23 @@ function StepCompetencies({
   onBack: () => void;
 }) {
   const t = useT();
+
+  // Remove a competency from a territory
+  const removeFromTerritory = useCallback((level: number, compIdx: number) => {
+    onTerritoryMapChange({
+      ...territoryMap,
+      [level]: territoryMap[level].filter((idx) => idx !== compIdx),
+    });
+  }, [territoryMap, onTerritoryMapChange]);
+
+  // Add a competency to a territory (from the unassigned pool)
+  const addToTerritory = useCallback((level: number, compIdx: number) => {
+    onTerritoryMapChange({
+      ...territoryMap,
+      [level]: [...territoryMap[level], compIdx],
+    });
+  }, [territoryMap, onTerritoryMapChange]);
+
   if (isExtracting) {
     return (
       <div className="max-w-2xl">
@@ -1217,10 +1341,17 @@ function StepCompetencies({
 
   if (!extraction) return null;
 
+  // Competencies assigned to any territory
+  const assignedSet = new Set<number>();
+  Object.values(territoryMap).forEach((indices) => indices.forEach((idx) => assignedSet.add(idx)));
+
+  // Note: each territory dropdown filters available competencies inline
+
   return (
-    <div className="max-w-3xl">
+    <div className="max-w-5xl">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-2">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">{t('generation.wizard.competencyMatrix')}</h2>
             {extraction.role_name && (
@@ -1228,64 +1359,108 @@ function StepCompetencies({
             )}
           </div>
           <span className="text-sm text-gray-500">
-            {t('generation.wizard.selectedOf', { selected: selectedCompetencies.size, total: extraction.competencies.length })}
+            {extraction.competencies.length} {t('generation.wizard.competenciesExtracted') || 'компетенций извлечено'}
           </span>
         </div>
 
-        {/* Select all toggle */}
-        <div className="mb-4">
-          <button
-            type="button"
-            onClick={onToggleAll}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-          >
-            {selectedCompetencies.size === extraction.competencies.length ? t('generation.wizard.deselectAll') : t('generation.wizard.selectAll')}
-          </button>
+        {/* Summary badge */}
+        <div className="flex flex-wrap items-center gap-3 mb-5 p-3 bg-gray-50 rounded-lg">
+          <span className="text-sm font-medium text-gray-700">
+            {'\uD83D\uDCDA'} Всего уроков: <strong className="text-blue-600">{totalExpectedLessons}</strong>
+          </span>
+          <span className="text-xs text-gray-400">|</span>
+          {TERRITORIES.map((ter) => (
+            <span key={ter.level} className={`text-xs px-2 py-0.5 rounded ${ter.badgeColor}`}>
+              {ter.icon} {ter.name}: {territoryMap[ter.level]?.length || 0}
+            </span>
+          ))}
+          <span className="text-xs text-gray-400">|</span>
+          <span className="text-xs text-gray-500">
+            ~{totalExpectedLessons * 4} мин генерации
+          </span>
         </div>
 
-        {/* Competency list */}
-        <div className="space-y-3 max-h-[500px] overflow-y-auto">
-          {extraction.competencies.map((comp, idx) => {
-            const isSelected = selectedCompetencies.has(idx);
+        {/* 4 Territory columns — 2x2 grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+          {TERRITORIES.map((territory) => {
+            const indices = territoryMap[territory.level] || [];
+            const count = indices.length;
+            const isLow = count < territory.minLessons;
+
             return (
               <div
-                key={idx}
-                onClick={() => onToggle(idx)}
-                className={`flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
-                }`}
+                key={territory.level}
+                className={`rounded-xl border-2 ${isLow ? 'border-orange-300 bg-orange-50/30' : territory.borderColor + ' ' + territory.bgColor + '/30'}`}
               >
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => onToggle(idx)}
-                  className="w-4 h-4 text-blue-600 rounded mt-1 flex-shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-gray-900 text-sm">{comp.name}</p>
-                  {comp.description && (
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{comp.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {comp.category && (
-                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">{comp.category}</span>
-                    )}
-                    {comp.bloom_level && (
-                      <span className={`px-2 py-0.5 rounded text-xs ${BLOOM_COLORS[comp.bloom_level] || 'bg-gray-100 text-gray-600'}`}>
-                        {comp.bloom_level}
-                      </span>
-                    )}
-                    {comp.ksa_type && (
-                      <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
-                        {t('generation.ksa.' + comp.ksa_type) || comp.ksa_type}
-                      </span>
-                    )}
-                    {comp.suggested_difficulty && (
-                      <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                        {t('generation.difficulty.' + comp.suggested_difficulty)}
-                      </span>
-                    )}
+                {/* Territory header */}
+                <div className={`px-4 py-3 rounded-t-lg ${territory.bgColor}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-sm">
+                      {territory.icon} {territory.name}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      isLow ? 'bg-orange-200 text-orange-800' : 'bg-white/60 text-gray-700'
+                    }`}>
+                      {count} {count === 1 ? 'урок' : count < 5 ? 'урока' : 'уроков'}
+                      {isLow && ' (мин. 5)'}
+                    </span>
                   </div>
+                </div>
+
+                {/* Competency list in this territory */}
+                <div className="p-3 space-y-2 max-h-[250px] overflow-y-auto">
+                  {indices.length === 0 ? (
+                    <p className="text-xs text-gray-400 text-center py-3">Нет компетенций</p>
+                  ) : (
+                    indices.map((compIdx) => {
+                      const comp = extraction.competencies[compIdx];
+                      if (!comp) return null;
+                      return (
+                        <div
+                          key={`${territory.level}-${compIdx}`}
+                          className="flex items-start gap-2 p-2 bg-white rounded-lg border border-gray-200 group"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-medium text-gray-800 leading-tight">{comp.name}</p>
+                            {comp.domain && (
+                              <span className="text-[10px] text-gray-400">{comp.domain}</span>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeFromTerritory(territory.level, compIdx)}
+                            className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 p-0.5 flex-shrink-0 transition-opacity"
+                            title="Убрать из раздела"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      );
+                    })
+                  )}
+
+                  {/* Add competency dropdown */}
+                  <select
+                    className="w-full text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 text-gray-400 bg-transparent hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    value=""
+                    onChange={(e) => {
+                      const idx = Number(e.target.value);
+                      if (!isNaN(idx)) addToTerritory(territory.level, idx);
+                    }}
+                  >
+                    <option value="">+ Добавить компетенцию...</option>
+                    {extraction.competencies.map((comp, idx) => {
+                      // Only show if not already in this territory
+                      if (indices.includes(idx)) return null;
+                      return (
+                        <option key={idx} value={idx}>
+                          {comp.name}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
               </div>
             );
@@ -1293,14 +1468,14 @@ function StepCompetencies({
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
+        <div className="flex justify-between pt-4 border-t border-gray-100">
           <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
             {t('generation.wizard.back')}
           </button>
           <button
             type="button"
             onClick={onNext}
-            disabled={selectedCompetencies.size === 0}
+            disabled={totalExpectedLessons === 0}
             className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             {t('generation.wizard.nextSources')}
@@ -1661,8 +1836,26 @@ function StepModeration({
         </div>
       </div>
 
-      <div className="space-y-4">
-        {lessons.map((lesson, idx) => {
+      <div className="space-y-6">
+        {TERRITORIES.map((territory) => {
+          const territoryLessons = lessons
+            .map((l, idx) => ({ ...l, originalIdx: idx }))
+            .filter((l) => l.territory === territory.level);
+
+          if (territoryLessons.length === 0) return null;
+
+          return (
+            <div key={territory.level}>
+              {/* Territory section header */}
+              <div className={`flex items-center gap-2 mb-3 px-3 py-2 rounded-lg ${territory.bgColor}`}>
+                <span className="text-lg">{territory.icon}</span>
+                <span className="font-semibold text-sm text-gray-800">{territory.name}</span>
+                <span className="text-xs text-gray-500">({territoryLessons.length} {territoryLessons.length === 1 ? 'урок' : territoryLessons.length < 5 ? 'урока' : 'уроков'})</span>
+              </div>
+
+              <div className="space-y-4">
+                {territoryLessons.map((lesson) => {
+          const idx = lesson.originalIdx;
           const style = MODERATION_STYLES[lesson.status];
           const isGrounded = lesson.lesson.is_grounded;
           const isEnriching = enrichingIdx === idx;
@@ -1779,6 +1972,10 @@ function StepModeration({
                   )}
                 </div>
               )}
+            </div>
+          );
+        })}
+              </div>
             </div>
           );
         })}

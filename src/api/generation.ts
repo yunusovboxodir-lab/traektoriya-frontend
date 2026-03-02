@@ -285,6 +285,7 @@ export interface ExtractedCompetency {
   name: string;
   name_uz?: string | null;
   description: string;
+  domain?: string | null;
   category: string;
   bloom_level?: string;
   ksa_type?: string;
