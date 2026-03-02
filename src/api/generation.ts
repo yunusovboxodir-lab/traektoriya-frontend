@@ -315,6 +315,23 @@ export interface GeneratedLessonListItem {
   created_at: string;
 }
 
+// ======== Enrich Types ========
+
+export interface EnrichLessonRequest {
+  language?: string;
+  use_mock?: boolean;
+}
+
+export interface EnrichLessonResponse {
+  content_item_id: string;
+  title: string;
+  is_grounded: boolean;
+  rag_sources: number;
+  quality_score: number;
+  quality_verdict: string;
+  message: string;
+}
+
 // ======== API Methods ========
 
 export const generationApi = {
@@ -344,4 +361,8 @@ export const generationApi = {
   // List recently generated lessons
   getLessons: (limit = 20) =>
     api.get('/api/v1/generate/lessons', { params: { limit } }),
+
+  // Enrich an existing lesson with RAG corporate standards
+  enrichLesson: (contentItemId: string, data?: EnrichLessonRequest) =>
+    api.post<EnrichLessonResponse>(`/api/v1/generate/lesson/${contentItemId}/enrich`, data || {}),
 };

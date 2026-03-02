@@ -884,6 +884,60 @@ function WizardGeneration() {
     setGeneratedLessons((prev) => prev.map((l, i) => (i === idx ? { ...l, editContent: content } : l)));
   }, []);
 
+  // ---- Enrich lesson with RAG sources ----
+  const [enrichingIdx, setEnrichingIdx] = useState<number | null>(null);
+
+  const handleEnrichLesson = useCallback(async (idx: number) => {
+    const lesson = generatedLessons[idx];
+    if (!lesson?.lesson?.content_item_id) {
+      // No content_item_id — can't enrich (lesson wasn't saved to DB)
+      return;
+    }
+
+    setEnrichingIdx(idx);
+    try {
+      const resp = await generationApi.enrichLesson(lesson.lesson.content_item_id, {
+        language,
+      });
+
+      // Update the lesson card to show it's now grounded
+      setGeneratedLessons((prev) =>
+        prev.map((l, i) =>
+          i === idx
+            ? {
+                ...l,
+                lesson: {
+                  ...l.lesson,
+                  is_grounded: resp.data.is_grounded,
+                  source_count: resp.data.rag_sources,
+                  title: resp.data.title,
+                },
+              }
+            : l,
+        ),
+      );
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { detail?: string } }; message?: string };
+      const errorMsg = e.response?.data?.detail || e.message || 'Enrichment failed';
+      // Show error inline
+      setGeneratedLessons((prev) =>
+        prev.map((l, i) =>
+          i === idx
+            ? {
+                ...l,
+                lesson: {
+                  ...l.lesson,
+                  content: l.lesson.content + `\n\n---\n**Ошибка обогащения:** ${errorMsg}`,
+                },
+              }
+            : l,
+        ),
+      );
+    } finally {
+      setEnrichingIdx(null);
+    }
+  }, [generatedLessons, language]);
+
   // ============ Render ============
 
   return (
@@ -988,6 +1042,8 @@ function WizardGeneration() {
           onToggleEdit={toggleLessonEdit}
           onSaveEdit={saveLessonEdit}
           onUpdateContent={updateEditContent}
+          onEnrich={handleEnrichLesson}
+          enrichingIdx={enrichingIdx}
           onBack={() => setStep(4)}
         />
       )}
@@ -1565,6 +1621,8 @@ function StepModeration({
   onToggleEdit,
   onSaveEdit,
   onUpdateContent,
+  onEnrich,
+  enrichingIdx,
   onBack,
 }: {
   lessons: ModerationLesson[];
@@ -1572,11 +1630,14 @@ function StepModeration({
   onToggleEdit: (idx: number) => void;
   onSaveEdit: (idx: number) => void;
   onUpdateContent: (idx: number, content: string) => void;
+  onEnrich: (idx: number) => void;
+  enrichingIdx: number | null;
   onBack: () => void;
 }) {
   const t = useT();
   const approvedCount = lessons.filter((l) => l.status === 'approved').length;
   const reviewCount = lessons.filter((l) => l.status === 'review').length;
+  const groundedCount = lessons.filter((l) => l.lesson.is_grounded).length;
 
   return (
     <div>
@@ -1587,12 +1648,15 @@ function StepModeration({
             {t('generation.wizard.moderationDesc')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
             {t('generation.wizard.approvedCount', { count: approvedCount })}
           </span>
           <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
             {t('generation.wizard.onReviewCount', { count: reviewCount })}
+          </span>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${groundedCount > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+            {groundedCount}/{lessons.length} со стандартами
           </span>
         </div>
       </div>
@@ -1600,6 +1664,9 @@ function StepModeration({
       <div className="space-y-4">
         {lessons.map((lesson, idx) => {
           const style = MODERATION_STYLES[lesson.status];
+          const isGrounded = lesson.lesson.is_grounded;
+          const isEnriching = enrichingIdx === idx;
+          const isError = lesson.lesson.title?.startsWith('Ошибка:');
           return (
             <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
               {/* Header */}
@@ -1610,6 +1677,11 @@ function StepModeration({
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.text}`}>
                     {t('generation.status.' + lesson.status)}
                   </span>
+                  {!isError && (
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${isGrounded ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-600'}`}>
+                      {isGrounded ? '\u2713 Источники' : '\u26A0 Без источников'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <span className="text-xs text-gray-500">{lesson.competencyName}</span>
@@ -1661,6 +1733,23 @@ function StepModeration({
                   >
                     {t('generation.wizard.edit')}
                   </button>
+                  {!isGrounded && !isError && (
+                    <button
+                      type="button"
+                      onClick={() => onEnrich(idx)}
+                      disabled={isEnriching || enrichingIdx !== null}
+                      className="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                    >
+                      {isEnriching ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin" />
+                          Обогащение...
+                        </>
+                      ) : (
+                        '\u{1F4DA} Обогатить источниками'
+                      )}
+                    </button>
+                  )}
                   {lesson.status !== 'review' && (
                     <button
                       type="button"
