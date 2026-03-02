@@ -218,6 +218,7 @@ function SimpleGeneration() {
   const t = useT();
   const [topic, setTopic] = useState('');
   const [difficulty, setDifficulty] = useState(2);
+  const [language, setLanguage] = useState<'ru' | 'uz'>('ru');
   const [includeQuiz, setIncludeQuiz] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
@@ -240,6 +241,7 @@ function SimpleGeneration() {
       const resp = await generationApi.generateLessonFromText({
         topic: topic.trim(),
         difficulty,
+        language,
         use_mock: false,
       });
       // V2 response — convert to legacy format for UI compatibility
@@ -314,6 +316,40 @@ function SimpleGeneration() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Language selector */}
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setLanguage('ru')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                  language === 'ru'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span className="text-base">🇷🇺</span> Русский
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('uz')}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                  language === 'uz'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                <span className="text-base">🇺🇿</span> O'zbek
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-gray-400">
+              {language === 'ru'
+                ? 'Контент на русском + узбекские переводы (title_uz)'
+                : "Barcha kontent faqat o'zbek tilida"}
+            </p>
           </div>
 
           {/* Quiz toggle */}
@@ -595,6 +631,9 @@ function WizardGeneration() {
   const [selectedSources, setSelectedSources] = useState<Set<string>>(new Set());
   const [isLoadingSources, setIsLoadingSources] = useState(false);
 
+  // Language selector
+  const [language, setLanguage] = useState<'ru' | 'uz'>('ru');
+
   // Step 4: Generation
   const [generatedLessons, setGeneratedLessons] = useState<ModerationLesson[]>([]);
   const [generationProgress, setGenerationProgress] = useState({ current: 0, total: 0 });
@@ -781,6 +820,7 @@ function WizardGeneration() {
           difficulty: comp.suggested_difficulty || 2,
           use_rag_context: selectedSources.size > 0,
           save_to_db: true,
+          language,
           use_mock: false,
         });
 
@@ -917,6 +957,8 @@ function WizardGeneration() {
           documents={kbDocuments}
           selectedSources={selectedSources}
           isLoading={isLoadingSources}
+          language={language}
+          onLanguageChange={setLanguage}
           onToggle={toggleSource}
           onSelectAll={selectAllSources}
           onDeselectAll={deselectAllSources}
@@ -1221,6 +1263,8 @@ function StepSources({
   documents,
   selectedSources,
   isLoading,
+  language,
+  onLanguageChange,
   onToggle,
   onSelectAll,
   onDeselectAll,
@@ -1230,6 +1274,8 @@ function StepSources({
   documents: DocumentResponse[];
   selectedSources: Set<string>;
   isLoading: boolean;
+  language: 'ru' | 'uz';
+  onLanguageChange: (lang: 'ru' | 'uz') => void;
   onToggle: (id: string) => void;
   onSelectAll: (ids: string[]) => void;
   onDeselectAll: () => void;
@@ -1365,6 +1411,40 @@ function StepSources({
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
           {t('generation.wizard.sourcesOptional')}
           {selectedSources.size > 0 && ` ${t('generation.wizard.selectedDocs', { count: selectedSources.size })}`}
+        </div>
+
+        {/* Language selector */}
+        <div className="mt-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => onLanguageChange('ru')}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                language === 'ru'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-base">🇷🇺</span> Русский
+            </button>
+            <button
+              type="button"
+              onClick={() => onLanguageChange('uz')}
+              className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
+                language === 'uz'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-base">🇺🇿</span> O'zbek
+            </button>
+          </div>
+          <p className="mt-1 text-xs text-gray-400">
+            {language === 'ru'
+              ? 'Контент на русском + узбекские переводы (title_uz)'
+              : "Barcha kontent faqat o'zbek tilida"}
+          </p>
         </div>
 
         {/* Navigation */}
