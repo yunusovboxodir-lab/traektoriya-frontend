@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from 'react';
 import {
   generationApi,
+  convertV2ToLegacy,
   type GenerateLessonResponse,
   type GeneratedLesson,
   type QuizQuestion,
@@ -241,7 +242,9 @@ function SimpleGeneration() {
         difficulty,
         use_mock: false,
       });
-      setResult(resp.data);
+      // V2 response — convert to legacy format for UI compatibility
+      const legacyResult = convertV2ToLegacy(resp.data);
+      setResult(legacyResult);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: string } }; message?: string };
       const msg = e.response?.data?.detail || e.message || t('generation.errorGeneration');
@@ -781,10 +784,12 @@ function WizardGeneration() {
           use_mock: false,
         });
 
-        const lessonData = resp.data.lesson || (resp.data as unknown as GeneratedLesson);
+        // V2 response — convert to legacy format for UI compatibility
+        const legacyResult = convertV2ToLegacy(resp.data);
+        const lessonData = legacyResult.lesson || (legacyResult as unknown as GeneratedLesson);
         results.push({
           lesson: lessonData,
-          metadata: resp.data.metadata,
+          metadata: legacyResult.metadata,
           competencyName: comp.name,
           status: 'draft',
           isEditing: false,
