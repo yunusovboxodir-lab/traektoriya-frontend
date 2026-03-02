@@ -761,12 +761,9 @@ function WizardGeneration() {
       const res = await documentsApi.upload(uploadFile, 'job_description');
       const doc = res.data;
       setUploadedDoc(doc);
-      // Trigger RAG processing
-      try {
-        await ragApi.processDocument(doc.id);
-      } catch {
-        // Non-critical
-      }
+      // Trigger RAG processing in background (fire-and-forget).
+      // Don't await — it can take minutes and blocks step progression.
+      ragApi.processDocument(doc.id).catch(() => { /* non-critical */ });
       setStep(2);
     } catch (err: unknown) {
       const e = err as { response?: { data?: { detail?: unknown } }; message?: string };
