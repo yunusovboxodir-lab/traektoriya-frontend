@@ -42,6 +42,7 @@ export interface SectionMap {
   color?: string | null;
   level_range: LevelRange;
   is_unlocked: boolean;
+  is_village: boolean;
   unlock_condition?: UnlockCondition | null;
   progress?: SectionProgress | null;
   levels?: LevelProgress[] | null;
@@ -115,6 +116,7 @@ export interface SectionCoursesResponse {
     title: BilingualText;
     description: BilingualText;
     level_range: LevelRange;
+    is_village?: boolean;
   };
   user_progress: {
     completed: number;

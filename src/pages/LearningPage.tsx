@@ -24,6 +24,7 @@ function bl(v: string | { ru: string; uz?: string | null } | undefined | null, l
   return (lang === 'uz' && v.uz) ? v.uz : v.ru;
 }
 import { LearningMap } from '../components/learning/LearningMap';
+import { VillageView } from '../components/learning/VillageView';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
 import { FieldTaskCard } from '../components/learning/FieldTaskCard';
@@ -36,7 +37,7 @@ import { FieldTaskCard } from '../components/learning/FieldTaskCard';
 //   4. course   — содержание курса (слайды + квиз)
 // ===========================================
 
-type View = 'modules' | 'map' | 'section' | 'course';
+type View = 'modules' | 'map' | 'section' | 'village' | 'course';
 
 export function LearningPage() {
   const t = useT();
@@ -101,13 +102,15 @@ export function LearningPage() {
     setView('map');
   };
 
-  // Open section
-  const openSection = async (sectionId: string) => {
+  // Open section (village or regular)
+  const openSection = async (sectionId: string, isVillage = false) => {
     try {
       setIsLoading(true);
       const resp = await learningApi.getSectionCourses(sectionId);
       setSectionData(resp.data);
-      setView('section');
+      // Route village sections to VillageView, regular to SectionView
+      const isVillageSection = isVillage || resp.data.section.is_village;
+      setView(isVillageSection ? 'village' : 'section');
       setError('');
     } catch {
       setError(t('learning.errors.section'));
@@ -179,11 +182,13 @@ export function LearningPage() {
   const goBack = () => {
     if (view === 'course') {
       if (sectionData) {
-        setView('section');
+        // Return to village or section depending on is_village flag
+        const isVillageSection = sectionData.section.is_village;
+        setView(isVillageSection ? 'village' : 'section');
       } else {
         setView('map');
       }
-    } else if (view === 'section') {
+    } else if (view === 'section' || view === 'village') {
       setView('map');
       loadMap(selectedRole); // Refresh progress
     } else if (view === 'map') {
@@ -233,6 +238,17 @@ export function LearningPage() {
         </button>
         <LearningMap data={mapData} onOpenSection={openSection} />
       </div>
+    );
+  }
+
+  // ======== VIEW: VILLAGE ========
+  if (view === 'village' && sectionData) {
+    return (
+      <VillageView
+        data={sectionData}
+        onBack={goBack}
+        onOpenCourse={openCourse}
+      />
     );
   }
 

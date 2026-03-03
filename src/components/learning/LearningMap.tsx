@@ -17,7 +17,7 @@ import {
 
 interface Props {
   data: LearningMapResponse;
-  onOpenSection: (sectionId: string) => void;
+  onOpenSection: (sectionId: string, isVillage: boolean) => void;
 }
 
 // ============================================================
@@ -674,8 +674,10 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
                 if (hoveredBuilding === bKey) strokeColor = '#ffffff';
 
+                const isVillage = !!bld.section.is_village;
                 const stateClass = bld.isCompleted ? 'building-wrapper--completed'
                   : bld.isAiRecommended ? 'building-wrapper--ai' : '';
+                const villageClass = isVillage ? ' building-wrapper--village' : '';
 
                 const winRows = Math.min(Math.ceil(bHeight / 16), 3);
 
@@ -684,7 +686,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                     key={bKey}
                     className="building-positioner"
                     style={{ left: `${(bx / W) * 100}%`, top: `${(by / H) * 100}%` }}
-                    onClick={() => onOpenSection(bld.section.section_id)}
+                    onClick={() => onOpenSection(bld.section.section_id, !!bld.section.is_village)}
                     onMouseEnter={() => {
                       setHoveredBuilding(bKey);
                       setTooltip({ x: bx, y: by - bHeight - 30, building: bld, zoneColor: zone.color });
@@ -692,7 +694,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                     onMouseLeave={() => { setHoveredBuilding(null); setTooltip(null); }}
                   >
                     <div
-                      className={`building-wrapper ${stateClass}`}
+                      className={`building-wrapper ${stateClass}${villageClass}`}
                       style={{
                         width: `${bWidth}px`, height: `${bHeight}px`,
                         '--b-width': `${bWidth}px`, '--b-height': `${bHeight}px`,
@@ -713,7 +715,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                         <div className="building-door" />
                       </div>
                       <div className="face-side" />
-                      <div className="face-top" />
+                      <div className={isVillage ? 'face-top face-top--house' : 'face-top'} />
                     </div>
 
                     {!bld.isCompleted && bld.hasProgress && (
@@ -723,7 +725,10 @@ export function LearningMap({ data, onOpenSection }: Props) {
                     )}
                     {bld.isCompleted && <div className="building-badge">✓</div>}
                     {bld.isAiRecommended && !bld.isCompleted && <div className="building-icon">🔥</div>}
-                    {bld.section.icon && !bld.isAiRecommended && !bld.isCompleted && (
+                    {isVillage && !bld.isAiRecommended && !bld.isCompleted && (
+                      <div className="building-icon" style={{ opacity: 0.85 }}>🏘️</div>
+                    )}
+                    {bld.section.icon && !isVillage && !bld.isAiRecommended && !bld.isCompleted && (
                       <div className="building-icon" style={{ opacity: 0.7 }}>{bld.section.icon}</div>
                     )}
                   </div>
