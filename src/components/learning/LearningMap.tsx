@@ -562,16 +562,16 @@ export function LearningMap({ data, onOpenSection }: Props) {
             ))}
           </defs>
 
-          {/* Territory fills */}
+          {/* Territory fills — enhanced saturation */}
           {ZONES.map((zone, zi) => {
             const isCurrent = zone.level === user.current_level;
             return (
               <g key={zone.level}>
-                <path d={territory.territories[zi]} fill={zone.colorDark} opacity={0.7} />
-                <path d={territory.territories[zi]} fill={zone.color} opacity={isCurrent ? 0.15 : 0.07} />
+                <path d={territory.territories[zi]} fill={zone.colorDark} opacity={0.85} />
+                <path d={territory.territories[zi]} fill={zone.color} opacity={isCurrent ? 0.2 : 0.1} />
                 {isCurrent && (
-                  <path d={territory.territories[zi]} fill={zone.glowColor} filter={`url(#glow-${zone.level})`} opacity={0.25}>
-                    <animate attributeName="opacity" values="0.15;0.3;0.15" dur="3s" repeatCount="indefinite" />
+                  <path d={territory.territories[zi]} fill={zone.glowColor} filter={`url(#glow-${zone.level})`} opacity={0.3}>
+                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
                   </path>
                 )}
               </g>
@@ -583,49 +583,39 @@ export function LearningMap({ data, onOpenSection }: Props) {
             <circle key={`s${i}`} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />
           ))}
 
-          {/* Territory borders */}
+          {/* Territory borders — bold and clear */}
           {territory.borders.map((b, i) => (
-            <path key={`border-${i}`} d={b} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+            <g key={`border-${i}`}>
+              <path d={b} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="8" />
+              <path d={b} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="3" strokeDasharray="10 5" strokeLinecap="round" />
+              <path d={b} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+            </g>
           ))}
 
-          {/* Road trajectory through every building */}
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="2.5" strokeDasharray="8 4" />
+          {/* Road — wide visible path */}
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="14" strokeLinecap="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="8" strokeLinecap="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="4" strokeDasharray="16 8" strokeLinecap="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+          {/* Road waypoints — larger */}
           {allBuildingPts.map((pt, i) => (
-            <circle
-              key={`rd-${i}`}
-              cx={pt.x} cy={pt.y} r={3.5}
-              fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.25)'}
-              stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.1)'}
-              strokeWidth={1}
-            />
+            <g key={`rd-${i}`}>
+              <circle
+                cx={pt.x} cy={pt.y} r={7}
+                fill="none"
+                stroke={i < completedCount ? 'rgba(76,175,80,0.5)' : 'rgba(255,255,255,0.12)'}
+                strokeWidth={1.5}
+              />
+              <circle
+                cx={pt.x} cy={pt.y} r={4}
+                fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.3)'}
+                stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.15)'}
+                strokeWidth={1}
+              />
+            </g>
           ))}
 
-          {/* Zone labels */}
-          {ZONES.map((zone) => {
-            const buildings = zoneData.get(zone.level) || [];
-            const isCurrent = zone.level === user.current_level;
-            const center = getZoneCenter(zone);
-            return (
-              <g key={`label-${zone.level}`}>
-                <text
-                  x={center.x} y={center.y}
-                  textAnchor="middle" dominantBaseline="central"
-                  fill={zone.color} fontSize={isMobile ? 18 : 20} fontWeight="bold"
-                  className="select-none" opacity={isCurrent ? 0.9 : 0.55}
-                  style={{ textShadow: `0 0 15px ${zone.glowColor}` }}
-                >
-                  {zone.label}
-                </text>
-                <text
-                  x={center.x} y={center.y + (isMobile ? 18 : 20)}
-                  textAnchor="middle" dominantBaseline="central"
-                  fill={zone.color} fontSize="11" opacity={0.35} className="select-none"
-                >
-                  {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
-                </text>
-              </g>
-            );
-          })}
+          {/* Zone labels moved to HTML Layer 3 (above houses) */}
         </svg>
 
         {/* ===== LAYER 2: 3D Houses (HTML overlay) ===== */}
@@ -738,7 +728,71 @@ export function LearningMap({ data, onOpenSection }: Props) {
           </div>
         </div>
 
-        {/* ===== LAYER 3: Tooltip ===== */}
+        {/* ===== LAYER 3: Zone Labels (HTML — on top of houses) ===== */}
+        <div className="absolute inset-0 pointer-events-none z-10" style={{ '--map-scale': mapScale } as React.CSSProperties}>
+          {ZONES.map((zone) => {
+            const buildings = zoneData.get(zone.level) || [];
+            const isCurrent = zone.level === user.current_level;
+            const center = getZoneCenter(zone);
+            const W_ = isMobile ? MW : DW;
+            const H_ = isMobile ? MH : DH;
+            return (
+              <div
+                key={`html-label-${zone.level}`}
+                className="absolute select-none"
+                style={{
+                  left: `${(center.x / W_) * 100}%`,
+                  top: `${(center.y / H_) * 100}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                {/* Main label */}
+                <div
+                  style={{
+                    color: zone.color,
+                    fontSize: isMobile ? '22px' : '48px',
+                    fontWeight: 900,
+                    letterSpacing: isMobile ? '3px' : '8px',
+                    textTransform: 'uppercase' as const,
+                    textShadow: `0 0 40px ${zone.glowColor}, 0 0 80px ${zone.glowColor}, 0 0 120px ${zone.glowColor}, 0 3px 6px rgba(0,0,0,0.9)`,
+                    WebkitTextStroke: `${isMobile ? 1 : 2}px rgba(0,0,0,0.4)`,
+                    opacity: isCurrent ? 1 : 0.8,
+                    textAlign: 'center' as const,
+                    lineHeight: 1,
+                  }}
+                >
+                  {zone.label}
+                </div>
+                {/* Decorative line */}
+                <div
+                  style={{
+                    width: isMobile ? '60px' : '140px',
+                    height: '2px',
+                    background: `linear-gradient(90deg, transparent, ${zone.color}, transparent)`,
+                    margin: `${isMobile ? 4 : 6}px auto`,
+                    opacity: isCurrent ? 0.7 : 0.4,
+                  }}
+                />
+                {/* Subtitle */}
+                <div
+                  style={{
+                    color: zone.color,
+                    fontSize: isMobile ? '10px' : '14px',
+                    fontStyle: 'italic',
+                    letterSpacing: '2px',
+                    textAlign: 'center' as const,
+                    opacity: isCurrent ? 0.8 : 0.5,
+                    textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                  }}
+                >
+                  {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* ===== LAYER 4: Tooltip ===== */}
         {tooltip && (
           <div
             className="absolute pointer-events-none z-20"
