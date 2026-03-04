@@ -197,6 +197,14 @@ const LEVEL_ORDER: Record<string, number> = {
   master: 3,
 };
 
+// Label position offsets from zone center (to avoid covering buildings)
+const LABEL_OFFSETS: Record<string, { dx: number; dy: number; mdx: number; mdy: number }> = {
+  trainee:      { dx: 0, dy: 260, mdx: 0, mdy: 120 },
+  practitioner: { dx: 0, dy: 135, mdx: 0, mdy: 120 },
+  expert:       { dx: 0, dy: 105, mdx: 0, mdy: 120 },
+  master:       { dx: 0, dy: 260, mdx: 0, mdy: 120 },
+};
+
 // ============================================================
 // Territory borders — desktop layout
 // ============================================================
@@ -560,6 +568,9 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
               </filter>
             ))}
+            <filter id="road-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
+            </filter>
           </defs>
 
           {/* Territory fills — enhanced saturation */}
@@ -592,11 +603,11 @@ export function LearningMap({ data, onOpenSection }: Props) {
             </g>
           ))}
 
-          {/* Road — wide visible path */}
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="14" strokeLinecap="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="8" strokeLinecap="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="4" strokeDasharray="16 8" strokeLinecap="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+          {/* Road — solid dark surface with glow edges (Flutter-style) */}
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" filter="url(#road-glow)" />
+          <path d={roadPath} fill="none" stroke="rgba(200,210,230,0.18)" strokeWidth="22" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="#1a1a2e" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="8 8" strokeLinecap="round" />
           {/* Road waypoints — larger */}
           {allBuildingPts.map((pt, i) => (
             <g key={`rd-${i}`}>
@@ -734,6 +745,9 @@ export function LearningMap({ data, onOpenSection }: Props) {
             const buildings = zoneData.get(zone.level) || [];
             const isCurrent = zone.level === user.current_level;
             const center = getZoneCenter(zone);
+            const offset = LABEL_OFFSETS[zone.level] || { dx: 0, dy: 0, mdx: 0, mdy: 0 };
+            const labelX = center.x + (isMobile ? offset.mdx : offset.dx);
+            const labelY = center.y + (isMobile ? offset.mdy : offset.dy);
             const W_ = isMobile ? MW : DW;
             const H_ = isMobile ? MH : DH;
             return (
@@ -741,8 +755,8 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 key={`html-label-${zone.level}`}
                 className="absolute select-none"
                 style={{
-                  left: `${(center.x / W_) * 100}%`,
-                  top: `${(center.y / H_) * 100}%`,
+                  left: `${(labelX / W_) * 100}%`,
+                  top: `${(labelY / H_) * 100}%`,
                   transform: 'translate(-50%, -50%)',
                 }}
               >
@@ -750,7 +764,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 <div
                   style={{
                     color: zone.color,
-                    fontSize: isMobile ? '22px' : '48px',
+                    fontSize: isMobile ? '18px' : '40px',
                     fontWeight: 900,
                     letterSpacing: isMobile ? '3px' : '8px',
                     textTransform: 'uppercase' as const,
