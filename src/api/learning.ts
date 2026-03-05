@@ -195,6 +195,86 @@ export interface MediaPrompt {
   media_url?: string | null;
 }
 
+// Lesson Data — rich v2 format (scene, infographic, dialogue, quiz)
+export interface LessonDataScene {
+  location: string;
+  time: string;
+  crisis: string;
+  context: string;
+  dialogue: Array<{
+    speaker: string;
+    line: string;
+    side?: 'left' | 'right';
+    color?: string;
+  }>;
+  stakes: string;
+}
+
+export interface LessonDataInfographic {
+  title: string;
+  nodes: Array<{
+    id: string;
+    label: string;
+    name?: string;
+    color?: string;
+    level?: number;
+    kpi?: number;
+    vacant?: boolean;
+    detail?: string;
+    icon?: string;
+  }>;
+  metrics: Array<{
+    label: string;
+    value: string;
+    unit: string;
+  }>;
+}
+
+export interface LessonDataDialogueExchange {
+  situation: string;
+  wrong: { speaker?: string; text: string; consequence?: string };
+  right: { speaker?: string; text: string; outcome?: string };
+  lesson: string;
+}
+
+export interface LessonDataDialogue {
+  title: string;
+  scenario: string;
+  exchanges: LessonDataDialogueExchange[];
+}
+
+export interface LessonDataQuizOption {
+  id: string;
+  text: string;
+  correct: boolean;
+  explanation: string;
+}
+
+export interface LessonDataQuizQuestion {
+  id: number | string;
+  text: string;
+  options: LessonDataQuizOption[];
+}
+
+export interface LessonDataQuiz {
+  title: string;
+  questions: LessonDataQuizQuestion[];
+}
+
+export interface LessonData {
+  id: string;
+  module: string;
+  title: string;
+  subtitle: string;
+  brand: string;
+  accent: string;
+  accentSoft: string;
+  scene?: LessonDataScene;
+  infographic?: LessonDataInfographic;
+  dialogueLesson?: LessonDataDialogue;
+  quiz?: LessonDataQuiz;
+}
+
 // Course detail
 export interface CourseDetailResponse {
   course: {
@@ -219,6 +299,7 @@ export interface CourseDetailResponse {
     field_task?: FieldTask | null;
     spaced_repetition_cards: FlashCard[];
     media_prompts?: MediaPrompt[];
+    lesson_data?: LessonData | null;
   };
 }
 

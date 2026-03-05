@@ -28,6 +28,8 @@ import { VillageView } from '../components/learning/VillageView';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
 import { FieldTaskCard } from '../components/learning/FieldTaskCard';
+import { LessonDataView } from '../components/learning/LessonDataView';
+import type { LessonData } from '../api/learning';
 
 // ===========================================
 // LEARNING MAP — четыре режима отображения:
@@ -58,6 +60,7 @@ export function LearningPage() {
   const [completionResult, setCompletionResult] = useState<CourseCompleteResponse | null>(null);
   const [flashcardsDone, setFlashcardsDone] = useState(false);
   const [fieldTaskDone, setFieldTaskDone] = useState(false);
+  const [lessonDataDone, setLessonDataDone] = useState(false);
   const [startTime] = useState(Date.now());
 
   const addToast = useToastStore((s) => s.addToast);
@@ -132,6 +135,7 @@ export function LearningPage() {
       setCompletionResult(null);
       setFlashcardsDone(false);
       setFieldTaskDone(false);
+      setLessonDataDone(false);
       setView('course');
       setError('');
     } catch {
@@ -280,6 +284,8 @@ export function LearningPage() {
         setFlashcardsDone={setFlashcardsDone}
         fieldTaskDone={fieldTaskDone}
         setFieldTaskDone={setFieldTaskDone}
+        lessonDataDone={lessonDataDone}
+        setLessonDataDone={setLessonDataDone}
         onSubmitQuiz={submitQuiz}
         onBack={goBack}
       />
@@ -694,7 +700,7 @@ function parseContentBlocks(content: string): ContentBlock[] {
 // COURSE VIEW — visual micro-learning: slides → quiz → flashcards → field task → results
 // ============================================================
 
-type CoursePhase = 'slides' | 'quiz' | 'flashcards' | 'field_task' | 'results';
+type CoursePhase = 'slides' | 'lesson_data' | 'quiz' | 'flashcards' | 'field_task' | 'results';
 
 function CourseView({
   data,
@@ -710,6 +716,8 @@ function CourseView({
   setFlashcardsDone,
   fieldTaskDone,
   setFieldTaskDone,
+  lessonDataDone,
+  setLessonDataDone,
   onSubmitQuiz,
   onBack,
 }: {
@@ -726,6 +734,8 @@ function CourseView({
   setFlashcardsDone: (v: boolean) => void;
   fieldTaskDone: boolean;
   setFieldTaskDone: (v: boolean) => void;
+  lessonDataDone: boolean;
+  setLessonDataDone: (v: boolean) => void;
   onSubmitQuiz: (questions?: QuizQuestion[]) => void;
   onBack: () => void;
 }) {
@@ -737,13 +747,17 @@ function CourseView({
   const fieldTask = data.content.field_task as FieldTask | null | undefined;
   const mediaPrompts = data.content.media_prompts || [];
 
+  const lessonData = data.content.lesson_data as LessonData | null | undefined;
+  const hasLessonData = !!lessonData && !!(lessonData.scene || lessonData.infographic || lessonData.dialogueLesson || lessonData.quiz);
+
   const hasQuiz = quiz.length > 0;
   const hasFlashcards = flashcards.length > 0;
   const hasFieldTask = !!fieldTask && !!fieldTask.title;
 
-  // Determine current phase
+  // Determine current phase: slides → lesson_data → quiz → flashcards → field_task → results
   const phase: CoursePhase = useMemo(() => {
     if (currentSlide < slides.length) return 'slides';
+    if (hasLessonData && !lessonDataDone) return 'lesson_data';
     if (hasQuiz && !quizSubmitted) return 'quiz';
     if (quizSubmitted && hasFlashcards && !flashcardsDone) return 'flashcards';
     if (quizSubmitted && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
@@ -752,9 +766,9 @@ function CourseView({
     if (!hasQuiz && hasFlashcards && !flashcardsDone) return 'flashcards';
     if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
     return 'results';
-  }, [currentSlide, slides.length, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
+  }, [currentSlide, slides.length, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
 
-  const totalSlidePages = slides.length + (hasQuiz ? 1 : 0);
+  const totalSlidePages = slides.length + (hasLessonData ? 1 : 0) + (hasQuiz ? 1 : 0);
 
   // Get media prompt for current slide
   const currentMediaPrompt = phase === 'slides' && slides[currentSlide]
@@ -801,8 +815,8 @@ function CourseView({
           <h2 className="text-lg font-bold leading-tight">{bl(data.course.title, lang)}</h2>
         </div>
 
-        {/* Step dots + progress (only during slides & quiz) */}
-        {(phase === 'slides' || phase === 'quiz') && (
+        {/* Step dots + progress (during slides, lesson_data & quiz) */}
+        {(phase === 'slides' || phase === 'lesson_data' || phase === 'quiz') && (
           <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-2">
             <div className="flex items-center gap-1.5 flex-1">
               {Array.from({ length: totalSlidePages }, (_, i) => (
@@ -870,6 +884,15 @@ function CourseView({
                 </div>
               )}
             </div>
+          )}
+
+          {/* ========= LESSON DATA (scene, infographic, dialogue, quiz) ========= */}
+          {phase === 'lesson_data' && lessonData && (
+            <LessonDataView
+              data={lessonData}
+              lang={lang}
+              onComplete={() => setLessonDataDone(true)}
+            />
           )}
 
           {/* ========= QUIZ (all types) ========= */}
@@ -994,7 +1017,7 @@ function CourseView({
               onClick={() => setCurrentSlide(currentSlide + 1)}
               className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all"
             >
-              {currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
+              {currentSlide === slides.length - 1 && hasLessonData ? (lang === 'uz' ? 'Amaliyot' : 'Практика') : currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
