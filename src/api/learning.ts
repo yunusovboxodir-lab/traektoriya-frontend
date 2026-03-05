@@ -562,4 +562,27 @@ export const learningApi = {
     api.get<LeaderboardResponse>('/api/v1/learning/leaderboard', {
       params: { limit },
     }),
+
+  // Narration (TTS)
+  getNarration: (courseId: string) =>
+    api.get<NarrationResponse>(`/api/v1/narration/${courseId}`),
+
+  generateNarration: (courseId: string, lang = 'ru') =>
+    api.post(`/api/v1/narration/${courseId}/generate`, { lang }),
+
+  getNarrationStatus: (courseId: string) =>
+    api.get<{ course_id: string; status: string }>(`/api/v1/narration/${courseId}/status`),
 };
+
+// Narration types
+export interface SlideNarration {
+  order: number;
+  audio_url: string;
+  duration_seconds: number;
+}
+
+export interface NarrationResponse {
+  course_id: string;
+  slides: SlideNarration[];
+  status: 'none' | 'pending' | 'generating' | 'ready' | 'error';
+}

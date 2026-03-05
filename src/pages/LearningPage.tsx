@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   learningApi,
   LEVEL_NAMES,
@@ -13,6 +13,7 @@ import {
   type CourseCompleteResponse,
   type FlashCard,
   type FieldTask,
+  type NarrationResponse,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
 import { useT, useLangStore, type Lang } from '../stores/langStore';
@@ -590,67 +591,73 @@ function RichSlideContent({ content }: { content: string }) {
   const blocks = useMemo(() => parseContentBlocks(content), [content]);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {blocks.map((block, i) => {
         switch (block.type) {
           case 'bullet':
             return (
               <div key={i} className="flex items-start gap-3 pl-1">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
-                <span className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+                <div className="w-2 h-2 rounded-full bg-blue-400 mt-2 shrink-0" />
+                <span className="text-gray-700 text-[15px] leading-7" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'numbered':
             return (
               <div key={i} className="flex items-start gap-3 pl-1">
-                <span className="w-6 h-6 rounded-lg bg-blue-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{block.num}</span>
-                <span className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+                <span className="w-7 h-7 rounded-lg bg-blue-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{block.num}</span>
+                <span className="text-gray-700 text-[15px] leading-7" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'check':
             return (
-              <div key={i} className="flex items-start gap-3 bg-emerald-50 rounded-xl px-4 py-2.5">
+              <div key={i} className="flex items-start gap-3 bg-emerald-50 rounded-xl px-4 py-3">
                 <span className="text-lg shrink-0">{block.icon}</span>
-                <span className="text-gray-700 leading-relaxed">{block.text}</span>
+                <span className="text-gray-700 text-[15px] leading-7" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'cross':
             return (
-              <div key={i} className="flex items-start gap-3 bg-red-50 rounded-xl px-4 py-2.5">
+              <div key={i} className="flex items-start gap-3 bg-red-50 rounded-xl px-4 py-3">
                 <span className="text-lg shrink-0">{block.icon}</span>
-                <span className="text-gray-700 leading-relaxed">{block.text}</span>
+                <span className="text-gray-700 text-[15px] leading-7" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'highlight':
             return (
-              <div key={i} className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5">
+              <div key={i} className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
                 <span className="text-lg shrink-0">{block.icon}</span>
-                <span className="text-gray-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+                <span className="text-gray-700 text-[15px] leading-7 font-medium" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'stat':
             return (
               <div key={i} className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl px-4 py-3 border border-blue-100">
-                <span className="text-gray-700 leading-relaxed">{block.text}</span>
+                <span className="text-gray-700 text-[15px] leading-7 font-medium" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'heading':
             return block.level === 1 ? (
-              <p key={i} className="text-gray-900 font-bold text-xl mt-3 first:mt-0">{block.text}</p>
+              <p key={i} className="text-gray-900 font-bold text-xl mt-4 first:mt-0">{block.text}</p>
             ) : block.level === 2 ? (
               <p key={i} className="text-gray-900 font-bold text-lg mt-3 first:mt-0">{block.text}</p>
             ) : (
-              <p key={i} className="text-gray-800 font-bold text-[15px] mt-2 first:mt-0">{block.text}</p>
+              <p key={i} className="text-gray-800 font-bold text-[16px] mt-3 first:mt-0">{block.text}</p>
             );
           case 'blockquote':
             return (
               <div key={i} className="border-l-4 border-blue-300 bg-blue-50/50 rounded-r-xl pl-4 pr-4 py-3">
-                <span className="text-gray-600 leading-relaxed italic" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+                <span className="text-gray-600 text-[15px] leading-7 italic" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+              </div>
+            );
+          case 'dialogue':
+            return (
+              <div key={i} className="bg-gray-50 rounded-xl px-4 py-3 border-l-4 border-indigo-300">
+                <span className="text-gray-700 text-[15px] leading-7 italic" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           default:
             return (
-              <p key={i} className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+              <p key={i} className="text-gray-700 text-[15px] leading-7" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
             );
         }
       })}
@@ -659,7 +666,7 @@ function RichSlideContent({ content }: { content: string }) {
 }
 
 type ContentBlock = {
-  type: 'text' | 'bullet' | 'numbered' | 'check' | 'cross' | 'highlight' | 'stat' | 'heading' | 'blockquote';
+  type: 'text' | 'bullet' | 'numbered' | 'check' | 'cross' | 'highlight' | 'stat' | 'heading' | 'blockquote' | 'dialogue';
   text: string;
   icon?: string;
   num?: number;
@@ -722,6 +729,10 @@ function parseContentBlocks(content: string): ContentBlock[] {
     else if (/^\d+[.)]\s/.test(line)) {
       const num = parseInt(line);
       blocks.push({ type: 'numbered', text: stripInlineMarkdown(line.replace(/^\d+[.)]\s*/, '')), num });
+    }
+    // Dialogue lines: — text (em-dash = character speech)
+    else if (/^—\s/.test(line)) {
+      blocks.push({ type: 'dialogue', text: line });
     }
     // Lines ending with ":" are headings
     else if (/^[А-ЯA-Z].*:$/.test(line)) {
@@ -843,6 +854,107 @@ function CourseView({
   const currentMediaPrompt = phase === 'slides' && slides[currentSlide]
     ? mediaPrompts.find(p => p.slide_order === slides[currentSlide].order)
     : null;
+
+  // ===== AUDIO NARRATION =====
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [narration, setNarration] = useState<NarrationResponse | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Fetch narration data on mount
+  useEffect(() => {
+    if (!data.course.id || slides.length === 0) return;
+    learningApi.getNarration(data.course.id)
+      .then(res => { if (res.data.status === 'ready') setNarration(res.data); })
+      .catch(() => {}); // silently fail if no narration
+  }, [data.course.id, slides.length]);
+
+  // Get current slide audio URL
+  const currentAudio = narration?.slides.find(
+    s => s.order === (slides[currentSlide]?.order ?? currentSlide)
+  );
+
+  // Play/pause audio
+  const toggleAudio = useCallback(() => {
+    if (!audioRef.current || !currentAudio) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    } else {
+      audioRef.current.src = currentAudio.audio_url;
+      audioRef.current.play().catch(() => {});
+      setIsPlaying(true);
+    }
+  }, [isPlaying, currentAudio]);
+
+  // Handle audio ended → auto-advance
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onEnded = () => {
+      setIsPlaying(false);
+      setAudioProgress(0);
+      // Auto-advance after 2 seconds
+      autoAdvanceTimer.current = setTimeout(() => {
+        if (currentSlide < slides.length - 1) {
+          setCurrentSlide(currentSlide + 1);
+        }
+      }, 2000);
+    };
+
+    const onTimeUpdate = () => {
+      if (audio.duration) {
+        setAudioProgress(audio.currentTime / audio.duration);
+        setAudioDuration(audio.duration);
+      }
+    };
+
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    return () => {
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, [currentSlide, slides.length, setCurrentSlide]);
+
+  // When slide changes, auto-play if in playing mode
+  useEffect(() => {
+    if (!audioRef.current || !isPlaying) return;
+    const slideAudio = narration?.slides.find(
+      s => s.order === (slides[currentSlide]?.order ?? currentSlide)
+    );
+    if (slideAudio) {
+      audioRef.current.src = slideAudio.audio_url;
+      audioRef.current.play().catch(() => setIsPlaying(false));
+    }
+    setAudioProgress(0);
+  }, [currentSlide]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, []);
+
+  // Initialize audio element
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio();
+    }
+  }, []);
+
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
 
   // Gradient colors per slide index
   const slideAccents = [
@@ -1101,11 +1213,61 @@ function CourseView({
           ) : null}
         </div>
 
+        {/* Audio Player */}
+        {phase === 'slides' && narration && narration.slides.length > 0 && (
+          <div className="px-6 py-3 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50/30">
+            <div className="flex items-center gap-3">
+              {/* Play/Pause button */}
+              <button
+                onClick={toggleAudio}
+                disabled={!currentAudio}
+                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-all ${
+                  currentAudio
+                    ? isPlaying
+                      ? 'bg-blue-500 text-white shadow-lg shadow-blue-200'
+                      : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {isPlaying ? (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1" /><rect x="14" y="4" width="4" height="16" rx="1" /></svg>
+                ) : (
+                  <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                )}
+              </button>
+
+              {/* Progress bar */}
+              <div className="flex-1 flex items-center gap-2">
+                <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-200"
+                    style={{ width: `${audioProgress * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
+                  {audioDuration > 0 ? formatTime(audioDuration * audioProgress) : '0:00'}
+                </span>
+              </div>
+
+              {/* Auto-mode indicator */}
+              {isPlaying && (
+                <span className="text-xs text-blue-500 font-medium px-2 py-1 bg-blue-50 rounded-full whitespace-nowrap">
+                  Auto
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Navigation */}
         {phase === 'slides' && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
             <button
-              onClick={() => setCurrentSlide(Math.max(0, currentSlide - 1))}
+              onClick={() => {
+                if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
+                if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+                setCurrentSlide(Math.max(0, currentSlide - 1));
+              }}
               disabled={currentSlide === 0}
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all rounded-xl hover:bg-white"
             >
@@ -1114,7 +1276,11 @@ function CourseView({
             </button>
 
             <button
-              onClick={() => setCurrentSlide(currentSlide + 1)}
+              onClick={() => {
+                if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
+                if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+                setCurrentSlide(currentSlide + 1);
+              }}
               className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all"
             >
               {currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
