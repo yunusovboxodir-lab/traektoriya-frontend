@@ -41,16 +41,12 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
     setVisitedTabs(prev => new Set([...prev, tab]));
   };
 
-  const allVisited = availableTabs.every(t => visitedTabs.has(t.key));
-
   return (
     <div className="space-y-4">
       {/* Header */}
       <div className="text-center mb-2">
-        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
-          {lang === 'uz' ? 'Interaktiv material' : 'Интерактивный материал'}
-        </p>
         <h3 className="text-base font-bold text-gray-800">{data.subtitle || data.title}</h3>
+        <p className="text-xs text-gray-400 mt-0.5">{data.brand}</p>
       </div>
 
       {/* Tab bar */}
@@ -94,20 +90,13 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
         )}
       </div>
 
-      {/* Continue button */}
+      {/* Continue button — always active, tabs are optional */}
       <div className="pt-2 flex justify-center">
         <button
           onClick={onComplete}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all ${
-            allVisited
-              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200'
-              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-          }`}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:shadow-lg hover:shadow-blue-200"
         >
-          {allVisited
-            ? (lang === 'uz' ? 'Davom etish' : 'Продолжить')
-            : (lang === 'uz' ? `Barcha bo'limlarni ko'ring` : 'Просмотрите все разделы')
-          }
+          {lang === 'uz' ? 'Davom etish' : 'К проверке знаний'}
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

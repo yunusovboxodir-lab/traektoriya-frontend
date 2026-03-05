@@ -754,21 +754,29 @@ function CourseView({
   const hasFlashcards = flashcards.length > 0;
   const hasFieldTask = !!fieldTask && !!fieldTask.title;
 
-  // Determine current phase: slides → lesson_data → quiz → flashcards → field_task → results
+  // If lesson_data exists → it IS the lesson (replaces slides)
+  // If no lesson_data → fall back to old slides
   const phase: CoursePhase = useMemo(() => {
-    if (currentSlide < slides.length) return 'slides';
-    if (hasLessonData && !lessonDataDone) return 'lesson_data';
-    if (hasQuiz && !quizSubmitted) return 'quiz';
-    if (quizSubmitted && hasFlashcards && !flashcardsDone) return 'flashcards';
-    if (quizSubmitted && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
-    if (quizSubmitted) return 'results';
-    // No quiz — go straight to flashcards/field_task/done
-    if (!hasQuiz && hasFlashcards && !flashcardsDone) return 'flashcards';
-    if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
+    if (hasLessonData) {
+      // New flow: lesson_data → quiz → results (no slides, no forced flashcards)
+      if (!lessonDataDone) return 'lesson_data';
+      if (hasQuiz && !quizSubmitted) return 'quiz';
+      if (quizSubmitted) return 'results';
+      if (!hasQuiz) return 'results';
+    } else {
+      // Legacy flow: slides → quiz → flashcards → field_task → results
+      if (currentSlide < slides.length) return 'slides';
+      if (hasQuiz && !quizSubmitted) return 'quiz';
+      if (quizSubmitted && hasFlashcards && !flashcardsDone) return 'flashcards';
+      if (quizSubmitted && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
+      if (quizSubmitted) return 'results';
+      if (!hasQuiz && hasFlashcards && !flashcardsDone) return 'flashcards';
+      if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
+    }
     return 'results';
   }, [currentSlide, slides.length, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
 
-  const totalSlidePages = slides.length + (hasLessonData ? 1 : 0) + (hasQuiz ? 1 : 0);
+  const totalSlidePages = hasLessonData ? (hasQuiz ? 2 : 1) : slides.length + (hasQuiz ? 1 : 0);
 
   // Get media prompt for current slide
   const currentMediaPrompt = phase === 'slides' && slides[currentSlide]
@@ -815,8 +823,25 @@ function CourseView({
           <h2 className="text-lg font-bold leading-tight">{bl(data.course.title, lang)}</h2>
         </div>
 
-        {/* Step dots + progress (during slides, lesson_data & quiz) */}
-        {(phase === 'slides' || phase === 'lesson_data' || phase === 'quiz') && (
+        {/* Step dots — new lesson_data flow vs legacy slides */}
+        {hasLessonData && (phase === 'lesson_data' || phase === 'quiz') && (
+          <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-3">
+            <div className="flex items-center gap-2 flex-1">
+              <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                phase === 'lesson_data' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
+              }`}>
+                {phase === 'lesson_data' ? '📖' : '✅'} {lang === 'uz' ? 'Material' : 'Материал'}
+              </span>
+              <div className="w-8 h-0.5 bg-gray-200 rounded" />
+              <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                phase === 'quiz' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'
+              }`}>
+                {phase === 'quiz' ? '✍️' : '🔒'} {lang === 'uz' ? 'Test' : 'Тест'}
+              </span>
+            </div>
+          </div>
+        )}
+        {!hasLessonData && (phase === 'slides' || phase === 'quiz') && (
           <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-2">
             <div className="flex items-center gap-1.5 flex-1">
               {Array.from({ length: totalSlidePages }, (_, i) => (
@@ -1017,7 +1042,7 @@ function CourseView({
               onClick={() => setCurrentSlide(currentSlide + 1)}
               className="flex items-center gap-1.5 px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-blue-200 transition-all"
             >
-              {currentSlide === slides.length - 1 && hasLessonData ? (lang === 'uz' ? 'Amaliyot' : 'Практика') : currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
+              {currentSlide === slides.length - 1 && hasQuiz ? t('learning.toQuiz') : currentSlide === slides.length - 1 ? t('learning.finish') : t('learning.next')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
@@ -1026,11 +1051,11 @@ function CourseView({
         {phase === 'quiz' && (
           <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
             <button
-              onClick={() => setCurrentSlide(slides.length - 1)}
+              onClick={() => hasLessonData ? setLessonDataDone(false) : setCurrentSlide(slides.length - 1)}
               className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-all rounded-xl hover:bg-white"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-              {t('learning.toSlides')}
+              {hasLessonData ? (lang === 'uz' ? 'Materialga' : 'К материалу') : t('learning.toSlides')}
             </button>
 
             <button
