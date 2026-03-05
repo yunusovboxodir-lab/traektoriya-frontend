@@ -29,7 +29,8 @@ import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuesti
 import { FlashcardsView } from '../components/learning/FlashcardsView';
 import { FieldTaskCard } from '../components/learning/FieldTaskCard';
 import { LessonDataView } from '../components/learning/LessonDataView';
-import type { LessonData } from '../api/learning';
+import { BlockRunner } from '../components/learning/blocks/BlockRunner';
+import type { LessonData, BlockLessonData } from '../api/learning';
 
 // ===========================================
 // LEARNING MAP — четыре режима отображения:
@@ -61,6 +62,7 @@ export function LearningPage() {
   const [flashcardsDone, setFlashcardsDone] = useState(false);
   const [fieldTaskDone, setFieldTaskDone] = useState(false);
   const [lessonDataDone, setLessonDataDone] = useState(false);
+  const [blocksDone, setBlocksDone] = useState(false);
   const [startTime] = useState(Date.now());
 
   const addToast = useToastStore((s) => s.addToast);
@@ -136,6 +138,7 @@ export function LearningPage() {
       setFlashcardsDone(false);
       setFieldTaskDone(false);
       setLessonDataDone(false);
+      setBlocksDone(false);
       setView('course');
       setError('');
     } catch {
@@ -286,6 +289,8 @@ export function LearningPage() {
         setFieldTaskDone={setFieldTaskDone}
         lessonDataDone={lessonDataDone}
         setLessonDataDone={setLessonDataDone}
+        blocksDone={blocksDone}
+        setBlocksDone={setBlocksDone}
         onSubmitQuiz={submitQuiz}
         onBack={goBack}
       />
@@ -592,14 +597,14 @@ function RichSlideContent({ content }: { content: string }) {
             return (
               <div key={i} className="flex items-start gap-3 pl-1">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-400 mt-2 shrink-0" />
-                <span className="text-gray-700 leading-relaxed">{block.text}</span>
+                <span className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'numbered':
             return (
               <div key={i} className="flex items-start gap-3 pl-1">
                 <span className="w-6 h-6 rounded-lg bg-blue-500 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{block.num}</span>
-                <span className="text-gray-700 leading-relaxed">{block.text}</span>
+                <span className="text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'check':
@@ -620,7 +625,7 @@ function RichSlideContent({ content }: { content: string }) {
             return (
               <div key={i} className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-2.5">
                 <span className="text-lg shrink-0">{block.icon}</span>
-                <span className="text-gray-700 leading-relaxed font-medium">{block.text}</span>
+                <span className="text-gray-700 leading-relaxed font-medium" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
               </div>
             );
           case 'stat':
@@ -630,12 +635,22 @@ function RichSlideContent({ content }: { content: string }) {
               </div>
             );
           case 'heading':
-            return (
+            return block.level === 1 ? (
+              <p key={i} className="text-gray-900 font-bold text-xl mt-3 first:mt-0">{block.text}</p>
+            ) : block.level === 2 ? (
+              <p key={i} className="text-gray-900 font-bold text-lg mt-3 first:mt-0">{block.text}</p>
+            ) : (
               <p key={i} className="text-gray-800 font-bold text-[15px] mt-2 first:mt-0">{block.text}</p>
+            );
+          case 'blockquote':
+            return (
+              <div key={i} className="border-l-4 border-blue-300 bg-blue-50/50 rounded-r-xl pl-4 pr-4 py-3">
+                <span className="text-gray-600 leading-relaxed italic" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
+              </div>
             );
           default:
             return (
-              <p key={i} className="text-gray-600 leading-relaxed">{block.text}</p>
+              <p key={i} className="text-gray-600 leading-relaxed" dangerouslySetInnerHTML={{ __html: inlineMarkdownToHtml(block.text) }} />
             );
         }
       })}
@@ -644,11 +659,28 @@ function RichSlideContent({ content }: { content: string }) {
 }
 
 type ContentBlock = {
-  type: 'text' | 'bullet' | 'numbered' | 'check' | 'cross' | 'highlight' | 'stat' | 'heading';
+  type: 'text' | 'bullet' | 'numbered' | 'check' | 'cross' | 'highlight' | 'stat' | 'heading' | 'blockquote';
   text: string;
   icon?: string;
   num?: number;
+  level?: number; // heading level: 1, 2, 3
 };
+
+/** Strip inline markdown: **bold** → bold, *italic* → italic (plain text) */
+function stripInlineMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1');
+}
+
+/** Convert inline markdown to HTML spans for dangerouslySetInnerHTML */
+function inlineMarkdownToHtml(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>');
+}
 
 function parseContentBlocks(content: string): ContentBlock[] {
   const lines = content.split('\n').filter(l => l.trim());
@@ -657,37 +689,49 @@ function parseContentBlocks(content: string): ContentBlock[] {
   for (const rawLine of lines) {
     const line = rawLine.trim();
 
+    // Markdown headings: ### h3, ## h2, # h1
+    if (/^#{1,3}\s/.test(line)) {
+      const level = (line.match(/^(#+)/)?.[1].length || 1) as number;
+      const text = line.replace(/^#{1,3}\s+/, '');
+      blocks.push({ type: 'heading', text: stripInlineMarkdown(text), level });
+    }
+    // Blockquotes: > text
+    else if (/^>\s/.test(line)) {
+      const text = line.replace(/^>\s*/, '');
+      blocks.push({ type: 'blockquote', text: stripInlineMarkdown(text) });
+    }
     // ✅ or ✓ lines → green check block
-    if (/^[✅✓]\s/.test(line)) {
-      blocks.push({ type: 'check', text: line.replace(/^[✅✓]\s*/, ''), icon: '✅' });
+    else if (/^[✅✓]\s/.test(line)) {
+      blocks.push({ type: 'check', text: stripInlineMarkdown(line.replace(/^[✅✓]\s*/, '')), icon: '✅' });
     }
     // ❌ lines → red cross block
     else if (/^❌\s/.test(line)) {
-      blocks.push({ type: 'cross', text: line.replace(/^❌\s*/, ''), icon: '❌' });
+      blocks.push({ type: 'cross', text: stripInlineMarkdown(line.replace(/^❌\s*/, '')), icon: '❌' });
     }
     // 🔴🟡🟢⚠️💡🎯🏆 → colored highlight
     else if (/^[🔴🟡🟢⚠️💡🎯🏆💰📊📈📦📍📸📐⏱️👥🏪]\s/.test(line)) {
       const icon = line.match(/^(\S+)\s/)?.[1] || '💡';
-      blocks.push({ type: 'highlight', text: line.replace(/^\S+\s*/, ''), icon });
+      blocks.push({ type: 'highlight', text: stripInlineMarkdown(line.replace(/^\S+\s*/, '')), icon });
     }
+    // Markdown bullet: - text (but not ---)
     // • or - bullet points
-    else if (/^[•\-–]\s/.test(line)) {
-      blocks.push({ type: 'bullet', text: line.replace(/^[•\-–]\s*/, '') });
+    else if (/^[•–]\s/.test(line) || /^-\s(?!--)/.test(line)) {
+      blocks.push({ type: 'bullet', text: stripInlineMarkdown(line.replace(/^[•\-–]\s*/, '')) });
     }
     // Numbered: 1. or 1)
     else if (/^\d+[.)]\s/.test(line)) {
       const num = parseInt(line);
-      blocks.push({ type: 'numbered', text: line.replace(/^\d+[.)]\s*/, ''), num });
+      blocks.push({ type: 'numbered', text: stripInlineMarkdown(line.replace(/^\d+[.)]\s*/, '')), num });
     }
     // Lines ending with ":" are headings
     else if (/^[А-ЯA-Z].*:$/.test(line)) {
-      blocks.push({ type: 'heading', text: line });
+      blocks.push({ type: 'heading', text: stripInlineMarkdown(line) });
     }
     // Stat-like patterns (contain numbers with % or ≥ or +)
     else if (/[≥≤><]\s*\d|[+\-]\d+%|\d+%/.test(line) && line.length < 100) {
-      blocks.push({ type: 'stat', text: line });
+      blocks.push({ type: 'stat', text: stripInlineMarkdown(line) });
     }
-    // Regular text
+    // Regular text — render inline markdown via HTML
     else {
       blocks.push({ type: 'text', text: line });
     }
@@ -700,7 +744,7 @@ function parseContentBlocks(content: string): ContentBlock[] {
 // COURSE VIEW — visual micro-learning: slides → quiz → flashcards → field task → results
 // ============================================================
 
-type CoursePhase = 'slides' | 'lesson_data' | 'quiz' | 'flashcards' | 'field_task' | 'results';
+type CoursePhase = 'slides' | 'lesson_data' | 'blocks' | 'quiz' | 'flashcards' | 'field_task' | 'results';
 
 function CourseView({
   data,
@@ -718,6 +762,8 @@ function CourseView({
   setFieldTaskDone,
   lessonDataDone,
   setLessonDataDone,
+  blocksDone,
+  setBlocksDone,
   onSubmitQuiz,
   onBack,
 }: {
@@ -736,6 +782,8 @@ function CourseView({
   setFieldTaskDone: (v: boolean) => void;
   lessonDataDone: boolean;
   setLessonDataDone: (v: boolean) => void;
+  blocksDone: boolean;
+  setBlocksDone: (v: boolean) => void;
   onSubmitQuiz: (questions?: QuizQuestion[]) => void;
   onBack: () => void;
 }) {
@@ -747,24 +795,37 @@ function CourseView({
   const fieldTask = data.content.field_task as FieldTask | null | undefined;
   const mediaPrompts = data.content.media_prompts || [];
 
-  const lessonData = data.content.lesson_data as LessonData | null | undefined;
+  const rawLessonData = data.content.lesson_data;
+
+  // Detect v3 block architecture
+  const isBlockV3 = !!rawLessonData && 'version' in rawLessonData && (rawLessonData as BlockLessonData).version === '3.0'
+    && 'blocks' in rawLessonData && Array.isArray((rawLessonData as BlockLessonData).blocks);
+  const blockLessonData = isBlockV3 ? (rawLessonData as BlockLessonData) : null;
+
+  // Legacy v2 lesson data
+  const lessonData = !isBlockV3 ? (rawLessonData as LessonData | null | undefined) : null;
   const hasLessonData = !!lessonData && !!(lessonData.scene || lessonData.infographic || lessonData.dialogueLesson || lessonData.quiz);
 
   const hasQuiz = quiz.length > 0;
   const hasFlashcards = flashcards.length > 0;
   const hasFieldTask = !!fieldTask && !!fieldTask.title;
 
-  // If lesson_data exists → it IS the lesson (replaces slides)
-  // If no lesson_data → fall back to old slides
+  // Phase determination: v3 blocks → v2 lesson_data → v1 slides
   const phase: CoursePhase = useMemo(() => {
+    if (isBlockV3) {
+      // V3 block flow: blocks contain everything (cinematic + learning + results)
+      // After blocks complete → course completion API is called from BlockRunner
+      if (!blocksDone) return 'blocks';
+      return 'results';
+    }
     if (hasLessonData) {
-      // New flow: lesson_data → quiz → results (no slides, no forced flashcards)
+      // V2 flow: lesson_data → quiz → results (no slides, no forced flashcards)
       if (!lessonDataDone) return 'lesson_data';
       if (hasQuiz && !quizSubmitted) return 'quiz';
       if (quizSubmitted) return 'results';
       if (!hasQuiz) return 'results';
     } else {
-      // Legacy flow: slides → quiz → flashcards → field_task → results
+      // Legacy v1 flow: slides → quiz → flashcards → field_task → results
       if (currentSlide < slides.length) return 'slides';
       if (hasQuiz && !quizSubmitted) return 'quiz';
       if (quizSubmitted && hasFlashcards && !flashcardsDone) return 'flashcards';
@@ -774,7 +835,7 @@ function CourseView({
       if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
     }
     return 'results';
-  }, [currentSlide, slides.length, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
+  }, [currentSlide, slides.length, isBlockV3, blocksDone, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
 
   const totalSlidePages = hasLessonData ? (hasQuiz ? 2 : 1) : slides.length + (hasQuiz ? 1 : 0);
 
@@ -799,6 +860,20 @@ function CourseView({
   };
 
   const isAllAnswered = allQuestionsAnswered(quiz, quizAnswers, interactiveResults);
+
+  // V3 blocks — fullscreen BlockRunner (no normal CourseView wrapper)
+  if (phase === 'blocks' && blockLessonData) {
+    return (
+      <BlockRunner
+        lessonData={blockLessonData}
+        onComplete={() => {
+          setBlocksDone(true);
+          // Call course completion API with the score from blocks
+          onSubmitQuiz();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto">
