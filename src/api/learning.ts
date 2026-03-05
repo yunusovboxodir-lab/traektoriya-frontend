@@ -275,6 +275,142 @@ export interface LessonData {
   quiz?: LessonDataQuiz;
 }
 
+// =============================================
+// Block Architecture v3 — cinematic + micro-blocks
+// =============================================
+
+// Cinematic scene
+export interface CinematicLocation {
+  day: string;        // "ВТОРНИК"
+  time: string;       // "10:30"
+  subtitle: string;   // "ПЛАНОВЫЙ ВИЗИТ"
+}
+
+export interface CinematicCharacter {
+  id: string;
+  name: string;
+  role?: string;
+  side: 'left' | 'right';
+  emoji?: string;       // emoji inside SVG head
+  color?: string;       // fill color
+  detail?: string;      // e.g. "clipboard" for extra SVG detail
+}
+
+export interface CinematicDialogue {
+  characterId: string;
+  text: string;
+  delayMs: number;      // delay before this dialogue starts
+}
+
+export interface CinematicCrisis {
+  emoji: string;
+  badge: string;        // "ЭКСТРЕННАЯ СИТУАЦИЯ"
+  headline: string;
+  description: string;
+  stakes: string;
+  cta: string;          // CTA button text
+}
+
+export interface CinematicProblemFlash {
+  text: string;
+  delayMs: number;
+}
+
+export interface BlockCinematicSceneData {
+  atmosphere: string;   // "store_chaos" | "dark_office" | etc.
+  location: CinematicLocation;
+  characters: CinematicCharacter[];
+  dialogues: CinematicDialogue[];
+  problemFlash?: CinematicProblemFlash;
+  crisis: CinematicCrisis;
+}
+
+// Key Point (4 variants)
+export interface BlockKeyPointData {
+  icon: string;
+  title: string;
+  body?: string;
+  variant: 'default' | 'number' | 'chips' | 'steps';
+  number?: string;       // for variant=number (e.g. "+15-25%")
+  numberCaption?: string;
+  chips?: string[];
+  steps?: Array<{ num: number; text: string }>;
+  footnote?: string;
+  callout?: string;      // green callout box at bottom
+}
+
+// Swipe True/False
+export interface SwipeCard {
+  text: string;
+  answer: boolean;
+  feedback: string;
+}
+export interface BlockSwipeCardsData {
+  cards: SwipeCard[];
+}
+
+// Sorting
+export interface SortingItem {
+  label: string;
+  correctPosition: number;
+}
+export interface BlockSortingData {
+  title: string;
+  subtitle?: string;
+  items: SortingItem[];
+}
+
+// Fill Blank
+export interface BlockFillBlankData {
+  sentenceBefore: string;
+  sentenceAfter?: string;
+  correctAnswer: string;
+  options: string[];
+}
+
+// Dialogue Choice
+export interface DialogueOption {
+  letter: string;
+  text: string;
+  isCorrect: boolean;
+  explanation: string;
+}
+export interface BlockDialogueChoiceData {
+  situation: string;
+  options: DialogueOption[];
+}
+
+// Quiz (final question)
+export interface BlockQuizData {
+  question: string;
+  options: DialogueOption[];
+}
+
+// Results
+export interface BlockResultsData {
+  xpReward: number;
+}
+
+// Block union type
+export type LessonBlock =
+  | { type: 'cinematic_scene'; data: BlockCinematicSceneData }
+  | { type: 'key_point'; data: BlockKeyPointData }
+  | { type: 'swipe_cards'; data: BlockSwipeCardsData }
+  | { type: 'sorting'; data: BlockSortingData }
+  | { type: 'fill_blank'; data: BlockFillBlankData }
+  | { type: 'dialogue_choice'; data: BlockDialogueChoiceData }
+  | { type: 'quiz'; data: BlockQuizData }
+  | { type: 'results'; data: BlockResultsData };
+
+// V3 lesson data (block architecture)
+export interface BlockLessonData {
+  version: '3.0';
+  title: string;
+  accent: string;
+  accentSoft: string;
+  blocks: LessonBlock[];
+}
+
 // Course detail
 export interface CourseDetailResponse {
   course: {
@@ -299,7 +435,7 @@ export interface CourseDetailResponse {
     field_task?: FieldTask | null;
     spaced_repetition_cards: FlashCard[];
     media_prompts?: MediaPrompt[];
-    lesson_data?: LessonData | null;
+    lesson_data?: LessonData | BlockLessonData | null;
   };
 }
 

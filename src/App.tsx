@@ -32,6 +32,7 @@ const CompetencyMatrixPage = lazyWithRetry(() => import('./pages/CompetencyMatri
 const CompetencyProfilePage = lazyWithRetry(() => import('./pages/CompetencyProfilePage').then(m => ({ default: m.CompetencyProfilePage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const AdminUsersPage = lazyWithRetry(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+// const CinematicDemo = lazyWithRetry(() => import('./pages/CinematicDemo'));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
