@@ -863,13 +863,13 @@ function CourseView({
   const [audioDuration, setAudioDuration] = useState(0);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Fetch narration data on mount
+  // Fetch narration data on mount (works for both V1 slides and V3 blocks)
   useEffect(() => {
-    if (!data.course.id || slides.length === 0) return;
+    if (!data.course.id) return;
     learningApi.getNarration(data.course.id)
       .then(res => { if (res.data.status === 'ready') setNarration(res.data); })
       .catch(() => {}); // silently fail if no narration
-  }, [data.course.id, slides.length]);
+  }, [data.course.id]);
 
   // Get current slide audio URL
   const currentAudio = narration?.slides.find(
@@ -978,6 +978,7 @@ function CourseView({
     return (
       <BlockRunner
         lessonData={blockLessonData}
+        narration={narration}
         onComplete={() => {
           setBlocksDone(true);
           // Call course completion API with the score from blocks
