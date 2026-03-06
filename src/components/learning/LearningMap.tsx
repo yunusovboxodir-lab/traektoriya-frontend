@@ -58,17 +58,17 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
-    // Desktop: left column — road center, buildings offset to sides
+    // Desktop: left column — road at cx, buildings left/right
     cx: 155, cy: 300,
     buildingSlots: [
-      { dx: -95, dy: -200 },
-      { dx: 65, dy: -160 },
-      { dx: -85, dy: -80 },
-      { dx: 75, dy: -30 },
-      { dx: -95, dy: 50 },
-      { dx: 70, dy: 100 },
-      { dx: -80, dy: 170 },
-      { dx: 80, dy: 220 },
+      { dx: -110, dy: -210 },
+      { dx: 90, dy: -160 },
+      { dx: -105, dy: -80 },
+      { dx: 95, dy: -20 },
+      { dx: -110, dy: 60 },
+      { dx: 90, dy: 120 },
+      { dx: -100, dy: 190 },
+      { dx: 95, dy: 250 },
     ],
     // Mobile: top zone (y=0..300)
     mcx: 200, mcy: 150,
@@ -93,17 +93,17 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
-    // Desktop: bottom-middle — buildings alternating sides of road
+    // Desktop: bottom-middle — buildings alternating left/right of center road
     cx: 620, cy: 510,
     buildingSlots: [
-      { dx: -240, dy: -100 },
-      { dx: -100, dy: -120 },
-      { dx: 60, dy: -100 },
-      { dx: 210, dy: -110 },
-      { dx: -220, dy: 20 },
-      { dx: -60, dy: 30 },
-      { dx: 110, dy: 10 },
-      { dx: 250, dy: 30 },
+      { dx: -250, dy: -110 },
+      { dx: -110, dy: -120 },
+      { dx: 110, dy: -100 },
+      { dx: 250, dy: -110 },
+      { dx: -240, dy: 20 },
+      { dx: -100, dy: 30 },
+      { dx: 120, dy: 15 },
+      { dx: 260, dy: 35 },
     ],
     // Mobile: second zone (y=300..600)
     mcx: 200, mcy: 450,
@@ -131,14 +131,14 @@ const ZONES: ZoneConfig[] = [
     // Desktop: top-middle
     cx: 620, cy: 160,
     buildingSlots: [
-      { dx: -240, dy: -70 },
-      { dx: -100, dy: -80 },
-      { dx: 60, dy: -60 },
-      { dx: 210, dy: -70 },
-      { dx: -220, dy: 50 },
-      { dx: -60, dy: 60 },
-      { dx: 110, dy: 40 },
-      { dx: 250, dy: 55 },
+      { dx: -250, dy: -70 },
+      { dx: -110, dy: -80 },
+      { dx: 110, dy: -60 },
+      { dx: 250, dy: -70 },
+      { dx: -240, dy: 50 },
+      { dx: -100, dy: 60 },
+      { dx: 120, dy: 45 },
+      { dx: 260, dy: 60 },
     ],
     // Mobile: third zone (y=600..900)
     mcx: 200, mcy: 750,
@@ -166,12 +166,12 @@ const ZONES: ZoneConfig[] = [
     // Desktop: right column
     cx: 1065, cy: 300,
     buildingSlots: [
-      { dx: -80, dy: -200 },
-      { dx: 60, dy: -140 },
-      { dx: -75, dy: -50 },
-      { dx: 55, dy: 10 },
-      { dx: -70, dy: 90 },
-      { dx: 65, dy: 170 },
+      { dx: -100, dy: -200 },
+      { dx: 85, dy: -140 },
+      { dx: -95, dy: -50 },
+      { dx: 80, dy: 20 },
+      { dx: -90, dy: 100 },
+      { dx: 85, dy: 180 },
     ],
     // Mobile: bottom zone (y=900..1200)
     mcx: 200, mcy: 1050,
@@ -467,7 +467,8 @@ export function LearningMap({ data, onOpenSection }: Props) {
   const getZoneCenter = (zone: ZoneConfig) => isMobile ? { x: zone.mcx, y: zone.mcy } : { x: zone.cx, y: zone.cy };
   const getSlots = (zone: ZoneConfig) => isMobile ? zone.mobileBuildingSlots : zone.buildingSlots;
 
-  // Collect building positions AND road waypoints (road passes NEAR buildings, not through them)
+  // Collect building positions AND road waypoints
+  // Road runs along the CENTER of each zone; buildings sit on either side
   const { allBuildingPts, roadWaypoints } = useMemo(() => {
     const bldPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
     const roadPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
@@ -478,19 +479,16 @@ export function LearningMap({ data, onOpenSection }: Props) {
       const buildings = zoneData.get(zone.level) || [];
       const count = Math.max(buildings.length, 1);
       const rawBld: Array<{ x: number; y: number }> = [];
-      const rawRoad: Array<{ x: number; y: number }> = [];
       for (let bi = 0; bi < count; bi++) {
         const slot = slots[bi % slots.length];
-        const bx = center.x + slot.dx;
-        const by = center.y + slot.dy;
-        rawBld.push({ x: bx, y: by });
-        // Road point: shift toward zone center (between building and center)
-        rawRoad.push({ x: bx + (center.x - bx) * 0.55, y: by + (center.y - by) * 0.1 });
+        rawBld.push({ x: center.x + slot.dx, y: center.y + slot.dy });
       }
       const orderedBld = nearestNeighborOrder(rawBld);
-      const orderedRoad = nearestNeighborOrder(rawRoad);
       for (const p of orderedBld) bldPts.push({ ...p, zoneIdx: zi });
-      for (const p of orderedRoad) roadPts.push({ ...p, zoneIdx: zi });
+      // Road: runs through zone center at each building's Y position
+      for (const p of orderedBld) {
+        roadPts.push({ x: center.x, y: p.y, zoneIdx: zi });
+      }
     }
     return { allBuildingPts: bldPts, roadWaypoints: roadPts };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -601,49 +599,62 @@ export function LearningMap({ data, onOpenSection }: Props) {
           {/* === Relief elements === */}
           {!isMobile ? (
             <g>
-              {/* TRAINEE (left, 0-310): gentle green hills */}
-              <ellipse cx="80" cy="620" rx="120" ry="35" fill="#1f4a30" opacity="0.5" />
-              <ellipse cx="200" cy="650" rx="90" ry="25" fill="#1d4228" opacity="0.4" />
-              <ellipse cx="60" cy="80" rx="100" ry="30" fill="#1f4a30" opacity="0.4" />
-              {/* Small trees (simple triangles) */}
-              <polygon points="40,570 48,545 56,570" fill="#2a5e3a" opacity="0.5" />
-              <polygon points="250,100 258,75 266,100" fill="#2a5e3a" opacity="0.45" />
-              <polygon points="20,300 28,275 36,300" fill="#2a5e3a" opacity="0.4" />
-              <polygon points="280,500 288,478 296,500" fill="#2a5e3a" opacity="0.4" />
+              {/* TRAINEE (left, 0-310): gentle green hills + trees */}
+              <ellipse cx="100" cy="630" rx="160" ry="45" fill="#1f4a30" opacity="0.55" />
+              <ellipse cx="220" cy="660" rx="110" ry="30" fill="#1d4228" opacity="0.45" />
+              <ellipse cx="80" cy="70" rx="130" ry="40" fill="#1f4a30" opacity="0.45" />
+              {/* Trees — bigger, visible */}
+              <polygon points="25,580 45,520 65,580" fill="#2d6b3f" opacity="0.7" />
+              <polygon points="30,585 45,530 60,585" fill="#3a8050" opacity="0.5" />
+              <polygon points="240,110 260,50 280,110" fill="#2d6b3f" opacity="0.65" />
+              <polygon points="245,115 260,60 275,115" fill="#3a8050" opacity="0.45" />
+              <polygon points="10,310 30,250 50,310" fill="#2d6b3f" opacity="0.55" />
+              <polygon points="270,480 290,425 310,480" fill="#2d6b3f" opacity="0.5" />
+              <polygon points="275,485 290,435 305,485" fill="#3a8050" opacity="0.35" />
 
-              {/* EXPERT (top-center, 310-930 x 0-310): sandy dunes */}
-              <ellipse cx="500" cy="50" rx="150" ry="30" fill="#3d2818" opacity="0.4" />
-              <ellipse cx="750" cy="70" rx="120" ry="25" fill="#3d2818" opacity="0.35" />
-              <ellipse cx="400" cy="280" rx="100" ry="20" fill="#3d2818" opacity="0.3" />
+              {/* EXPERT (top-center, 310-930 x 0-310): sandy dunes — bigger */}
+              <ellipse cx="480" cy="40" rx="200" ry="40" fill="#3d2818" opacity="0.45" />
+              <ellipse cx="780" cy="55" rx="160" ry="35" fill="#3d2818" opacity="0.4" />
+              <ellipse cx="380" cy="280" rx="130" ry="25" fill="#3d2818" opacity="0.35" />
+              <ellipse cx="850" cy="270" rx="80" ry="18" fill="#3d2818" opacity="0.3" />
 
-              {/* PRACTITIONER (bottom-center, 310-930 x 310-700): rolling terrain */}
-              <ellipse cx="480" cy="650" rx="130" ry="28" fill="#1a3555" opacity="0.4" />
-              <ellipse cx="750" cy="670" rx="100" ry="22" fill="#1a3555" opacity="0.35" />
+              {/* PRACTITIONER (bottom-center, 310-930 x 310-700): rolling waves */}
+              <ellipse cx="460" cy="660" rx="170" ry="30" fill="#1a3555" opacity="0.45" />
+              <ellipse cx="770" cy="680" rx="130" ry="25" fill="#1a3555" opacity="0.4" />
+              <ellipse cx="600" cy="640" rx="90" ry="15" fill="#1e3d60" opacity="0.3" />
 
-              {/* MASTER (right, 930-1200): mountains with label */}
-              {/* Big mountain */}
-              <polygon points="1020,700 1080,350 1140,700" fill="#351818" opacity="0.6" />
-              <polygon points="1080,350 1100,380 1060,380" fill="#4a2020" opacity="0.5" />
-              {/* Medium mountain */}
-              <polygon points="950,700 1000,420 1050,700" fill="#301515" opacity="0.5" />
-              {/* Small peak */}
-              <polygon points="1120,700 1160,450 1200,700" fill="#2d1212" opacity="0.45" />
-              {/* Snow caps */}
-              <polygon points="1070,365 1080,350 1090,365" fill="rgba(255,255,255,0.15)" />
-              <polygon points="990,435 1000,420 1010,435" fill="rgba(255,255,255,0.12)" />
+              {/* MASTER (right, 930-1200): BIG mountains */}
+              {/* Main peak */}
+              <polygon points="980,700 1070,250 1160,700" fill="#4a2222" opacity="0.75" />
+              <polygon points="1000,700 1070,300 1140,700" fill="#552828" opacity="0.5" />
+              {/* Second peak */}
+              <polygon points="930,700 990,350 1060,700" fill="#3d1818" opacity="0.65" />
+              {/* Third peak */}
+              <polygon points="1100,700 1160,380 1200,700" fill="#3a1515" opacity="0.6" />
+              {/* Snow caps — larger */}
+              <polygon points="1050,275 1070,250 1090,275" fill="rgba(255,255,255,0.25)" />
+              <polygon points="1055,290 1070,265 1085,290" fill="rgba(255,255,255,0.15)" />
+              <polygon points="975,370 990,350 1005,370" fill="rgba(255,255,255,0.2)" />
+              <polygon points="1145,400 1160,380 1175,400" fill="rgba(255,255,255,0.18)" />
+              {/* Mountain ridges */}
+              <line x1="1070" y1="250" x2="990" y2="350" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <line x1="1070" y1="250" x2="1160" y2="380" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
             </g>
           ) : (
             <g>
-              {/* Mobile relief — simplified */}
-              {/* Trainee hills */}
-              <ellipse cx="60" cy="260" rx="80" ry="22" fill="#1f4a30" opacity="0.4" />
-              <polygon points="340,50 350,25 360,50" fill="#2a5e3a" opacity="0.4" />
+              {/* Mobile relief */}
+              {/* Trainee hills + trees */}
+              <ellipse cx="80" cy="260" rx="100" ry="28" fill="#1f4a30" opacity="0.45" />
+              <polygon points="330,60 350,10 370,60" fill="#2d6b3f" opacity="0.6" />
+              <polygon points="335,65 350,20 365,65" fill="#3a8050" opacity="0.4" />
               {/* Expert dunes */}
-              <ellipse cx="300" cy="620" rx="90" ry="18" fill="#3d2818" opacity="0.35" />
-              {/* Master mountains */}
-              <polygon points="100,1200 180,950 260,1200" fill="#351818" opacity="0.5" />
-              <polygon points="250,1200 320,1000 390,1200" fill="#301515" opacity="0.45" />
-              <polygon points="170,965 180,950 190,965" fill="rgba(255,255,255,0.12)" />
+              <ellipse cx="300" cy="620" rx="120" ry="22" fill="#3d2818" opacity="0.4" />
+              <ellipse cx="80" cy="640" rx="90" ry="18" fill="#3d2818" opacity="0.35" />
+              {/* Master mountains — big */}
+              <polygon points="60,1200 160,920 260,1200" fill="#4a2222" opacity="0.7" />
+              <polygon points="200,1200 300,960 400,1200" fill="#3d1818" opacity="0.6" />
+              <polygon points="145,940 160,920 175,940" fill="rgba(255,255,255,0.22)" />
+              <polygon points="285,980 300,960 315,980" fill="rgba(255,255,255,0.18)" />
             </g>
           )}
 
@@ -652,10 +663,10 @@ export function LearningMap({ data, onOpenSection }: Props) {
             <path key={`border-${i}`} d={b} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeDasharray="8 6" strokeLinecap="round" />
           ))}
 
-          {/* Road — dark strip with dashed center line */}
-          <path d={roadPath} fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="20" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="rgba(80,80,80,0.3)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="8 8" strokeLinecap="round" />
+          {/* Road — thinner, cleaner */}
+          <path d={roadPath} fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="rgba(60,60,60,0.4)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="6 6" strokeLinecap="round" />
 
           {/* Road waypoints near buildings */}
           {roadWaypoints.map((pt, i) => (
