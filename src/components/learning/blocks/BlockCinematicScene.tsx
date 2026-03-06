@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import type { BlockCinematicSceneData, CinematicCharacter } from '../../../api/learning';
 import { getAtmosphere } from './atmospheres';
+import { bl } from '../../../utils/bilingual';
+import { useLangStore } from '../../../stores/langStore';
 
 const TYPING_SPEED_MS = 50; // per character — user requested slower
 
@@ -11,6 +13,7 @@ interface Props {
 }
 
 export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
+  const lang = useLangStore(s => s.lang);
   const atmo = useMemo(() => getAtmosphere(data.atmosphere), [data.atmosphere]);
   const [step, setStep] = useState(0);
   // 0 = fade in
@@ -60,14 +63,15 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
     // Step 3+: dialogues with delays
     let accDelay = 2200; // base delay before first dialogue
     data.dialogues.forEach((d, i) => {
+      const resolvedText = bl(d.text, lang);
       const delay = i === 0 ? accDelay : accDelay;
       timers.push(setTimeout(() => {
         setStep(dialogueStepStart + i);
         setActiveDialogueIdx(i);
-        typeText(d.text);
+        typeText(resolvedText);
       }, delay));
       // estimate how long typing will take + 500ms pause
-      accDelay += d.delayMs || (d.text.length * TYPING_SPEED_MS + 1000);
+      accDelay += d.delayMs || (resolvedText.length * TYPING_SPEED_MS + 1000);
     });
 
     // Problem flash
@@ -83,7 +87,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
       timers.forEach(clearTimeout);
       if (typingRef.current) clearInterval(typingRef.current);
     };
-  }, [data, typeText, dialogueStepStart, problemFlashStep, crisisStep]);
+  }, [data, lang, typeText, dialogueStepStart, problemFlashStep, crisisStep]);
 
   // Get active dialogue character side
   const activeDialogue = activeDialogueIdx >= 0 ? data.dialogues[activeDialogueIdx] : null;
@@ -132,6 +136,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
             key={char.id}
             character={char}
             visible={step >= 2}
+            lang={lang}
           />
         ))}
 
@@ -140,11 +145,11 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
           className="absolute top-4 left-6 transition-opacity duration-1000"
           style={{ opacity: step >= 1 ? 1 : 0 }}
         >
-          <div className="text-white/30 text-[9px] tracking-[3px] uppercase">{data.location.day}</div>
+          <div className="text-white/30 text-[9px] tracking-[3px] uppercase">{bl(data.location.day, lang)}</div>
           <div className="text-white text-[28px] font-black tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
-            {data.location.time}
+            {bl(data.location.time, lang)}
           </div>
-          <div className="text-white/20 text-[9px] tracking-[2px]">{data.location.subtitle}</div>
+          <div className="text-white/20 text-[9px] tracking-[2px]">{bl(data.location.subtitle, lang)}</div>
         </div>
 
         {/* Dialogue bubbles */}
@@ -160,7 +165,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
             <div className={`text-[9px] font-bold tracking-[1px] mb-1.5 ${
               activeChar.side === 'left' ? 'text-red-500' : 'text-blue-400'
             }`}>
-              {activeChar.name.toUpperCase()} {activeChar.role ? `(${activeChar.role.toUpperCase()})` : ''}
+              {bl(activeChar.name, lang).toUpperCase()} {activeChar.role ? `(${bl(activeChar.role, lang).toUpperCase()})` : ''}
             </div>
             <div className="text-gray-200 text-[13px] leading-relaxed italic" style={{ fontFamily: 'Georgia, serif' }}>
               {'\u00AB'}{typingText}<span className="animate-pulse">|</span>{'\u00BB'}
@@ -174,7 +179,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                           bg-red-500/[0.08] border border-red-500/20 rounded-xl
                           py-2.5 px-3.5 text-center text-red-500/80 text-[11px] font-semibold"
                style={{ animation: 'fadeIn 0.8s ease' }}>
-            {data.problemFlash.text}
+            {bl(data.problemFlash.text, lang)}
           </div>
         )}
 
@@ -186,16 +191,16 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                             p-7 max-w-[340px] w-[88%] text-center">
               <div className="text-4xl mb-2">{data.crisis.emoji}</div>
               <div className="text-red-500 text-[13px] font-extrabold tracking-[3px] mb-3">
-                {data.crisis.badge}
+                {bl(data.crisis.badge, lang)}
               </div>
               <div className="text-white text-xl font-black mb-2" style={{ fontFamily: 'Georgia, serif' }}
-                   dangerouslySetInnerHTML={{ __html: data.crisis.headline }} />
+                   dangerouslySetInnerHTML={{ __html: bl(data.crisis.headline, lang) }} />
               <div className="text-gray-400 text-xs leading-relaxed mb-4">
-                {data.crisis.description}
+                {bl(data.crisis.description, lang)}
               </div>
               <div className="bg-amber-500/[0.08] border border-amber-500/20 rounded-lg
                               p-2.5 text-amber-500 text-xs font-semibold mb-4">
-                {data.crisis.stakes}
+                {bl(data.crisis.stakes, lang)}
               </div>
               <button
                 onClick={onAdvance}
@@ -203,7 +208,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                            transition-transform active:scale-[0.97]"
                 style={{ background: `linear-gradient(135deg, ${accent}, #a855f7)` }}
               >
-                {data.crisis.cta}
+                {bl(data.crisis.cta, lang)}
               </button>
             </div>
           </div>
@@ -250,7 +255,7 @@ function ShelfProducts({ count, colors, chaos }: { count: number; colors: string
 }
 
 /** Character silhouette SVG */
-function CharacterSilhouette({ character, visible }: { character: CinematicCharacter; visible: boolean }) {
+function CharacterSilhouette({ character, visible, lang }: { character: CinematicCharacter; visible: boolean; lang: 'ru' | 'uz' }) {
   const fill = character.color || '#1e3a5f';
 
   return (
@@ -275,7 +280,7 @@ function CharacterSilhouette({ character, visible }: { character: CinematicChara
           <text x="18" y="18" fontSize="12">{character.emoji}</text>
         )}
       </svg>
-      <div className="text-center text-white/40 text-[9px] mt-0.5">{character.name}</div>
+      <div className="text-center text-white/40 text-[9px] mt-0.5">{bl(character.name, lang)}</div>
     </div>
   );
 }

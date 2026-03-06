@@ -16,14 +16,8 @@ import {
   type NarrationResponse,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
-import { useT, useLangStore, type Lang } from '../stores/langStore';
-
-/** Pick the right language from a bilingual value or return plain string as-is. */
-function bl(v: string | { ru: string; uz?: string | null } | undefined | null, lang: Lang): string {
-  if (v == null) return '';
-  if (typeof v === 'string') return v;
-  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
-}
+import { useT, useLangStore } from '../stores/langStore';
+import { bl } from '../utils/bilingual';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';

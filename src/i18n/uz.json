@@ -30,7 +30,7 @@
     "regional_manager": "Hud. menejer",
     "admin": "Admin",
     "supervisor": "Supervayzer",
-    "sales_rep": "Sotuvchi",
+    "sales_rep": "Savdo vakili",
     "manager": "Menejer",
     "user": "Xodim"
   },
@@ -165,7 +165,7 @@
     "norm": {
       "allMet": "✅ Norma bajarildi",
       "notMet": "⚠️ Vazifalar tayinlang",
-      "description": "Vazifalar tayinlangan: {total} dan {met}"
+      "description": "Vazifalar tayinlangan: {met} / {total} xodimga"
     },
     "errors": {
       "loadFailed": "Vazifalarni yuklash imkoni bo'lmadi",
@@ -238,10 +238,10 @@
       "loadError": "O'qitish ma'lumotlarini yuklash imkoni bo'lmadi",
       "noData": "O'qitish ma'lumotlari hali mavjud emas",
       "levels": {
-        "trainee": "Stajer",
-        "practitioner": "Praktik",
+        "trainee": "Stajyor",
+        "practitioner": "Amaliyotchi",
         "expert": "Ekspert",
-        "master": "Master"
+        "master": "Usta"
       },
       "attention": {
         "no_training": "7+ kun o'qitmagan",
@@ -427,7 +427,7 @@
     "threshold": "Chegara: {value}%",
     "min": "daq",
     "levels": {
-      "trainee": "Stajiyor",
+      "trainee": "Stajyor",
       "practitioner": "Amaliyotchi",
       "expert": "Ekspert",
       "master": "Usta"
@@ -847,5 +847,27 @@
     "aiAnalysis": "AI tahlil",
     "adminCorrection": "Administrator korreksiyasi",
     "unknownOutlet": "Noma'lum nuqta"
+  },
+  "blocks": {
+    "keyPoint": "ASOSIY FIKR",
+    "trueOrFalse": "TO'G'RI YOKI NOTO'G'RI",
+    "evaluate": "Baholang — to'g'ri yoki noto'g'ri?",
+    "allCardsDone": "Barcha kartochkalar o'tildi!",
+    "false": "Noto'g'ri",
+    "true": "To'g'ri",
+    "sortOrder": "TARTIBGA KELTIR",
+    "correctOrder": "To'g'ri tartib!",
+    "tapInOrder": "Elementlarni to'g'ri tartibda bosing",
+    "fillBlank": "BO'SH JOYNI TO'LDIR",
+    "whatSay": "NIMA DEYSIZ?",
+    "finalQuestion": "YAKUNIY SAVOL",
+    "lessonDone": "Dars yakunlandi!",
+    "correct": "to'g'ri",
+    "totalQ": "jami",
+    "minutes": "daqiqa",
+    "continue": "Davom etish",
+    "finish": "Yakunlash ✓",
+    "next": "Keyingi →",
+    "narration": "Dars ovozi"
   }
 }

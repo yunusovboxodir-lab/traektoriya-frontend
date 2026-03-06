@@ -1,13 +1,7 @@
 import { useState } from 'react';
 import type { Lang } from '../../stores/langStore';
+import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
-
-/** Pick the right language from a bilingual value or return plain string as-is. */
-function bl(v: string | BilingualText | undefined | null, lang: Lang): string {
-  if (v == null) return '';
-  if (typeof v === 'string') return v;
-  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
-}
 
 interface Hotspot {
   x: number;     // % from left

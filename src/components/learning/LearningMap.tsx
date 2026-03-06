@@ -469,7 +469,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
   // Collect building positions AND road waypoints
   // Road runs along the CENTER of each zone; buildings sit on either side
-  const { allBuildingPts, roadWaypoints } = useMemo(() => {
+  const { roadWaypoints } = useMemo(() => {
     const bldPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
     const roadPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
     for (let zi = 0; zi < ZONES.length; zi++) {
@@ -490,7 +490,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
         roadPts.push({ x: center.x, y: p.y, zoneIdx: zi });
       }
     }
-    return { allBuildingPts: bldPts, roadWaypoints: roadPts };
+    return { roadWaypoints: roadPts };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneData, isMobile]);
 

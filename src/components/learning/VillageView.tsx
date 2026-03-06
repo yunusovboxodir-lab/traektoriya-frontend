@@ -1,13 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useLangStore, type Lang } from '../../stores/langStore';
+import { bl } from '../../utils/bilingual';
 import type { SectionCoursesResponse, CourseItem } from '../../api/learning';
-
-/** Pick right language from bilingual text */
-function bl(v: string | { ru: string; uz?: string | null } | undefined | null, lang: Lang): string {
-  if (v == null) return '';
-  if (typeof v === 'string') return v;
-  return (lang === 'uz' && v.uz) ? v.uz : v.ru;
-}
 
 interface VillageViewProps {
   data: SectionCoursesResponse;

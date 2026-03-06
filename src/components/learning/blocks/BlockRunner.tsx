@@ -10,6 +10,7 @@ import { BlockFillBlank } from './BlockFillBlank';
 import { BlockDialogueChoice } from './BlockDialogueChoice';
 import { BlockQuiz } from './BlockQuiz';
 import { BlockResults } from './BlockResults';
+import { useLangStore } from '../../../stores/langStore';
 
 interface Props {
   lessonData: BlockLessonData;
@@ -19,6 +20,7 @@ interface Props {
 
 export function BlockRunner({ lessonData, narration, onComplete }: Props) {
   const { blocks, title, accent, accentSoft } = lessonData;
+  const t = useLangStore(s => s.strings);
   const [canAdvance, setCanAdvance] = useState(false);
 
   const session = useBlockSession(blocks, () => {
@@ -174,7 +176,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
             ? 'bottom-6 right-6 w-14 h-14 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20'
             : 'bottom-24 right-4 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white'
         }`}
-        title={isPlaying ? 'Пауза' : 'Озвучка урока'}
+        title={isPlaying ? '⏸' : t.blocks.narration}
       >
         {isPlaying ? (
           <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -206,7 +208,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
 
           {/* Title */}
           <div className={`text-xs font-medium mb-2 ${isCinematic ? 'text-white/60' : 'text-gray-400'}`}>
-            Озвучка урока
+            {t.blocks.narration}
           </div>
 
           {/* Progress bar */}

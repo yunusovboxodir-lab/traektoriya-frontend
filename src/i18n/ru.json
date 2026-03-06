@@ -847,5 +847,27 @@
     "aiAnalysis": "AI анализ",
     "adminCorrection": "Коррекция администратора",
     "unknownOutlet": "Неизвестная точка"
+  },
+  "blocks": {
+    "keyPoint": "КЛЮЧЕВАЯ МЫСЛЬ",
+    "trueOrFalse": "ПРАВДА ИЛИ ЛОЖЬ",
+    "evaluate": "Оцени — правда или ложь?",
+    "allCardsDone": "Все карточки пройдены!",
+    "false": "Ложь",
+    "true": "Правда",
+    "sortOrder": "РАССТАВЬ ПО ПОРЯДКУ",
+    "correctOrder": "Правильный порядок!",
+    "tapInOrder": "Нажимай элементы в правильном порядке",
+    "fillBlank": "ЗАПОЛНИ ПРОПУСК",
+    "whatSay": "ЧТО СКАЖЕШЬ?",
+    "finalQuestion": "ФИНАЛЬНЫЙ ВОПРОС",
+    "lessonDone": "Урок пройден!",
+    "correct": "правильных",
+    "totalQ": "всего",
+    "minutes": "минут",
+    "continue": "Продолжить",
+    "finish": "Завершить ✓",
+    "next": "Далее →",
+    "narration": "Озвучка урока"
   }
 }

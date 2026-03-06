@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { BlockSortingData } from '../../../api/learning';
+import { bl } from '../../../utils/bilingual';
+import { useLangStore } from '../../../stores/langStore';
 
 interface Props {
   data: BlockSortingData;
@@ -10,7 +12,9 @@ interface Props {
 }
 
 export function BlockSorting({ data, accent, accentSoft, onAnswer, onReady }: Props) {
-  const [step, setStep] = useState(0); // current expected position (1-based)
+  const lang = useLangStore(s => s.lang);
+  const t = useLangStore(s => s.strings);
+  const [step, setStep] = useState(0);
   const [placedItems, setPlacedItems] = useState<Set<number>>(new Set());
   const [errorItem, setErrorItem] = useState<number | null>(null);
   const [allDone, setAllDone] = useState(false);
@@ -46,12 +50,12 @@ export function BlockSorting({ data, accent, accentSoft, onAnswer, onReady }: Pr
         className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
         style={{ color: accent, background: accentSoft }}
       >
-        {'\u{1F522}'} РАССТАВЬ ПО ПОРЯДКУ
+        {'\u{1F522}'} {t.blocks.sortOrder}
       </div>
       <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
-        <div className="text-sm font-bold mb-1">{data.title}</div>
+        <div className="text-sm font-bold mb-1">{bl(data.title, lang)}</div>
         <div className={`text-[11px] mb-3 ${allDone ? 'text-green-600 font-semibold' : 'text-gray-400'}`}>
-          {allDone ? '\u2705 Правильный порядок!' : (data.subtitle || 'Нажимай элементы в правильном порядке')}
+          {allDone ? `\u2705 ${t.blocks.correctOrder}` : (bl(data.subtitle, lang) || t.blocks.tapInOrder)}
         </div>
 
         <div className="space-y-1.5">
@@ -79,7 +83,7 @@ export function BlockSorting({ data, accent, accentSoft, onAnswer, onReady }: Pr
                 >
                   {isPlaced ? item.correctPosition : '?'}
                 </span>
-                <span className="text-[13px]">{item.label}</span>
+                <span className="text-[13px]">{bl(item.label, lang)}</span>
               </div>
             );
           })}

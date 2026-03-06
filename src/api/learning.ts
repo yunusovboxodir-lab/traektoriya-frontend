@@ -1,10 +1,14 @@
 import { api } from './client';
+import type { BiText } from '../utils/bilingual';
 
 // Types matching backend Pydantic schemas
 export interface BilingualText {
   ru: string;
   uz?: string | null;
 }
+
+// Re-export BiText for convenience
+export type { BiText };
 
 export interface LevelRange {
   start: string;
@@ -281,15 +285,15 @@ export interface LessonData {
 
 // Cinematic scene
 export interface CinematicLocation {
-  day: string;        // "ВТОРНИК"
-  time: string;       // "10:30"
-  subtitle: string;   // "ПЛАНОВЫЙ ВИЗИТ"
+  day: BiText;        // "ВТОРНИК"
+  time: BiText;       // "10:30"
+  subtitle: BiText;   // "ПЛАНОВЫЙ ВИЗИТ"
 }
 
 export interface CinematicCharacter {
   id: string;
-  name: string;
-  role?: string;
+  name: BiText;
+  role?: BiText;
   side: 'left' | 'right';
   emoji?: string;       // emoji inside SVG head
   color?: string;       // fill color
@@ -298,21 +302,21 @@ export interface CinematicCharacter {
 
 export interface CinematicDialogue {
   characterId: string;
-  text: string;
+  text: BiText;
   delayMs: number;      // delay before this dialogue starts
 }
 
 export interface CinematicCrisis {
   emoji: string;
-  badge: string;        // "ЭКСТРЕННАЯ СИТУАЦИЯ"
-  headline: string;
-  description: string;
-  stakes: string;
-  cta: string;          // CTA button text
+  badge: BiText;        // "ЭКСТРЕННАЯ СИТУАЦИЯ"
+  headline: BiText;
+  description: BiText;
+  stakes: BiText;
+  cta: BiText;          // CTA button text
 }
 
 export interface CinematicProblemFlash {
-  text: string;
+  text: BiText;
   delayMs: number;
 }
 
@@ -328,22 +332,22 @@ export interface BlockCinematicSceneData {
 // Key Point (4 variants)
 export interface BlockKeyPointData {
   icon: string;
-  title: string;
-  body?: string;
+  title: BiText;
+  body?: BiText;
   variant: 'default' | 'number' | 'chips' | 'steps';
-  number?: string;       // for variant=number (e.g. "+15-25%")
-  numberCaption?: string;
-  chips?: string[];
-  steps?: Array<{ num: number; text: string }>;
-  footnote?: string;
-  callout?: string;      // green callout box at bottom
+  number?: BiText;       // for variant=number (e.g. "+15-25%")
+  numberCaption?: BiText;
+  chips?: BiText[];
+  steps?: Array<{ num: number; text: BiText }>;
+  footnote?: BiText;
+  callout?: BiText;      // green callout box at bottom
 }
 
 // Swipe True/False
 export interface SwipeCard {
-  text: string;
+  text: BiText;
   answer: boolean;
-  feedback: string;
+  feedback: BiText;
 }
 export interface BlockSwipeCardsData {
   cards: SwipeCard[];
@@ -351,38 +355,38 @@ export interface BlockSwipeCardsData {
 
 // Sorting
 export interface SortingItem {
-  label: string;
+  label: BiText;
   correctPosition: number;
 }
 export interface BlockSortingData {
-  title: string;
-  subtitle?: string;
+  title: BiText;
+  subtitle?: BiText;
   items: SortingItem[];
 }
 
 // Fill Blank
 export interface BlockFillBlankData {
-  sentenceBefore: string;
-  sentenceAfter?: string;
-  correctAnswer: string;
-  options: string[];
+  sentenceBefore: BiText;
+  sentenceAfter?: BiText;
+  correctAnswer: BiText;
+  options: BiText[];
 }
 
 // Dialogue Choice
 export interface DialogueOption {
   letter: string;
-  text: string;
+  text: BiText;
   isCorrect: boolean;
-  explanation: string;
+  explanation: BiText;
 }
 export interface BlockDialogueChoiceData {
-  situation: string;
+  situation: BiText;
   options: DialogueOption[];
 }
 
 // Quiz (final question)
 export interface BlockQuizData {
-  question: string;
+  question: BiText;
   options: DialogueOption[];
 }
 
@@ -405,7 +409,7 @@ export type LessonBlock =
 // V3 lesson data (block architecture)
 export interface BlockLessonData {
   version: '3.0';
-  title: string;
+  title: BiText;
   accent: string;
   accentSoft: string;
   blocks: LessonBlock[];

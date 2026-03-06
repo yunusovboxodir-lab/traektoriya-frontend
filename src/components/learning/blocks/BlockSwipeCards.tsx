@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { BlockSwipeCardsData } from '../../../api/learning';
+import { bl } from '../../../utils/bilingual';
+import { useLangStore } from '../../../stores/langStore';
 
 interface Props {
   data: BlockSwipeCardsData;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }: Props) {
+  const lang = useLangStore(s => s.lang);
+  const t = useLangStore(s => s.strings);
   const [cardIndex, setCardIndex] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [lastCorrect, setLastCorrect] = useState(false);
@@ -44,16 +48,16 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
         className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
         style={{ color: accent, background: accentSoft }}
       >
-        {'\u{1F446}'} ПРАВДА ИЛИ ЛОЖЬ
+        {'\u{1F446}'} {t.blocks.trueOrFalse}
       </div>
       <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
         <div className="text-[11px] text-gray-400 text-center mb-3">
-          Оцени — правда или ложь? ({cardIndex + 1}/{data.cards.length})
+          {t.blocks.evaluate} ({cardIndex + 1}/{data.cards.length})
         </div>
 
         {allDone ? (
           <div className="text-center py-4 text-sm font-bold text-green-600">
-            {'\u2705'} Все карточки пройдены!
+            {'\u2705'} {t.blocks.allCardsDone}
           </div>
         ) : (
           <>
@@ -66,7 +70,7 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
                   : 'bg-gray-50 border-transparent'
                 }`}
             >
-              {card.text}
+              {bl(card.text, lang)}
             </div>
 
             <div className="flex gap-2.5">
@@ -75,14 +79,14 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
                 disabled={answered}
                 className="flex-1 py-3 rounded-xl text-sm font-bold bg-red-50 text-red-600 disabled:opacity-50 active:scale-95 transition-transform"
               >
-                {'\u2715'} Ложь
+                {'\u2715'} {t.blocks.false}
               </button>
               <button
                 onClick={() => handleAnswer(true)}
                 disabled={answered}
                 className="flex-1 py-3 rounded-xl text-sm font-bold bg-green-50 text-green-600 disabled:opacity-50 active:scale-95 transition-transform"
               >
-                {'\u2713'} Правда
+                {'\u2713'} {t.blocks.true}
               </button>
             </div>
 
@@ -91,7 +95,7 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
                 className={`mt-2 text-center p-2.5 rounded-xl text-xs font-semibold animate-fadeIn
                   ${lastCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
               >
-                {lastCorrect ? '\u2705 ' : '\u274C '}{card.feedback}
+                {lastCorrect ? '\u2705 ' : '\u274C '}{bl(card.feedback, lang)}
               </div>
             )}
           </>

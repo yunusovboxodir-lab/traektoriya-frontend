@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import type { BlockDialogueChoiceData } from '../../../api/learning';
+import { bl } from '../../../utils/bilingual';
+import { useLangStore } from '../../../stores/langStore';
 
 interface Props {
   data: BlockDialogueChoiceData;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onReady }: Props) {
+  const lang = useLangStore(s => s.lang);
+  const t = useLangStore(s => s.strings);
   const [selected, setSelected] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
 
@@ -29,12 +33,12 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
         className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
         style={{ color: accent, background: accentSoft }}
       >
-        {'\u{1F4AC}'} ЧТО СКАЖЕШЬ?
+        {'\u{1F4AC}'} {t.blocks.whatSay}
       </div>
       <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
         {/* Situation */}
         <div className="bg-sky-50 rounded-xl p-3 mb-3 text-[13px] leading-relaxed">
-          <span dangerouslySetInnerHTML={{ __html: data.situation }} />
+          <span dangerouslySetInnerHTML={{ __html: bl(data.situation, lang) }} />
         </div>
 
         {/* Options */}
@@ -63,7 +67,7 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
                 <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${letterClass}`}>
                   {opt.letter}
                 </span>
-                <span>{opt.text}</span>
+                <span>{bl(opt.text, lang)}</span>
               </div>
             );
           })}
@@ -75,7 +79,7 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
             className={`mt-2 p-2.5 rounded-xl text-xs leading-relaxed animate-fadeIn
               ${isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
           >
-            {data.options[selected].explanation}
+            {bl(data.options[selected].explanation, lang)}
           </div>
         )}
       </div>
