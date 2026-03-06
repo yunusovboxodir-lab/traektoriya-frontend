@@ -222,39 +222,71 @@ body {
   border-radius: 50%;
 }
 
-/* === Building states === */
+/* === Building states — FULL BODY GLOW === */
 
-/* Completed — green glow pulse */
-.building-wrapper--completed .face-top {
-  box-shadow: 0 0 14px rgba(76, 175, 80, 0.6);
+/* Completed — full green glow on entire building */
+@keyframes building-glow-completed {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.6)) brightness(1.05); }
+  50% { filter: drop-shadow(0 0 18px rgba(76, 175, 80, 0.8)) brightness(1.15); }
 }
 
-@keyframes building-glow-pulse {
-  0%, 100% { filter: brightness(1) drop-shadow(0 0 6px var(--glow-color, transparent)); }
-  50% { filter: brightness(1.1) drop-shadow(0 0 14px var(--glow-color, transparent)); }
+.building-positioner:has(.building-wrapper--completed) {
+  filter: drop-shadow(0 0 12px rgba(76, 175, 80, 0.7));
 }
 
 .building-wrapper--completed {
-  animation: building-glow-pulse 2.5s ease-in-out infinite;
+  animation: building-glow-completed 2.5s ease-in-out infinite;
 }
 
-/* AI recommended — orange fire glow + float */
-.building-wrapper--ai .face-top {
-  box-shadow: 0 0 14px rgba(255, 152, 0, 0.6);
+.building-wrapper--completed .face-front {
+  box-shadow: inset 0 0 12px rgba(76, 175, 80, 0.3);
+}
+.building-wrapper--completed .face-side {
+  box-shadow: inset 0 0 8px rgba(76, 175, 80, 0.25);
+}
+.building-wrapper--completed .face-top {
+  box-shadow: 0 0 16px rgba(76, 175, 80, 0.7);
 }
 
-@keyframes building-float {
-  0%, 100% { transform: rotateX(55deg) rotateZ(-45deg) translateZ(0px); }
-  50% { transform: rotateX(55deg) rotateZ(-45deg) translateZ(5px); }
+/* AI recommended — full orange glow + float */
+@keyframes building-glow-ai {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 152, 0, 0.6)) brightness(1.05); transform: rotateX(55deg) rotateZ(-45deg) translateZ(0px); }
+  50% { filter: drop-shadow(0 0 18px rgba(255, 152, 0, 0.8)) brightness(1.15); transform: rotateX(55deg) rotateZ(-45deg) translateZ(5px); }
+}
+
+.building-positioner:has(.building-wrapper--ai) {
+  filter: drop-shadow(0 0 12px rgba(255, 152, 0, 0.7));
 }
 
 .building-wrapper--ai {
-  animation: building-float 3s ease-in-out infinite;
+  animation: building-glow-ai 3s ease-in-out infinite;
+}
+
+.building-wrapper--ai .face-front {
+  box-shadow: inset 0 0 12px rgba(255, 152, 0, 0.3);
+}
+.building-wrapper--ai .face-side {
+  box-shadow: inset 0 0 8px rgba(255, 152, 0, 0.25);
+}
+.building-wrapper--ai .face-top {
+  box-shadow: 0 0 16px rgba(255, 152, 0, 0.7);
 }
 
 /* Disable float on hover to allow lift effect */
 .building-positioner:hover .building-wrapper--ai {
   animation: none;
+}
+
+/* In-progress — zone color glow (softer) */
+.building-positioner:has(.building-wrapper--progress) {
+  filter: drop-shadow(0 0 8px var(--glow-color, rgba(100,100,255,0.4)));
+}
+
+.building-wrapper--progress .face-front {
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.1);
+}
+.building-wrapper--progress .face-top {
+  box-shadow: 0 0 10px var(--glow-color, transparent);
 }
 
 /* Window flicker for AI-recommended buildings */
@@ -267,7 +299,6 @@ body {
   animation: window-flicker 1.5s ease-in-out infinite;
 }
 
-/* Stagger flicker per window for organic feel */
 .building-wrapper--ai .building-window:nth-child(2) { animation-delay: 0.25s; }
 .building-wrapper--ai .building-window:nth-child(3) { animation-delay: 0.55s; }
 .building-wrapper--ai .building-window:nth-child(4) { animation-delay: 0.8s; }
@@ -330,13 +361,19 @@ body {
 /* Completed village house — green glow on roof pseudo-elements */
 .building-wrapper--completed .face-top--house::before,
 .building-wrapper--completed .face-top--house::after {
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+  box-shadow: 0 0 14px rgba(76, 175, 80, 0.6);
 }
 
 /* AI recommended village house — orange glow */
 .building-wrapper--ai .face-top--house::before,
 .building-wrapper--ai .face-top--house::after {
-  box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+  box-shadow: 0 0 14px rgba(255, 152, 0, 0.6);
+}
+
+/* In-progress village house — zone glow */
+.building-wrapper--progress .face-top--house::before,
+.building-wrapper--progress .face-top--house::after {
+  box-shadow: 0 0 8px var(--glow-color, transparent);
 }
 
 /* === Building extras === */

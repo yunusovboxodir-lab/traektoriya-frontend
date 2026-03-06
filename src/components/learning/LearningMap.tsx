@@ -58,28 +58,28 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
-    // Desktop: left column
-    cx: 155, cy: 350,
+    // Desktop: left column — road center, buildings offset to sides
+    cx: 155, cy: 300,
     buildingSlots: [
-      { dx: -80, dy: -220 },
-      { dx: 50, dy: -170 },
-      { dx: -60, dy: -100 },
-      { dx: 70, dy: -60 },
-      { dx: -90, dy: 20 },
-      { dx: 40, dy: 60 },
-      { dx: -50, dy: 140 },
-      { dx: 60, dy: 200 },
+      { dx: -95, dy: -200 },
+      { dx: 65, dy: -160 },
+      { dx: -85, dy: -80 },
+      { dx: 75, dy: -30 },
+      { dx: -95, dy: 50 },
+      { dx: 70, dy: 100 },
+      { dx: -80, dy: 170 },
+      { dx: 80, dy: 220 },
     ],
     // Mobile: top zone (y=0..300)
     mcx: 200, mcy: 150,
     mobileBuildingSlots: [
       { dx: -130, dy: -90 },
-      { dx: 0, dy: -100 },
+      { dx: 30, dy: -100 },
       { dx: 130, dy: -85 },
-      { dx: -100, dy: 0 },
+      { dx: -120, dy: 0 },
       { dx: 50, dy: -10 },
       { dx: 140, dy: 15 },
-      { dx: -60, dy: 80 },
+      { dx: -80, dy: 80 },
       { dx: 80, dy: 90 },
     ],
     wallColor: '#a8d5a2',
@@ -93,28 +93,28 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
-    // Desktop: bottom-middle
-    cx: 620, cy: 505,
+    // Desktop: bottom-middle — buildings alternating sides of road
+    cx: 620, cy: 510,
     buildingSlots: [
-      { dx: -230, dy: -120 },
-      { dx: -80, dy: -130 },
-      { dx: 80, dy: -110 },
-      { dx: 230, dy: -120 },
-      { dx: -200, dy: 0 },
-      { dx: -40, dy: 10 },
-      { dx: 120, dy: -10 },
-      { dx: 240, dy: 20 },
+      { dx: -240, dy: -100 },
+      { dx: -100, dy: -120 },
+      { dx: 60, dy: -100 },
+      { dx: 210, dy: -110 },
+      { dx: -220, dy: 20 },
+      { dx: -60, dy: 30 },
+      { dx: 110, dy: 10 },
+      { dx: 250, dy: 30 },
     ],
     // Mobile: second zone (y=300..600)
     mcx: 200, mcy: 450,
     mobileBuildingSlots: [
       { dx: -130, dy: -90 },
-      { dx: 0, dy: -100 },
+      { dx: 30, dy: -100 },
       { dx: 130, dy: -85 },
-      { dx: -100, dy: 0 },
+      { dx: -120, dy: 0 },
       { dx: 50, dy: -10 },
       { dx: 140, dy: 15 },
-      { dx: -60, dy: 80 },
+      { dx: -80, dy: 80 },
       { dx: 80, dy: 90 },
     ],
     wallColor: '#a0c4e8',
@@ -129,27 +129,27 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
     // Desktop: top-middle
-    cx: 620, cy: 155,
+    cx: 620, cy: 160,
     buildingSlots: [
-      { dx: -230, dy: -80 },
-      { dx: -80, dy: -90 },
-      { dx: 80, dy: -70 },
-      { dx: 230, dy: -80 },
-      { dx: -200, dy: 40 },
-      { dx: -40, dy: 50 },
-      { dx: 120, dy: 30 },
-      { dx: 240, dy: 45 },
+      { dx: -240, dy: -70 },
+      { dx: -100, dy: -80 },
+      { dx: 60, dy: -60 },
+      { dx: 210, dy: -70 },
+      { dx: -220, dy: 50 },
+      { dx: -60, dy: 60 },
+      { dx: 110, dy: 40 },
+      { dx: 250, dy: 55 },
     ],
     // Mobile: third zone (y=600..900)
     mcx: 200, mcy: 750,
     mobileBuildingSlots: [
       { dx: -130, dy: -90 },
-      { dx: 0, dy: -100 },
+      { dx: 30, dy: -100 },
       { dx: 130, dy: -85 },
-      { dx: -100, dy: 0 },
+      { dx: -120, dy: 0 },
       { dx: 50, dy: -10 },
       { dx: 140, dy: 15 },
-      { dx: -60, dy: 80 },
+      { dx: -80, dy: 80 },
       { dx: 80, dy: 90 },
     ],
     wallColor: '#f5d6a8',
@@ -164,22 +164,22 @@ const ZONES: ZoneConfig[] = [
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
     // Desktop: right column
-    cx: 1065, cy: 350,
+    cx: 1065, cy: 300,
     buildingSlots: [
-      { dx: -60, dy: -220 },
-      { dx: 50, dy: -150 },
-      { dx: -70, dy: -60 },
-      { dx: 40, dy: -10 },
-      { dx: -50, dy: 80 },
-      { dx: 55, dy: 160 },
+      { dx: -80, dy: -200 },
+      { dx: 60, dy: -140 },
+      { dx: -75, dy: -50 },
+      { dx: 55, dy: 10 },
+      { dx: -70, dy: 90 },
+      { dx: 65, dy: 170 },
     ],
     // Mobile: bottom zone (y=900..1200)
     mcx: 200, mcy: 1050,
     mobileBuildingSlots: [
       { dx: -130, dy: -90 },
-      { dx: 0, dy: -100 },
+      { dx: 30, dy: -100 },
       { dx: 130, dy: -85 },
-      { dx: -100, dy: 0 },
+      { dx: -120, dy: 0 },
       { dx: 50, dy: -10 },
       { dx: 140, dy: 15 },
     ],
@@ -197,12 +197,12 @@ const LEVEL_ORDER: Record<string, number> = {
   master: 3,
 };
 
-// Label position offsets from zone center (to avoid covering buildings)
+// Label positions — landscape-integrated (Master on mountain, etc.)
 const LABEL_OFFSETS: Record<string, { dx: number; dy: number; mdx: number; mdy: number }> = {
-  trainee:      { dx: 0, dy: 260, mdx: 0, mdy: 120 },
-  practitioner: { dx: 0, dy: 135, mdx: 0, mdy: 120 },
-  expert:       { dx: 0, dy: 105, mdx: 0, mdy: 120 },
-  master:       { dx: 0, dy: 260, mdx: 0, mdy: 120 },
+  trainee:      { dx: 0, dy: 290, mdx: 0, mdy: 120 },
+  practitioner: { dx: 0, dy: 145, mdx: 0, mdy: 120 },
+  expert:       { dx: 0, dy: -130, mdx: 0, mdy: -120 },
+  master:       { dx: 15, dy: -10, mdx: 0, mdy: -80 },
 };
 
 // ============================================================
@@ -216,7 +216,7 @@ function wavyVerticalBorder(x: number, seed: number, h: number): string {
   for (let i = 0; i <= steps; i++) {
     const y = (i / steps) * h;
     s = (s * 16807 + 7) % 2147483647;
-    const jitter = ((s / 2147483647) - 0.5) * 50;
+    const jitter = ((s / 2147483647) - 0.5) * 30;
     pts.push({ x: x + jitter, y });
   }
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
@@ -236,7 +236,7 @@ function wavyHorizontalBorder(y: number, xStart: number, xEnd: number, seed: num
   for (let i = 0; i <= steps; i++) {
     const x = xStart + (i / steps) * (xEnd - xStart);
     s = (s * 16807 + 7) % 2147483647;
-    const jitter = ((s / 2147483647) - 0.5) * 45;
+    const jitter = ((s / 2147483647) - 0.5) * 30;
     pts.push({ x, y: y + jitter });
   }
   let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
@@ -467,25 +467,32 @@ export function LearningMap({ data, onOpenSection }: Props) {
   const getZoneCenter = (zone: ZoneConfig) => isMobile ? { x: zone.mcx, y: zone.mcy } : { x: zone.cx, y: zone.cy };
   const getSlots = (zone: ZoneConfig) => isMobile ? zone.mobileBuildingSlots : zone.buildingSlots;
 
-  // Collect ALL building points for road (with nearest-neighbor ordering per zone)
-  const allBuildingPts = useMemo(() => {
-    const pts: Array<{ x: number; y: number; zoneIdx: number }> = [];
+  // Collect building positions AND road waypoints (road passes NEAR buildings, not through them)
+  const { allBuildingPts, roadWaypoints } = useMemo(() => {
+    const bldPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
+    const roadPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
     for (let zi = 0; zi < ZONES.length; zi++) {
       const zone = ZONES[zi];
       const center = getZoneCenter(zone);
       const slots = getSlots(zone);
       const buildings = zoneData.get(zone.level) || [];
       const count = Math.max(buildings.length, 1);
-      const rawPts: Array<{ x: number; y: number }> = [];
+      const rawBld: Array<{ x: number; y: number }> = [];
+      const rawRoad: Array<{ x: number; y: number }> = [];
       for (let bi = 0; bi < count; bi++) {
         const slot = slots[bi % slots.length];
-        rawPts.push({ x: center.x + slot.dx, y: center.y + slot.dy });
+        const bx = center.x + slot.dx;
+        const by = center.y + slot.dy;
+        rawBld.push({ x: bx, y: by });
+        // Road point: shift toward zone center (between building and center)
+        rawRoad.push({ x: bx + (center.x - bx) * 0.55, y: by + (center.y - by) * 0.1 });
       }
-      // Nearest-neighbor within zone
-      const ordered = nearestNeighborOrder(rawPts);
-      for (const p of ordered) pts.push({ ...p, zoneIdx: zi });
+      const orderedBld = nearestNeighborOrder(rawBld);
+      const orderedRoad = nearestNeighborOrder(rawRoad);
+      for (const p of orderedBld) bldPts.push({ ...p, zoneIdx: zi });
+      for (const p of orderedRoad) roadPts.push({ ...p, zoneIdx: zi });
     }
-    return pts;
+    return { allBuildingPts: bldPts, roadWaypoints: roadPts };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneData, isMobile]);
 
@@ -503,25 +510,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
     return count;
   }, [zoneData]);
 
-  // Stars
-  const stars = useMemo(() => {
-    const result: Array<{ x: number; y: number; r: number; o: number }> = [];
-    let seed = 42;
-    for (let i = 0; i < 60; i++) {
-      seed = (seed * 16807 + 7) % 2147483647;
-      const x = (seed % W);
-      seed = (seed * 16807 + 7) % 2147483647;
-      const y = (seed % H);
-      seed = (seed * 16807 + 7) % 2147483647;
-      const r = 0.3 + (seed % 12) / 10;
-      seed = (seed * 16807 + 7) % 2147483647;
-      const o = 0.15 + (seed % 35) / 100;
-      result.push({ x, y, r, o });
-    }
-    return result;
-  }, [W, H]);
-
-  const roadPath = useMemo(() => smoothCatmullRom(allBuildingPts), [allBuildingPts]);
+  const roadPath = useMemo(() => smoothCatmullRom(roadWaypoints), [roadWaypoints]);
 
   return (
     <div className="relative w-full">
@@ -563,70 +552,121 @@ export function LearningMap({ data, onOpenSection }: Props) {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            {ZONES.map((zone) => (
-              <filter key={`glow-${zone.level}`} id={`glow-${zone.level}`} x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
-              </filter>
-            ))}
-            <filter id="road-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="6" />
+            {/* Landscape patterns */}
+            <pattern id="pat-trainee" patternUnits="userSpaceOnUse" width="20" height="20">
+              <rect width="20" height="20" fill="#1a3a28" />
+              <circle cx="4" cy="6" r="0.8" fill="#2d5a3f" opacity="0.6" />
+              <circle cx="14" cy="3" r="0.6" fill="#3a6b4a" opacity="0.4" />
+              <circle cx="9" cy="14" r="0.7" fill="#2d5a3f" opacity="0.5" />
+              <circle cx="17" cy="16" r="0.5" fill="#3a6b4a" opacity="0.3" />
+            </pattern>
+            <pattern id="pat-practitioner" patternUnits="userSpaceOnUse" width="24" height="24">
+              <rect width="24" height="24" fill="#142840" />
+              <line x1="0" y1="12" x2="24" y2="12" stroke="#1e3a5f" strokeWidth="0.5" opacity="0.25" />
+              <line x1="12" y1="0" x2="12" y2="24" stroke="#1e3a5f" strokeWidth="0.5" opacity="0.25" />
+            </pattern>
+            <pattern id="pat-expert" patternUnits="userSpaceOnUse" width="18" height="18">
+              <rect width="18" height="18" fill="#2d1e14" />
+              <circle cx="3" cy="5" r="0.6" fill="#4a3020" opacity="0.4" />
+              <circle cx="12" cy="2" r="0.4" fill="#5a3d28" opacity="0.3" />
+              <circle cx="7" cy="12" r="0.7" fill="#4a3020" opacity="0.35" />
+              <circle cx="15" cy="15" r="0.5" fill="#5a3d28" opacity="0.3" />
+            </pattern>
+            <pattern id="pat-master" patternUnits="userSpaceOnUse" width="16" height="16">
+              <rect width="16" height="16" fill="#251010" />
+              <line x1="0" y1="16" x2="16" y2="0" stroke="#3a1a1a" strokeWidth="0.6" opacity="0.35" />
+              <line x1="8" y1="16" x2="16" y2="8" stroke="#3a1a1a" strokeWidth="0.4" opacity="0.25" />
+              <line x1="0" y1="8" x2="8" y2="0" stroke="#3a1a1a" strokeWidth="0.4" opacity="0.25" />
+            </pattern>
+            <filter id="zone-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
             </filter>
           </defs>
 
-          {/* Territory fills — enhanced saturation */}
+          {/* Territory base fills */}
           {ZONES.map((zone, zi) => {
             const isCurrent = zone.level === user.current_level;
             return (
               <g key={zone.level}>
-                <path d={territory.territories[zi]} fill={zone.colorDark} opacity={0.85} />
-                <path d={territory.territories[zi]} fill={zone.color} opacity={isCurrent ? 0.2 : 0.1} />
+                <path d={territory.territories[zi]} fill={`url(#pat-${zone.level})`} />
                 {isCurrent && (
-                  <path d={territory.territories[zi]} fill={zone.glowColor} filter={`url(#glow-${zone.level})`} opacity={0.3}>
-                    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
+                  <path d={territory.territories[zi]} fill={zone.glowColor} filter="url(#zone-glow)" opacity={0.25}>
+                    <animate attributeName="opacity" values="0.15;0.3;0.15" dur="3s" repeatCount="indefinite" />
                   </path>
                 )}
               </g>
             );
           })}
 
-          {/* Stars */}
-          {stars.map((s, i) => (
-            <circle key={`s${i}`} cx={s.x} cy={s.y} r={s.r} fill="#fff" opacity={s.o} />
-          ))}
+          {/* === Relief elements === */}
+          {!isMobile ? (
+            <g>
+              {/* TRAINEE (left, 0-310): gentle green hills */}
+              <ellipse cx="80" cy="620" rx="120" ry="35" fill="#1f4a30" opacity="0.5" />
+              <ellipse cx="200" cy="650" rx="90" ry="25" fill="#1d4228" opacity="0.4" />
+              <ellipse cx="60" cy="80" rx="100" ry="30" fill="#1f4a30" opacity="0.4" />
+              {/* Small trees (simple triangles) */}
+              <polygon points="40,570 48,545 56,570" fill="#2a5e3a" opacity="0.5" />
+              <polygon points="250,100 258,75 266,100" fill="#2a5e3a" opacity="0.45" />
+              <polygon points="20,300 28,275 36,300" fill="#2a5e3a" opacity="0.4" />
+              <polygon points="280,500 288,478 296,500" fill="#2a5e3a" opacity="0.4" />
 
-          {/* Territory borders — bold and clear */}
+              {/* EXPERT (top-center, 310-930 x 0-310): sandy dunes */}
+              <ellipse cx="500" cy="50" rx="150" ry="30" fill="#3d2818" opacity="0.4" />
+              <ellipse cx="750" cy="70" rx="120" ry="25" fill="#3d2818" opacity="0.35" />
+              <ellipse cx="400" cy="280" rx="100" ry="20" fill="#3d2818" opacity="0.3" />
+
+              {/* PRACTITIONER (bottom-center, 310-930 x 310-700): rolling terrain */}
+              <ellipse cx="480" cy="650" rx="130" ry="28" fill="#1a3555" opacity="0.4" />
+              <ellipse cx="750" cy="670" rx="100" ry="22" fill="#1a3555" opacity="0.35" />
+
+              {/* MASTER (right, 930-1200): mountains with label */}
+              {/* Big mountain */}
+              <polygon points="1020,700 1080,350 1140,700" fill="#351818" opacity="0.6" />
+              <polygon points="1080,350 1100,380 1060,380" fill="#4a2020" opacity="0.5" />
+              {/* Medium mountain */}
+              <polygon points="950,700 1000,420 1050,700" fill="#301515" opacity="0.5" />
+              {/* Small peak */}
+              <polygon points="1120,700 1160,450 1200,700" fill="#2d1212" opacity="0.45" />
+              {/* Snow caps */}
+              <polygon points="1070,365 1080,350 1090,365" fill="rgba(255,255,255,0.15)" />
+              <polygon points="990,435 1000,420 1010,435" fill="rgba(255,255,255,0.12)" />
+            </g>
+          ) : (
+            <g>
+              {/* Mobile relief — simplified */}
+              {/* Trainee hills */}
+              <ellipse cx="60" cy="260" rx="80" ry="22" fill="#1f4a30" opacity="0.4" />
+              <polygon points="340,50 350,25 360,50" fill="#2a5e3a" opacity="0.4" />
+              {/* Expert dunes */}
+              <ellipse cx="300" cy="620" rx="90" ry="18" fill="#3d2818" opacity="0.35" />
+              {/* Master mountains */}
+              <polygon points="100,1200 180,950 260,1200" fill="#351818" opacity="0.5" />
+              <polygon points="250,1200 320,1000 390,1200" fill="#301515" opacity="0.45" />
+              <polygon points="170,965 180,950 190,965" fill="rgba(255,255,255,0.12)" />
+            </g>
+          )}
+
+          {/* Territory borders */}
           {territory.borders.map((b, i) => (
-            <g key={`border-${i}`}>
-              <path d={b} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="8" />
-              <path d={b} fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="3" strokeDasharray="10 5" strokeLinecap="round" />
-              <path d={b} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-            </g>
+            <path key={`border-${i}`} d={b} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeDasharray="8 6" strokeLinecap="round" />
           ))}
 
-          {/* Road — solid dark surface with glow edges (Flutter-style) */}
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" filter="url(#road-glow)" />
-          <path d={roadPath} fill="none" stroke="rgba(200,210,230,0.18)" strokeWidth="22" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="#1a1a2e" strokeWidth="16" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" strokeDasharray="8 8" strokeLinecap="round" />
-          {/* Road waypoints — larger */}
-          {allBuildingPts.map((pt, i) => (
-            <g key={`rd-${i}`}>
-              <circle
-                cx={pt.x} cy={pt.y} r={7}
-                fill="none"
-                stroke={i < completedCount ? 'rgba(76,175,80,0.5)' : 'rgba(255,255,255,0.12)'}
-                strokeWidth={1.5}
-              />
-              <circle
-                cx={pt.x} cy={pt.y} r={4}
-                fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.3)'}
-                stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.15)'}
-                strokeWidth={1}
-              />
-            </g>
-          ))}
+          {/* Road — dark strip with dashed center line */}
+          <path d={roadPath} fill="none" stroke="rgba(0,0,0,0.4)" strokeWidth="20" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="rgba(80,80,80,0.3)" strokeWidth="18" strokeLinecap="round" strokeLinejoin="round" />
+          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="8 8" strokeLinecap="round" />
 
-          {/* Zone labels moved to HTML Layer 3 (above houses) */}
+          {/* Road waypoints near buildings */}
+          {roadWaypoints.map((pt, i) => (
+            <circle
+              key={`rd-${i}`}
+              cx={pt.x} cy={pt.y} r={3.5}
+              fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.2)'}
+              stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.08)'}
+              strokeWidth={1}
+            />
+          ))}
         </svg>
 
         {/* ===== LAYER 2: 3D Houses (HTML overlay) ===== */}
@@ -677,7 +717,8 @@ export function LearningMap({ data, onOpenSection }: Props) {
 
                 const isVillage = !!bld.section.is_village;
                 const stateClass = bld.isCompleted ? 'building-wrapper--completed'
-                  : bld.isAiRecommended ? 'building-wrapper--ai' : '';
+                  : bld.isAiRecommended ? 'building-wrapper--ai'
+                  : bld.hasProgress ? 'building-wrapper--progress' : '';
                 const villageClass = isVillage ? ' building-wrapper--village' : '';
 
                 const winRows = Math.min(Math.ceil(bHeight / 16), 3);
@@ -764,13 +805,12 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 <div
                   style={{
                     color: zone.color,
-                    fontSize: isMobile ? '18px' : '40px',
-                    fontWeight: 900,
-                    letterSpacing: isMobile ? '3px' : '8px',
+                    fontSize: isMobile ? '16px' : '28px',
+                    fontWeight: 800,
+                    letterSpacing: isMobile ? '2px' : '4px',
                     textTransform: 'uppercase' as const,
-                    textShadow: `0 0 40px ${zone.glowColor}, 0 0 80px ${zone.glowColor}, 0 0 120px ${zone.glowColor}, 0 3px 6px rgba(0,0,0,0.9)`,
-                    WebkitTextStroke: `${isMobile ? 1 : 2}px rgba(0,0,0,0.4)`,
-                    opacity: isCurrent ? 1 : 0.8,
+                    textShadow: `0 2px 8px rgba(0,0,0,0.8)`,
+                    opacity: isCurrent ? 1 : 0.7,
                     textAlign: 'center' as const,
                     lineHeight: 1,
                   }}
@@ -780,23 +820,22 @@ export function LearningMap({ data, onOpenSection }: Props) {
                 {/* Decorative line */}
                 <div
                   style={{
-                    width: isMobile ? '60px' : '140px',
-                    height: '2px',
+                    width: isMobile ? '50px' : '100px',
+                    height: '1.5px',
                     background: `linear-gradient(90deg, transparent, ${zone.color}, transparent)`,
-                    margin: `${isMobile ? 4 : 6}px auto`,
-                    opacity: isCurrent ? 0.7 : 0.4,
+                    margin: `${isMobile ? 3 : 5}px auto`,
+                    opacity: isCurrent ? 0.6 : 0.3,
                   }}
                 />
                 {/* Subtitle */}
                 <div
                   style={{
                     color: zone.color,
-                    fontSize: isMobile ? '10px' : '14px',
-                    fontStyle: 'italic',
-                    letterSpacing: '2px',
+                    fontSize: isMobile ? '9px' : '12px',
+                    letterSpacing: '1.5px',
                     textAlign: 'center' as const,
-                    opacity: isCurrent ? 0.8 : 0.5,
-                    textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                    opacity: isCurrent ? 0.7 : 0.45,
+                    textShadow: '0 1px 4px rgba(0,0,0,0.8)',
                   }}
                 >
                   {buildings.length} {buildings.length === 1 ? 'раздел' : buildings.length < 5 ? 'раздела' : 'разделов'}
