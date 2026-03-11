@@ -3,25 +3,48 @@ import { roleScopesApi } from '../api/roleScopes';
 
 /** Map pageKey → route path (must match App.tsx routes) */
 const PAGE_KEY_TO_PATH: Record<string, string> = {
+  // Consolidated navigation (10 items)
   dashboard: '/dashboard',
   learning: '/learning',
   products: '/products',
   tasks: '/tasks',
   team: '/team',
-  assessments: '/assessments',
-  generation: '/generation',
-  'knowledge-base': '/knowledge-base',
-  kpi: '/kpi',
-  chat: '/chat',
+  competencies: '/competencies',
+  'ai-studio': '/ai-studio',
+  goals: '/goals',
   planogram: '/planogram',
   analytics: '/analytics',
-  goals: '/goals',
-  reports: '/reports',
-  supervisor: '/supervisor',
-  'admin-users': '/admin/users',
   'admin-roles': '/admin/roles',
-  'competency-matrix': '/competency-matrix',
-  'competency-profiles': '/competency-profiles',
+
+  // Legacy pageKeys — map to new consolidated paths
+  // (backend may still return these until role_scopes are updated)
+  assessments: '/competencies',
+  'competency-matrix': '/competencies',
+  'competency-profiles': '/competencies',
+  generation: '/ai-studio',
+  'knowledge-base': '/ai-studio',
+  chat: '/ai-studio',
+  kpi: '/dashboard',
+  reports: '/analytics',
+  supervisor: '/team',
+  'admin-users': '/team',
+};
+
+/**
+ * Map legacy pageKeys to new consolidated pageKeys.
+ * When backend returns old pageKeys like 'assessments', treat them as 'competencies'.
+ */
+const LEGACY_TO_NEW: Record<string, string> = {
+  assessments: 'competencies',
+  'competency-matrix': 'competencies',
+  'competency-profiles': 'competencies',
+  generation: 'ai-studio',
+  'knowledge-base': 'ai-studio',
+  chat: 'ai-studio',
+  kpi: 'dashboard',
+  reports: 'analytics',
+  supervisor: 'team',
+  'admin-users': 'team',
 };
 
 interface ScopeState {
@@ -52,15 +75,25 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
     const { allowedPages } = get();
     // null = not loaded or error → allow all
     if (allowedPages === null) return true;
-    return allowedPages.includes(pageKey);
+
+    // Direct match
+    if (allowedPages.includes(pageKey)) return true;
+
+    // Check if any legacy key maps to this new pageKey
+    // e.g. if 'competencies' is checked but backend sent 'assessments'
+    const legacyKeys = Object.entries(LEGACY_TO_NEW)
+      .filter(([, newKey]) => newKey === pageKey)
+      .map(([oldKey]) => oldKey);
+
+    return legacyKeys.some((k) => allowedPages.includes(k));
   },
 
   getFirstAllowedPath: () => {
     const { allowedPages } = get();
-    // null = not loaded → default to rating (KPI leaderboard)
-    if (allowedPages === null || allowedPages.length === 0) return '/rating';
+    // null = not loaded → default to dashboard
+    if (allowedPages === null || allowedPages.length === 0) return '/dashboard';
     const firstKey = allowedPages[0];
-    return PAGE_KEY_TO_PATH[firstKey] || '/rating';
+    return PAGE_KEY_TO_PATH[firstKey] || '/dashboard';
   },
 
   reset: () => set({ allowedPages: null, isLoaded: false }),

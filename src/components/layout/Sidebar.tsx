@@ -134,31 +134,6 @@ function IconCamera() {
   );
 }
 
-function IconDatabase() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0">
-      <ellipse cx="12" cy="5" rx="9" ry="3" />
-      <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-      <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-    </svg>
-  );
-}
-
-function IconTrophy() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      className="w-5 h-5 flex-shrink-0">
-      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-      <path d="M4 22h16" />
-      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
-      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
-    </svg>
-  );
-}
-
 function IconTarget() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -167,16 +142,6 @@ function IconTarget() {
       <circle cx="12" cy="12" r="10" />
       <circle cx="12" cy="12" r="6" />
       <circle cx="12" cy="12" r="2" />
-    </svg>
-  );
-}
-
-function IconMessageCircle() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      className="w-5 h-5 flex-shrink-0">
-      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   );
 }
@@ -235,33 +200,6 @@ function IconShield() {
   );
 }
 
-function IconScissors() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      className="w-5 h-5 flex-shrink-0">
-      <circle cx="6" cy="6" r="3" />
-      <circle cx="6" cy="18" r="3" />
-      <line x1="20" y1="4" x2="8.12" y2="15.88" />
-      <line x1="14.47" y1="14.48" x2="20" y2="20" />
-      <line x1="8.12" y1="8.12" x2="12" y2="12" />
-    </svg>
-  );
-}
-
-function IconGrid() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      className="w-5 h-5 flex-shrink-0">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-      <rect x="14" y="14" width="7" height="7" />
-    </svg>
-  );
-}
-
 // Role hierarchy for admin checks
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -276,30 +214,22 @@ const ROLE_HIERARCHY: Record<string, number> = {
 // Navigation items
 // ---------------------------------------------------------------------------
 
-// Label keys map to i18n: nav.dashboard, nav.learning, etc.
+// Consolidated navigation: 18 → 10 items (pages merged via tabs)
 const NAV_ITEMS_DEF = [
-  { labelKey: 'nav.rating', path: '/rating', icon: <IconTrophy />, pageKey: 'kpi' },
-  { labelKey: 'nav.dashboard', path: '/dashboard', icon: <IconHome />, pageKey: 'dashboard' },
-  { labelKey: 'nav.learning', path: '/learning', icon: <IconBook />, pageKey: 'learning' },
-  { labelKey: 'nav.products', path: '/products', icon: <IconBox />, pageKey: 'products' },
-  { labelKey: 'nav.tasks', path: '/tasks', icon: <IconClipboard />, pageKey: 'tasks' },
-  { labelKey: 'nav.team', path: '/team', icon: <IconUsers />, pageKey: 'team' },
-  { labelKey: 'nav.assessments', path: '/assessments', icon: <IconCheckSquare />, pageKey: 'assessments' },
-  { labelKey: 'nav.competencyMatrix', path: '/competency-matrix', icon: <IconGrid />, pageKey: 'competency-matrix' },
-  { labelKey: 'nav.competencyProfiles', path: '/competency-profiles', icon: <IconClipboard />, pageKey: 'competency-profiles' },
-  { labelKey: 'nav.generation', path: '/generation', icon: <IconAI />, pageKey: 'generation' },
-  { labelKey: 'nav.knowledgeBase', path: '/knowledge-base', icon: <IconDatabase />, pageKey: 'knowledge-base' },
-  { labelKey: 'nav.goals', path: '/goals', icon: <IconTarget />, pageKey: 'goals' },
-  { labelKey: 'nav.chat', path: '/chat', icon: <IconMessageCircle />, pageKey: 'chat' },
-  { labelKey: 'nav.planogram', path: '/planogram', icon: <IconCamera />, pageKey: 'planogram' },
-  { labelKey: 'nav.analytics', path: '/analytics', icon: <IconChart />, pageKey: 'analytics' },
-  { labelKey: 'nav.supervisor', path: '/supervisor', icon: <IconUsers />, pageKey: 'supervisor' },
-  { labelKey: 'nav.reports', path: '/reports', icon: <IconScissors />, pageKey: 'reports' },
+  { labelKey: 'nav.home',         path: '/dashboard',     icon: <IconHome />,           pageKey: 'dashboard' },
+  { labelKey: 'nav.learning',     path: '/learning',      icon: <IconBook />,           pageKey: 'learning' },
+  { labelKey: 'nav.products',     path: '/products',      icon: <IconBox />,            pageKey: 'products' },
+  { labelKey: 'nav.tasks',        path: '/tasks',         icon: <IconClipboard />,      pageKey: 'tasks' },
+  { labelKey: 'nav.team',         path: '/team',          icon: <IconUsers />,          pageKey: 'team' },
+  { labelKey: 'nav.competencies', path: '/competencies',  icon: <IconCheckSquare />,    pageKey: 'competencies' },
+  { labelKey: 'nav.aiStudio',     path: '/ai-studio',     icon: <IconAI />,             pageKey: 'ai-studio' },
+  { labelKey: 'nav.goals',        path: '/goals',         icon: <IconTarget />,         pageKey: 'goals' },
+  { labelKey: 'nav.planogram',    path: '/planogram',     icon: <IconCamera />,         pageKey: 'planogram' },
+  { labelKey: 'nav.analytics',    path: '/analytics',     icon: <IconChart />,          pageKey: 'analytics' },
 ] as const;
 
 const ADMIN_NAV_ITEMS_DEF = [
-  { labelKey: 'nav.adminUsers', path: '/admin/users', icon: <IconUsers />, pageKey: 'admin-users' },
-  { labelKey: 'nav.adminRoles', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles' },
+  { labelKey: 'nav.settings', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles' },
 ] as const;
 
 // ---------------------------------------------------------------------------

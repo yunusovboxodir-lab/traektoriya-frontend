@@ -1,10 +1,13 @@
 {
   "nav": {
+    "home": "Главная",
     "dashboard": "Главная",
     "learning": "Обучение",
     "products": "Товары",
     "tasks": "Задачи",
     "team": "Команда",
+    "competencies": "Компетенции",
+    "aiStudio": "AI Студия",
     "assessments": "Оценка",
     "generation": "AI Генерация",
     "knowledgeBase": "База знаний",
@@ -14,6 +17,7 @@
     "planogram": "Планограмма",
     "rating": "Рейтинг",
     "analytics": "Аналитика",
+    "settings": "Настройки",
     "adminUsers": "Сотрудники",
     "adminRoles": "Управление ролями",
     "reports": "Отчёты",
@@ -49,6 +53,25 @@
     "loading": "Вход...",
     "error": "Ошибка входа. Проверьте данные.",
     "demoAccess": "Демо доступы"
+  },
+  "home": {
+    "tabOverview": "Обзор",
+    "tabKpi": "Мой KPI"
+  },
+  "teamHub": {
+    "tabMembers": "Состав",
+    "tabManagement": "Управление",
+    "tabAdmin": "Администрирование"
+  },
+  "comp": {
+    "tabAssessments": "Оценка",
+    "tabMatrix": "Матрица GAP",
+    "tabProfiles": "Профили должностей"
+  },
+  "ai": {
+    "tabGeneration": "Генерация",
+    "tabKnowledge": "База знаний",
+    "tabChat": "AI Чат"
   },
   "dashboard": {
     "welcome": "Добро пожаловать",
@@ -485,7 +508,63 @@
     "avgLessonTime": "Ср. время урока",
     "totalHours": "Всего часов",
     "min": "мин",
-    "hours": "ч"
+    "hours": "ч",
+    "exporting": "Загрузка...",
+    "exportKpi": "KPI сотрудников",
+    "exportTasks": "Задачи",
+    "exportOverview": "Обзор платформы",
+    "tabOverview": "Обзор",
+    "tabLms": "AI L&D",
+    "tabEffectiveness": "Эффективность",
+    "tabReports": "Отчёты",
+    "lms": {
+      "trackLabel": "Трек",
+      "trackAll": "Все",
+      "trackFieldSalesShort": "ТП",
+      "trackSalesMgmtShort": "РМ / КД / БМ",
+      "metricsTitle": "Метрики обучения",
+      "quizAccuracy": "Quiz Accuracy",
+      "quizAccuracyDesc": "Правильных с 1-й попытки",
+      "reflectionRate": "Reflection Rate",
+      "reflectionRateDesc": "Заполненных рефлексий",
+      "avgScore": "Средний балл",
+      "avgScoreDesc": "По всем тестам",
+      "clustersWeek": "Кластеров за неделю",
+      "clustersWeekDesc": "Болевых точек",
+      "topPainClusters": "Топ болевых точек недели",
+      "people": "чел.",
+      "aiDraft": "AI-черновик",
+      "statusNew": "Новый",
+      "statusReviewed": "Проверен",
+      "statusPublished": "Опубликован",
+      "mentions": "упоминаний",
+      "hide": "Скрыть",
+      "quotes": "Цитаты",
+      "categoryDist": "Распределение по категориям",
+      "recentReflections": "Последние рефлексии",
+      "emptyTitle": "Данных пока нет",
+      "emptyDesc": "AI L&D аналитика появится после того, как сотрудники начнут проходить модули и заполнять поля рефлексии. Первые кластеры появятся через 1-2 недели."
+    },
+    "eff": {
+      "moduleEffectiveness": "Эффективность модулей",
+      "module": "Модуль",
+      "completion7d": "Completion 7д",
+      "avgScore": "Ср. балл",
+      "avgTime": "Ср. время",
+      "delta": "Дельта",
+      "kpiLinkage": "Связь обучения с бизнес-KPI",
+      "kpiFieldSales": "Полевые продажи (ТП + СВ)",
+      "kpiRM": "Региональный менеджер",
+      "kpiCD": "Коммерческий директор",
+      "kpiBM": "Бренд-менеджер",
+      "cluster": "Кластер",
+      "linkedKpi": "Связанный KPI",
+      "formulaWeight": "Вес в формуле",
+      "roiTitle": "Как измеряем ROI обучения",
+      "roiDesc": "Через 30 дней после публикации модуля по категории смотрим: (1) снизилась ли частота этой категории в рефлексиях — Learning Effectiveness; (2) вырос ли связанный бизнес-KPI — Business Impact. Дельта показывает эффективность модуля при N > 30 ТП.",
+      "emptyTitle": "Данных об эффективности пока нет",
+      "emptyDesc": "Метрики эффективности появятся после публикации модулей и измерения дельты через 30 дней. Нужна минимальная аудитория — 30 ТП."
+    }
   },
   "generation": {
     "title": "AI Генерация",

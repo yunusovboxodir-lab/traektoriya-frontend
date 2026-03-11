@@ -1,10 +1,13 @@
 {
   "nav": {
+    "home": "Bosh sahifa",
     "dashboard": "Bosh sahifa",
     "learning": "O'qitish",
     "products": "Mahsulotlar",
     "tasks": "Vazifalar",
     "team": "Jamoa",
+    "competencies": "Kompetensiyalar",
+    "aiStudio": "AI Studiya",
     "assessments": "Baholash",
     "generation": "AI Generatsiya",
     "knowledgeBase": "Bilimlar bazasi",
@@ -14,6 +17,7 @@
     "planogram": "Planogramma",
     "rating": "Reyting",
     "analytics": "Tahlil",
+    "settings": "Sozlamalar",
     "adminUsers": "Xodimlar",
     "adminRoles": "Rollar boshqaruvi",
     "reports": "Hisobotlar",
@@ -49,6 +53,25 @@
     "loading": "Kirish...",
     "error": "Kirish xatosi. Ma'lumotlarni tekshiring.",
     "demoAccess": "Demo kirish"
+  },
+  "home": {
+    "tabOverview": "Umumiy",
+    "tabKpi": "Mening KPI"
+  },
+  "teamHub": {
+    "tabMembers": "Tarkib",
+    "tabManagement": "Boshqaruv",
+    "tabAdmin": "Administratsiya"
+  },
+  "comp": {
+    "tabAssessments": "Baholash",
+    "tabMatrix": "GAP Matritsasi",
+    "tabProfiles": "Lavozim profillari"
+  },
+  "ai": {
+    "tabGeneration": "Generatsiya",
+    "tabKnowledge": "Bilimlar bazasi",
+    "tabChat": "AI Chat"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz",
@@ -485,7 +508,63 @@
     "avgLessonTime": "O'rt. dars vaqti",
     "totalHours": "Jami soatlar",
     "min": "daq",
-    "hours": "s"
+    "hours": "s",
+    "exporting": "Yuklanmoqda...",
+    "exportKpi": "Xodimlar KPI",
+    "exportTasks": "Vazifalar",
+    "exportOverview": "Platforma ko'rinishi",
+    "tabOverview": "Umumiy",
+    "tabLms": "AI L&D",
+    "tabEffectiveness": "Samaradorlik",
+    "tabReports": "Hisobotlar",
+    "lms": {
+      "trackLabel": "Trek",
+      "trackAll": "Hammasi",
+      "trackFieldSalesShort": "TP",
+      "trackSalesMgmtShort": "RM / KD / BM",
+      "metricsTitle": "O'qitish ko'rsatkichlari",
+      "quizAccuracy": "Quiz Accuracy",
+      "quizAccuracyDesc": "1-urinishda to'g'ri",
+      "reflectionRate": "Reflection Rate",
+      "reflectionRateDesc": "To'ldirilgan refleksiyalar",
+      "avgScore": "O'rtacha ball",
+      "avgScoreDesc": "Barcha testlar bo'yicha",
+      "clustersWeek": "Haftalik klasterlar",
+      "clustersWeekDesc": "Muammoli nuqtalar",
+      "topPainClusters": "Haftaning top muammolari",
+      "people": "kishi",
+      "aiDraft": "AI-qoralama",
+      "statusNew": "Yangi",
+      "statusReviewed": "Tekshirilgan",
+      "statusPublished": "Nashr qilingan",
+      "mentions": "eslatish",
+      "hide": "Yashirish",
+      "quotes": "Iqtiboslar",
+      "categoryDist": "Kategoriya bo'yicha taqsimot",
+      "recentReflections": "So'nggi refleksiyalar",
+      "emptyTitle": "Hozircha ma'lumot yo'q",
+      "emptyDesc": "AI L&D tahlili xodimlar modullarni o'tib, refleksiya maydonlarini to'ldirgandan keyin paydo bo'ladi. Birinchi klasterlar 1-2 haftada paydo bo'ladi."
+    },
+    "eff": {
+      "moduleEffectiveness": "Modullar samaradorligi",
+      "module": "Modul",
+      "completion7d": "Completion 7k",
+      "avgScore": "O'rt. ball",
+      "avgTime": "O'rt. vaqt",
+      "delta": "Delta",
+      "kpiLinkage": "O'qitish va biznes-KPI bog'liqligi",
+      "kpiFieldSales": "Dala savdosi (TP + SV)",
+      "kpiRM": "Mintaqaviy menejer",
+      "kpiCD": "Tijorat direktori",
+      "kpiBM": "Brend-menejer",
+      "cluster": "Klaster",
+      "linkedKpi": "Bog'langan KPI",
+      "formulaWeight": "Formula vazni",
+      "roiTitle": "O'qitish ROI qanday o'lchanadi",
+      "roiDesc": "Modul nashr etilgandan 30 kun o'tgach: (1) refleksiyalarda ushbu kategoriya chastotasi kamayganmi — Learning Effectiveness; (2) bog'langan biznes-KPI o'sganmi — Business Impact. Delta N > 30 TP da modul samaradorligini ko'rsatadi.",
+      "emptyTitle": "Samaradorlik ma'lumotlari hozircha yo'q",
+      "emptyDesc": "Samaradorlik ko'rsatkichlari modullar nashr etilgandan va 30 kundan keyin delta o'lchangandan so'ng paydo bo'ladi. Minimal auditoriya — 30 TP."
+    }
   },
   "generation": {
     "title": "AI Generatsiya",

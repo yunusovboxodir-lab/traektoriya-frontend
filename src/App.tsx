@@ -7,32 +7,30 @@ import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
-// Lazy-loaded pages for code splitting (with auto-retry on chunk load errors)
+// ---------------------------------------------------------------------------
+// Lazy-loaded pages (with auto-retry on chunk load errors)
+// ---------------------------------------------------------------------------
+
 const LandingPage = lazyWithRetry(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
+
+// Consolidated wrapper pages (tabs inside)
+const HomePage = lazyWithRetry(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+const TeamHubPage = lazyWithRetry(() => import('./pages/TeamHubPage').then(m => ({ default: m.TeamHubPage })));
+const CompetenciesPage = lazyWithRetry(() => import('./pages/CompetenciesPage').then(m => ({ default: m.CompetenciesPage })));
+const AIStudioPage = lazyWithRetry(() => import('./pages/AIStudioPage').then(m => ({ default: m.AIStudioPage })));
+
+// Standalone pages (unchanged)
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
 const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
-const TeamPage = lazyWithRetry(() => import('./pages/TeamPage').then(m => ({ default: m.TeamPage })));
-const AssessmentsPage = lazyWithRetry(() => import('./pages/AssessmentsPage').then(m => ({ default: m.AssessmentsPage })));
-const GenerationPage = lazyWithRetry(() => import('./pages/GenerationPage').then(m => ({ default: m.GenerationPage })));
 const PlanogramPage = lazyWithRetry(() => import('./pages/PlanogramPage').then(m => ({ default: m.PlanogramPage })));
 const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
-const KnowledgeBasePage = lazyWithRetry(() => import('./pages/KnowledgeBasePage').then(m => ({ default: m.KnowledgeBasePage })));
-const KPIPage = lazyWithRetry(() => import('./pages/KPIPage').then(m => ({ default: m.KPIPage })));
-const ChatPage = lazyWithRetry(() => import('./pages/ChatPage').then(m => ({ default: m.ChatPage })));
+const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
-const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
-const ReportsPage = lazyWithRetry(() => import('./pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
-const SupervisorDashboardPage = lazyWithRetry(() => import('./pages/SupervisorDashboardPage').then(m => ({ default: m.SupervisorDashboardPage })));
-const CompetencyMatrixPage = lazyWithRetry(() => import('./pages/CompetencyMatrixPage').then(m => ({ default: m.CompetencyMatrixPage })));
-const CompetencyProfilePage = lazyWithRetry(() => import('./pages/CompetencyProfilePage').then(m => ({ default: m.CompetencyProfilePage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
-const AdminUsersPage = lazyWithRetry(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
-// const CinematicDemo = lazyWithRetry(() => import('./pages/CinematicDemo'));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -111,12 +109,16 @@ function AppRoutes() {
         }
       />
 
-      {/* Дашборд — только admin/superadmin */}
+      {/* ==========================================
+          ОСНОВНЫЕ СТРАНИЦЫ (10 разделов)
+          ========================================== */}
+
+      {/* Главная = Dashboard + KPI (tabs) */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute pageKey="dashboard">
-            <DashboardPage />
+            <HomePage />
           </ProtectedRoute>
         }
       />
@@ -159,84 +161,32 @@ function AppRoutes() {
         }
       />
 
-      {/* Команда */}
+      {/* Команда = Team + Supervisor + AdminUsers (tabs) */}
       <Route
         path="/team"
         element={
           <ProtectedRoute pageKey="team">
-            <TeamPage />
+            <TeamHubPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Оценка */}
+      {/* Компетенции = Assessments + Matrix + Profiles (tabs) */}
       <Route
-        path="/assessments"
+        path="/competencies"
         element={
-          <ProtectedRoute pageKey="assessments">
-            <AssessmentsPage />
+          <ProtectedRoute pageKey="competencies">
+            <CompetenciesPage />
           </ProtectedRoute>
         }
       />
 
-      {/* AI Генерация */}
+      {/* AI Студия = Generation + KnowledgeBase + Chat (tabs) */}
       <Route
-        path="/generation"
+        path="/ai-studio"
         element={
-          <ProtectedRoute pageKey="generation">
-            <GenerationPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Планограмма AI */}
-      <Route
-        path="/planogram"
-        element={
-          <ProtectedRoute pageKey="planogram">
-            <PlanogramPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Аналитика */}
-      <Route
-        path="/analytics"
-        element={
-          <ProtectedRoute pageKey="analytics">
-            <AnalyticsPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* База знаний */}
-      <Route
-        path="/knowledge-base"
-        element={
-          <ProtectedRoute pageKey="knowledge-base">
-            <KnowledgeBasePage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Рейтинг (formerly KPI) */}
-      <Route
-        path="/rating"
-        element={
-          <ProtectedRoute pageKey="kpi">
-            <KPIPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* Legacy /kpi redirect */}
-      <Route path="/kpi" element={<Navigate to="/rating" replace />} />
-
-      {/* AI-Консультант */}
-      <Route
-        path="/chat"
-        element={
-          <ProtectedRoute pageKey="chat">
-            <ChatPage />
+          <ProtectedRoute pageKey="ai-studio">
+            <AIStudioPage />
           </ProtectedRoute>
         }
       />
@@ -251,55 +201,29 @@ function AppRoutes() {
         }
       />
 
-      {/* Дашборд супервайзера */}
+      {/* Планограмма AI (ShelfScan) */}
       <Route
-        path="/supervisor"
+        path="/planogram"
         element={
-          <ProtectedRoute pageKey="supervisor">
-            <SupervisorDashboardPage />
+          <ProtectedRoute pageKey="planogram">
+            <PlanogramPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Отчёты (Ножницы) */}
+      {/* Аналитика = Overview + AI L&D + Effectiveness + Reports (tabs) */}
       <Route
-        path="/reports"
+        path="/analytics"
         element={
-          <ProtectedRoute pageKey="reports">
-            <ReportsPage />
+          <ProtectedRoute pageKey="analytics">
+            <AnalyticsPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Матрица компетенций */}
-      <Route
-        path="/competency-matrix"
-        element={
-          <ProtectedRoute pageKey="competency-matrix">
-            <CompetencyMatrixPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Профили должностей */}
-      <Route
-        path="/competency-profiles"
-        element={
-          <ProtectedRoute pageKey="competency-profiles">
-            <CompetencyProfilePage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Управление сотрудниками (superadmin) */}
-      <Route
-        path="/admin/users"
-        element={
-          <ProtectedRoute pageKey="admin-users">
-            <AdminUsersPage />
-          </ProtectedRoute>
-        }
-      />
+      {/* ==========================================
+          АДМИН-РАЗДЕЛ
+          ========================================== */}
 
       {/* Управление ролями (admin+) */}
       <Route
@@ -330,6 +254,33 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* ==========================================
+          REDIRECTS — обратная совместимость
+          ========================================== */}
+
+      {/* Рейтинг → Главная (вкладка KPI) */}
+      <Route path="/rating" element={<Navigate to="/dashboard?tab=kpi" replace />} />
+      <Route path="/kpi" element={<Navigate to="/dashboard?tab=kpi" replace />} />
+
+      {/* Supervisor → Команда (вкладка Управление) */}
+      <Route path="/supervisor" element={<Navigate to="/team?tab=management" replace />} />
+
+      {/* Admin Users → Команда (вкладка Админ) */}
+      <Route path="/admin/users" element={<Navigate to="/team?tab=admin" replace />} />
+
+      {/* Оценка / Матрица / Профили → Компетенции */}
+      <Route path="/assessments" element={<Navigate to="/competencies" replace />} />
+      <Route path="/competency-matrix" element={<Navigate to="/competencies?tab=matrix" replace />} />
+      <Route path="/competency-profiles" element={<Navigate to="/competencies?tab=profiles" replace />} />
+
+      {/* AI Генерация / База знаний / Чат → AI Студия */}
+      <Route path="/generation" element={<Navigate to="/ai-studio" replace />} />
+      <Route path="/knowledge-base" element={<Navigate to="/ai-studio?tab=knowledge" replace />} />
+      <Route path="/chat" element={<Navigate to="/ai-studio?tab=chat" replace />} />
+
+      {/* Отчёты → Аналитика (вкладка Отчёты) */}
+      <Route path="/reports" element={<Navigate to="/analytics?tab=reports" replace />} />
 
       {/* Редирект по умолчанию → первая разрешённая страница */}
       <Route path="/" element={<SmartRedirect />} />

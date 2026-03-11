@@ -16,4 +16,13 @@ export const analyticsApi = {
       params: { report_type: reportType, ...(period ? { period } : {}) },
       responseType: 'blob',
     }),
+
+  // AI L&D Analytics
+  getLmsDashboard: (params?: { track?: string }) =>
+    api.get('/api/v1/analytics/lms/dashboard', { params }),
+  getLmsClusters: (params?: { week?: string; status?: string; category?: string; track?: string }) =>
+    api.get('/api/v1/analytics/lms/clusters', { params }),
+  getLmsInsights: () => api.get('/api/v1/analytics/lms/insights'),
+  getLmsKpiMapping: (params?: { track?: string }) =>
+    api.get('/api/v1/analytics/lms/kpi-mapping', { params }),
 };

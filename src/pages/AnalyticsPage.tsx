@@ -1,119 +1,31 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { analyticsApi } from '../api/analytics';
 import { useT } from '../stores/langStore';
+import { useAuthStore } from '../stores/authStore';
+import { OverviewTab } from '../components/analytics/OverviewTab';
+import { LmsTab } from '../components/analytics/LmsTab';
+import { EffectivenessTab } from '../components/analytics/EffectivenessTab';
+import { ReportsPage } from './ReportsPage';
+import type {
+  OverviewData, LearningMetrics, ProductStats,
+  LeaderboardEntry, LmsDashboard, InsightItem,
+} from '../components/analytics/types';
+
+type AnalyticsTabId = 'overview' | 'lms' | 'effectiveness' | 'reports';
+
+const ROLE_HIERARCHY: Record<string, number> = {
+  superadmin: 5,
+  commercial_dir: 4,
+  regional_manager: 2,
+  admin: 3,
+  supervisor: 2,
+  sales_rep: 1,
+};
 
 // ---------------------------------------------------------------------------
-// Interfaces
+// Constants
 // ---------------------------------------------------------------------------
-
-interface OverviewData {
-  users?: { total?: number; active?: number; by_role?: Record<string, number> };
-  courses?: { total?: number; published?: number; avg_completion_rate?: number };
-  tasks?: { total?: number; completed?: number; overdue?: number; completion_rate?: number };
-  learning?: { total_enrolled?: number; total_completed?: number; avg_progress?: number };
-  products?: { total?: number; with_tests?: number; avg_test_score?: number };
-  // Legacy flat fields (backward compat)
-  total_users?: number;
-  total_courses?: number;
-  total_tasks?: number;
-  total_products?: number;
-}
-
-interface LearningMetrics {
-  total_enrolled?: number;
-  total_completed?: number;
-  avg_completion_rate?: number;
-  completion_rate?: number;
-  average_score?: number;
-  active_learners?: number;
-  courses_completed?: number;
-  by_territory?: TerritoryItem[];
-  by_course?: CourseItem[];
-  time_stats?: { avg_time_per_lesson?: number; total_learning_hours?: number };
-  difficult_steps?: DifficultStep[];
-}
-
-interface TerritoryItem {
-  territory: string;
-  enrolled: number;
-  completed: number;
-  avg_score: number;
-}
-
-interface CourseItem {
-  course_id: string;
-  title: string;
-  enrolled: number;
-  completed: number;
-  avg_score: number;
-}
-
-interface DifficultStep {
-  content_item_id: string;
-  title: string;
-  difficulty_level: number;
-  path?: string;
-}
-
-interface CategoryBreakdown {
-  name: string;
-  count: number;
-}
-
-interface ProductStats {
-  total_products?: number;
-  products_with_tests?: number;
-  products_with_hpv?: number;
-  average_test_score?: number;
-  tests_completed?: number;
-  test_stats?: { total_attempts?: number; pass_rate?: number; avg_score?: number };
-  categories_breakdown?: CategoryBreakdown[];
-  by_product?: ProductItem[];
-  popular_products?: ProductItem[];
-  difficult_products?: ProductItem[];
-}
-
-interface ProductItem {
-  product_id: string;
-  name: string;
-  attempts: number;
-  pass_rate: number;
-  avg_score: number;
-}
-
-interface LeaderboardEntry {
-  user_id: string;
-  full_name: string;
-  employee_id: string;
-  role: string;
-  region?: string;
-  tasks_completed: number;
-}
-
-// ---------------------------------------------------------------------------
-// Static fallback categories
-// ---------------------------------------------------------------------------
-
-const FALLBACK_CATEGORIES: CategoryBreakdown[] = [
-  { name: 'Молочные', count: 6 },
-  { name: 'Соки', count: 6 },
-  { name: 'Кондитерские', count: 5 },
-  { name: 'Бакалея', count: 5 },
-  { name: 'Консервы', count: 4 },
-  { name: 'Детское', count: 3 },
-  { name: 'Напитки', count: 1 },
-];
-
-const BAR_COLORS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-purple-500',
-  'bg-rose-500',
-  'bg-cyan-500',
-  'bg-orange-500',
-  'bg-indigo-500',
-];
 
 const PERIOD_OPTIONS = [
   { value: 'week', labelKey: 'analytics.periodWeek' },
@@ -122,38 +34,7 @@ const PERIOD_OPTIONS = [
   { value: 'all', labelKey: 'analytics.periodAll' },
 ] as const;
 
-const ROLE_LABELS: Record<string, string> = {
-  superadmin: 'Суперадмин',
-  commercial_dir: 'Комм. директор',
-  admin: 'Админ',
-  regional_manager: 'Рег. менеджер',
-  supervisor: 'Супервайзер',
-  sales_rep: 'Торговый пред.',
-};
-
-// ---------------------------------------------------------------------------
-// Helpers to read overview data (nested or flat)
-// ---------------------------------------------------------------------------
-function ov(data: OverviewData | null, path: string): number {
-  if (!data) return 0;
-  // Try nested first (users.total, courses.total, etc.)
-  const parts = path.split('.');
-  let cur: unknown = data;
-  for (const p of parts) {
-    if (cur && typeof cur === 'object' && p in (cur as Record<string, unknown>)) {
-      cur = (cur as Record<string, unknown>)[p];
-    } else {
-      cur = undefined;
-      break;
-    }
-  }
-  if (typeof cur === 'number') return cur;
-  // Try flat fallback (total_users, total_courses, etc.)
-  const flatKey = parts.join('_');
-  const flat = (data as Record<string, unknown>)[flatKey];
-  if (typeof flat === 'number') return flat;
-  return 0;
-}
+// TAB_OPTIONS is built dynamically in component to support role-based visibility
 
 // ---------------------------------------------------------------------------
 // Main Page
@@ -161,19 +42,63 @@ function ov(data: OverviewData | null, path: string): number {
 
 export function AnalyticsPage() {
   const t = useT();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const user = useAuthStore((s) => s.user);
+  const userRole = user?.role || 'sales_rep';
+  const isAdminPlus = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
+
+  // Build tabs with optional Reports tab for admin+
+  const tabOptions: { id: AnalyticsTabId; labelKey: string }[] = [
+    { id: 'overview', labelKey: 'analytics.tabOverview' },
+    { id: 'lms', labelKey: 'analytics.tabLms' },
+    { id: 'effectiveness', labelKey: 'analytics.tabEffectiveness' },
+    ...(isAdminPlus ? [{ id: 'reports' as const, labelKey: 'analytics.tabReports' }] : []),
+  ];
+
+  const tabFromUrl = searchParams.get('tab') as AnalyticsTabId | null;
+  const [activeTab, setActiveTab] = useState<AnalyticsTabId>(
+    tabFromUrl && tabOptions.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'overview',
+  );
   const [period, setPeriod] = useState<string>('all');
+
+  // Sync URL → state on mount / URL change
+  useEffect(() => {
+    const urlTab = searchParams.get('tab') as AnalyticsTabId | null;
+    if (urlTab && tabOptions.some((t) => t.id === urlTab)) {
+      setActiveTab(urlTab);
+    }
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTabChange = (tab: AnalyticsTabId) => {
+    setActiveTab(tab);
+    if (tab === 'overview') {
+      setSearchParams({}, { replace: true });
+    } else {
+      setSearchParams({ tab }, { replace: true });
+    }
+  };
+
+  // Overview data (depends on period only)
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [learning, setLearning] = useState<LearningMetrics | null>(null);
   const [productStats, setProductStats] = useState<ProductStats | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+
+  // LMS data (depends on track only)
+  const [lmsDashboard, setLmsDashboard] = useState<LmsDashboard | null>(null);
+  const [lmsInsights, setLmsInsights] = useState<InsightItem[]>([]);
+  const [lmsTrack, setLmsTrack] = useState<string>('');
+
+  const [loadingOverview, setLoadingOverview] = useState(true);
+  const [loadingLms, setLoadingLms] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportMenu, setExportMenu] = useState(false);
 
-  const loadData = useCallback(async (p: string) => {
+  // --- Load overview data (period-dependent) ---
+  const loadOverviewData = useCallback(async (p: string) => {
     try {
-      setLoading(true);
+      setLoadingOverview(true);
       setError(null);
 
       const [overviewRes, learningRes, productsRes, leaderboardRes] =
@@ -200,13 +125,38 @@ export function AnalyticsPage() {
     } catch {
       setError(t('analytics.loadError'));
     } finally {
-      setLoading(false);
+      setLoadingOverview(false);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // --- Load LMS data (track-dependent) ---
+  const loadLmsData = useCallback(async (track?: string) => {
+    try {
+      setLoadingLms(true);
+
+      const trackParam = track ? { track } : undefined;
+      const [lmsRes, insightsRes] = await Promise.allSettled([
+        analyticsApi.getLmsDashboard(trackParam),
+        analyticsApi.getLmsInsights(),
+      ]);
+
+      if (lmsRes.status === 'fulfilled') setLmsDashboard(lmsRes.value.data);
+      if (insightsRes.status === 'fulfilled') setLmsInsights(insightsRes.value.data ?? []);
+    } catch {
+      // LMS errors are non-critical
+    } finally {
+      setLoadingLms(false);
+    }
+  }, []);
+
+  // --- Effects: separate dependencies ---
   useEffect(() => {
-    loadData(period);
+    loadOverviewData(period);
   }, [period]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    loadLmsData(lmsTrack || undefined);
+  }, [lmsTrack]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExport = async (type: 'kpi' | 'tasks' | 'overview') => {
     setExportMenu(false);
@@ -229,7 +179,9 @@ export function AnalyticsPage() {
     }
   };
 
-  // -- Loading (skeleton) --
+  const loading = loadingOverview && loadingLms;
+
+  // -- Loading skeleton --
   if (loading) {
     return (
       <div className="animate-pulse">
@@ -239,10 +191,7 @@ export function AnalyticsPage() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm"
-            >
+            <div key={i} className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
               <div className="h-10 w-10 bg-gray-200 rounded-lg mb-3" />
               <div className="h-7 w-16 bg-gray-200 rounded-md mb-2" />
               <div className="h-4 w-24 bg-gray-100 rounded-md" />
@@ -261,23 +210,6 @@ export function AnalyticsPage() {
             ))}
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm">
-          <div className="h-5 w-40 bg-gray-200 rounded-md mb-4" />
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="flex justify-center">
-              <div className="h-48 w-48 bg-gray-100 rounded-full" />
-            </div>
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="h-4 w-24 bg-gray-100 rounded-md" />
-                  <div className="h-6 flex-1 bg-gray-100 rounded-md" />
-                  <div className="h-4 w-6 bg-gray-100 rounded-md" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     );
   }
@@ -289,7 +221,7 @@ export function AnalyticsPage() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600 text-sm">{error}</p>
           <button
-            onClick={() => loadData(period)}
+            onClick={() => loadOverviewData(period)}
             className="text-red-600 underline text-sm mt-1"
           >
             {t('analytics.tryAgain')}
@@ -298,84 +230,6 @@ export function AnalyticsPage() {
       </div>
     );
   }
-
-  // -- Stat cards --
-  const statCards: StatCardDef[] = [
-    {
-      label: t('analytics.users'),
-      value: ov(overview, 'users.total') || '---',
-      gradientFrom: 'from-blue-500',
-      gradientTo: 'to-blue-600',
-      bgLight: 'bg-blue-50',
-      textColor: 'text-blue-600',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 00-3-3.87" />
-          <path d="M16 3.13a4 4 0 010 7.75" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.courses'),
-      value: ov(overview, 'courses.total') || '---',
-      gradientFrom: 'from-emerald-500',
-      gradientTo: 'to-emerald-600',
-      bgLight: 'bg-emerald-50',
-      textColor: 'text-emerald-600',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-          <path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.tasks'),
-      value: ov(overview, 'tasks.total') || '---',
-      gradientFrom: 'from-amber-500',
-      gradientTo: 'to-amber-600',
-      bgLight: 'bg-amber-50',
-      textColor: 'text-amber-600',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-          <path d="M9 14l2 2 4-4" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.products'),
-      value: ov(overview, 'products.total') || '---',
-      gradientFrom: 'from-purple-500',
-      gradientTo: 'to-purple-600',
-      bgLight: 'bg-purple-50',
-      textColor: 'text-purple-600',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-          <path d="M3.27 6.96L12 12.01l8.73-5.05" />
-          <path d="M12 22.08V12" />
-        </svg>
-      ),
-    },
-  ];
-
-  // Categories for the bar chart
-  const categories: CategoryBreakdown[] =
-    productStats?.categories_breakdown && productStats.categories_breakdown.length > 0
-      ? productStats.categories_breakdown
-      : FALLBACK_CATEGORIES;
-
-  // Product details
-  const byProduct = productStats?.by_product ?? [];
-  const popularProducts = productStats?.popular_products ?? byProduct.slice(0, 10);
-
-  // Learning details
-  const byTerritory = learning?.by_territory ?? [];
-  const byCourse = learning?.by_course ?? [];
 
   return (
     <div>
@@ -416,7 +270,7 @@ export function AnalyticsPage() {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              {exporting ? 'Загрузка...' : t('analytics.export')}
+              {exporting ? t('analytics.exporting') : t('analytics.export')}
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -424,17 +278,17 @@ export function AnalyticsPage() {
             {exportMenu && (
               <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
                 {([
-                  { type: 'kpi' as const, icon: '📊', label: 'KPI сотрудников' },
-                  { type: 'tasks' as const, icon: '📋', label: 'Задачи' },
-                  { type: 'overview' as const, icon: '📈', label: 'Обзор платформы' },
-                ] as const).map(({ type, icon, label }) => (
+                  { type: 'kpi' as const, icon: '📊', labelKey: 'analytics.exportKpi' },
+                  { type: 'tasks' as const, icon: '📋', labelKey: 'analytics.exportTasks' },
+                  { type: 'overview' as const, icon: '📈', labelKey: 'analytics.exportOverview' },
+                ] as const).map(({ type, icon, labelKey }) => (
                   <button
                     key={type}
                     onClick={() => handleExport(type)}
                     className="w-full flex items-center gap-2 px-3 py-2 text-xs text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <span>{icon}</span>
-                    {label}
+                    {t(labelKey)}
                     <span className="ml-auto text-gray-400 text-[10px]">.xlsx</span>
                   </button>
                 ))}
@@ -444,422 +298,53 @@ export function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── Overview stat cards ── */}
-      <SectionTitle title={t('analytics.overview')} />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {statCards.map((card) => (
-          <StatCard key={card.label} card={card} />
+      {/* Tab navigation */}
+      <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-8 w-fit">
+        {tabOptions.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => handleTabChange(tab.id)}
+            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              activeTab === tab.id
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t(tab.labelKey)}
+          </button>
         ))}
       </div>
 
-      {/* ── Leaderboard ── */}
-      {leaderboard.length > 0 && (
-        <>
-          <SectionTitle title={t('analytics.leaderboard')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium w-8">#</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium">{t('analytics.name')}</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium hidden sm:table-cell">{t('analytics.role')}</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium hidden md:table-cell">{t('analytics.region')}</th>
-                    <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.tasksCompleted')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard.map((entry, idx) => (
-                    <tr key={entry.user_id} className="border-b border-gray-50 last:border-0">
-                      <td className="py-2.5 pr-4">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                          idx === 0 ? 'bg-amber-100 text-amber-700' :
-                          idx === 1 ? 'bg-gray-100 text-gray-600' :
-                          idx === 2 ? 'bg-orange-100 text-orange-700' :
-                          'text-gray-400'
-                        }`}>
-                          {idx + 1}
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
-                            {entry.full_name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 truncate max-w-[150px]">{entry.full_name}</div>
-                            <div className="text-xs text-gray-400">{entry.employee_id}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-2.5 pr-4 hidden sm:table-cell">
-                        <span className="text-xs text-gray-500">{ROLE_LABELS[entry.role] ?? entry.role}</span>
-                      </td>
-                      <td className="py-2.5 pr-4 hidden md:table-cell">
-                        <span className="text-xs text-gray-500">{entry.region ?? '—'}</span>
-                      </td>
-                      <td className="py-2.5 text-right">
-                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900">
-                          {entry.tasks_completed}
-                          <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path d="M9 12l2 2 4-4" />
-                          </svg>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* ── Learning metrics ── */}
-      {learning && (
-        <>
-          <SectionTitle title={t('analytics.learningMetrics')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <MetricBar
-                label={t('analytics.completion')}
-                value={learning.completion_rate ?? learning.avg_completion_rate ?? 0}
-                max={100}
-                suffix="%"
-                color="bg-blue-500"
-              />
-              <MetricBar
-                label={t('analytics.avgScore')}
-                value={learning.average_score ?? 0}
-                max={100}
-                suffix="%"
-                color="bg-green-500"
-              />
-              <MetricValue
-                label={t('analytics.activeLearners')}
-                value={learning.active_learners ?? learning.total_enrolled ?? 0}
-              />
-              <MetricValue
-                label={t('analytics.coursesCompleted')}
-                value={learning.courses_completed ?? learning.total_completed ?? 0}
-              />
-            </div>
-
-            {/* Time stats */}
-            {learning.time_stats && (
-              <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-100">
-                <MetricValue
-                  label={t('analytics.avgLessonTime')}
-                  value={`${learning.time_stats.avg_time_per_lesson ?? 0} ${t('analytics.min')}`}
-                />
-                <MetricValue
-                  label={t('analytics.totalHours')}
-                  value={`${learning.time_stats.total_learning_hours ?? 0} ${t('analytics.hours')}`}
-                />
-              </div>
-            )}
-
-            {/* By territory */}
-            {byTerritory.length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  {t('analytics.byTerritory')}
-                </h3>
-                <HorizontalBarChart
-                  categories={byTerritory.map((tr) => ({
-                    name: tr.territory || '—',
-                    count: tr.enrolled,
-                  }))}
-                />
-              </div>
-            )}
-
-            {/* By course */}
-            {byCourse.length > 0 && (
-              <div className="pt-4 mt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  {t('analytics.byCourse')}
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-2 text-gray-500 font-medium">{t('analytics.courseName')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.enrolled')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.completed')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {byCourse.map((c) => (
-                        <tr key={c.course_id} className="border-b border-gray-50 last:border-0">
-                          <td className="py-2 text-gray-900 truncate max-w-[200px]">{c.title}</td>
-                          <td className="py-2 text-right text-gray-600">{c.enrolled}</td>
-                          <td className="py-2 text-right text-gray-600">{c.completed}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* ── Product knowledge ── */}
-      {productStats && (
-        <>
-          <SectionTitle title={t('analytics.productKnowledge')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
-            {/* Top row: metric cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <MetricValue
-                label={t('analytics.totalProducts')}
-                value={productStats.total_products ?? 0}
-              />
-              <MetricValue
-                label={t('analytics.productsWithHpv')}
-                value={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
-              />
-              <MetricBar
-                label={t('analytics.avgTestScore')}
-                value={productStats.average_test_score ?? productStats.test_stats?.avg_score ?? 0}
-                max={100}
-                suffix="%"
-                color="bg-purple-500"
-              />
-              <MetricValue
-                label={t('analytics.testsCompleted')}
-                value={productStats.tests_completed ?? productStats.test_stats?.total_attempts ?? 0}
-              />
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-gray-100 mb-8" />
-
-            {/* Charts: donut + categories bar */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <div className="flex flex-col items-center">
-                <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  {t('analytics.hpvCoverage')}
-                </h3>
-                <DonutChart
-                  total={productStats.total_products ?? 0}
-                  filled={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
-                />
-              </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  {t('analytics.categories')}
-                </h3>
-                <HorizontalBarChart categories={categories} />
-              </div>
-            </div>
-
-            {/* Product detail table */}
-            {popularProducts.length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  {t('analytics.productDetails')}
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-2 text-gray-500 font-medium">{t('analytics.productName')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.attempts')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.passRate')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.avgScore')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {popularProducts.map((p) => (
-                        <tr key={p.product_id} className="border-b border-gray-50 last:border-0">
-                          <td className="py-2 text-gray-900 truncate max-w-[200px]">{p.name}</td>
-                          <td className="py-2 text-right text-gray-600">{p.attempts}</td>
-                          <td className="py-2 text-right">
-                            <span className={`font-medium ${
-                              p.pass_rate >= 80 ? 'text-emerald-600' :
-                              p.pass_rate >= 50 ? 'text-amber-600' :
-                              'text-red-600'
-                            }`}>
-                              {p.pass_rate}%
-                            </span>
-                          </td>
-                          <td className="py-2 text-right text-gray-600">{p.avg_score}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Section title with divider
-// ---------------------------------------------------------------------------
-
-function SectionTitle({ title }: { title: string }) {
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <h2 className="text-base font-semibold text-gray-800 whitespace-nowrap">
-        {title}
-      </h2>
-      <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Stat card (no hardcoded trends)
-// ---------------------------------------------------------------------------
-
-interface StatCardDef {
-  label: string;
-  value: number | string;
-  gradientFrom: string;
-  gradientTo: string;
-  bgLight: string;
-  textColor: string;
-  icon: React.ReactNode;
-}
-
-function StatCard({ card }: { card: StatCardDef }) {
-  return (
-    <div className="relative overflow-hidden bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-      <div
-        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradientFrom} ${card.gradientTo}`}
-      />
-      <div className="flex items-center justify-between mb-3">
-        <div
-          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${card.bgLight} flex items-center justify-center ${card.textColor}`}
-        >
-          {card.icon}
-        </div>
-      </div>
-      <div className={`text-xl sm:text-2xl font-bold ${card.textColor} tracking-tight`}>
-        {card.value}
-      </div>
-      <div className="text-sm text-gray-500 mt-0.5">{card.label}</div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Donut chart (pure SVG)
-// ---------------------------------------------------------------------------
-
-function DonutChart({ total, filled }: { total: number; filled: number }) {
-  const t = useT();
-  const mounted = useRef(false);
-  const [animated, setAnimated] = useState(false);
-
-  useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
-      requestAnimationFrame(() => setAnimated(true));
-    }
-  }, []);
-
-  const safeTotal = Math.max(total, 1);
-  const pct = Math.min(filled / safeTotal, 1);
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - pct * circumference;
-
-  return (
-    <div className="relative inline-flex flex-col items-center">
-      <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
-        <circle cx="90" cy="90" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="16" />
-        <circle
-          cx="90" cy="90" r={radius} fill="none" stroke="#8b5cf6" strokeWidth="16"
-          strokeLinecap="round" strokeDasharray={circumference}
-          strokeDashoffset={animated ? offset : circumference}
-          style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+      {/* TAB: Overview */}
+      {activeTab === 'overview' && (
+        <OverviewTab
+          overview={overview}
+          learning={learning}
+          productStats={productStats}
+          leaderboard={leaderboard}
         />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-gray-900">{Math.round(pct * 100)}%</span>
-        <span className="text-xs text-gray-500">{t('analytics.hpv')}</span>
-      </div>
-      <p className="mt-3 text-sm text-gray-600">
-        {t('analytics.hpvOf', { filled, total })}
-      </p>
-    </div>
-  );
-}
+      )}
 
-// ---------------------------------------------------------------------------
-// Horizontal bar chart
-// ---------------------------------------------------------------------------
-
-function HorizontalBarChart({ categories }: { categories: CategoryBreakdown[] }) {
-  const maxValue = Math.max(...categories.map((c) => c.count), 1);
-
-  return (
-    <div className="space-y-3">
-      {categories.map((cat, i) => {
-        const widthPct = (cat.count / maxValue) * 100;
-        const barColor = BAR_COLORS[i % BAR_COLORS.length];
-        return (
-          <div key={cat.name} className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm text-gray-600 w-20 sm:w-28 text-right shrink-0 truncate">
-              {cat.name}
-            </span>
-            <div className="flex-1 h-6 bg-gray-100 rounded-md overflow-hidden">
-              <div
-                className={`h-full rounded-md ${barColor} transition-all duration-700 ease-out`}
-                style={{ width: `${widthPct}%` }}
-              />
-            </div>
-            <span className="text-sm font-semibold text-gray-700 w-6 text-right shrink-0">
-              {cat.count}
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Metric components
-// ---------------------------------------------------------------------------
-
-function MetricBar({
-  label, value, max, suffix, color,
-}: {
-  label: string; value: number; max: number; suffix?: string; color: string;
-}) {
-  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
-  return (
-    <div>
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900 mb-2">
-        {typeof value === 'number' ? Math.round(value) : value}
-        {suffix}
-      </p>
-      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-        <div
-          className={`h-full rounded-full ${color} transition-all duration-500`}
-          style={{ width: `${pct}%` }}
+      {/* TAB: AI L&D */}
+      {activeTab === 'lms' && (
+        <LmsTab
+          dashboard={lmsDashboard}
+          track={lmsTrack}
+          onTrackChange={setLmsTrack}
         />
-      </div>
-    </div>
-  );
-}
+      )}
 
-function MetricValue({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div>
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
+      {/* TAB: Effectiveness */}
+      {activeTab === 'effectiveness' && (
+        <EffectivenessTab
+          insights={lmsInsights}
+          dashboard={lmsDashboard}
+          track={lmsTrack}
+        />
+      )}
+
+      {/* TAB: Reports (admin+) */}
+      {activeTab === 'reports' && isAdminPlus && <ReportsPage />}
     </div>
   );
 }
