@@ -61,6 +61,21 @@ interface AchievementItem {
   just_earned: boolean;
 }
 
+interface OrderItem {
+  product: string;
+  current_on_shelf: number;
+  recommended_qty: number;
+  reason: string;
+  priority: string;
+}
+
+interface RecommendedOrder {
+  items: OrderItem[];
+  total_items: number;
+  reasoning: string;
+  estimated_order_value: string | null;
+}
+
 interface AnalysisResult {
   analysis_id: string;
   score: number;
@@ -77,6 +92,7 @@ interface AnalysisResult {
   summary: string;
   processing_time_ms: number;
   motivation: { message: string; potential_kpi_gain: number } | null;
+  recommended_order: RecommendedOrder | null;
   goal_progress: GoalProgress | null;
   nudges: NudgeItem[];
   achievements: AchievementItem[];
@@ -304,6 +320,56 @@ export function PlanogramPage() {
                         </>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Recommended Order */}
+                {result.recommended_order && result.recommended_order.items?.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-sm border-2 border-emerald-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-bold text-white flex items-center gap-2">
+                          <span className="text-xl">📦</span> Рекомендованный заказ
+                        </h3>
+                        <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
+                          {result.recommended_order.total_items} {result.recommended_order.total_items === 1 ? 'позиция' : result.recommended_order.total_items < 5 ? 'позиции' : 'позиций'}
+                        </span>
+                      </div>
+                      <p className="text-emerald-100 text-sm mt-1">{result.recommended_order.reasoning}</p>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {result.recommended_order.items.map((item, i) => (
+                        <div key={i} className="px-6 py-3 flex items-center gap-4 hover:bg-gray-50 transition">
+                          <div className={`w-2 h-10 rounded-full shrink-0 ${
+                            item.priority === 'high' ? 'bg-red-500' :
+                            item.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm">{item.product}</div>
+                            <div className="text-xs text-gray-500 mt-0.5">{item.reason}</div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-xs text-gray-400">на полке</div>
+                            <div className="font-bold text-sm text-gray-600">{item.current_on_shelf} шт</div>
+                          </div>
+                          <div className="text-center shrink-0 px-2">
+                            <span className="text-gray-300 text-lg">→</span>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-xs text-emerald-600 font-medium">заказать</div>
+                            <div className="font-bold text-lg text-emerald-700">+{item.recommended_qty}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {result.recommended_order.estimated_order_value && (
+                      <div className="bg-gray-50 px-6 py-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-gray-500">Примерная сумма заказа</span>
+                          <span className="font-bold text-gray-700">{result.recommended_order.estimated_order_value}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
