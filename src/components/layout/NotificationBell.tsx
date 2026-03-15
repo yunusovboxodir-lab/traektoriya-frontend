@@ -17,6 +17,9 @@ const TYPE_ICON: Record<string, string> = {
   task_assigned: '📋',
   task_reassigned: '🔄',
   learning_assigned: '📚',
+  morning_briefing: '☀️',
+  learning_reminder: '📖',
+  weekly_digest: '📊',
   system: 'ℹ️',
 };
 
@@ -60,8 +63,16 @@ function NotificationItem({
 
   const handleClick = () => {
     if (!n.is_read) onRead(n.id);
-    if (n.related_type === 'task' && n.related_id) {
-      navigate('/tasks');
+    const navTarget =
+      (n.related_type === 'task' && n.related_id) || n.type === 'task_assigned' || n.type === 'task_reassigned' || n.type === 'morning_briefing'
+        ? '/tasks'
+        : n.type === 'learning_assigned' || n.type === 'learning_reminder'
+          ? '/learning'
+          : n.type === 'weekly_digest'
+            ? '/kpi'
+            : null;
+    if (navTarget) {
+      navigate(navTarget);
       onNavigate();
     }
   };

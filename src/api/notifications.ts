@@ -2,7 +2,7 @@ import { api } from './client';
 
 export interface AppNotification {
   id: string;
-  type: 'task_assigned' | 'task_reassigned' | 'learning_assigned' | 'system';
+  type: 'task_assigned' | 'task_reassigned' | 'learning_assigned' | 'morning_briefing' | 'learning_reminder' | 'weekly_digest' | 'system';
   title: string;
   body: string | null;
   is_read: boolean;
