@@ -26,13 +26,21 @@ const PRIORITY_LABEL_KEYS: Record<string, string> = {
   low: 'tasks.priority.low',
 };
 
-function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: string, status: string) => void }) {
+const SOURCE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
+  shelfscan_ai: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'ShelfScan AI' },
+  shelfscan: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'ShelfScan' },
+  learning_module: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Обучение' },
+  crm: { bg: 'bg-teal-50', text: 'text-teal-700', label: 'CRM' },
+  manual: { bg: 'bg-gray-50', text: 'text-gray-600', label: 'Вручную' },
+};
+
+function TaskCard({ task, onStatusChange, onCardClick }: { task: Task; onStatusChange: (id: string, status: string) => void; onCardClick: (task: Task) => void }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
   const style = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:border-blue-200 transition-all duration-200 group">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md hover:border-blue-200 transition-all duration-200 group cursor-pointer" onClick={() => onCardClick(task)}>
       {/* Priority + Title */}
       <div className="flex items-start gap-2 mb-2">
         <span className={`flex-shrink-0 mt-0.5 text-[10px] px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
@@ -43,16 +51,36 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
         </h4>
       </div>
 
-      {/* ShelfScan AI marker */}
-      {task.extra_data?.source === 'shelfscan_ai' && (
-        <div className="flex items-center gap-1.5 mb-2 px-2 py-1 bg-indigo-50 border border-indigo-200 rounded-lg">
-          <span className="text-sm">📸</span>
-          <span className="text-[10px] font-semibold text-indigo-700">ShelfScan AI</span>
-          {typeof task.extra_data.kpi_bonus === 'number' && task.extra_data.kpi_bonus > 0 && (
-            <span className="ml-auto text-[10px] font-bold text-green-600">+{task.extra_data.kpi_bonus}% KPI</span>
-          )}
-        </div>
-      )}
+      {/* Creator + Source */}
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
+        {task.creator_name && (
+          <span className="text-[10px] text-gray-400 flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            {task.creator_role || task.creator_name}
+          </span>
+        )}
+        {task.assignee_name && (
+          <span className="text-[10px] text-gray-400 flex items-center gap-1">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {task.assignee_name}
+          </span>
+        )}
+        {(() => {
+          const sourceKey = (task.source || task.extra_data?.source) as string | undefined;
+          if (!sourceKey) return null;
+          const sourceStyle = SOURCE_STYLES[sourceKey];
+          if (!sourceStyle) return null;
+          return (
+            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
+              {sourceStyle.label}
+            </span>
+          );
+        })()}
+      </div>
 
       {/* Description */}
       {task.description && (
@@ -87,7 +115,7 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-1.5 pt-2 border-t border-gray-50">
+      <div className="flex gap-1.5 pt-2 border-t border-gray-50" onClick={(e) => e.stopPropagation()}>
         {task.status !== 'in_progress' && task.status !== 'done' && (
           <button
             onClick={() => onStatusChange(task.id, 'in_progress')}
@@ -137,6 +165,172 @@ function TaskCard({ task, onStatusChange }: { task: Task; onStatusChange: (id: s
   );
 }
 
+function TaskDetailModal({ task, onClose, onStatusChange }: {
+  task: Task;
+  onClose: () => void;
+  onStatusChange: (id: string, status: string) => void;
+}) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
+  const style = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
+  const sourceKey = (task.source || task.extra_data?.source) as string;
+  const sourceStyle = SOURCE_STYLES[sourceKey];
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto animate-in" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-start justify-between rounded-t-2xl">
+          <div className="flex-1 pr-4">
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
+                {t(PRIORITY_LABEL_KEYS[task.priority]) || task.priority}
+              </span>
+              {task.task_type && task.task_type !== 'other' && (
+                <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] text-gray-600">{task.task_type}</span>
+              )}
+              {sourceStyle && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
+                  {sourceStyle.label}
+                </span>
+              )}
+            </div>
+            <h2 className="text-lg font-bold text-gray-900">{task.title}</h2>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors mt-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-4 space-y-4">
+          {/* Creator & Assignee */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <div className="text-[10px] text-gray-400 uppercase font-medium mb-1">Поставил</div>
+              <div className="text-sm font-medium text-gray-800">{task.creator_name || '\u2014'}</div>
+              {task.creator_role && <div className="text-xs text-gray-500">{task.creator_role}</div>}
+            </div>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <div className="text-[10px] text-gray-400 uppercase font-medium mb-1">Исполнитель</div>
+              <div className="text-sm font-medium text-gray-800">{task.assignee_name || '\u2014'}</div>
+              {task.assignee_role && <div className="text-xs text-gray-500">{task.assignee_role}</div>}
+            </div>
+          </div>
+
+          {/* Description */}
+          {task.description && (
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-medium mb-1">Описание</div>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{task.description}</p>
+            </div>
+          )}
+
+          {/* Meta grid */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {task.due_date && (
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-medium mb-0.5">Срок</div>
+                <div className="text-gray-700">{new Date(task.due_date).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              </div>
+            )}
+            {task.estimated_time && (
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-medium mb-0.5">Время</div>
+                <div className="text-gray-700">{task.estimated_time} мин</div>
+              </div>
+            )}
+            {task.started_at && (
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-medium mb-0.5">Начата</div>
+                <div className="text-gray-700">{new Date(task.started_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', { day: 'numeric', month: 'short' })}</div>
+              </div>
+            )}
+            {task.completed_at && (
+              <div>
+                <div className="text-[10px] text-gray-400 uppercase font-medium mb-0.5">Завершена</div>
+                <div className="text-gray-700">{new Date(task.completed_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', { day: 'numeric', month: 'short' })}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Progress */}
+          {task.progress > 0 && (
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-gray-400">Прогресс</span>
+                <span className="font-medium text-gray-700">{task.progress}%</span>
+              </div>
+              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full transition-all" style={{ width: `${task.progress}%` }} />
+              </div>
+            </div>
+          )}
+
+          {/* Tags */}
+          {task.tags && task.tags.length > 0 && (
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-medium mb-1">Теги</div>
+              <div className="flex flex-wrap gap-1.5">
+                {task.tags.filter(tag => tag !== 'demo-seed').map((tag, i) => (
+                  <span key={i} className="bg-blue-50 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Extra data (KPI bonus etc.) */}
+          {task.extra_data?.kpi_bonus != null && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+              <div className="text-xs font-medium text-green-700">KPI бонус: +{String(task.extra_data.kpi_bonus)}%</div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer actions */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-100 px-6 py-4 flex gap-2 rounded-b-2xl">
+          {task.status !== 'in_progress' && task.status !== 'done' && (
+            <button
+              onClick={() => { onStatusChange(task.id, 'in_progress'); onClose(); }}
+              className="flex-1 flex items-center justify-center gap-1.5 text-sm px-3 py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors font-medium"
+            >
+              {t('tasks.actions.toWork')}
+            </button>
+          )}
+          {task.status === 'in_progress' && (
+            <button
+              onClick={() => { onStatusChange(task.id, 'review'); onClose(); }}
+              className="flex-1 flex items-center justify-center gap-1.5 text-sm px-3 py-2.5 bg-amber-50 text-amber-600 rounded-xl hover:bg-amber-100 transition-colors font-medium"
+            >
+              {t('tasks.actions.toReview')}
+            </button>
+          )}
+          {task.status !== 'done' && (
+            <button
+              onClick={() => { onStatusChange(task.id, 'done'); onClose(); }}
+              className="flex-1 flex items-center justify-center gap-1.5 text-sm px-3 py-2.5 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-100 transition-colors font-medium"
+            >
+              {t('tasks.actions.done')}
+            </button>
+          )}
+          {task.status === 'done' && (
+            <button
+              onClick={() => { onStatusChange(task.id, 'todo'); onClose(); }}
+              className="flex-1 flex items-center justify-center gap-1.5 text-sm px-3 py-2.5 bg-gray-50 text-gray-500 rounded-xl hover:bg-gray-100 transition-colors font-medium"
+            >
+              {t('tasks.actions.return')}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function TasksPage() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
@@ -160,6 +354,9 @@ export function TasksPage() {
 
   // Daily norm
   const [norm, setNorm] = useState<DailyNormResponse | null>(null);
+
+  // Task detail modal
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const loadData = async () => {
     try {
@@ -524,7 +721,7 @@ export function TasksPage() {
                 {/* Tasks */}
                 <div className="space-y-3">
                   {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} onStatusChange={handleStatusChange} />
+                    <TaskCard key={task.id} task={task} onStatusChange={handleStatusChange} onCardClick={setSelectedTask} />
                   ))}
                   {tasks.length === 0 && (
                     <div className="text-center py-10">
@@ -539,6 +736,15 @@ export function TasksPage() {
             );
           })}
         </div>
+      )}
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <TaskDetailModal
+          task={selectedTask}
+          onClose={() => setSelectedTask(null)}
+          onStatusChange={handleStatusChange}
+        />
       )}
     </div>
   );

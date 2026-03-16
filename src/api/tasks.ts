@@ -21,6 +21,11 @@ export interface Task {
   extra_data: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
+  creator_name?: string | null;
+  creator_role?: string | null;
+  assignee_name?: string | null;
+  assignee_role?: string | null;
+  source?: string | null;
 }
 
 export interface KanbanBoard {
