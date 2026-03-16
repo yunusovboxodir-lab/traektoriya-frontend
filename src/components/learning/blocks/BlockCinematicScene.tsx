@@ -4,7 +4,7 @@ import { getAtmosphere } from './atmospheres';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
 
-const TYPING_SPEED_MS = 50; // per character — user requested slower
+const TYPING_SPEED_MS = 35; // per character
 
 interface Props {
   data: BlockCinematicSceneData;
@@ -17,18 +17,19 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
   const atmo = useMemo(() => getAtmosphere(data.atmosphere), [data.atmosphere]);
   const [step, setStep] = useState(0);
   // 0 = fade in
-  // 1 = show location + shelves
-  // 2 = show characters
-  // 3..N = dialogues (one per dialogue entry)
-  // N+1 = problem flash (if exists)
-  // N+2 = crisis overlay
+  // 1 = show location + shelves + characters
+  // 2..N+1 = dialogues (one per dialogue entry)
+  // N+2 = problem flash (if exists)
+  // N+3 = crisis overlay
 
   const [typingText, setTypingText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [activeDialogueIdx, setActiveDialogueIdx] = useState(-1);
   const typingRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  const fullTextRef = useRef('');
 
   // Calculate step milestones
-  const dialogueStepStart = 3;
+  const dialogueStepStart = 2;
   const dialogueCount = data.dialogues.length;
   const problemFlashStep = dialogueStepStart + dialogueCount;
   const crisisStep = data.problemFlash
@@ -38,6 +39,8 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
   // Type text character by character
   const typeText = useCallback((text: string, onDone?: () => void) => {
     setTypingText('');
+    fullTextRef.current = text;
+    setIsTyping(true);
     let i = 0;
     if (typingRef.current) clearInterval(typingRef.current);
     typingRef.current = setInterval(() => {
@@ -45,49 +48,75 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
       i++;
       if (i >= text.length) {
         if (typingRef.current) clearInterval(typingRef.current);
+        setIsTyping(false);
         onDone?.();
       }
     }, TYPING_SPEED_MS);
   }, []);
 
-  // Auto-advance steps based on dialogue timings
+  // Skip typing — show full text immediately
+  const skipTyping = useCallback(() => {
+    if (typingRef.current) clearInterval(typingRef.current);
+    setTypingText(fullTextRef.current);
+    setIsTyping(false);
+  }, []);
+
+  // Initial fade-in: auto-show location + characters after 600ms
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = [];
-
-    // Step 1: location + shelves (600ms)
-    timers.push(setTimeout(() => setStep(1), 600));
-
-    // Step 2: characters (1400ms)
-    timers.push(setTimeout(() => setStep(2), 1400));
-
-    // Step 3+: dialogues with delays
-    let accDelay = 2200; // base delay before first dialogue
-    data.dialogues.forEach((d, i) => {
-      const resolvedText = bl(d.text, lang);
-      const delay = i === 0 ? accDelay : accDelay;
-      timers.push(setTimeout(() => {
-        setStep(dialogueStepStart + i);
-        setActiveDialogueIdx(i);
-        typeText(resolvedText);
-      }, delay));
-      // estimate how long typing will take + 500ms pause
-      accDelay += d.delayMs || (resolvedText.length * TYPING_SPEED_MS + 1000);
-    });
-
-    // Problem flash
-    if (data.problemFlash) {
-      timers.push(setTimeout(() => setStep(problemFlashStep), accDelay));
-      accDelay += data.problemFlash.delayMs || 1500;
-    }
-
-    // Crisis overlay
-    timers.push(setTimeout(() => setStep(crisisStep), accDelay));
-
+    const timer = setTimeout(() => setStep(1), 600);
     return () => {
-      timers.forEach(clearTimeout);
+      clearTimeout(timer);
       if (typingRef.current) clearInterval(typingRef.current);
     };
-  }, [data, lang, typeText, dialogueStepStart, problemFlashStep, crisisStep]);
+  }, []);
+
+  // Handle click to advance to next step
+  const handleClick = useCallback(() => {
+    // If currently typing — skip to full text
+    if (isTyping) {
+      skipTyping();
+      return;
+    }
+
+    // If we're before dialogues start, jump to first dialogue
+    if (step < dialogueStepStart) {
+      const dIdx = 0;
+      if (dIdx < dialogueCount) {
+        setStep(dialogueStepStart);
+        setActiveDialogueIdx(0);
+        typeText(bl(data.dialogues[0].text, lang));
+      }
+      return;
+    }
+
+    // If we're in dialogue range, advance to next dialogue
+    if (step >= dialogueStepStart && step < problemFlashStep) {
+      const currentDIdx = step - dialogueStepStart;
+      const nextDIdx = currentDIdx + 1;
+
+      if (nextDIdx < dialogueCount) {
+        // Next dialogue
+        setStep(dialogueStepStart + nextDIdx);
+        setActiveDialogueIdx(nextDIdx);
+        typeText(bl(data.dialogues[nextDIdx].text, lang));
+      } else if (data.problemFlash) {
+        // Show problem flash
+        setStep(problemFlashStep);
+      } else {
+        // Skip to crisis
+        setStep(crisisStep);
+      }
+      return;
+    }
+
+    // If at problem flash, go to crisis
+    if (step === problemFlashStep && data.problemFlash) {
+      setStep(crisisStep);
+      return;
+    }
+
+    // If at crisis, handled by button
+  }, [step, isTyping, skipTyping, dialogueStepStart, dialogueCount, problemFlashStep, crisisStep, data, lang, typeText]);
 
   // Get active dialogue character side
   const activeDialogue = activeDialogueIdx >= 0 ? data.dialogues[activeDialogueIdx] : null;
@@ -95,10 +124,17 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
     ? data.characters.find(c => c.id === activeDialogue.characterId)
     : null;
 
+  // Show "tap to continue" hint
+  const showTapHint = !isTyping && step >= 1 && step < crisisStep;
+
   return (
-    <div className="fixed inset-0 z-[200] bg-black flex flex-col overflow-hidden" style={{ fontFamily: "'Georgia', serif" }}>
+    <div
+      className="fixed inset-0 z-[200] bg-black flex flex-col overflow-hidden cursor-pointer select-none"
+      style={{ fontFamily: "'Georgia', serif" }}
+      onClick={handleClick}
+    >
       {/* Top cinematic bar */}
-      <div className="h-11 bg-black shrink-0" />
+      <div className="h-8 bg-black shrink-0" />
 
       {/* Main scene */}
       <div className="flex-1 relative overflow-hidden">
@@ -106,15 +142,15 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
         <div className="absolute inset-0" style={{ background: atmo.gradient }} />
 
         {/* Light effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[70%]"
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[260px] h-[70%]"
              style={{ background: `linear-gradient(180deg, ${atmo.lightColor} 0%, transparent 100%)` }}>
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[120px] h-[3px] rounded-sm"
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-[140px] h-[3px] rounded-sm"
                style={{ background: `rgba(255,255,255,${atmo.lightOpacity})`, boxShadow: '0 0 20px rgba(255,255,255,0.05)' }} />
         </div>
 
         {/* Shelves (store atmospheres) */}
         {atmo.shelves && (
-          <div className="absolute bottom-[100px] left-1/2 -translate-x-1/2 w-[85%] max-w-[360px]"
+          <div className="absolute bottom-[130px] left-1/2 -translate-x-1/2 w-[85%] max-w-[420px]"
                style={{ opacity: step >= 1 ? 1 : 0, transition: 'opacity 0.8s ease' }}>
             {Array.from({ length: atmo.shelves.rows }).map((_, row) => (
               <div key={row}>
@@ -135,49 +171,50 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
           <CharacterSilhouette
             key={char.id}
             character={char}
-            visible={step >= 2}
+            visible={step >= 1}
+            isActive={activeChar?.id === char.id}
             lang={lang}
           />
         ))}
 
         {/* Location tag */}
         <div
-          className="absolute top-4 left-6 transition-opacity duration-1000"
+          className="absolute top-5 left-7 transition-opacity duration-1000"
           style={{ opacity: step >= 1 ? 1 : 0 }}
         >
-          <div className="text-white/30 text-[9px] tracking-[3px] uppercase">{bl(data.location.day, lang)}</div>
-          <div className="text-white text-[28px] font-black tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
+          <div className="text-white/30 text-xs tracking-[3px] uppercase">{bl(data.location.day, lang)}</div>
+          <div className="text-white text-4xl font-black tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>
             {bl(data.location.time, lang)}
           </div>
-          <div className="text-white/20 text-[9px] tracking-[2px]">{bl(data.location.subtitle, lang)}</div>
+          <div className="text-white/25 text-xs tracking-[2px] mt-0.5">{bl(data.location.subtitle, lang)}</div>
         </div>
 
         {/* Dialogue bubbles */}
         {activeChar && step >= dialogueStepStart && step < (data.problemFlash ? problemFlashStep : crisisStep) && (
           <div
-            className={`absolute max-w-[260px] bg-black/90 rounded-[14px] p-3.5 transition-opacity duration-500
+            className={`absolute max-w-[380px] bg-black/90 rounded-2xl p-5 transition-opacity duration-500
               ${activeChar.side === 'left'
-                ? 'bottom-[220px] left-5 border border-red-500/30 rounded-bl'
-                : 'bottom-[220px] right-5 border border-blue-400/30 rounded-br'
+                ? 'bottom-[240px] left-6 border border-red-500/30 rounded-bl-none'
+                : 'bottom-[240px] right-6 border border-blue-400/30 rounded-br-none'
               }`}
             style={{ animation: 'fadeIn 0.5s ease' }}
           >
-            <div className={`text-[9px] font-bold tracking-[1px] mb-1.5 ${
+            <div className={`text-xs font-bold tracking-[2px] mb-2 ${
               activeChar.side === 'left' ? 'text-red-500' : 'text-blue-400'
             }`}>
               {bl(activeChar.name, lang).toUpperCase()} {activeChar.role ? `(${bl(activeChar.role, lang).toUpperCase()})` : ''}
             </div>
-            <div className="text-gray-200 text-[13px] leading-relaxed italic" style={{ fontFamily: 'Georgia, serif' }}>
-              {'\u00AB'}{typingText}<span className="animate-pulse">|</span>{'\u00BB'}
+            <div className="text-gray-100 text-lg leading-relaxed italic" style={{ fontFamily: 'Georgia, serif' }}>
+              {'\u00AB'}{typingText}{isTyping && <span className="animate-pulse">|</span>}{'\u00BB'}
             </div>
           </div>
         )}
 
         {/* Problem flash */}
         {data.problemFlash && step >= problemFlashStep && step < crisisStep && (
-          <div className="absolute bottom-[60px] left-1/2 -translate-x-1/2 w-[90%]
+          <div className="absolute bottom-[80px] left-1/2 -translate-x-1/2 w-[90%] max-w-[500px]
                           bg-red-500/[0.08] border border-red-500/20 rounded-xl
-                          py-2.5 px-3.5 text-center text-red-500/80 text-[11px] font-semibold"
+                          py-4 px-5 text-center text-red-500/90 text-base font-semibold"
                style={{ animation: 'fadeIn 0.8s ease' }}>
             {bl(data.problemFlash.text, lang)}
           </div>
@@ -186,25 +223,26 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
         {/* Crisis overlay */}
         {step >= crisisStep && (
           <div className="absolute inset-0 bg-black/80 flex items-center justify-center"
+               onClick={(e) => e.stopPropagation()}
                style={{ animation: 'fadeIn 0.8s ease' }}>
             <div className="bg-[rgba(8,4,0,0.97)] border border-red-500/40 rounded-2xl
-                            p-7 max-w-[340px] w-[88%] text-center">
-              <div className="text-4xl mb-2">{data.crisis.emoji}</div>
-              <div className="text-red-500 text-[13px] font-extrabold tracking-[3px] mb-3">
+                            p-8 max-w-[440px] w-[90%] text-center">
+              <div className="text-5xl mb-3">{data.crisis.emoji}</div>
+              <div className="text-red-500 text-sm font-extrabold tracking-[3px] mb-3">
                 {bl(data.crisis.badge, lang)}
               </div>
-              <div className="text-white text-xl font-black mb-2" style={{ fontFamily: 'Georgia, serif' }}
+              <div className="text-white text-2xl font-black mb-3" style={{ fontFamily: 'Georgia, serif' }}
                    dangerouslySetInnerHTML={{ __html: bl(data.crisis.headline, lang) }} />
-              <div className="text-gray-400 text-xs leading-relaxed mb-4">
+              <div className="text-gray-400 text-sm leading-relaxed mb-5">
                 {bl(data.crisis.description, lang)}
               </div>
               <div className="bg-amber-500/[0.08] border border-amber-500/20 rounded-lg
-                              p-2.5 text-amber-500 text-xs font-semibold mb-4">
+                              p-3 text-amber-500 text-sm font-semibold mb-5">
                 {bl(data.crisis.stakes, lang)}
               </div>
               <button
                 onClick={onAdvance}
-                className="w-full py-3.5 rounded-xl text-white text-sm font-bold
+                className="w-full py-4 rounded-xl text-white text-base font-bold
                            transition-transform active:scale-[0.97]"
                 style={{ background: `linear-gradient(135deg, ${accent}, #a855f7)` }}
               >
@@ -213,10 +251,17 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
             </div>
           </div>
         )}
+
+        {/* Tap to continue hint */}
+        {showTapHint && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/20 text-sm tracking-wider animate-pulse">
+            {isTyping ? '' : 'Нажмите, чтобы продолжить'}
+          </div>
+        )}
       </div>
 
       {/* Bottom cinematic bar */}
-      <div className="h-11 bg-black shrink-0" />
+      <div className="h-8 bg-black shrink-0" />
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -255,19 +300,29 @@ function ShelfProducts({ count, colors, chaos }: { count: number; colors: string
 }
 
 /** Character silhouette SVG */
-function CharacterSilhouette({ character, visible, lang }: { character: CinematicCharacter; visible: boolean; lang: 'ru' | 'uz' }) {
+function CharacterSilhouette({ character, visible, isActive, lang }: {
+  character: CinematicCharacter;
+  visible: boolean;
+  isActive: boolean;
+  lang: 'ru' | 'uz';
+}) {
   const fill = character.color || '#1e3a5f';
 
   return (
     <div
-      className={`absolute bottom-[110px] transition-all duration-800
-        ${character.side === 'left' ? 'left-[12%]' : 'right-[12%]'}`}
-      style={{ opacity: visible ? 1 : 0 }}
+      className={`absolute bottom-[130px] transition-all duration-800
+        ${character.side === 'left' ? 'left-[10%]' : 'right-[10%]'}`}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: isActive ? 'scale(1.08)' : 'scale(1)',
+        transition: 'opacity 0.8s ease, transform 0.3s ease',
+        filter: isActive ? 'brightness(1.2)' : 'brightness(0.9)',
+      }}
     >
-      <svg width="50" height="80" viewBox="0 0 50 80">
+      <svg width="60" height="95" viewBox="0 0 50 80">
         <circle cx="25" cy="14" r="12" fill={fill} />
         <path d="M5 80 Q25 46 45 80" fill={fill} />
-        {/* Extra detail — clipboard for specific characters */}
+        {/* Extra detail -- clipboard for specific characters */}
         {character.detail === 'clipboard' && (
           <>
             <rect x="8" y="40" width="14" height="18" rx="2" fill="#334155" stroke="#4b5563" strokeWidth="1" />
@@ -280,7 +335,7 @@ function CharacterSilhouette({ character, visible, lang }: { character: Cinemati
           <text x="18" y="18" fontSize="12">{character.emoji}</text>
         )}
       </svg>
-      <div className="text-center text-white/40 text-[9px] mt-0.5">{bl(character.name, lang)}</div>
+      <div className="text-center text-white/50 text-xs mt-1">{bl(character.name, lang)}</div>
     </div>
   );
 }
