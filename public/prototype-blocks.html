@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Блочный урок — прототип</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  color: white;
+  padding: 16px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.header-sub { font-size: 11px; opacity: 0.8; }
+.progress-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: #ffd700;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* Block container */
+.blocks-container {
+  padding: 0 0 100px 0;
+}
+
+/* Single block */
+.block {
+  display: none;
+  animation: fadeInUp 0.4s ease;
+}
+.block.active { display: block; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Block type badge */
+.block-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c5ce7;
+  padding: 4px 10px;
+  background: #f0ecff;
+  border-radius: 12px;
+  margin: 16px 20px 8px;
+}
+
+/* — SCENE block — */
+.scene-block { background: white; margin: 8px 12px; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.scene-location {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: white;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.scene-location-title { font-weight: 700; font-size: 15px; }
+.scene-location-sub { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.scene-problem {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  padding: 12px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.scene-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  max-width: 85%;
+}
+.scene-bubble.left {
+  background: #f5f5f5;
+  border-bottom-left-radius: 4px;
+}
+.scene-bubble.right {
+  background: #6c5ce7;
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+.scene-speaker { font-size: 11px; font-weight: 700; color: #e74c3c; margin-bottom: 4px; }
+.scene-speaker.right-speaker { text-align: right; color: #6c5ce7; }
+.scene-stakes {
+  background: #fef3c7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.scene-stakes b { color: #d97706; }
+
+/* — KEY POINT block — */
+.keypoint-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  text-align: center;
+}
+.keypoint-icon { font-size: 40px; margin-bottom: 12px; }
+.keypoint-title { font-size: 18px; font-weight: 800; margin-bottom: 10px; color: #1a1a2e; }
+.keypoint-body { font-size: 14px; line-height: 1.6; color: #555; }
+.keypoint-highlight {
+  display: inline-flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 14px;
+}
+.keypoint-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #f0ecff;
+  color: #6c5ce7;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.keypoint-number {
+  font-size: 28px;
+  font-weight: 900;
+  color: #6c5ce7;
+  margin: 10px 0;
+}
+
+/* — SWIPE CARDS block — */
+.swipe-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.swipe-instruction { font-size: 12px; color: #888; text-align: center; margin-bottom: 14px; }
+.swipe-card {
+  background: #f8f9fa;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 14px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+.swipe-card.correct { background: #d4edda; border: 2px solid #28a745; }
+.swipe-card.wrong { background: #f8d7da; border: 2px solid #dc3545; }
+.swipe-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.swipe-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.swipe-btn:active { transform: scale(0.95); }
+.swipe-btn.false-btn { background: #fee2e2; color: #dc2626; }
+.swipe-btn.true-btn { background: #dcfce7; color: #16a34a; }
+.swipe-feedback {
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  display: none;
+}
+
+/* — SORTING block — */
+.sorting-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.sorting-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.sorting-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+.sorting-items { display: flex; flex-direction: column; gap: 8px; }
+.sorting-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.sorting-item:active { transform: scale(0.98); }
+.sorting-item.selected { border-color: #6c5ce7; background: #f0ecff; }
+.sorting-item.placed { border-color: #22c55e; background: #f0fdf4; }
+.sorting-item.wrong-place { border-color: #ef4444; background: #fef2f2; }
+.sorting-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.sorting-item.placed .sorting-num { background: #22c55e; color: white; }
+.sorting-text { font-size: 14px; font-weight: 500; }
+
+/* — MATCHING block — */
+.matching-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.matching-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.matching-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+.matching-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.matching-item {
+  padding: 12px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid #e2e8f0;
+  user-select: none;
+}
+.matching-item:active { transform: scale(0.95); }
+.matching-item.left-col { background: #f0ecff; border-color: #d4c8ff; color: #6c5ce7; }
+.matching-item.right-col { background: #f0f9ff; border-color: #bae6fd; color: #0284c7; }
+.matching-item.selected { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,0.3); }
+.matching-item.matched { opacity: 0.5; pointer-events: none; border-color: #22c55e; }
+
+/* — FILL BLANK block — */
+.fillblank-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.fillblank-sentence {
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+.fillblank-gap {
+  display: inline-block;
+  min-width: 80px;
+  border-bottom: 3px solid #6c5ce7;
+  text-align: center;
+  font-weight: 700;
+  color: #6c5ce7;
+  padding: 2px 8px;
+  margin: 0 4px;
+}
+.fillblank-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fillblank-opt {
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: 2px solid #e2e8f0;
+  background: #f8f9fa;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fillblank-opt:active { transform: scale(0.95); }
+.fillblank-opt.selected { border-color: #6c5ce7; background: #f0ecff; color: #6c5ce7; }
+.fillblank-opt.correct { border-color: #22c55e; background: #f0fdf4; color: #16a34a; }
+.fillblank-opt.wrong { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
+
+/* — DIALOGUE EXERCISE block — */
+.dialogue-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.dialogue-situation {
+  background: #f0f9ff;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dialogue-situation b { color: #0284c7; }
+.dialogue-options { display: flex; flex-direction: column; gap: 8px; }
+.dialogue-opt {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid #e2e8f0;
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.dialogue-opt:active { transform: scale(0.98); }
+.dialogue-opt-letter {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.dialogue-opt.correct { border-color: #22c55e; background: #f0fdf4; }
+.dialogue-opt.correct .dialogue-opt-letter { background: #22c55e; color: white; }
+.dialogue-opt.wrong { border-color: #ef4444; background: #fef2f2; }
+.dialogue-opt.wrong .dialogue-opt-letter { background: #ef4444; color: white; }
+.dialogue-explanation {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  display: none;
+}
+.dialogue-explanation.show { display: block; }
+.dialogue-explanation.good { background: #f0fdf4; color: #166534; }
+.dialogue-explanation.bad { background: #fef2f2; color: #991b1b; }
+
+/* — QUIZ block — */
+.quiz-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* — RESULTS block — */
+.results-block {
+  background: white;
+  margin: 8px 12px;
+  border-radius: 16px;
+  padding: 30px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  text-align: center;
+}
+.results-emoji { font-size: 60px; margin-bottom: 10px; }
+.results-title { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.results-sub { font-size: 14px; color: #888; margin-bottom: 20px; }
+.results-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.results-stat {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 14px 8px;
+}
+.results-stat-num { font-size: 22px; font-weight: 900; color: #6c5ce7; }
+.results-stat-label { font-size: 10px; color: #888; margin-top: 2px; }
+.results-xp {
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: white;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 12px 20px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.block-counter {
+  font-size: 12px;
+  color: #888;
+  white-space: nowrap;
+}
+.next-btn {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.next-btn:active { transform: scale(0.97); }
+.next-btn:disabled { opacity: 0.4; cursor: default; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">Контроль стандартов DSPM</div>
+  <div class="header-sub">Стажёр &bull; N'Medov Distribution</div>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+</div>
+
+<div class="blocks-container" id="blocksContainer">
+
+  <!-- BLOCK 0: SCENE -->
+  <div class="block active" data-block="0">
+    <div class="block-badge">🎬 Сцена</div>
+    <div class="scene-block">
+      <div class="scene-location">
+        <div class="scene-location-title">Магазин «Олтин Савдо», Ташкент</div>
+        <div class="scene-location-sub">Вторник, 10:30 утра. Плановый визит.</div>
+      </div>
+      <div class="scene-problem">
+        🔥 Полка N'Medov в хаосе: Chocotella лежит на боку, Hot Lunch перемешан с Rollton, ценники с прошлого месяца.
+      </div>
+      <div class="scene-speaker">Шахноза (товаровед)</div>
+      <div class="scene-bubble left">Ваш мерчандайзер не приходил две недели! Может, уберём вашу Chocotella с полки?</div>
+      <div class="scene-speaker right-speaker">Акмал (ТП)</div>
+      <div class="scene-bubble right">Шахноза апа, я вижу проблему и исправлю за 15 минут. Давайте начнём с DSPM-проверки.</div>
+      <div class="scene-stakes">
+        <b>⚡ Что на кону:</b> Потеря точки с оборотом 18 млн сум. 4 фейсинга Chocotella под угрозой замены на Nutella.
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 1: KEY POINT — What is DSPM -->
+  <div class="block" data-block="1">
+    <div class="block-badge">💡 Ключевая мысль</div>
+    <div class="keypoint-block">
+      <div class="keypoint-icon">📋</div>
+      <div class="keypoint-title">Что такое DSPM?</div>
+      <div class="keypoint-body">4 элемента, которые определяют твои продажи в каждой точке:</div>
+      <div class="keypoint-highlight">
+        <span class="keypoint-chip">📦 D — Дистрибуция</span>
+        <span class="keypoint-chip">🗄 S — Полка</span>
+        <span class="keypoint-chip">🏷 P — Цена</span>
+        <span class="keypoint-chip">🎯 M — Мерчандайзинг</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: KEY POINT — Why it matters -->
+  <div class="block" data-block="2">
+    <div class="block-badge">💡 Ключевая мысль</div>
+    <div class="keypoint-block">
+      <div class="keypoint-icon">📈</div>
+      <div class="keypoint-title">Почему DSPM — это важно?</div>
+      <div class="keypoint-number">+15-25%</div>
+      <div class="keypoint-body">рост продаж в точке при правильном DSPM.</div>
+      <div style="margin-top: 14px; font-size: 13px; color: #888;">
+        В магазине «Дустлик» ТП просто поставил товар фейсингом вперёд — продажи выросли на 18% за месяц.
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: SWIPE TRUE/FALSE -->
+  <div class="block" data-block="3">
+    <div class="block-badge">👆 Правда или ложь</div>
+    <div class="swipe-block">
+      <div class="swipe-instruction">Оцени утверждение — правда или ложь?</div>
+      <div id="swipeContainer">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 4: KEY POINT — Algorithm -->
+  <div class="block" data-block="4">
+    <div class="block-badge">💡 Ключевая мысль</div>
+    <div class="keypoint-block">
+      <div class="keypoint-icon">⏱</div>
+      <div class="keypoint-title">DSPM-проверка за 5 минут</div>
+      <div class="keypoint-body" style="text-align: left;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #f0ecff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #6c5ce7; flex-shrink: 0;">1</span>
+          <span><b>Distribution</b> (30 сек) — какие SKU отсутствуют?</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #f0ecff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #6c5ce7; flex-shrink: 0;">2</span>
+          <span><b>Shelf</b> (1 мин) — товар фейсингом вперёд?</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+          <span style="background: #f0ecff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #6c5ce7; flex-shrink: 0;">3</span>
+          <span><b>Price</b> (1 мин) — ценники актуальные?</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="background: #f0ecff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #6c5ce7; flex-shrink: 0;">4</span>
+          <span><b>Merchandising</b> (30 сек) — POS-материалы?</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 5: SORTING — Put in order -->
+  <div class="block" data-block="5">
+    <div class="block-badge">🔢 Расставь по порядку</div>
+    <div class="sorting-block">
+      <div class="sorting-title">Порядок DSPM-проверки</div>
+      <div class="sorting-sub">Нажимай на элементы в правильном порядке</div>
+      <div class="sorting-items" id="sortingItems">
+        <div class="sorting-item" data-sort="3" onclick="handleSort(this)">
+          <span class="sorting-num">?</span>
+          <span class="sorting-text">🏷 Price — проверить ценники</span>
+        </div>
+        <div class="sorting-item" data-sort="1" onclick="handleSort(this)">
+          <span class="sorting-num">?</span>
+          <span class="sorting-text">📦 Distribution — какие SKU есть</span>
+        </div>
+        <div class="sorting-item" data-sort="4" onclick="handleSort(this)">
+          <span class="sorting-num">?</span>
+          <span class="sorting-text">🎯 Merchandising — POS-материалы</span>
+        </div>
+        <div class="sorting-item" data-sort="2" onclick="handleSort(this)">
+          <span class="sorting-num">?</span>
+          <span class="sorting-text">🗄 Shelf — выкладка товара</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 6: MATCHING -->
+  <div class="block" data-block="6">
+    <div class="block-badge">🔗 Соедини пары</div>
+    <div class="matching-block">
+      <div class="matching-title">Что проверяем?</div>
+      <div class="matching-sub">Нажми на букву, потом на описание</div>
+      <div class="matching-grid" id="matchingGrid">
+        <div class="matching-item left-col" data-match="d" onclick="handleMatch(this)">D</div>
+        <div class="matching-item right-col" data-match="s" onclick="handleMatch(this)">Товар фейсингом, планограмма</div>
+        <div class="matching-item left-col" data-match="s" onclick="handleMatch(this)">S</div>
+        <div class="matching-item right-col" data-match="m" onclick="handleMatch(this)">Воблеры, стоперы, промо</div>
+        <div class="matching-item left-col" data-match="p" onclick="handleMatch(this)">P</div>
+        <div class="matching-item right-col" data-match="d" onclick="handleMatch(this)">Все SKU на полке</div>
+        <div class="matching-item left-col" data-match="m" onclick="handleMatch(this)">M</div>
+        <div class="matching-item right-col" data-match="p" onclick="handleMatch(this)">Актуальные ценники</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 7: FILL BLANK -->
+  <div class="block" data-block="7">
+    <div class="block-badge">✏️ Заполни пропуск</div>
+    <div class="fillblank-block">
+      <div class="fillblank-sentence">
+        Полная проверка DSPM в торговой точке занимает <span class="fillblank-gap" id="fillGap">___</span> минут.
+      </div>
+      <div class="fillblank-options" id="fillOptions">
+        <div class="fillblank-opt" data-answer="30" onclick="handleFill(this)">30</div>
+        <div class="fillblank-opt" data-answer="5" onclick="handleFill(this)">5</div>
+        <div class="fillblank-opt" data-answer="15" onclick="handleFill(this)">15</div>
+        <div class="fillblank-opt" data-answer="60" onclick="handleFill(this)">60</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 8: DIALOGUE EXERCISE -->
+  <div class="block" data-block="8">
+    <div class="block-badge">💬 Что скажешь?</div>
+    <div class="dialogue-block">
+      <div class="dialogue-situation">
+        <b>Ситуация:</b> Ты видишь, что 3 из 8 SKU N'Medov отсутствуют на полке. Товаровед говорит: «На складе ничего нет». Твои действия?
+      </div>
+      <div class="dialogue-options" id="dialogueOpts">
+        <div class="dialogue-opt" data-correct="false" onclick="handleDialogue(this)">
+          <span class="dialogue-opt-letter">A</span>
+          <span>Записать нарушение в отчёт и уйти</span>
+        </div>
+        <div class="dialogue-opt" data-correct="true" onclick="handleDialogue(this)">
+          <span class="dialogue-opt-letter">B</span>
+          <span>Попросить проверить склад вместе — часто товар просто не выложен</span>
+        </div>
+        <div class="dialogue-opt" data-correct="false" onclick="handleDialogue(this)">
+          <span class="dialogue-opt-letter">C</span>
+          <span>Позвонить супервайзору и пожаловаться</span>
+        </div>
+      </div>
+      <div class="dialogue-explanation good" id="dialogGood">
+        ✅ Верно! В 70% случаев товар есть на складе, но не выложен. Совместная проверка решает проблему и укрепляет отношения.
+      </div>
+      <div class="dialogue-explanation bad" id="dialogBad">
+        ❌ Это пассивный подход. Сначала проверь склад вместе с товароведом — часто товар просто не выложен.
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 9: QUIZ -->
+  <div class="block" data-block="9">
+    <div class="block-badge">✅ Финальный вопрос</div>
+    <div class="quiz-block">
+      <div style="font-size: 15px; font-weight: 700; margin-bottom: 14px;">
+        Ты пришёл в Korzinka: Chocotella на нижней полке, ценник старый, рядом пусто от Hot Lunch. С чего начать?
+      </div>
+      <div class="dialogue-options" id="quizOpts">
+        <div class="dialogue-opt" data-correct="false" onclick="handleDialogue(this, 'quizOpts', 'quizGood', 'quizBad')">
+          <span class="dialogue-opt-letter">A</span>
+          <span>Сразу переставить Chocotella на уровень глаз</span>
+        </div>
+        <div class="dialogue-opt" data-correct="true" onclick="handleDialogue(this, 'quizOpts', 'quizGood', 'quizBad')">
+          <span class="dialogue-opt-letter">B</span>
+          <span>Сфотографировать и оценить все 4 элемента DSPM</span>
+        </div>
+        <div class="dialogue-opt" data-correct="false" onclick="handleDialogue(this, 'quizOpts', 'quizGood', 'quizBad')">
+          <span class="dialogue-opt-letter">C</span>
+          <span>Найти товароведа и спросить про Hot Lunch</span>
+        </div>
+      </div>
+      <div class="dialogue-explanation good" id="quizGood">
+        ✅ Правильно! Сначала фото «до» и системная оценка D-S-P-M. Потом исправления по приоритету.
+      </div>
+      <div class="dialogue-explanation bad" id="quizBad">
+        ❌ Не спеши исправлять. Сначала оцени ВСЮ ситуацию по DSPM, сфотографируй — потом действуй системно.
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 10: RESULTS -->
+  <div class="block" data-block="10">
+    <div class="results-block">
+      <div class="results-emoji">🎉</div>
+      <div class="results-title">Урок пройден!</div>
+      <div class="results-sub">Контроль стандартов DSPM</div>
+      <div class="results-stats">
+        <div class="results-stat">
+          <div class="results-stat-num" id="scoreCorrect">0</div>
+          <div class="results-stat-label">правильных</div>
+        </div>
+        <div class="results-stat">
+          <div class="results-stat-num" id="scoreTotal">0</div>
+          <div class="results-stat-label">всего</div>
+        </div>
+        <div class="results-stat">
+          <div class="results-stat-num" id="scoreTime">0</div>
+          <div class="results-stat-label">минут</div>
+        </div>
+      </div>
+      <div class="results-xp">+50 XP 🏆</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="bottom-nav">
+  <div class="block-counter" id="blockCounter">1 / 11</div>
+  <button class="next-btn" id="nextBtn" onclick="nextBlock()">Далее →</button>
+</div>
+
+<script>
+const TOTAL_BLOCKS = 11;
+let currentBlock = 0;
+let correctAnswers = 0;
+let totalQuestions = 0;
+const startTime = Date.now();
+
+// Swipe cards data
+const swipeCards = [
+  { text: "DSPM — это обязанность мерчандайзера, не ТП", answer: false, explanation: "Ложь! ТП отвечает за ежедневный контроль DSPM. Мерчандайзер помогает, но контроль — на тебе." },
+  { text: "Правильный DSPM увеличивает продажи на 15-25%", answer: true, explanation: "Правда! Исследования показывают рост 15-25% при правильном выполнении стандартов." },
+  { text: "Перед исправлением полки нужно сфотографировать «до»", answer: true, explanation: "Правда! Фото «до» — твоя защита перед руководством и доказательство работы." },
+];
+let currentSwipeCard = 0;
+
+function renderSwipeCard() {
+  const container = document.getElementById('swipeContainer');
+  if (currentSwipeCard >= swipeCards.length) {
+    container.innerHTML = '<div style="text-align: center; padding: 20px; font-size: 15px; font-weight: 700; color: #22c55e;">✅ Все карточки пройдены!</div>';
+    return;
+  }
+  const card = swipeCards[currentSwipeCard];
+  container.innerHTML = `
+    <div class="swipe-card" id="currentSwipeCard">${card.text}</div>
+    <div class="swipe-buttons">
+      <button class="swipe-btn false-btn" onclick="answerSwipe(false)">✕ Ложь</button>
+      <button class="swipe-btn true-btn" onclick="answerSwipe(true)">✓ Правда</button>
+    </div>
+    <div class="swipe-feedback" id="swipeFeedback"></div>
+  `;
+}
+
+function answerSwipe(answer) {
+  const card = swipeCards[currentSwipeCard];
+  const cardEl = document.getElementById('currentSwipeCard');
+  const feedback = document.getElementById('swipeFeedback');
+  const isCorrect = answer === card.answer;
+
+  totalQuestions++;
+  if (isCorrect) correctAnswers++;
+
+  cardEl.classList.add(isCorrect ? 'correct' : 'wrong');
+  feedback.style.display = 'block';
+  feedback.style.background = isCorrect ? '#f0fdf4' : '#fef2f2';
+  feedback.style.color = isCorrect ? '#166534' : '#991b1b';
+  feedback.textContent = (isCorrect ? '✅ ' : '❌ ') + card.explanation;
+
+  document.querySelectorAll('.swipe-btn').forEach(b => b.disabled = true);
+
+  setTimeout(() => {
+    currentSwipeCard++;
+    renderSwipeCard();
+  }, 2000);
+}
+
+// Sorting logic
+let sortStep = 0;
+function handleSort(el) {
+  const correctOrder = parseInt(el.dataset.sort);
+  const expected = sortStep + 1;
+  totalQuestions++;
+
+  if (correctOrder === expected) {
+    correctAnswers++;
+    el.classList.add('placed');
+    el.querySelector('.sorting-num').textContent = expected;
+    el.style.pointerEvents = 'none';
+    sortStep++;
+    if (sortStep === 4) {
+      setTimeout(() => {
+        document.querySelector('.sorting-sub').textContent = '✅ Отлично! Правильный порядок!';
+        document.querySelector('.sorting-sub').style.color = '#16a34a';
+      }, 300);
+    }
+  } else {
+    el.classList.add('wrong-place');
+    setTimeout(() => el.classList.remove('wrong-place'), 600);
+  }
+}
+
+// Matching logic
+let matchSelected = null;
+let matchedCount = 0;
+function handleMatch(el) {
+  if (el.classList.contains('matched')) return;
+
+  if (!matchSelected) {
+    matchSelected = el;
+    el.classList.add('selected');
+  } else {
+    if (matchSelected === el) {
+      el.classList.remove('selected');
+      matchSelected = null;
+      return;
+    }
+
+    const isLeftLeft = matchSelected.classList.contains('left-col') && el.classList.contains('left-col');
+    const isRightRight = matchSelected.classList.contains('right-col') && el.classList.contains('right-col');
+    if (isLeftLeft || isRightRight) {
+      matchSelected.classList.remove('selected');
+      matchSelected = el;
+      el.classList.add('selected');
+      return;
+    }
+
+    totalQuestions++;
+    if (matchSelected.dataset.match === el.dataset.match) {
+      correctAnswers++;
+      matchSelected.classList.remove('selected');
+      matchSelected.classList.add('matched');
+      el.classList.add('matched');
+      matchedCount++;
+      if (matchedCount === 4) {
+        setTimeout(() => {
+          document.querySelector('.matching-sub').textContent = '✅ Все пары найдены!';
+          document.querySelector('.matching-sub').style.color = '#16a34a';
+        }, 300);
+      }
+    } else {
+      matchSelected.classList.remove('selected');
+      matchSelected.style.borderColor = '#ef4444';
+      el.style.borderColor = '#ef4444';
+      setTimeout(() => {
+        matchSelected.style.borderColor = '';
+        el.style.borderColor = '';
+        matchSelected = null;
+      }, 600);
+    }
+    matchSelected = null;
+  }
+}
+
+// Fill blank logic
+function handleFill(el) {
+  const answer = el.dataset.answer;
+  const gap = document.getElementById('fillGap');
+  totalQuestions++;
+
+  document.querySelectorAll('.fillblank-opt').forEach(o => o.style.pointerEvents = 'none');
+
+  if (answer === '5') {
+    correctAnswers++;
+    el.classList.add('correct');
+    gap.textContent = '5';
+    gap.style.borderColor = '#22c55e';
+    gap.style.color = '#16a34a';
+  } else {
+    el.classList.add('wrong');
+    document.querySelector('[data-answer="5"]').classList.add('correct');
+    gap.textContent = '5';
+    gap.style.borderColor = '#ef4444';
+    gap.style.color = '#dc2626';
+  }
+}
+
+// Dialogue logic
+function handleDialogue(el, containerId, goodId, badId) {
+  containerId = containerId || 'dialogueOpts';
+  goodId = goodId || 'dialogGood';
+  badId = badId || 'dialogBad';
+
+  const isCorrect = el.dataset.correct === 'true';
+  totalQuestions++;
+  if (isCorrect) correctAnswers++;
+
+  document.querySelectorAll(`#${containerId} .dialogue-opt`).forEach(o => {
+    o.style.pointerEvents = 'none';
+    if (o.dataset.correct === 'true') o.classList.add('correct');
+    if (o === el && !isCorrect) o.classList.add('wrong');
+  });
+
+  document.getElementById(isCorrect ? goodId : badId).classList.add('show');
+}
+
+// Navigation
+function nextBlock() {
+  if (currentBlock >= TOTAL_BLOCKS - 1) return;
+
+  document.querySelector(`[data-block="${currentBlock}"]`).classList.remove('active');
+  currentBlock++;
+  document.querySelector(`[data-block="${currentBlock}"]`).classList.add('active');
+
+  // Update progress
+  const pct = ((currentBlock + 1) / TOTAL_BLOCKS * 100).toFixed(0);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('blockCounter').textContent = `${currentBlock + 1} / ${TOTAL_BLOCKS}`;
+
+  // Init swipe cards on block 3
+  if (currentBlock === 3) renderSwipeCard();
+
+  // Results block
+  if (currentBlock === TOTAL_BLOCKS - 1) {
+    document.getElementById('scoreCorrect').textContent = correctAnswers;
+    document.getElementById('scoreTotal').textContent = totalQuestions;
+    const mins = Math.round((Date.now() - startTime) / 60000);
+    document.getElementById('scoreTime').textContent = mins || 1;
+    document.getElementById('nextBtn').textContent = '🏠 На карту';
+    document.getElementById('nextBtn').disabled = true;
+  }
+
+  // Button text
+  if (currentBlock === TOTAL_BLOCKS - 2) {
+    document.getElementById('nextBtn').textContent = 'Завершить ✓';
+  }
+
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cinematic Learning — Prototype</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --accent: #6c5ce7;
+  --accent-soft: #f0ecff;
+  --green: #22c55e;
+  --red: #ef4444;
+  --amber: #f59e0b;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #000;
+  color: #1a1a2e;
+  max-width: 420px;
+  margin: 0 auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== CINEMATIC SCENE ===== */
+.cinema {
+  min-height: 100vh;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.cinema-bar { height: 44px; background: #000; flex-shrink: 0; }
+.cinema-main { flex: 1; position: relative; }
+
+/* Store atmosphere */
+.store-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #0a0f1a 0%, #111827 30%, #1a1a2e 60%, #0d1117 100%);
+}
+
+/* Shelf */
+.shelf {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 85%;
+  max-width: 360px;
+}
+.shelf-row {
+  height: 6px;
+  background: linear-gradient(90deg, #374151, #4b5563, #374151);
+  border-radius: 3px;
+  margin-bottom: 2px;
+  position: relative;
+}
+.shelf-products {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.product-box {
+  width: 18px;
+  border-radius: 2px;
+  transition: all 0.5s ease;
+}
+
+/* Fluorescent light */
+.store-light {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 70%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%);
+}
+.light-tube {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  box-shadow: 0 0 20px rgba(255,255,255,0.05);
+}
+
+/* Characters */
+.character {
+  position: absolute;
+  bottom: 110px;
+  transition: all 0.8s ease;
+}
+.char-left { left: 12%; }
+.char-right { right: 12%; }
+
+/* Location tag */
+.loc-tag {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.loc-tag.show { opacity: 1; }
+.loc-day { color: rgba(255,255,255,0.3); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; }
+.loc-time {
+  color: white;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  font-family: Georgia, serif;
+}
+.loc-sub { color: rgba(255,255,255,0.2); font-size: 9px; letter-spacing: 2px; }
+
+/* Dialogue bubble */
+.cinema-bubble {
+  position: absolute;
+  max-width: 260px;
+  background: rgba(0,0,0,0.9);
+  border-radius: 14px;
+  padding: 14px 16px;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.cinema-bubble.show { opacity: 1; }
+.cinema-bubble.left-bubble {
+  bottom: 220px;
+  left: 20px;
+  border: 1px solid rgba(239,68,68,0.3);
+  border-bottom-left-radius: 4px;
+}
+.cinema-bubble.right-bubble {
+  bottom: 220px;
+  right: 20px;
+  border: 1px solid rgba(96,165,250,0.3);
+  border-bottom-right-radius: 4px;
+}
+.bubble-speaker {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.bubble-speaker.angry { color: var(--red); }
+.bubble-speaker.calm { color: #60a5fa; }
+.bubble-text {
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.6;
+  font-style: italic;
+  font-family: Georgia, serif;
+}
+.cursor-blink { animation: blink 0.8s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* Problem flash */
+.problem-flash {
+  position: absolute;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-align: center;
+  color: rgba(239,68,68,0.8);
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.problem-flash.show { opacity: 1; }
+
+/* Crisis overlay */
+.crisis-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+.crisis-overlay.show { opacity: 1; pointer-events: auto; }
+.crisis-card {
+  background: rgba(8,4,0,0.97);
+  border: 1px solid rgba(239,68,68,0.4);
+  border-radius: 16px;
+  padding: 28px 24px;
+  max-width: 340px;
+  width: 88%;
+  text-align: center;
+}
+.crisis-emoji { font-size: 36px; margin-bottom: 8px; }
+.crisis-title {
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+.crisis-headline {
+  color: white;
+  font-size: 20px;
+  font-weight: 900;
+  font-family: Georgia, serif;
+  margin-bottom: 8px;
+}
+.crisis-desc {
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.crisis-stakes {
+  background: rgba(var(--amber),0.1);
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--amber);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.crisis-cta {
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 14px 28px;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.1s;
+}
+.crisis-cta:active { transform: scale(0.97); }
+
+/* ===== LEARNING BLOCKS ===== */
+.learning-container {
+  background: #f0f2f5;
+  min-height: 100vh;
+  display: none;
+}
+.learning-container.active { display: block; }
+
+/* Top bar */
+.top-bar {
+  background: linear-gradient(135deg, #6c5ce7, #a855f7);
+  color: white;
+  padding: 14px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.top-title { font-size: 13px; font-weight: 600; }
+.top-sub { font-size: 10px; opacity: 0.7; margin-top: 2px; }
+.progress-track {
+  height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: #ffd700;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  width: 0%;
+}
+
+/* Block wrapper */
+.block {
+  display: none;
+  animation: slideUp 0.4s ease;
+  padding-bottom: 80px;
+}
+.block.active { display: block; }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--accent);
+  padding: 4px 10px;
+  background: var(--accent-soft);
+  border-radius: 12px;
+  margin: 14px 16px 6px;
+}
+
+/* Card */
+.card {
+  background: white;
+  margin: 6px 12px;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* Key point */
+.kp-icon { font-size: 36px; text-align: center; margin-bottom: 10px; }
+.kp-title { font-size: 17px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+.kp-body { font-size: 13px; line-height: 1.6; color: #555; text-align: center; }
+.kp-number { font-size: 32px; font-weight: 900; color: var(--accent); text-align: center; margin: 8px 0; }
+.kp-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+}
+.kp-chip {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 8px 12px;
+  border-radius: 18px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.kp-steps { text-align: left; }
+.kp-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.kp-step-num {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 800; color: var(--accent);
+  flex-shrink: 0;
+}
+.kp-step-text { font-size: 13px; }
+.kp-step-text b { color: #1a1a2e; }
+
+/* Swipe */
+.swipe-hint { font-size: 11px; color: #999; text-align: center; margin-bottom: 12px; }
+.swipe-card-box {
+  background: #f8f9fa;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+.swipe-card-box.right { background: #dcfce7; border-color: var(--green); }
+.swipe-card-box.wrong { background: #fee2e2; border-color: var(--red); }
+.swipe-btns { display: flex; gap: 10px; }
+.swipe-btn {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.swipe-btn:active { transform: scale(0.96); }
+.swipe-false { background: #fee2e2; color: #dc2626; }
+.swipe-true { background: #dcfce7; color: #16a34a; }
+.swipe-fb {
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: none;
+}
+
+/* Sorting */
+.sort-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.sort-sub { font-size: 11px; color: #999; margin-bottom: 12px; }
+.sort-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+.sort-item:active { transform: scale(0.98); }
+.sort-item.placed { border-color: var(--green); background: #f0fdf4; }
+.sort-item.err { border-color: var(--red); background: #fef2f2; }
+.sort-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; color: #64748b;
+  flex-shrink: 0;
+}
+.sort-item.placed .sort-num { background: var(--green); color: white; }
+
+/* Dialogue choice */
+.dial-sit {
+  background: #f0f9ff;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.dial-sit b { color: #0284c7; }
+.dial-opt {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1.4;
+  transition: all 0.2s;
+}
+.dial-opt:active { transform: scale(0.98); }
+.dial-letter {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  flex-shrink: 0;
+}
+.dial-opt.correct { border-color: var(--green); background: #f0fdf4; }
+.dial-opt.correct .dial-letter { background: var(--green); color: white; }
+.dial-opt.wrong { border-color: var(--red); background: #fef2f2; }
+.dial-opt.wrong .dial-letter { background: var(--red); color: white; }
+.dial-expl {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  display: none;
+}
+.dial-expl.show { display: block; }
+.dial-expl.good { background: #f0fdf4; color: #166534; }
+.dial-expl.bad { background: #fef2f2; color: #991b1b; }
+
+/* Fill blank */
+.fb-sentence { font-size: 15px; line-height: 1.8; margin-bottom: 14px; }
+.fb-gap {
+  display: inline-block;
+  min-width: 70px;
+  border-bottom: 3px solid var(--accent);
+  text-align: center;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 2px 6px;
+  margin: 0 4px;
+}
+.fb-opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb-opt {
+  padding: 10px 16px;
+  border-radius: 20px;
+  border: 2px solid #e2e8f0;
+  background: #f8f9fa;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.fb-opt:active { transform: scale(0.95); }
+.fb-opt.correct { border-color: var(--green); background: #f0fdf4; color: #16a34a; }
+.fb-opt.wrong { border-color: var(--red); background: #fef2f2; color: #dc2626; }
+
+/* Results */
+.results { text-align: center; padding: 30px 20px; }
+.res-emoji { font-size: 56px; margin-bottom: 8px; }
+.res-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+.res-sub { font-size: 13px; color: #888; margin-bottom: 18px; }
+.res-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.res-stat { background: #f8f9fa; border-radius: 12px; padding: 12px 6px; }
+.res-num { font-size: 20px; font-weight: 900; color: var(--accent); }
+.res-label { font-size: 9px; color: #888; margin-top: 2px; }
+.res-xp {
+  background: linear-gradient(135deg, #ffd700, #ff9800);
+  color: white;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+}
+.res-next {
+  margin-top: 12px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Bottom bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 10px 16px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.counter { font-size: 11px; color: #aaa; white-space: nowrap; }
+.next-btn {
+  flex: 1;
+  padding: 13px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #a855f7);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.next-btn:active { transform: scale(0.97); }
+
+/* Animations */
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+.fade-in { animation: fadeIn 0.6s ease; }
+</style>
+</head>
+<body>
+
+<!-- ============ CINEMATIC SCENE ============ -->
+<div class="cinema" id="cinemaScene">
+  <div class="cinema-bar"></div>
+  <div class="cinema-main">
+    <!-- Store background -->
+    <div class="store-bg"></div>
+
+    <!-- Fluorescent light -->
+    <div class="store-light">
+      <div class="light-tube"></div>
+    </div>
+
+    <!-- Shelves with products -->
+    <div class="shelf" id="shelfArea">
+      <!-- Row 3 (top) -->
+      <div class="shelf-products" id="productsTop" style="opacity:0; transition: opacity 0.8s"></div>
+      <div class="shelf-row"></div>
+      <!-- Row 2 -->
+      <div class="shelf-products" id="productsMid" style="opacity:0; transition: opacity 0.8s"></div>
+      <div class="shelf-row"></div>
+      <!-- Row 1 (bottom) -->
+      <div class="shelf-products" id="productsBot" style="opacity:0; transition: opacity 0.8s"></div>
+      <div class="shelf-row"></div>
+    </div>
+
+    <!-- Characters -->
+    <div class="character char-left" id="charLeft" style="opacity:0">
+      <svg width="50" height="80" viewBox="0 0 50 80">
+        <circle cx="25" cy="14" r="12" fill="#1e3a5f"/>
+        <path d="M5 80 Q25 46 45 80" fill="#1e3a5f"/>
+        <!-- Clipboard -->
+        <rect x="8" y="40" width="14" height="18" rx="2" fill="#334155" stroke="#4b5563" stroke-width="1"/>
+        <line x1="12" y1="46" x2="18" y2="46" stroke="#60a5fa" stroke-width="1" opacity="0.6"/>
+        <line x1="12" y1="50" x2="20" y2="50" stroke="#60a5fa" stroke-width="1" opacity="0.4"/>
+      </svg>
+      <div style="text-align:center; color:rgba(255,255,255,0.4); font-size:9px; margin-top:2px;">Акмал</div>
+    </div>
+
+    <div class="character char-right" id="charRight" style="opacity:0">
+      <svg width="50" height="80" viewBox="0 0 50 80">
+        <circle cx="25" cy="14" r="12" fill="#1a1a2e"/>
+        <path d="M5 80 Q25 46 45 80" fill="#1a1a2e"/>
+        <text x="18" y="18" font-size="12">😤</text>
+      </svg>
+      <div style="text-align:center; color:rgba(255,255,255,0.4); font-size:9px; margin-top:2px;">Шахноза</div>
+    </div>
+
+    <!-- Location tag -->
+    <div class="loc-tag" id="locTag">
+      <div class="loc-day">ВТОРНИК</div>
+      <div class="loc-time">10:30</div>
+      <div class="loc-sub">ПЛАНОВЫЙ ВИЗИТ</div>
+    </div>
+
+    <!-- Dialogue 1 — Shakhoza (angry) -->
+    <div class="cinema-bubble left-bubble" id="bubble1">
+      <div class="bubble-speaker angry">ШАХНОЗА (ТОВАРОВЕД)</div>
+      <div class="bubble-text">«<span id="typing1"></span><span class="cursor-blink">|</span>»</div>
+    </div>
+
+    <!-- Dialogue 2 — Akmal (calm) -->
+    <div class="cinema-bubble right-bubble" id="bubble2">
+      <div class="bubble-speaker calm">АКМАЛ (ТП)</div>
+      <div class="bubble-text">«<span id="typing2"></span><span class="cursor-blink">|</span>»</div>
+    </div>
+
+    <!-- Problem flash -->
+    <div class="problem-flash" id="problemFlash">
+      ⚡ 18 млн сум/мес • 4 фейсинга Chocotella • угроза замены на Nutella
+    </div>
+
+    <!-- Crisis overlay -->
+    <div class="crisis-overlay" id="crisisOverlay">
+      <div class="crisis-card">
+        <div class="crisis-emoji">🔥</div>
+        <div class="crisis-title">ЭКСТРЕННАЯ СИТУАЦИЯ</div>
+        <div class="crisis-headline">Полка разваливается.<br>У тебя 30 минут.</div>
+        <div class="crisis-desc">
+          Chocotella на боку, Hot Lunch перемешан с Rollton, ценники старые.
+          Через 30 минут придёт директор на проверку.
+        </div>
+        <div class="crisis-stakes">
+          🎯 Что нужно проверить? Как спасти ситуацию за 30 минут?
+        </div>
+        <button class="crisis-cta" onclick="startLearning()">
+          Узнать метод DSPM →
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="cinema-bar"></div>
+</div>
+
+<!-- ============ LEARNING BLOCKS ============ -->
+<div class="learning-container" id="learningContainer">
+  <div class="top-bar">
+    <div class="top-title">Контроль стандартов DSPM</div>
+    <div class="top-sub">Стажёр • Standartlar va DSPM</div>
+    <div class="progress-track">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
+
+  <!-- BLOCK 0: Key Point — What is DSPM -->
+  <div class="block" data-block="0">
+    <div class="badge">💡 КЛЮЧЕВАЯ МЫСЛЬ</div>
+    <div class="card">
+      <div class="kp-icon">📋</div>
+      <div class="kp-title">Что такое DSPM?</div>
+      <div class="kp-body">4 элемента, которые ты проверяешь <b>каждый визит</b>:</div>
+      <div class="kp-chips">
+        <span class="kp-chip">📦 D — Дистрибуция</span>
+        <span class="kp-chip">🗄 S — Полка</span>
+        <span class="kp-chip">🏷 P — Цена</span>
+        <span class="kp-chip">🎯 M — Мерчандайзинг</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 1: Key Point — Why it matters -->
+  <div class="block" data-block="1">
+    <div class="badge">💡 КЛЮЧЕВАЯ МЫСЛЬ</div>
+    <div class="card">
+      <div class="kp-icon">📈</div>
+      <div class="kp-title">Почему это важно?</div>
+      <div class="kp-number">+15–25%</div>
+      <div class="kp-body">рост продаж в точке при правильном DSPM</div>
+      <div style="margin-top:12px; background:#f0fdf4; border-radius:10px; padding:10px 12px; text-align:left; font-size:12px; color:#166534; line-height:1.5;">
+        💬 В «Дустлик» ТП просто поставил товар фейсингом вперёд — <b>продажи +18% за месяц</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 2: Swipe True/False -->
+  <div class="block" data-block="2">
+    <div class="badge">👆 ПРАВДА ИЛИ ЛОЖЬ</div>
+    <div class="card">
+      <div class="swipe-hint">Оцени — правда или ложь?</div>
+      <div id="swipeArea"></div>
+    </div>
+  </div>
+
+  <!-- BLOCK 3: Key Point — Algorithm -->
+  <div class="block" data-block="3">
+    <div class="badge">💡 КЛЮЧЕВАЯ МЫСЛЬ</div>
+    <div class="card">
+      <div class="kp-icon">⏱</div>
+      <div class="kp-title">DSPM за 5 минут</div>
+      <div class="kp-steps">
+        <div class="kp-step">
+          <span class="kp-step-num">1</span>
+          <span class="kp-step-text"><b>Distribution</b> (30 сек) — какие SKU на полке?</span>
+        </div>
+        <div class="kp-step">
+          <span class="kp-step-num">2</span>
+          <span class="kp-step-text"><b>Shelf</b> (1 мин) — товар фейсингом?</span>
+        </div>
+        <div class="kp-step">
+          <span class="kp-step-num">3</span>
+          <span class="kp-step-text"><b>Price</b> (1 мин) — ценники актуальные?</span>
+        </div>
+        <div class="kp-step">
+          <span class="kp-step-num">4</span>
+          <span class="kp-step-text"><b>Merchandising</b> (30 сек) — POS на месте?</span>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:12px; font-size:11px; color:#888;">
+        💡 Всегда начинай с фото «до» — защита перед руководством
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 4: Sorting -->
+  <div class="block" data-block="4">
+    <div class="badge">🔢 РАССТАВЬ ПО ПОРЯДКУ</div>
+    <div class="card">
+      <div class="sort-title">Порядок DSPM-проверки</div>
+      <div class="sort-sub">Нажимай элементы в правильном порядке</div>
+      <div id="sortArea">
+        <div class="sort-item" data-sort="3" onclick="doSort(this)">
+          <span class="sort-num">?</span>
+          <span>🏷 Price — проверить ценники</span>
+        </div>
+        <div class="sort-item" data-sort="1" onclick="doSort(this)">
+          <span class="sort-num">?</span>
+          <span>📦 Distribution — какие SKU есть</span>
+        </div>
+        <div class="sort-item" data-sort="4" onclick="doSort(this)">
+          <span class="sort-num">?</span>
+          <span>🎯 Merchandising — POS-материалы</span>
+        </div>
+        <div class="sort-item" data-sort="2" onclick="doSort(this)">
+          <span class="sort-num">?</span>
+          <span>🗄 Shelf — выкладка товара</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 5: Fill blank -->
+  <div class="block" data-block="5">
+    <div class="badge">✏️ ЗАПОЛНИ ПРОПУСК</div>
+    <div class="card">
+      <div class="fb-sentence">
+        Полная проверка DSPM в точке занимает <span class="fb-gap" id="fbGap">___</span> минут.
+      </div>
+      <div class="fb-opts">
+        <div class="fb-opt" onclick="doFill(this,'30')">30</div>
+        <div class="fb-opt" onclick="doFill(this,'5')">5</div>
+        <div class="fb-opt" onclick="doFill(this,'15')">15</div>
+        <div class="fb-opt" onclick="doFill(this,'60')">60</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCK 6: Dialogue Choice -->
+  <div class="block" data-block="6">
+    <div class="badge">💬 ЧТО СКАЖЕШЬ?</div>
+    <div class="card">
+      <div class="dial-sit">
+        <b>Ситуация:</b> 3 из 8 SKU N'Medov отсутствуют. Товаровед: «На складе ничего нет». Что делаешь?
+      </div>
+      <div id="dialArea1">
+        <div class="dial-opt" data-ok="0" onclick="doDial(this,'dialArea1','dg1','db1')">
+          <span class="dial-letter">A</span>
+          <span>Записать нарушение и уйти</span>
+        </div>
+        <div class="dial-opt" data-ok="1" onclick="doDial(this,'dialArea1','dg1','db1')">
+          <span class="dial-letter">B</span>
+          <span>Попросить проверить склад вместе</span>
+        </div>
+        <div class="dial-opt" data-ok="0" onclick="doDial(this,'dialArea1','dg1','db1')">
+          <span class="dial-letter">C</span>
+          <span>Позвонить супервайзору</span>
+        </div>
+      </div>
+      <div class="dial-expl good" id="dg1">✅ В 70% случаев товар есть на складе. Совместная проверка решает проблему.</div>
+      <div class="dial-expl bad" id="db1">❌ Пассивный подход. Сначала проверь склад вместе — часто товар просто не выложен.</div>
+    </div>
+  </div>
+
+  <!-- BLOCK 7: Quiz -->
+  <div class="block" data-block="7">
+    <div class="badge">✅ ФИНАЛЬНЫЙ ВОПРОС</div>
+    <div class="card">
+      <div style="font-size:14px; font-weight:700; margin-bottom:12px; line-height:1.5;">
+        Ты в Korzinka: Chocotella на нижней полке, ценник старый, рядом пусто от Hot Lunch. С чего начать?
+      </div>
+      <div id="dialArea2">
+        <div class="dial-opt" data-ok="0" onclick="doDial(this,'dialArea2','dg2','db2')">
+          <span class="dial-letter">A</span>
+          <span>Сразу переставить Chocotella наверх</span>
+        </div>
+        <div class="dial-opt" data-ok="1" onclick="doDial(this,'dialArea2','dg2','db2')">
+          <span class="dial-letter">B</span>
+          <span>Сфотографировать и оценить D-S-P-M</span>
+        </div>
+        <div class="dial-opt" data-ok="0" onclick="doDial(this,'dialArea2','dg2','db2')">
+          <span class="dial-letter">C</span>
+          <span>Найти товароведа и спросить про Hot Lunch</span>
+        </div>
+      </div>
+      <div class="dial-expl good" id="dg2">✅ Сначала фото «до» и оценка всех 4 элементов DSPM. Потом действуй по приоритету.</div>
+      <div class="dial-expl bad" id="db2">❌ Не спеши. Сначала оцени ВСЮ ситуацию по DSPM системно, сфотографируй — потом действуй.</div>
+    </div>
+  </div>
+
+  <!-- BLOCK 8: Results -->
+  <div class="block" data-block="8">
+    <div class="card results">
+      <div class="res-emoji">🎉</div>
+      <div class="res-title">Урок пройден!</div>
+      <div class="res-sub">Контроль стандартов DSPM</div>
+      <div class="res-stats">
+        <div class="res-stat">
+          <div class="res-num" id="rCorrect">0</div>
+          <div class="res-label">правильных</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-num" id="rTotal">0</div>
+          <div class="res-label">всего</div>
+        </div>
+        <div class="res-stat">
+          <div class="res-num" id="rTime">0</div>
+          <div class="res-label">минут</div>
+        </div>
+      </div>
+      <div class="res-xp">+50 XP 🏆</div>
+      <button class="res-next" onclick="location.reload()">Следующий урок →</button>
+    </div>
+  </div>
+
+  <div class="bottom-bar" id="bottomBar" style="display:none">
+    <div class="counter" id="counter">1 / 9</div>
+    <button class="next-btn" id="nextBtn" onclick="nextBlock()">Далее →</button>
+  </div>
+</div>
+
+<script>
+// ===== CINEMA =====
+const text1 = "Ваш мерчандайзер не приходил две недели! Уберём Chocotella с полки!";
+const text2 = "Шахноза апа, я вижу проблему. Дайте 15 минут — сделаю DSPM-проверку.";
+
+const productColors = [
+  '#7c3aed','#6d28d9','#a855f7', // purples (N'Medov)
+  '#dc2626','#f59e0b','#22c55e', // competitor mix
+  '#3b82f6','#6366f1','#ec4899', // more
+];
+
+function makeProducts(container, count, chaos) {
+  let html = '';
+  for (let i = 0; i < count; i++) {
+    const h = 14 + Math.random() * 10;
+    const c = productColors[Math.floor(Math.random() * productColors.length)];
+    const rot = chaos ? (Math.random() - 0.5) * 30 : 0;
+    const opacity = 0.4 + Math.random() * 0.3;
+    html += `<div class="product-box" style="height:${h}px;background:${c};opacity:${opacity};transform:rotate(${rot}deg)"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function runCinema() {
+  makeProducts(document.getElementById('productsTop'), 14, true);
+  makeProducts(document.getElementById('productsMid'), 12, true);
+  makeProducts(document.getElementById('productsBot'), 10, true);
+
+  // Step 1: Show location tag + shelves
+  setTimeout(() => {
+    document.getElementById('locTag').classList.add('show');
+    document.getElementById('productsTop').style.opacity = '1';
+    document.getElementById('productsMid').style.opacity = '1';
+    document.getElementById('productsBot').style.opacity = '1';
+  }, 600);
+
+  // Step 2: Show characters
+  setTimeout(() => {
+    document.getElementById('charLeft').style.opacity = '1';
+    document.getElementById('charRight').style.opacity = '1';
+  }, 1400);
+
+  // Step 3: Shakhoza speaks
+  setTimeout(() => {
+    document.getElementById('bubble1').classList.add('show');
+    typeText('typing1', text1, 35);
+  }, 2200);
+
+  // Step 4: Akmal responds
+  setTimeout(() => {
+    document.getElementById('bubble1').classList.remove('show');
+    document.getElementById('bubble2').classList.add('show');
+    typeText('typing2', text2, 35);
+  }, 5500);
+
+  // Step 5: Problem flash
+  setTimeout(() => {
+    document.getElementById('bubble2').classList.remove('show');
+    document.getElementById('problemFlash').classList.add('show');
+  }, 8500);
+
+  // Step 6: Crisis overlay
+  setTimeout(() => {
+    document.getElementById('crisisOverlay').classList.add('show');
+  }, 10000);
+}
+
+function typeText(elId, text, speed) {
+  const el = document.getElementById(elId);
+  let i = 0;
+  const interval = setInterval(() => {
+    el.textContent = text.slice(0, i);
+    i++;
+    if (i > text.length) clearInterval(interval);
+  }, speed);
+}
+
+// ===== LEARNING =====
+const TOTAL = 9;
+let cur = 0;
+let correct = 0;
+let total = 0;
+let t0;
+
+function startLearning() {
+  document.getElementById('cinemaScene').style.display = 'none';
+  document.getElementById('learningContainer').classList.add('active');
+  document.getElementById('bottomBar').style.display = 'flex';
+  document.querySelector('[data-block="0"]').classList.add('active');
+  updateProgress();
+  t0 = Date.now();
+}
+
+function nextBlock() {
+  if (cur >= TOTAL - 1) return;
+  document.querySelector(`[data-block="${cur}"]`).classList.remove('active');
+  cur++;
+  document.querySelector(`[data-block="${cur}"]`).classList.add('active');
+  updateProgress();
+  if (cur === 2) renderSwipe();
+  if (cur === TOTAL - 1) showResults();
+  if (cur === TOTAL - 2) document.getElementById('nextBtn').textContent = 'Завершить ✓';
+  window.scrollTo(0, 0);
+}
+
+function updateProgress() {
+  const pct = ((cur + 1) / TOTAL * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('counter').textContent = `${cur + 1} / ${TOTAL}`;
+}
+
+// Swipe cards
+const swipeData = [
+  { text: "DSPM — это обязанность мерчандайзера, не ТП", ans: false, fb: "Ложь! ТП контролирует DSPM. Мерчандайзер помогает, но ответственность на тебе." },
+  { text: "Правильный DSPM даёт +15-25% продаж в точке", ans: true, fb: "Правда! Это подтверждённая статистика по всем регионам." },
+  { text: "Перед исправлением полки нужно сфотографировать «до»", ans: true, fb: "Правда! Фото «до» — твоя защита и доказательство работы." },
+];
+let swipeIdx = 0;
+
+function renderSwipe() {
+  const area = document.getElementById('swipeArea');
+  if (swipeIdx >= swipeData.length) {
+    area.innerHTML = '<div style="text-align:center;padding:16px;font-size:14px;font-weight:700;color:#22c55e">✅ Все карточки пройдены!</div>';
+    return;
+  }
+  const d = swipeData[swipeIdx];
+  area.innerHTML = `
+    <div class="swipe-card-box" id="sCard">${d.text}</div>
+    <div class="swipe-btns">
+      <button class="swipe-btn swipe-false" onclick="answerSwipe(false)">✕ Ложь</button>
+      <button class="swipe-btn swipe-true" onclick="answerSwipe(true)">✓ Правда</button>
+    </div>
+    <div class="swipe-fb" id="sFb"></div>
+  `;
+}
+
+function answerSwipe(a) {
+  const d = swipeData[swipeIdx];
+  const ok = a === d.ans;
+  total++; if (ok) correct++;
+  const card = document.getElementById('sCard');
+  const fb = document.getElementById('sFb');
+  card.classList.add(ok ? 'right' : 'wrong');
+  fb.style.display = 'block';
+  fb.style.background = ok ? '#f0fdf4' : '#fef2f2';
+  fb.style.color = ok ? '#166534' : '#991b1b';
+  fb.textContent = (ok ? '✅ ' : '❌ ') + d.fb;
+  document.querySelectorAll('.swipe-btn').forEach(b => b.disabled = true);
+  setTimeout(() => { swipeIdx++; renderSwipe(); }, 2000);
+}
+
+// Sorting
+let sortStep = 0;
+function doSort(el) {
+  const v = parseInt(el.dataset.sort);
+  total++;
+  if (v === sortStep + 1) {
+    correct++;
+    el.classList.add('placed');
+    el.querySelector('.sort-num').textContent = v;
+    el.style.pointerEvents = 'none';
+    sortStep++;
+    if (sortStep === 4) {
+      document.querySelector('.sort-sub').textContent = '✅ Правильный порядок!';
+      document.querySelector('.sort-sub').style.color = '#16a34a';
+    }
+  } else {
+    el.classList.add('err');
+    setTimeout(() => el.classList.remove('err'), 500);
+  }
+}
+
+// Fill blank
+function doFill(el, v) {
+  total++;
+  document.querySelectorAll('.fb-opt').forEach(o => o.style.pointerEvents = 'none');
+  const gap = document.getElementById('fbGap');
+  if (v === '5') {
+    correct++;
+    el.classList.add('correct');
+    gap.textContent = '5';
+    gap.style.borderColor = '#22c55e'; gap.style.color = '#16a34a';
+  } else {
+    el.classList.add('wrong');
+    document.querySelectorAll('.fb-opt').forEach(o => { if (o.textContent === '5') o.classList.add('correct'); });
+    gap.textContent = '5'; gap.style.borderColor = '#ef4444'; gap.style.color = '#dc2626';
+  }
+}
+
+// Dialogue
+function doDial(el, areaId, goodId, badId) {
+  const ok = el.dataset.ok === '1';
+  total++; if (ok) correct++;
+  document.querySelectorAll(`#${areaId} .dial-opt`).forEach(o => {
+    o.style.pointerEvents = 'none';
+    if (o.dataset.ok === '1') o.classList.add('correct');
+    if (o === el && !ok) o.classList.add('wrong');
+  });
+  document.getElementById(ok ? goodId : badId).classList.add('show');
+}
+
+// Results
+function showResults() {
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rTotal').textContent = total;
+  document.getElementById('rTime').textContent = Math.max(1, Math.round((Date.now() - t0) / 60000));
+  document.getElementById('nextBtn').style.display = 'none';
+}
+
+// Init
+runCinema();
+</script>
+</body>
+</html>

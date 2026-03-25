@@ -19,6 +19,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-utils': ['axios', 'zustand'],
+          'vendor-lottie': ['lottie-web', 'lottie-react'],
         },
       },
     },
