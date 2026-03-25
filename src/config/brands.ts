@@ -26,6 +26,7 @@ export const BRAND_TABS: BrandConfig[] = [
   { label: 'Kreker',                brandKey: 'Kreker',          expectedSKU: 20 },
   { label: 'Blitz',                 brandKey: 'Blitz',           expectedSKU: 2  },
   { label: 'SLADOK Заварное',       brandKey: 'Sladok Zavarnoe', expectedSKU: 4  },
+  { label: "N'Medov",               brandKey: "N'Medov",         expectedSKU: 38 },
 ];
 
 /** Total expected SKU across all brands = 83 */

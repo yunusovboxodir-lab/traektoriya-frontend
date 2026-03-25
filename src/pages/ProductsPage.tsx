@@ -20,7 +20,7 @@ export function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedTab, setSelectedTab] = useState(-1); // -1 = "All" tab
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   // Admin modal state
@@ -50,7 +50,8 @@ export function ProductsPage() {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : 'ru-RU').format(v) + ' ' + t('products.currency');
   };
 
-  const currentBrand = BRAND_TABS[selectedTab];
+  const currentBrand = selectedTab >= 0 ? BRAND_TABS[selectedTab] : null;
+  const isAllTab = selectedTab === -1;
 
   // Products count per brand (for tab badges)
   const brandCounts = useMemo(() => {
@@ -66,7 +67,9 @@ export function ProductsPage() {
 
   // Filter products for current tab
   const filtered = useMemo(() => {
-    let result = products.filter((p) => p.brand === currentBrand.brandKey);
+    let result = isAllTab
+      ? [...products]
+      : products.filter((p) => p.brand === currentBrand?.brandKey);
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -78,12 +81,24 @@ export function ProductsPage() {
       );
     }
     return result;
-  }, [products, selectedTab, search, currentBrand.brandKey]);
+  }, [products, selectedTab, search, currentBrand?.brandKey, isAllTab]);
+
+  // Group products by brand (for "All" tab)
+  const groupedByBrand = useMemo(() => {
+    if (!isAllTab) return null;
+    const groups = new Map<string, typeof filtered>();
+    filtered.forEach((p) => {
+      const brand = p.brand || 'Другое';
+      if (!groups.has(brand)) groups.set(brand, []);
+      groups.get(brand)!.push(p);
+    });
+    return groups;
+  }, [filtered, isAllTab]);
 
   // Placeholder count (only when not searching)
-  const placeholderCount = search.trim()
+  const placeholderCount = search.trim() || isAllTab
     ? 0
-    : Math.max(0, currentBrand.expectedSKU - filtered.length);
+    : Math.max(0, (currentBrand?.expectedSKU || 0) - filtered.length);
 
   // -- Loading skeleton --
   if (loading) {
@@ -129,7 +144,9 @@ export function ProductsPage() {
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('products.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {t('products.skuCount', { brand: currentBrand.label, count: filtered.length, total: currentBrand.expectedSKU })}
+            {isAllTab
+              ? `${products.length} ${t('products.totalProducts')}`
+              : t('products.skuCount', { brand: currentBrand!.label, count: filtered.length, total: currentBrand!.expectedSKU })}
           </p>
         </div>
 
@@ -185,8 +202,23 @@ export function ProductsPage() {
         </div>
       </div>
 
-      {/* Brand tabs (12 fixed, horizontal scroll) */}
+      {/* Brand tabs (All + brands, horizontal scroll) */}
       <div className="flex overflow-x-auto gap-1.5 mb-5 pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
+        {/* "All" tab */}
+        <button
+          type="button"
+          onClick={() => { setSelectedTab(-1); setSearch(''); }}
+          className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+            selectedTab === -1
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          {t('products.allBrands')}
+          <span className={`ml-1.5 text-xs ${selectedTab === -1 ? 'text-blue-200' : 'text-gray-400'}`}>
+            {products.length}
+          </span>
+        </button>
         {BRAND_TABS.map((brand, idx) => {
           const count = brandCounts.get(brand.brandKey) || 0;
           return (
@@ -197,7 +229,9 @@ export function ProductsPage() {
               className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                 selectedTab === idx
                   ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : count === 0
+                    ? 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
               {brand.label}
@@ -230,7 +264,48 @@ export function ProductsPage() {
       </div>
 
       {/* Grid View */}
-      {viewMode === 'grid' && (
+      {viewMode === 'grid' && isAllTab && groupedByBrand && (
+        <div className="space-y-8">
+          {Array.from(groupedByBrand.entries()).map(([brand, brandProducts]) => (
+            <div key={brand}>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-lg font-bold text-gray-800">{brand}</h2>
+                <span className="text-sm text-gray-400">{brandProducts.length} SKU</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {brandProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all group overflow-hidden cursor-pointer"
+                    onClick={() => navigate(`/products/${product.id}`)}
+                  >
+                    <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-4xl opacity-20">📦</span>'; }} />
+                      ) : (
+                        <span className="text-4xl opacity-20">📦</span>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-2 line-clamp-2">{product.name}</h3>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                        {product.subcategory && <span>{product.subcategory}</span>}
+                        {product.weight && <span>{product.weight}</span>}
+                      </div>
+                      {product.price_rrp != null && (
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <span className="text-sm font-semibold text-gray-800">{formatPrice(product.price_rrp)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {viewMode === 'grid' && !isAllTab && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {/* Real product cards */}
           {filtered.map((product) => (
@@ -433,7 +508,7 @@ export function ProductsPage() {
             <div className="mt-4 px-4 py-3 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
               <span className="text-sm text-gray-400">
                 {t('products.expecting', { count: placeholderCount })}{' '}
-                <span className="font-medium">{currentBrand.label}</span>
+                <span className="font-medium">{currentBrand?.label}</span>
               </span>
               {isAdmin && (
                 <button
@@ -467,7 +542,7 @@ export function ProductsPage() {
       {(showCreateModal || editingProduct) && (
         <ProductFormModal
           product={editingProduct}
-          defaultBrand={currentBrand.brandKey}
+          defaultBrand={currentBrand?.brandKey || ''}
           onClose={() => { setShowCreateModal(false); setEditingProduct(null); }}
           onSaved={() => { setShowCreateModal(false); setEditingProduct(null); loadProducts(); }}
         />
