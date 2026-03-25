@@ -83,15 +83,22 @@ export function ProductsPage() {
     return result;
   }, [products, selectedTab, search, currentBrand?.brandKey, isAllTab]);
 
-  // Group products by brand (for "All" tab)
+  // Group products by brand (for "All" tab), ordered by BRAND_TABS
   const groupedByBrand = useMemo(() => {
     if (!isAllTab) return null;
+    const brandOrder = BRAND_TABS.map((b) => b.brandKey);
     const groups = new Map<string, typeof filtered>();
+    // Initialize in BRAND_TABS order
+    brandOrder.forEach((key) => groups.set(key, []));
     filtered.forEach((p) => {
       const brand = p.brand || 'Другое';
       if (!groups.has(brand)) groups.set(brand, []);
       groups.get(brand)!.push(p);
     });
+    // Remove empty groups
+    for (const [key, val] of groups) {
+      if (val.length === 0) groups.delete(key);
+    }
     return groups;
   }, [filtered, isAllTab]);
 
@@ -145,7 +152,7 @@ export function ProductsPage() {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('products.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">
             {isAllTab
-              ? `${products.length} ${t('products.totalProducts')}`
+              ? `${products.length} SKU`
               : t('products.skuCount', { brand: currentBrand!.label, count: filtered.length, total: currentBrand!.expectedSKU })}
           </p>
         </div>
