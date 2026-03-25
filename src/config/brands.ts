@@ -14,20 +14,19 @@ export interface BrandConfig {
 }
 
 export const BRAND_TABS: BrandConfig[] = [
-  { label: 'CHOCOCREAM',              brandKey: 'Chococream',      expectedSKU: 10 },
-  { label: 'CHOCOTELLA',             brandKey: 'Chocotella',      expectedSKU: 4  },
-  { label: 'STROBAR',                brandKey: 'Strobar',         expectedSKU: 6  },
-  { label: 'VELONA',                 brandKey: 'Velona',          expectedSKU: 5  },
-  { label: 'HOT LUNCH',             brandKey: 'Hot Lunch',       expectedSKU: 10 },
-  { label: 'CHEFF',                  brandKey: 'Cheff',           expectedSKU: 4  },
-  { label: 'CRAFERS WAFERS',        brandKey: 'Crafers Wafers',  expectedSKU: 4  },
-  { label: 'SLADOK Отсадная линия', brandKey: 'Sladok',          expectedSKU: 2  },
-  { label: 'Chocochips',            brandKey: 'Chocochips',      expectedSKU: 3  },
-  { label: 'Banoffy',               brandKey: 'Banoffy',         expectedSKU: 3  },
-  { label: 'Kreker',                brandKey: 'Kreker',          expectedSKU: 20 },
-  { label: 'Blitz',                 brandKey: 'Blitz',           expectedSKU: 2  },
-  { label: 'SLADOK Заварное',       brandKey: 'Sladok Zavarnoe', expectedSKU: 4  },
-  { label: "N'Medov",               brandKey: "N'Medov",         expectedSKU: 38 },
+  { label: 'CHOCOCREAM',        brandKey: 'Chococream',      expectedSKU: 10 },
+  { label: 'CHOCOTELLA',        brandKey: 'Chocotella',      expectedSKU: 4  },
+  { label: 'STROBAR',           brandKey: 'Strobar',         expectedSKU: 6  },
+  { label: 'VELONA',            brandKey: 'Velona',          expectedSKU: 5  },
+  { label: 'HOT LUNCH',         brandKey: 'Hot Lunch',       expectedSKU: 10 },
+  { label: 'CHEFF',             brandKey: 'Cheff',           expectedSKU: 4  },
+  { label: 'CRAFERS WAFERS',    brandKey: 'Crafers Wafers',  expectedSKU: 4  },
+  { label: 'SLADOK Заварное',   brandKey: 'Sladok Zavarnoe', expectedSKU: 4  },
+  { label: 'Chocochips',        brandKey: 'Chocochips',      expectedSKU: 1  },
+  { label: 'Banoffy',           brandKey: 'Banoffy',         expectedSKU: 1  },
+  { label: 'Kreker',            brandKey: 'Kreker',          expectedSKU: 5  },
+  { label: 'Blitz',             brandKey: 'Blitz',           expectedSKU: 2  },
+  { label: "N'Medov",           brandKey: "N'Medov",         expectedSKU: 38 },
 ];
 
 /** Total expected SKU across all brands = 83 */
