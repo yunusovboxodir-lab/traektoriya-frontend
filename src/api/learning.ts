@@ -395,9 +395,20 @@ export interface BlockResultsData {
   xpReward: number;
 }
 
+// Video Scene (VidTSX-rendered MP4 + interactive crisis overlay)
+export interface BlockVideoSceneData {
+  videoUrl: string;           // MP4 URL (MinIO or external)
+  posterUrl?: string;         // Preview image before video loads
+  autoplay?: boolean;         // Default: true
+  loop?: boolean;             // Default: false
+  crisis?: CinematicCrisis;   // Optional interactive overlay after video ends
+  atmosphere?: string;        // Fallback gradient if video fails
+}
+
 // Block union type
 export type LessonBlock =
   | { type: 'cinematic_scene'; data: BlockCinematicSceneData }
+  | { type: 'video_scene'; data: BlockVideoSceneData }
   | { type: 'key_point'; data: BlockKeyPointData }
   | { type: 'swipe_cards'; data: BlockSwipeCardsData }
   | { type: 'sorting'; data: BlockSortingData }

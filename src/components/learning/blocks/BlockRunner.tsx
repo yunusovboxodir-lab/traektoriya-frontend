@@ -3,6 +3,7 @@ import type { LessonBlock, BlockLessonData, NarrationResponse } from '../../../a
 import { useBlockSession } from './useBlockSession';
 import { BlockProgressBar, BlockBottomBar } from './BlockProgress';
 import { BlockCinematicScene } from './BlockCinematicScene';
+import { BlockVideoScene } from './BlockVideoScene';
 import { BlockKeyPoint } from './BlockKeyPoint';
 import { BlockSwipeCards } from './BlockSwipeCards';
 import { BlockSorting } from './BlockSorting';
@@ -30,7 +31,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
   const { currentIndex, advance, recordAnswer, correct, total, getElapsedSeconds } = session;
   const currentBlock = blocks[currentIndex];
   const isLastBlock = currentIndex === blocks.length - 1;
-  const isCinematic = currentBlock?.type === 'cinematic_scene';
+  const isCinematic = currentBlock?.type === 'cinematic_scene' || currentBlock?.type === 'video_scene';
   const isResultsBlock = currentBlock?.type === 'results';
 
   // ===== AUDIO NARRATION =====
@@ -270,6 +271,20 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
     return (
       <>
         <BlockCinematicScene
+          data={currentBlock.data}
+          accent={accent}
+          onAdvance={handleCinematicAdvance}
+        />
+        {FloatingAudioPlayer}
+      </>
+    );
+  }
+
+  // Video scene — fullscreen MP4 + interactive crisis overlay
+  if (currentBlock.type === 'video_scene') {
+    return (
+      <>
+        <BlockVideoScene
           data={currentBlock.data}
           accent={accent}
           onAdvance={handleCinematicAdvance}
