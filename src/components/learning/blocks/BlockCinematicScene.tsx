@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BlockCinematicSceneData, CinematicCharacter } from '../../../api/learning';
 import { getAtmosphere } from './atmospheres';
+import { MinecraftCharacter } from './characters/MinecraftCharacter';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
 
@@ -301,12 +302,13 @@ function Shelves3D({ rows, productsPerRow, colors, chaos, shelfColor }: {
   );
 }
 
-/** Animated character with detailed SVG */
+/** Animated Minecraft-style character */
 function AnimatedCharacter({ character, visible, isActive, lang, delay }: {
   character: CinematicCharacter; visible: boolean; isActive: boolean; lang: 'ru' | 'uz'; delay: number;
 }) {
-  const fill = character.color || '#3b5998';
   const isLeft = character.side === 'left';
+  // Use character.detail as skinId (e.g. "sales_rep", "supervisor"), fallback to "sales_rep"
+  const skinId = character.detail || 'sales_rep';
 
   return (
     <motion.div
@@ -317,11 +319,18 @@ function AnimatedCharacter({ character, visible, isActive, lang, delay }: {
     >
       <motion.div
         animate={isActive
-          ? { scale: 1.1, filter: 'brightness(1.3) drop-shadow(0 0 24px rgba(100,160,255,0.35))' }
-          : { scale: 1, filter: 'brightness(0.8) drop-shadow(0 0 0 transparent)' }}
+          ? { scale: 1.15, filter: 'brightness(1.3) drop-shadow(0 0 24px rgba(100,160,255,0.35))' }
+          : { scale: 1, filter: 'brightness(0.85) drop-shadow(0 0 0 transparent)' }}
         transition={{ type: 'spring', damping: 15, stiffness: 200 }}
       >
-        <DetailedCharacterSVG character={character} isActive={isActive} fill={fill} />
+        <MinecraftCharacter
+          skinId={skinId}
+          emoji={character.emoji}
+          isActive={isActive}
+          colorOverride={character.color}
+          width={120}
+          height={180}
+        />
       </motion.div>
 
       <motion.div className="text-center mt-2"
@@ -335,95 +344,6 @@ function AnimatedCharacter({ character, visible, isActive, lang, delay }: {
         </span>
       </motion.div>
     </motion.div>
-  );
-}
-
-/** Detailed SVG person with animated arms */
-function DetailedCharacterSVG({ character, isActive, fill }: {
-  character: CinematicCharacter; isActive: boolean; fill: string;
-}) {
-  return (
-    <svg width="110" height="170" viewBox="0 0 110 170">
-      {/* Shadow */}
-      <ellipse cx="55" cy="166" rx="28" ry="4" fill="rgba(0,0,0,0.3)" />
-
-      {/* Legs */}
-      <motion.g animate={isActive ? { y: [0, -1, 0] } : { y: 0 }}
-        transition={{ duration: 1.5, repeat: Infinity }}>
-        <path d="M38 118 L34 155 Q33 160 38 160 L44 160 L46 120" fill={fill} opacity="0.75" />
-        <path d="M64 118 L68 155 Q69 160 72 160 L76 160 L72 120" fill={fill} opacity="0.75" />
-        {/* Shoes */}
-        <rect x="32" y="157" width="16" height="6" rx="3" fill="#1a1a2e" opacity="0.8" />
-        <rect x="66" y="157" width="16" height="6" rx="3" fill="#1a1a2e" opacity="0.8" />
-      </motion.g>
-
-      {/* Body / torso */}
-      <path d="M30 60 Q32 54 55 54 Q78 54 80 60 L82 115 Q82 122 75 122 L35 122 Q28 122 28 115 Z"
-        fill={fill} opacity="0.9" />
-      {/* Shirt collar detail */}
-      <path d="M45 56 L55 66 L65 56" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.5" />
-
-      {/* Left arm (animated when talking) */}
-      <motion.g
-        style={{ originX: '35px', originY: '62px' }}
-        animate={isActive
-          ? { rotate: [-5, -25, -10, -30, -5], y: [0, -3, 0, -2, 0] }
-          : { rotate: 0, y: 0 }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <path d="M32 62 L18 98 Q16 104 20 106 L26 104 L36 72" fill={fill} opacity="0.75" />
-        {/* Hand */}
-        <circle cx="19" cy="100" r="5" fill={fill} opacity="0.65" />
-      </motion.g>
-
-      {/* Right arm (animated when talking) */}
-      <motion.g
-        style={{ originX: '75px', originY: '62px' }}
-        animate={isActive
-          ? { rotate: [5, 20, 8, 15, 5], y: [0, -2, 0, -3, 0] }
-          : { rotate: 0, y: 0 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-      >
-        <path d="M78 62 L92 98 Q94 104 90 106 L84 104 L74 72" fill={fill} opacity="0.75" />
-        <circle cx="91" cy="100" r="5" fill={fill} opacity="0.65" />
-      </motion.g>
-
-      {/* Neck */}
-      <rect x="48" y="44" width="14" height="12" rx="4" fill={fill} opacity="0.8" />
-
-      {/* Head */}
-      <circle cx="55" cy="28" r="20" fill={fill} opacity="0.95" />
-      {/* Hair hint */}
-      <path d="M35 24 Q40 8 55 10 Q70 8 75 24" fill={fill} opacity="0.5" />
-
-      {/* Face emoji */}
-      {character.emoji && (
-        <text x="44" y="34" fontSize="18">{character.emoji}</text>
-      )}
-
-      {/* Detail items */}
-      {character.detail === 'clipboard' && (
-        <g opacity="0.8">
-          <rect x="12" y="80" width="20" height="26" rx="3" fill="#1e293b" stroke="#475569" strokeWidth="1.5" />
-          <line x1="16" y1="88" x2="28" y2="88" stroke="#60a5fa" strokeWidth="1.5" opacity="0.5" />
-          <line x1="16" y1="93" x2="26" y2="93" stroke="#60a5fa" strokeWidth="1.5" opacity="0.4" />
-          <line x1="16" y1="98" x2="24" y2="98" stroke="#60a5fa" strokeWidth="1.5" opacity="0.3" />
-        </g>
-      )}
-      {character.detail === 'phone' && (
-        <g opacity="0.8">
-          <rect x="82" y="36" width="12" height="22" rx="3" fill="#1e293b" stroke="#475569" strokeWidth="1" />
-          <rect x="84" y="40" width="8" height="14" rx="1" fill="#3b82f6" opacity="0.3" />
-        </g>
-      )}
-      {character.detail === 'box' && (
-        <g opacity="0.8">
-          <rect x="10" y="78" width="24" height="20" rx="2" fill="#92400e" stroke="#b45309" strokeWidth="1" />
-          <line x1="10" y1="84" x2="34" y2="84" stroke="#b45309" strokeWidth="1" />
-          <line x1="22" y1="78" x2="22" y2="98" stroke="#b45309" strokeWidth="1" opacity="0.5" />
-        </g>
-      )}
-    </svg>
   );
 }
 

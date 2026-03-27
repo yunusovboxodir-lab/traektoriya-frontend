@@ -31,6 +31,7 @@ const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ d
 const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
+const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -96,6 +97,9 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
     <Routes>
+      {/* Dev: Character preview (temp) */}
+      <Route path="/dev/characters" element={<CharacterPreview />} />
+
       {/* Лендинг (доступен всегда) */}
       <Route path="/landing" element={<LandingPage />} />
 
