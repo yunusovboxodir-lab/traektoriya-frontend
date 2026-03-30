@@ -242,7 +242,8 @@ function EditableBiText({
       value={text}
       placeholder={placeholder}
       onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        onChange({ ...value, [lang]: e.target.value });
+        const updated = typeof value === 'object' && value !== null ? { ...value, [lang]: e.target.value } : { ru: '', uz: '', [lang]: e.target.value };
+        onChange(updated);
       }}
       className={`w-full bg-white border border-amber-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent ${
         multiline ? 'resize-y min-h-[60px]' : ''

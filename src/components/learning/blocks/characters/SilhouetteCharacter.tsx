@@ -101,7 +101,6 @@ export function SilhouetteCharacter({
   const config = getConfig(skinId);
   const baseColor = '#0a0e1a';
   const edgeColor = isActive ? accentColor : 'rgba(255,255,255,0.08)';
-  const glowColor = isActive ? `${accentColor}40` : 'transparent';
 
   // Head dimensions
   const headR = 16 * config.headSize;
@@ -215,7 +214,6 @@ export function SilhouetteCharacter({
           />
           <AccessorySilhouette
             type={config.accessory}
-            side="left"
             x={headCx - shoulderHalf - 16}
             y={torsoTop + 35}
             color={baseColor}
@@ -299,8 +297,8 @@ export function SilhouetteCharacter({
 }
 
 /** Accessory shapes rendered as pure silhouettes */
-function AccessorySilhouette({ type, side, x, y, color, edgeColor }: {
-  type?: string; side: string; x: number; y: number; color: string; edgeColor: string;
+function AccessorySilhouette({ type, x, y, color, edgeColor }: {
+  type?: string; x: number; y: number; color: string; edgeColor: string;
 }) {
   if (!type) return null;
 
