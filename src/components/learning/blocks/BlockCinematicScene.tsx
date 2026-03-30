@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { BlockCinematicSceneData, CinematicCharacter } from '../../../api/learning';
 import { getAtmosphere } from './atmospheres';
-import { MinecraftCharacter } from './characters/MinecraftCharacter';
+import { SilhouetteCharacter } from './characters/SilhouetteCharacter';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
 
@@ -24,10 +24,13 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
   const typingRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const fullTextRef = useRef('');
 
-  const dialogueStepStart = 2;
+  const hasBackstory = !!data.backstory;
+  const backstoryStep = 2;
+  const dialogueStepStart = hasBackstory ? 3 : 2;
   const dialogueCount = data.dialogues.length;
   const problemFlashStep = dialogueStepStart + dialogueCount;
   const crisisStep = data.problemFlash ? problemFlashStep + 1 : problemFlashStep;
+  const [backstoryVisible, setBackstoryVisible] = useState(false);
 
   const typeText = useCallback((text: string) => {
     setTypingText('');
@@ -58,7 +61,23 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
 
   const handleClick = useCallback(() => {
     if (isTyping) { skipTyping(); return; }
-    if (step < dialogueStepStart) {
+
+    // Step 1 → backstory or dialogue
+    if (step < backstoryStep) {
+      if (hasBackstory) {
+        setStep(backstoryStep);
+        setBackstoryVisible(true);
+      } else if (dialogueCount > 0) {
+        setStep(dialogueStepStart);
+        setActiveDialogueIdx(0);
+        typeText(bl(data.dialogues[0].text, lang));
+      }
+      return;
+    }
+
+    // Backstory → dialogue
+    if (hasBackstory && step === backstoryStep) {
+      setBackstoryVisible(false);
       if (dialogueCount > 0) {
         setStep(dialogueStepStart);
         setActiveDialogueIdx(0);
@@ -66,6 +85,8 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
       }
       return;
     }
+
+    // Dialogue steps
     if (step >= dialogueStepStart && step < problemFlashStep) {
       const nextDIdx = step - dialogueStepStart + 1;
       if (nextDIdx < dialogueCount) {
@@ -80,7 +101,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
       return;
     }
     if (step === problemFlashStep && data.problemFlash) setStep(crisisStep);
-  }, [step, isTyping, skipTyping, dialogueStepStart, dialogueCount, problemFlashStep, crisisStep, data, lang, typeText]);
+  }, [step, isTyping, skipTyping, backstoryStep, hasBackstory, dialogueStepStart, dialogueCount, problemFlashStep, crisisStep, data, lang, typeText]);
 
   const activeDialogue = activeDialogueIdx >= 0 ? data.dialogues[activeDialogueIdx] : null;
   const activeChar = activeDialogue ? data.characters.find(c => c.id === activeDialogue.characterId) : null;
@@ -138,6 +159,50 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
             />
           </motion.div>
         )}
+
+        {/* Backstory overlay — sets the scene before dialogue */}
+        <AnimatePresence>
+          {backstoryVisible && data.backstory && (
+            <motion.div
+              className="absolute inset-0 z-[10] flex items-center justify-center px-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.4 } }}
+            >
+              {/* Dim background */}
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+
+              <motion.div
+                className="relative max-w-[520px] w-full"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 180, delay: 0.15 }}
+              >
+                {/* Accent line */}
+                <div className="w-12 h-[2px] rounded-full mb-5 mx-auto" style={{ background: accent }} />
+
+                {/* Context label */}
+                <div className="text-center text-white/30 text-xs tracking-[4px] uppercase mb-4">
+                  {lang === 'uz' ? 'Vaziyat' : 'Ситуация'}
+                </div>
+
+                {/* Backstory text */}
+                <div className="text-gray-200 text-lg leading-relaxed text-center"
+                  style={{ fontFamily: "'Georgia', serif" }}>
+                  {bl(data.backstory!, lang)}
+                </div>
+
+                {/* Tap hint */}
+                <motion.div className="mt-8 text-center text-white/15 text-sm"
+                  animate={{ opacity: [0.1, 0.3, 0.1] }}
+                  transition={{ duration: 2, repeat: Infinity }}>
+                  {lang === 'uz' ? 'Davom etish uchun bosing' : 'Нажмите, чтобы продолжить'}
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Characters */}
         {data.characters.map((char, idx) => (
@@ -207,10 +272,17 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ type: 'spring', damping: 18, stiffness: 150, delay: 0.2 }}
               >
-                <motion.div className="text-5xl mb-3"
-                  animate={{ scale: [1, 1.1, 1] }}
+                {/* Warning icon instead of emoji */}
+                <motion.div className="flex justify-center mb-3"
+                  animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}>
-                  {data.crisis.emoji}
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <path d="M24 4L2 44h44L24 4z" fill="none" stroke="#ef4444" strokeWidth="2.5"
+                      strokeLinejoin="round" />
+                    <line x1="24" y1="18" x2="24" y2="30" stroke="#ef4444" strokeWidth="2.5"
+                      strokeLinecap="round" />
+                    <circle cx="24" cy="36" r="1.5" fill="#ef4444" />
+                  </svg>
                 </motion.div>
                 <div className="text-red-500 text-sm font-extrabold tracking-[3px] mb-3">
                   {bl(data.crisis.badge, lang)}
@@ -302,13 +374,35 @@ function Shelves3D({ rows, productsPerRow, colors, chaos, shelfColor }: {
   );
 }
 
-/** Animated Minecraft-style character */
+/** Map character role text to silhouette skinId */
+const ROLE_TO_SKIN: Record<string, string> = {
+  'ТП': 'sales_rep', 'tp': 'sales_rep', 'sales_rep': 'sales_rep',
+  'СВ': 'supervisor', 'sv': 'supervisor', 'supervisor': 'supervisor',
+  'Товаровед': 'store_keeper', 'товаровед': 'store_keeper', 'store_keeper': 'store_keeper',
+  'HR': 'hr_manager', 'hr': 'hr_manager', 'hr_manager': 'hr_manager',
+  'РМ': 'regional_manager', 'rm': 'regional_manager', 'regional_manager': 'regional_manager',
+  'Директор': 'store_director', 'директор': 'store_director', 'store_director': 'store_director',
+  'Стажёр': 'trainee', 'стажёр': 'trainee', 'trainee': 'trainee',
+};
+
+function resolveSkinId(character: CinematicCharacter): string {
+  // 1. If detail is a valid skinId, use it directly
+  const validSkins = ['sales_rep', 'supervisor', 'hr_manager', 'store_keeper', 'regional_manager', 'store_director', 'trainee'];
+  if (character.detail && validSkins.includes(character.detail)) return character.detail;
+  // 2. Map from role text (RU or EN)
+  const roleText = typeof character.role === 'string' ? character.role : character.role?.ru || '';
+  const mapped = ROLE_TO_SKIN[roleText];
+  if (mapped) return mapped;
+  // 3. Fallback
+  return 'sales_rep';
+}
+
+/** Animated silhouette character */
 function AnimatedCharacter({ character, visible, isActive, lang, delay }: {
   character: CinematicCharacter; visible: boolean; isActive: boolean; lang: 'ru' | 'uz'; delay: number;
 }) {
   const isLeft = character.side === 'left';
-  // Use character.detail as skinId (e.g. "sales_rep", "supervisor"), fallback to "sales_rep"
-  const skinId = character.detail || 'sales_rep';
+  const skinId = resolveSkinId(character);
 
   return (
     <motion.div
@@ -319,17 +413,16 @@ function AnimatedCharacter({ character, visible, isActive, lang, delay }: {
     >
       <motion.div
         animate={isActive
-          ? { scale: 1.15, filter: 'brightness(1.3) drop-shadow(0 0 24px rgba(100,160,255,0.35))' }
-          : { scale: 1, filter: 'brightness(0.85) drop-shadow(0 0 0 transparent)' }}
+          ? { scale: 1.15, filter: 'drop-shadow(0 0 24px rgba(100,160,255,0.25))' }
+          : { scale: 1, filter: 'drop-shadow(0 0 0 transparent)' }}
         transition={{ type: 'spring', damping: 15, stiffness: 200 }}
       >
-        <MinecraftCharacter
+        <SilhouetteCharacter
           skinId={skinId}
-          emoji={character.emoji}
           isActive={isActive}
-          colorOverride={character.color}
+          accentColor={isLeft ? '#ef4444' : '#3b82f6'}
           width={120}
-          height={180}
+          height={200}
         />
       </motion.div>
 
@@ -376,7 +469,13 @@ function DialogueBubble({ character, text, isTyping, lang }: {
 
       {/* Name */}
       <div className="flex items-center gap-2 mb-3">
-        {character.emoji && <span className="text-lg">{character.emoji}</span>}
+        {/* Silhouette icon instead of emoji */}
+        <span className={`inline-block w-5 h-5 rounded-full ${isLeft ? 'bg-red-500/20 border border-red-500/30' : 'bg-blue-500/20 border border-blue-500/30'}`}>
+          <svg viewBox="0 0 20 20" className="w-full h-full">
+            <circle cx="10" cy="7" r="3" fill={isLeft ? '#ef4444' : '#3b82f6'} opacity="0.6" />
+            <path d="M4 18c0-3.3 2.7-6 6-6s6 2.7 6 6" fill={isLeft ? '#ef4444' : '#3b82f6'} opacity="0.4" />
+          </svg>
+        </span>
         <span className={`text-xs font-bold tracking-[2px] ${isLeft ? 'text-red-400' : 'text-blue-400'}`}>
           {bl(character.name, lang).toUpperCase()}
           {character.role && (

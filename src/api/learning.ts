@@ -323,6 +323,8 @@ export interface CinematicProblemFlash {
 export interface BlockCinematicSceneData {
   atmosphere: string;   // "store_chaos" | "dark_office" | etc.
   location: CinematicLocation;
+  /** Backstory shown before dialogue — sets the scene context */
+  backstory?: BiText;
   characters: CinematicCharacter[];
   dialogues: CinematicDialogue[];
   problemFlash?: CinematicProblemFlash;
@@ -577,6 +579,13 @@ export const learningApi = {
     api.get<LeaderboardResponse>('/api/v1/learning/leaderboard', {
       params: { limit },
     }),
+
+  // Admin: update lesson_data
+  updateLessonData: (courseId: string, lessonData: BlockLessonData | LessonData) =>
+    api.patch<{ status: string; course_id: string; version: string; blocks_count: number | null }>(
+      `/api/v1/learning/courses/${courseId}/lesson-data`,
+      { lesson_data: lessonData },
+    ),
 
   // Narration (TTS)
   getNarration: (courseId: string) =>

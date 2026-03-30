@@ -16,6 +16,7 @@ import {
   type NarrationResponse,
 } from '../api/learning';
 import { useToastStore } from '../stores/toastStore';
+import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
 import { LearningMap } from '../components/learning/LearningMap';
@@ -24,6 +25,7 @@ import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuesti
 import { FlashcardsView } from '../components/learning/FlashcardsView';
 import { FieldTaskCard } from '../components/learning/FieldTaskCard';
 import { LessonDataView } from '../components/learning/LessonDataView';
+import { BlockCardView } from '../components/learning/BlockCardView';
 import { BlockRunner } from '../components/learning/blocks/BlockRunner';
 import type { LessonData, BlockLessonData } from '../api/learning';
 
@@ -794,6 +796,10 @@ function CourseView({
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'superadmin' || user?.role === 'admin' || user?.role === 'commercial_dir';
+  const [previewMode, setPreviewMode] = useState(false);
+
   const slides = data.content.slides || [];
   const quiz = (data.content.quiz || []) as QuizQuestion[];
   const flashcards = (data.content.spaced_repetition_cards || []) as FlashCard[];
@@ -816,10 +822,14 @@ function CourseView({
   const hasFieldTask = !!fieldTask && !!fieldTask.title;
 
   // Phase determination: v3 blocks → v2 lesson_data → v1 slides
+  // Admin sees card view (lesson_data) by default, users see fullscreen (blocks)
   const phase: CoursePhase = useMemo(() => {
     if (isBlockV3) {
+      // Admin sees card view unless preview mode is on
+      if (isAdmin && !previewMode) {
+        return 'lesson_data';
+      }
       // V3 block flow: blocks contain everything (cinematic + learning + results)
-      // After blocks complete → course completion API is called from BlockRunner
       if (!blocksDone) return 'blocks';
       return 'results';
     }
@@ -840,7 +850,7 @@ function CourseView({
       if (!hasQuiz && hasFieldTask && !fieldTaskDone && (flashcardsDone || !hasFlashcards)) return 'field_task';
     }
     return 'results';
-  }, [currentSlide, slides.length, isBlockV3, blocksDone, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone]);
+  }, [currentSlide, slides.length, isBlockV3, blocksDone, hasLessonData, lessonDataDone, hasQuiz, quizSubmitted, hasFlashcards, flashcardsDone, hasFieldTask, fieldTaskDone, isAdmin, previewMode]);
 
   const totalSlidePages = hasLessonData ? (hasQuiz ? 2 : 1) : slides.length + (hasQuiz ? 1 : 0);
 
@@ -974,9 +984,14 @@ function CourseView({
         lessonData={blockLessonData}
         narration={narration}
         onComplete={() => {
-          setBlocksDone(true);
-          // Call course completion API with the score from blocks
-          onSubmitQuiz();
+          if (isAdmin && previewMode) {
+            // Admin preview: return to card view instead of completing
+            setPreviewMode(false);
+          } else {
+            setBlocksDone(true);
+            // Call course completion API with the score from blocks
+            onSubmitQuiz();
+          }
         }}
       />
     );
@@ -1006,7 +1021,7 @@ function CourseView({
         </div>
 
         {/* Step dots — new lesson_data flow vs legacy slides */}
-        {hasLessonData && (phase === 'lesson_data' || phase === 'quiz') && (
+        {(hasLessonData || isBlockV3) && (phase === 'lesson_data' || phase === 'quiz') && (
           <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-3">
             <div className="flex items-center gap-2 flex-1">
               <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
@@ -1093,12 +1108,23 @@ function CourseView({
             </div>
           )}
 
-          {/* ========= LESSON DATA (scene, infographic, dialogue, quiz) ========= */}
-          {phase === 'lesson_data' && lessonData && (
+          {/* ========= LESSON DATA v2 (scene, infographic, dialogue, quiz) ========= */}
+          {phase === 'lesson_data' && !isBlockV3 && lessonData && (
             <LessonDataView
               data={lessonData}
               lang={lang}
               onComplete={() => setLessonDataDone(true)}
+            />
+          )}
+
+          {/* ========= LESSON DATA v3 — Admin card view (blocks as cards) ========= */}
+          {phase === 'lesson_data' && isBlockV3 && blockLessonData && (
+            <BlockCardView
+              data={blockLessonData}
+              courseId={data.course.id}
+              lang={lang}
+              onComplete={() => setLessonDataDone(true)}
+              onPreview={() => setPreviewMode(true)}
             />
           )}
 
