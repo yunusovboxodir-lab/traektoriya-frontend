@@ -229,6 +229,7 @@ const NAV_ITEMS_DEF = [
 ] as const;
 
 const ADMIN_NAV_ITEMS_DEF = [
+  { labelKey: 'nav.dictionaryUZ', path: '/dictionary-uz', icon: <IconBook />, pageKey: 'dictionary-uz' },
   { labelKey: 'nav.settings', path: '/admin/roles', icon: <IconShield />, pageKey: 'admin-roles' },
 ] as const;
 

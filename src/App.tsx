@@ -31,6 +31,7 @@ const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ d
 const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
+const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -245,6 +246,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="shelf-corrections">
             <ShelfCorrectionPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Словарь UZ */}
+      <Route
+        path="/dictionary-uz"
+        element={
+          <ProtectedRoute pageKey="dictionary-uz">
+            <DictionaryUZPage />
           </ProtectedRoute>
         }
       />
