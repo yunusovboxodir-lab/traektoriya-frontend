@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
+import { PulsePage } from './PulsePage';
 import { AssessmentsPage } from './AssessmentsPage';
 import { CompetencyMatrixPage } from './CompetencyMatrixPage';
 import { CompetencyProfilePage } from './CompetencyProfilePage';
@@ -10,7 +11,7 @@ import { CompetencyProfilePage } from './CompetencyProfilePage';
 // Types
 // ---------------------------------------------------------------------------
 
-type CompTab = 'assessments' | 'matrix' | 'profiles';
+type CompTab = 'pulse' | 'assessments' | 'matrix' | 'profiles';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -38,6 +39,7 @@ export function CompetenciesPage() {
   // Build visible tabs based on role
   const visibleTabs = useMemo(() => {
     const tabs: { id: CompTab; labelKey: string }[] = [
+      { id: 'pulse', labelKey: 'comp.tabPulse' },
       { id: 'assessments', labelKey: 'comp.tabAssessments' },
     ];
     if (isSupervisorPlus) {
@@ -51,7 +53,7 @@ export function CompetenciesPage() {
 
   const tabFromUrl = searchParams.get('tab') as CompTab | null;
   const [activeTab, setActiveTab] = useState<CompTab>(
-    tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'assessments',
+    tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'pulse',
   );
 
   // Sync URL → state
@@ -64,7 +66,7 @@ export function CompetenciesPage() {
 
   const handleTabChange = (tab: CompTab) => {
     setActiveTab(tab);
-    if (tab === 'assessments') {
+    if (tab === 'pulse') {
       setSearchParams({}, { replace: true });
     } else {
       setSearchParams({ tab }, { replace: true });
@@ -93,6 +95,7 @@ export function CompetenciesPage() {
       )}
 
       {/* Tab content */}
+      {activeTab === 'pulse' && <PulsePage />}
       {activeTab === 'assessments' && <AssessmentsPage />}
       {activeTab === 'matrix' && isSupervisorPlus && <CompetencyMatrixPage />}
       {activeTab === 'profiles' && isAdminPlus && <CompetencyProfilePage />}

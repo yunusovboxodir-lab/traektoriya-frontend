@@ -94,6 +94,94 @@ export interface AssessResult {
 }
 
 // ---------------------------------------------------------------------------
+// Types — Pulse
+// ---------------------------------------------------------------------------
+
+export interface CompetencyPulse {
+  competency_id: string;
+  competency_name: string;
+  competency_name_uz: string | null;
+  sort_order: number;
+  pulse_pct: number;
+  pulse_level: string;
+  pulse_level_ru: string;
+  pulse_level_uz: string;
+  courses_completed: number;
+  courses_total: number;
+  score_earned: number;
+  score_max: number;
+  avg_quiz_score: number | null;
+}
+
+export interface UserPulse {
+  user_id: string;
+  overall_pulse: number;
+  overall_level: string;
+  overall_level_ru: string;
+  overall_level_uz: string;
+  total_earned: number;
+  total_max: number;
+  competencies: CompetencyPulse[];
+}
+
+export interface TeamPulse {
+  team_id: string;
+  members_count: number;
+  members: Array<{
+    user_id: string;
+    employee_id: string;
+    full_name: string | null;
+    overall_pulse: number;
+    overall_level: string;
+    overall_level_ru: string;
+    competencies: Array<{
+      competency_id: string;
+      competency_name: string;
+      pulse_pct: number;
+      pulse_level: string;
+      courses_completed: number;
+      courses_total: number;
+    }>;
+  }>;
+  team_averages: Array<{
+    competency_id: string;
+    competency_name: string;
+    avg_pulse_pct: number;
+    pulse_level: string;
+    pulse_level_ru: string;
+  }>;
+}
+
+export interface PulseCourse {
+  course_id: string;
+  title_ru: string;
+  title_uz: string | null;
+  level: string;
+  weight: number;
+  is_completed: boolean;
+  quiz_score: number | null;
+  completed_at: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// API — Pulse
+// ---------------------------------------------------------------------------
+
+export const pulseApi = {
+  getUserPulse: (userId: string) =>
+    api.get<UserPulse>(`/api/v1/pulse/user/${userId}`),
+
+  getTeamPulse: (teamId: string) =>
+    api.get<TeamPulse>(`/api/v1/pulse/team/${teamId}`),
+
+  getCompetencyCourses: (competencyId: string, userId?: string) =>
+    api.get<{ competency_id: string; courses_count: number; courses: PulseCourse[] }>(
+      `/api/v1/pulse/competency/${competencyId}/courses`,
+      { params: userId ? { user_id: userId } : undefined },
+    ),
+};
+
+// ---------------------------------------------------------------------------
 // API — Competency Matrix
 // ---------------------------------------------------------------------------
 

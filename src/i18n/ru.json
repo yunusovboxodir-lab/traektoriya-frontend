@@ -65,9 +65,30 @@
     "tabAdmin": "Администрирование"
   },
   "comp": {
+    "tabPulse": "Пульс",
     "tabAssessments": "Оценка",
     "tabMatrix": "Матрица GAP",
     "tabProfiles": "Профили должностей"
+  },
+  "pulse": {
+    "overallPulse": "Общий пульс",
+    "earned": "Набрано",
+    "max": "Макс",
+    "maxShort": "Макс",
+    "competencies": "Компетенций",
+    "competency": "Компетенция",
+    "progress": "Прогресс",
+    "courses": "Курсы",
+    "level": "Уровень",
+    "weight": "вес",
+    "trainee": "Стажёр",
+    "practitioner": "Практик",
+    "expert": "Эксперт",
+    "master": "Мастер",
+    "noData": "Данные пульса пока недоступны",
+    "noDataHint": "Компетенции ещё не настроены",
+    "noCourses": "Курсы не привязаны",
+    "loadError": "Ошибка загрузки пульса"
   },
   "ai": {
     "tabGeneration": "Генерация",

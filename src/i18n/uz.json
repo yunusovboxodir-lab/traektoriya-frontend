@@ -65,9 +65,30 @@
     "tabAdmin": "Administratsiya"
   },
   "comp": {
+    "tabPulse": "Puls",
     "tabAssessments": "Baholash",
     "tabMatrix": "GAP Matritsasi",
     "tabProfiles": "Lavozim profillari"
+  },
+  "pulse": {
+    "overallPulse": "Umumiy puls",
+    "earned": "To'plangan",
+    "max": "Maks",
+    "maxShort": "Maks",
+    "competencies": "Kompetensiyalar",
+    "competency": "Kompetensiya",
+    "progress": "Progress",
+    "courses": "Kurslar",
+    "level": "Daraja",
+    "weight": "og'irlik",
+    "trainee": "Stajer",
+    "practitioner": "Praktik",
+    "expert": "Ekspert",
+    "master": "Master",
+    "noData": "Puls ma'lumotlari hali mavjud emas",
+    "noDataHint": "Kompetensiyalar hali sozlanmagan",
+    "noCourses": "Kurslar bog'lanmagan",
+    "loadError": "Pulsni yuklashda xato"
   },
   "ai": {
     "tabGeneration": "Generatsiya",
