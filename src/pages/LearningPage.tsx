@@ -444,11 +444,13 @@ function SectionView({
         </div>
       </div>
 
-      {/* Levels with courses */}
+      {/* Levels with courses — показываем только текущий уровень пользователя */}
       <div className="space-y-5">
-        {data.levels.map((level) => (
-          <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} />
-        ))}
+        {data.levels
+          .filter((level) => level.level === data.user_progress.current_level)
+          .map((level) => (
+            <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} />
+          ))}
       </div>
     </div>
   );
