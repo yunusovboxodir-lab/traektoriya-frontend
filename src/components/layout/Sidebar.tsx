@@ -271,7 +271,11 @@ export function Sidebar({
   }));
 
   // Filter nav items by role scopes + add admin items
-  const visibleItems = NAV_ITEMS.filter((item) => isPageAllowed(item.pageKey));
+  // Аналитика заморожена — показывается только админам
+  const FROZEN_PAGES = ['analytics'];
+  const visibleItems = NAV_ITEMS.filter((item) =>
+    isPageAllowed(item.pageKey) && (isAdmin || !FROZEN_PAGES.includes(item.pageKey))
+  );
   const allNavItems = isAdmin ? [...visibleItems, ...ADMIN_NAV_ITEMS] : visibleItems;
 
   const handleLogout = useCallback(async () => {
