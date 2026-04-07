@@ -39,24 +39,26 @@ export function PulsePage() {
   const [courses, setCourses] = useState<PulseCourse[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
 
+  const userId = user?.id ? String(user.id) : null;
+
   const loadPulse = useCallback(async () => {
-    if (!user) return;
+    if (!userId) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await pulseApi.getUserPulse(String(user.id));
+      const res = await pulseApi.getUserPulse(userId);
       setPulse(res.data);
     } catch (e: unknown) {
       const err = e as { response?: { status: number } };
       if (err.response?.status === 404) {
         setPulse(null);
       } else {
-        setError(t('pulse.loadError') || 'Ошибка загрузки');
+        setError('Ошибка загрузки');
       }
     } finally {
       setLoading(false);
     }
-  }, [user, t]);
+  }, [userId]);
 
   useEffect(() => {
     loadPulse();
@@ -72,7 +74,7 @@ export function PulsePage() {
     setExpandedComp(compId);
     setLoadingCourses(true);
     try {
-      const res = await pulseApi.getCompetencyCourses(compId, String(user?.id));
+      const res = await pulseApi.getCompetencyCourses(compId, userId || undefined);
       setCourses(res.data.courses);
     } catch {
       setCourses([]);
