@@ -33,7 +33,7 @@ const LEVEL_COLORS: Record<string, string> = {
 
 export function RadarChart({
   data,
-  size = 320,
+  size = 380,
   showValues = true,
   fillColor = 'rgba(59, 130, 246, 0.25)',
   strokeColor = '#3B82F6',
@@ -136,26 +136,46 @@ export function RadarChart({
         if (Math.cos(angles[i]) > 0.3) anchor = 'start';
         if (Math.cos(angles[i]) < -0.3) anchor = 'end';
 
-        // Сокращаем длинные названия
-        const shortLabel = d.label.length > 16 ? d.label.slice(0, 14) + '...' : d.label;
         const levelColor = d.level ? LEVEL_COLORS[d.level] || '#6b7280' : '#6b7280';
+
+        // Разбиваем длинные названия на 2 строки
+        const words = d.label.split(' ');
+        let line1 = d.label;
+        let line2 = '';
+        if (d.label.length > 12 && words.length >= 2) {
+          const mid = Math.ceil(words.length / 2);
+          line1 = words.slice(0, mid).join(' ');
+          line2 = words.slice(mid).join(' ');
+        }
 
         return (
           <g key={i}>
             <text
               x={pos.x}
-              y={pos.y - (showValues ? 6 : 0)}
+              y={pos.y - (line2 ? 6 : 0) - (showValues ? 6 : 0)}
               textAnchor={anchor}
               dominantBaseline="central"
-              className="text-[10px] fill-gray-600 font-medium"
+              className="fill-gray-600 font-medium"
               style={{ fontSize: '10px' }}
             >
-              {shortLabel}
+              {line1}
             </text>
+            {line2 && (
+              <text
+                x={pos.x}
+                y={pos.y + 4 - (showValues ? 6 : 0)}
+                textAnchor={anchor}
+                dominantBaseline="central"
+                className="fill-gray-600 font-medium"
+                style={{ fontSize: '10px' }}
+              >
+                {line2}
+              </text>
+            )}
             {showValues && (
               <text
                 x={pos.x}
-                y={pos.y + 8}
+                y={pos.y + (line2 ? 14 : 8)}
                 textAnchor={anchor}
                 dominantBaseline="central"
                 className="font-bold"

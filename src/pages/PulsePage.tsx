@@ -156,7 +156,7 @@ export function PulsePage() {
 
         {/* Радар */}
         <div className="flex-1 flex justify-center">
-          <RadarChart data={radarData} size={340} />
+          <RadarChart data={radarData} size={400} />
         </div>
 
         {/* Краткая статистика */}
