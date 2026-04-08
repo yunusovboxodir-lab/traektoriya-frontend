@@ -4,7 +4,7 @@
  * Показывает SVG-радар прогресса, таблицу компетенций,
  * и drill-down по курсам внутри каждой компетенции.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { Fragment, useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useLangStore, useT } from '../stores/langStore';
 import { pulseApi, type CompetencyPulse, type UserPulse, type PulseCourse } from '../api/competencies';
@@ -205,9 +205,8 @@ export function PulsePage() {
           </thead>
           <tbody>
             {pulse.competencies.map((c) => (
-              <>
+              <Fragment key={c.competency_id}>
                 <tr
-                  key={c.competency_id}
                   className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
                   onClick={() => toggleCompetency(c.competency_id)}
                 >
@@ -300,7 +299,7 @@ export function PulsePage() {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             ))}
           </tbody>
         </table>
