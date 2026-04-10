@@ -30,6 +30,7 @@ const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
+const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
@@ -236,6 +237,24 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="admin-roles">
             <RolesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Pulse Pipeline (admin+) — универсальный визард создания Pulse для роли */}
+      <Route
+        path="/admin/pulse-pipeline"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <PulsePipelinePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/pulse-pipeline/:jobId"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <PulsePipelinePage />
           </ProtectedRoute>
         }
       />
