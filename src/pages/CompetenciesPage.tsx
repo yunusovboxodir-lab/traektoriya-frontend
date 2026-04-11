@@ -4,14 +4,12 @@ import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { PulsePage } from './PulsePage';
 import { AssessmentsPage } from './AssessmentsPage';
-import { CompetencyMatrixPage } from './CompetencyMatrixPage';
-import { CompetencyProfilePage } from './CompetencyProfilePage';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type CompTab = 'pulse' | 'assessments' | 'matrix' | 'profiles';
+type CompTab = 'pulse' | 'assessments';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -31,25 +29,18 @@ export function CompetenciesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
 
-  const userRole = user?.role || 'sales_rep';
-  const roleLevel = ROLE_HIERARCHY[userRole] ?? 0;
-  const isSupervisorPlus = roleLevel >= 2;
-  const isAdminPlus = roleLevel >= 3;
+  // Роли пока не используются для табов (GAP-матрица и Профили убраны)
+  // const userRole = user?.role || 'sales_rep';
+  void user; // suppress unused warning
 
-  // Build visible tabs based on role
+  // Build visible tabs — GAP-матрица и Профили убраны (не используются)
   const visibleTabs = useMemo(() => {
     const tabs: { id: CompTab; labelKey: string }[] = [
       { id: 'pulse', labelKey: 'comp.tabPulse' },
       { id: 'assessments', labelKey: 'comp.tabAssessments' },
     ];
-    if (isSupervisorPlus) {
-      tabs.push({ id: 'matrix', labelKey: 'comp.tabMatrix' });
-    }
-    if (isAdminPlus) {
-      tabs.push({ id: 'profiles', labelKey: 'comp.tabProfiles' });
-    }
     return tabs;
-  }, [isSupervisorPlus, isAdminPlus]);
+  }, []);
 
   const tabFromUrl = searchParams.get('tab') as CompTab | null;
   const [activeTab, setActiveTab] = useState<CompTab>(
@@ -97,8 +88,6 @@ export function CompetenciesPage() {
       {/* Tab content */}
       {activeTab === 'pulse' && <PulsePage />}
       {activeTab === 'assessments' && <AssessmentsPage />}
-      {activeTab === 'matrix' && isSupervisorPlus && <CompetencyMatrixPage />}
-      {activeTab === 'profiles' && isAdminPlus && <CompetencyProfilePage />}
     </div>
   );
 }

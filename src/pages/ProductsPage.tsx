@@ -149,7 +149,10 @@ export function ProductsPage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('products.title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+            {t('products.title')}
+            <span className="px-2 py-0.5 text-xs font-bold bg-amber-100 text-amber-700 rounded-full uppercase">DEMO</span>
+          </h1>
           <p className="text-sm text-gray-500 mt-1">
             {isAllTab
               ? `${products.length} SKU`

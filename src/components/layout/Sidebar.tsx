@@ -270,12 +270,20 @@ export function Sidebar({
     pageKey: item.pageKey,
   }));
 
-  // Filter nav items by role scopes + add admin items
-  // Аналитика заморожена — показывается только админам
-  const FROZEN_PAGES = ['analytics'];
-  const visibleItems = NAV_ITEMS.filter((item) =>
-    isPageAllowed(item.pageKey) && (isAdmin || !FROZEN_PAGES.includes(item.pageKey))
-  );
+  // Замороженные разделы: для админа — серые с замком, для остальных — скрыты
+  const FROZEN_PAGES = ['analytics', 'goals'];
+  // AI Студия: только admin и superadmin (НЕ commercial_dir)
+  const ADMIN_ONLY_PAGES = ['ai-studio'];
+  const isSuperOrAdmin = userRole === 'superadmin' || userRole === 'admin';
+
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (!isPageAllowed(item.pageKey)) return false;
+    // AI Студия — только admin/superadmin
+    if (ADMIN_ONLY_PAGES.includes(item.pageKey) && !isSuperOrAdmin) return false;
+    // Замороженные — скрыть для не-админов
+    if (FROZEN_PAGES.includes(item.pageKey) && !isAdmin) return false;
+    return true;
+  });
   const allNavItems = isAdmin ? [...visibleItems, ...ADMIN_NAV_ITEMS] : visibleItems;
 
   const handleLogout = useCallback(async () => {
@@ -354,25 +362,33 @@ export function Sidebar({
       <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
         {allNavItems.map((item) => {
           const active = isActive(item.path);
+          const isFrozen = FROZEN_PAGES.includes(item.pageKey);
           return (
             <button
               key={item.path}
               type="button"
-              onClick={() => handleNavClick(item.path)}
-              title={collapsed ? item.label : undefined}
+              onClick={() => !isFrozen && handleNavClick(item.path)}
+              title={collapsed ? item.label + (isFrozen ? ' (скоро)' : '') : undefined}
+              disabled={isFrozen}
               className={`
                 w-full flex items-center gap-3 rounded-lg text-sm font-medium
                 transition-colors duration-150 outline-none
                 ${collapsed ? 'justify-center px-2 py-3' : 'px-3 py-2.5'}
-                ${
-                  active
+                ${isFrozen
+                  ? 'text-gray-600 opacity-40 cursor-not-allowed border-l-[3px] border-transparent'
+                  : active
                     ? 'bg-gray-800 text-white border-l-[3px] border-blue-500'
                     : 'text-gray-300 hover:bg-gray-800/50 hover:text-white border-l-[3px] border-transparent'
                 }
               `}
             >
               {item.icon}
-              {!collapsed && <span className="truncate">{item.label}</span>}
+              {!collapsed && (
+                <span className="truncate flex items-center gap-2">
+                  {item.label}
+                  {isFrozen && <span className="text-[10px] opacity-60">&#x1F512;</span>}
+                </span>
+              )}
             </button>
           );
         })}
