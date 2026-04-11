@@ -39,10 +39,12 @@ export function RadarChart({
   strokeColor = '#3B82F6',
 }: RadarChartProps) {
   const n = data.length;
-  const cx = size / 2;
-  const cy = size / 2;
-  const maxR = size * 0.35; // радиус октагона
-  const labelR = size * 0.47; // радиус для меток
+  // Внутренний размер SVG больше чем отображаемый — чтобы метки не обрезались
+  const svgSize = size * 1.35;
+  const cx = svgSize / 2;
+  const cy = svgSize / 2;
+  const maxR = size * 0.30; // радиус октагона (компактнее)
+  const labelR = size * 0.42; // радиус для меток
 
   // Углы для каждой оси (начинаем сверху, по часовой)
   const angles = useMemo(
@@ -68,9 +70,10 @@ export function RadarChart({
 
   return (
     <svg
-      viewBox={`0 0 ${size} ${size}`}
+      viewBox={`0 0 ${svgSize} ${svgSize}`}
       width={size}
       height={size}
+      style={{ overflow: 'visible' }}
       className="mx-auto"
     >
       {/* Фон */}
@@ -152,22 +155,20 @@ export function RadarChart({
           <g key={i}>
             <text
               x={pos.x}
-              y={pos.y - (line2 ? 6 : 0) - (showValues ? 6 : 0)}
+              y={pos.y - (line2 ? 8 : 0) - (showValues ? 8 : 0)}
               textAnchor={anchor}
               dominantBaseline="central"
-              className="fill-gray-600 font-medium"
-              style={{ fontSize: '10px' }}
+              style={{ fontSize: '12px', fill: '#374151', fontWeight: 600, paintOrder: 'stroke', stroke: 'white', strokeWidth: 3 }}
             >
               {line1}
             </text>
             {line2 && (
               <text
                 x={pos.x}
-                y={pos.y + 4 - (showValues ? 6 : 0)}
+                y={pos.y + 6 - (showValues ? 8 : 0)}
                 textAnchor={anchor}
                 dominantBaseline="central"
-                className="fill-gray-600 font-medium"
-                style={{ fontSize: '10px' }}
+                style={{ fontSize: '12px', fill: '#374151', fontWeight: 600, paintOrder: 'stroke', stroke: 'white', strokeWidth: 3 }}
               >
                 {line2}
               </text>
@@ -175,7 +176,7 @@ export function RadarChart({
             {showValues && (
               <text
                 x={pos.x}
-                y={pos.y + (line2 ? 14 : 8)}
+                y={pos.y + (line2 ? 20 : 10)}
                 textAnchor={anchor}
                 dominantBaseline="central"
                 className="font-bold"

@@ -88,7 +88,8 @@
     "noData": "Puls ma'lumotlari hali mavjud emas",
     "noDataHint": "Kompetensiyalar hali sozlanmagan",
     "noCourses": "Kurslar bog'lanmagan",
-    "loadError": "Pulsni yuklashda xato"
+    "loadError": "Pulsni yuklashda xato",
+    "viewRole": "Rol uchun Pulsni ko'rsatish"
   },
   "ai": {
     "tabGeneration": "Generatsiya",
