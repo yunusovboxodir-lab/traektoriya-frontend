@@ -1,72 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useT } from '../stores/langStore';
-import { DashboardPage } from './DashboardPage';
 import { KPIPage } from './KPIPage';
+import { NudgesWidget } from '../components/dashboard/NudgesWidget';
+import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
+import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
 
 // ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-type HomeTab = 'overview' | 'kpi';
-
-const TAB_OPTIONS: { id: HomeTab; labelKey: string }[] = [
-  { id: 'overview', labelKey: 'home.tabOverview' },
-  { id: 'kpi', labelKey: 'home.tabKpi' },
-];
-
-// ---------------------------------------------------------------------------
-// HomePage — combines Dashboard + KPI/Rating
+// HomePage — KPI + виджеты (ShelfScan, Достижения, Уведомления)
 // ---------------------------------------------------------------------------
 
 export function HomePage() {
-  const t = useT();
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const tabFromUrl = searchParams.get('tab') as HomeTab | null;
-  const [activeTab, setActiveTab] = useState<HomeTab>(
-    tabFromUrl && TAB_OPTIONS.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'overview',
-  );
-
-  // Sync URL → state on mount / URL change
-  useEffect(() => {
-    const urlTab = searchParams.get('tab') as HomeTab | null;
-    if (urlTab && TAB_OPTIONS.some((t) => t.id === urlTab)) {
-      setActiveTab(urlTab);
-    }
-  }, [searchParams]);
-
-  const handleTabChange = (tab: HomeTab) => {
-    setActiveTab(tab);
-    if (tab === 'overview') {
-      setSearchParams({}, { replace: true });
-    } else {
-      setSearchParams({ tab }, { replace: true });
-    }
-  };
-
   return (
-    <div>
-      {/* Tab navigation */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-6 w-fit">
-        {TAB_OPTIONS.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handleTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t(tab.labelKey)}
-          </button>
-        ))}
-      </div>
+    <div className="space-y-6">
+      {/* KPI — основной контент */}
+      <KPIPage />
 
-      {/* Tab content */}
-      {activeTab === 'overview' && <DashboardPage />}
-      {activeTab === 'kpi' && <KPIPage />}
+      {/* Виджеты внизу */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <NudgesWidget />
+        <ShelfScanHistoryWidget />
+      </div>
+      <StreakAchievementWidget />
     </div>
   );
 }
