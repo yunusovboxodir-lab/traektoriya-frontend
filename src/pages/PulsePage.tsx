@@ -25,6 +25,15 @@ const LEVEL_BAR_COLORS: Record<string, string> = {
   master: 'bg-green-500',
 };
 
+// Роли для которых есть Pulse
+const PULSE_ROLES = [
+  { value: 'regional_manager', label: { ru: 'Региональный менеджер', uz: 'Mintaqa menejeri' } },
+  { value: 'supervisor', label: { ru: 'Супервайзер', uz: 'Supervayzer' } },
+  { value: 'sales_rep', label: { ru: 'Торговый представитель', uz: 'Savdo vakili' } },
+];
+
+const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
+
 export function PulsePage() {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
@@ -39,6 +48,12 @@ export function PulsePage() {
   const [courses, setCourses] = useState<PulseCourse[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
 
+  // Для админов: выбор роли
+  const isAdmin = ADMIN_ROLES.includes(user?.role || '');
+  const [selectedRole, setSelectedRole] = useState<string>(
+    isAdmin ? 'regional_manager' : (user?.role || 'sales_rep')
+  );
+
   const userId = user?.id ? String(user.id) : null;
 
   const loadPulse = useCallback(async () => {
@@ -46,7 +61,8 @@ export function PulsePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await pulseApi.getUserPulse(userId);
+      const roleParam = isAdmin ? selectedRole : undefined;
+      const res = await pulseApi.getUserPulse(userId, roleParam);
       setPulse(res.data);
     } catch (e: unknown) {
       const err = e as { response?: { status: number } };
@@ -58,7 +74,7 @@ export function PulsePage() {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, isAdmin, selectedRole]);
 
   useEffect(() => {
     loadPulse();
@@ -123,15 +139,52 @@ export function PulsePage() {
 
   if (!pulse || pulse.competencies.length === 0) {
     return (
-      <div className="text-center py-20 text-gray-500">
-        <p className="text-lg">{t('pulse.noData') || 'Данные пульса пока недоступны'}</p>
-        <p className="text-sm mt-2">{t('pulse.noDataHint') || 'Компетенции ещё не настроены'}</p>
+      <div className="space-y-4">
+        {/* Dropdown для админа даже когда данных нет */}
+        {isAdmin && (
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-sm text-gray-500">{t('pulse.viewRole') || 'Показать Pulse для роли'}:</span>
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="px-3 py-1.5 border rounded-lg text-sm bg-white"
+            >
+              {PULSE_ROLES.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {lang === 'uz' ? r.label.uz : r.label.ru}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="text-center py-20 text-gray-500">
+          <p className="text-lg">{t('pulse.noData') || 'Данные пульса пока недоступны'}</p>
+          <p className="text-sm mt-2">{t('pulse.noDataHint') || 'Компетенции ещё не настроены для этой роли'}</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      {/* Dropdown роли для админа */}
+      {isAdmin && (
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-500">{t('pulse.viewRole') || 'Показать Pulse для роли'}:</span>
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="px-3 py-1.5 border rounded-lg text-sm bg-white font-medium"
+          >
+            {PULSE_ROLES.map((r) => (
+              <option key={r.value} value={r.value}>
+                {lang === 'uz' ? r.label.uz : r.label.ru}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Заголовок + Общий Пульс */}
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* Общий Пульс — карточка */}

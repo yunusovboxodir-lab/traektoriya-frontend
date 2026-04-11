@@ -168,8 +168,10 @@ export interface PulseCourse {
 // ---------------------------------------------------------------------------
 
 export const pulseApi = {
-  getUserPulse: (userId: string) =>
-    api.get<UserPulse>(`/api/v1/pulse/user/${userId}`),
+  getUserPulse: (userId: string, role?: string) =>
+    api.get<UserPulse>(`/api/v1/pulse/user/${userId}`, {
+      params: role ? { role } : undefined,
+    }),
 
   getTeamPulse: (teamId: string) =>
     api.get<TeamPulse>(`/api/v1/pulse/team/${teamId}`),
