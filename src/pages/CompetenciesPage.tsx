@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '../stores/langStore';
-import { useAuthStore } from '../stores/authStore';
 import { PulsePage } from './PulsePage';
 import { AssessmentsPage } from './AssessmentsPage';
 
@@ -11,43 +10,24 @@ import { AssessmentsPage } from './AssessmentsPage';
 
 type CompTab = 'pulse' | 'assessments';
 
-const ROLE_HIERARCHY: Record<string, number> = {
-  superadmin: 5,
-  commercial_dir: 4,
-  regional_manager: 2,
-  admin: 3,
-  supervisor: 2,
-  sales_rep: 1,
-};
-
 // ---------------------------------------------------------------------------
-// CompetenciesPage — combines Assessments + Matrix + Profiles
+// CompetenciesPage — Пульс + Оценка
 // ---------------------------------------------------------------------------
 
 export function CompetenciesPage() {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
-  const user = useAuthStore((s) => s.user);
 
-  // Роли пока не используются для табов (GAP-матрица и Профили убраны)
-  // const userRole = user?.role || 'sales_rep';
-  void user; // suppress unused warning
-
-  // Build visible tabs — GAP-матрица и Профили убраны (не используются)
-  const visibleTabs = useMemo(() => {
-    const tabs: { id: CompTab; labelKey: string }[] = [
-      { id: 'pulse', labelKey: 'comp.tabPulse' },
-      { id: 'assessments', labelKey: 'comp.tabAssessments' },
-    ];
-    return tabs;
-  }, []);
+  const visibleTabs = useMemo(() => [
+    { id: 'pulse' as CompTab, labelKey: 'comp.tabPulse' },
+    { id: 'assessments' as CompTab, labelKey: 'comp.tabAssessments' },
+  ], []);
 
   const tabFromUrl = searchParams.get('tab') as CompTab | null;
   const [activeTab, setActiveTab] = useState<CompTab>(
     tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'pulse',
   );
 
-  // Sync URL → state
   useEffect(() => {
     const urlTab = searchParams.get('tab') as CompTab | null;
     if (urlTab && visibleTabs.some((t) => t.id === urlTab)) {
@@ -66,7 +46,6 @@ export function CompetenciesPage() {
 
   return (
     <div>
-      {/* Tab navigation — only show if more than 1 tab */}
       {visibleTabs.length > 1 && (
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-6 w-fit">
           {visibleTabs.map((tab) => (
@@ -85,7 +64,6 @@ export function CompetenciesPage() {
         </div>
       )}
 
-      {/* Tab content */}
       {activeTab === 'pulse' && <PulsePage />}
       {activeTab === 'assessments' && <AssessmentsPage />}
     </div>
