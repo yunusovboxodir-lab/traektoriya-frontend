@@ -31,6 +31,7 @@ const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ d
 const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
+const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => ({ default: m.OfflinePage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
 const TranslationReviewPage = lazyWithRetry(() => import('./pages/TranslationReviewPage').then(m => ({ default: m.TranslationReviewPage })));
@@ -214,6 +215,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="planogram">
             <PlanogramPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Офлайн активности */}
+      <Route
+        path="/offline"
+        element={
+          <ProtectedRoute pageKey="offline">
+            <OfflinePage />
           </ProtectedRoute>
         }
       />
