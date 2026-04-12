@@ -89,7 +89,8 @@
     "noDataHint": "Kompetensiyalar hali sozlanmagan",
     "noCourses": "Kurslar bog'lanmagan",
     "loadError": "Pulsni yuklashda xato",
-    "viewRole": "Rol uchun Pulsni ko'rsatish"
+    "viewRole": "Rol uchun Pulsni ko'rsatish",
+    "viewDetails": "Batafsil →"
   },
   "ai": {
     "tabGeneration": "Generatsiya",

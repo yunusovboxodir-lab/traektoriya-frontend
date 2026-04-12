@@ -89,7 +89,8 @@
     "noDataHint": "Компетенции ещё не настроены",
     "noCourses": "Курсы не привязаны",
     "loadError": "Ошибка загрузки пульса",
-    "viewRole": "Показать Pulse для роли"
+    "viewRole": "Показать Pulse для роли",
+    "viewDetails": "Подробнее →"
   },
   "ai": {
     "tabGeneration": "Генерация",

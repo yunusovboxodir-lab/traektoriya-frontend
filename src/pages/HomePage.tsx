@@ -1,10 +1,11 @@
 import { KPIPage } from './KPIPage';
+import { PulseWidget } from '../components/dashboard/PulseWidget';
 import { NudgesWidget } from '../components/dashboard/NudgesWidget';
 import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
 import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
 
 // ---------------------------------------------------------------------------
-// HomePage — KPI + виджеты (ShelfScan, Достижения, Уведомления)
+// HomePage — KPI + Pulse мини-радар + виджеты
 // ---------------------------------------------------------------------------
 
 export function HomePage() {
@@ -13,12 +14,17 @@ export function HomePage() {
       {/* KPI — основной контент */}
       <KPIPage />
 
-      {/* Виджеты внизу */}
+      {/* Pulse мини-радар + Уведомления */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <PulseWidget />
         <NudgesWidget />
-        <ShelfScanHistoryWidget />
       </div>
-      <StreakAchievementWidget />
+
+      {/* ShelfScan + Достижения */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ShelfScanHistoryWidget />
+        <StreakAchievementWidget />
+      </div>
     </div>
   );
 }
