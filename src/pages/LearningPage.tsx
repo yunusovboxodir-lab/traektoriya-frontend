@@ -149,9 +149,12 @@ export function LearningPage() {
   const submitQuiz = async (quizQuestions?: QuizQuestion[]) => {
     if (!courseData) return;
     const quiz = (quizQuestions || courseData.content.quiz || []) as QuizQuestion[];
-    if (quiz.length === 0) return;
 
-    const score = calculateQuizScore(quiz, quizAnswers, interactiveResults);
+    // Для v3 блоковых курсов quiz может быть пустым — всё равно записываем completion
+    // Score = 100% если quiz отсутствует (блоковый урок без отдельного quiz)
+    const score = quiz.length > 0
+      ? calculateQuizScore(quiz, quizAnswers, interactiveResults)
+      : 100;
 
     try {
       const elapsed = Math.round((Date.now() - startTime) / 1000);
