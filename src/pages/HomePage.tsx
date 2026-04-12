@@ -1,5 +1,6 @@
 import { KPIPage } from './KPIPage';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
+import { TranslateWidget } from '../components/dashboard/TranslateWidget';
 import { NudgesWidget } from '../components/dashboard/NudgesWidget';
 import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
 import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
@@ -20,11 +21,12 @@ export function HomePage() {
         <NudgesWidget />
       </div>
 
-      {/* ShelfScan + Достижения */}
+      {/* Перевод + ShelfScan */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TranslateWidget />
         <ShelfScanHistoryWidget />
-        <StreakAchievementWidget />
       </div>
+      <StreakAchievementWidget />
     </div>
   );
 }

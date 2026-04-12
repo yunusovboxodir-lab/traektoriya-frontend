@@ -33,6 +33,7 @@ const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ d
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
+const TranslationReviewPage = lazyWithRetry(() => import('./pages/TranslationReviewPage').then(m => ({ default: m.TranslationReviewPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -275,6 +276,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="dictionary-uz">
             <DictionaryUZPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Проверка переводов (админ) */}
+      <Route
+        path="/translation-review"
+        element={
+          <ProtectedRoute pageKey="dictionary-uz">
+            <TranslationReviewPage />
           </ProtectedRoute>
         }
       />
