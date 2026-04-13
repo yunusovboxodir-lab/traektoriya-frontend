@@ -19,7 +19,7 @@ export interface TranslationTaskData {
 
 export const translationTasksApi = {
   getMyTask: () =>
-    api.get<{ task: TranslationTaskData | null }>('/api/v1/translation-tasks/my-task'),
+    api.get<{ task: TranslationTaskData | null; remaining_in_batch?: number; pending?: number; message?: string }>('/api/v1/translation-tasks/my-task'),
 
   submitVariant: (taskId: string, suggestedUz: string) =>
     api.post('/api/v1/translation-tasks/submit', { task_id: taskId, suggested_uz: suggestedUz }),

@@ -16,6 +16,8 @@ export function TranslateWidget() {
   const [submitted, setSubmitted] = useState(false);
   const [voted, setVoted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [waitMessage, setWaitMessage] = useState<string | null>(null);
+  const [, setRemaining] = useState<number>(0);
 
   const loadTask = useCallback(async () => {
     setLoading(true);
@@ -23,9 +25,15 @@ export function TranslateWidget() {
     setVoted(false);
     setSuggestion('');
     setError(null);
+    setWaitMessage(null);
     try {
       const res = await translationTasksApi.getMyTask();
-      setTask(res.data.task ?? null);
+      const data = res.data;
+      setTask(data.task ?? null);
+      setRemaining(data.remaining_in_batch ?? 0);
+      if (!data.task && data.message) {
+        setWaitMessage(data.message);
+      }
     } catch {
       setTask(null);
     } finally {
@@ -84,7 +92,19 @@ export function TranslateWidget() {
     );
   }
 
-  if (!task) return null;
+  // Нет задачи — либо все выполнены, либо ждём следующую пачку
+  if (!task) {
+    if (waitMessage) {
+      return (
+        <div className="bg-white rounded-2xl shadow-sm border p-5 text-center">
+          <span className="text-2xl">⏳</span>
+          <p className="text-sm text-gray-600 mt-2">{waitMessage}</p>
+          <p className="text-xs text-gray-400 mt-1">Задачи выдаются по 3 штуки с интервалом 5ч</p>
+        </div>
+      );
+    }
+    return null;
+  }
 
   // Успешная отправка / голосование
   if (submitted || voted) {
