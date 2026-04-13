@@ -9,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useLangStore, useT } from '../stores/langStore';
 import { pulseApi, type CompetencyPulse, type UserPulse, type PulseCourse } from '../api/competencies';
 import { RadarChart, type RadarDataPoint } from '../components/competencies/RadarChart';
+import { api } from '../api/client';
 
 // Цвета уровней для бейджей
 const LEVEL_STYLES: Record<string, string> = {
@@ -48,21 +49,39 @@ export function PulsePage() {
   const [courses, setCourses] = useState<PulseCourse[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
 
-  // Для админов: выбор роли
+  // Для админов: выбор роли + пользователя
   const isAdmin = ADMIN_ROLES.includes(user?.role || '');
   const [selectedRole, setSelectedRole] = useState<string>(
     isAdmin ? 'regional_manager' : (user?.role || 'sales_rep')
   );
+  const [teamUsers, setTeamUsers] = useState<Array<{ id: string; full_name: string; employee_id: string }>>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
 
   const userId = user?.id ? String(user.id) : null;
 
+  // Загрузка списка пользователей по роли (для админа)
+  useEffect(() => {
+    if (!isAdmin) return;
+    api.get('/api/v1/users', { params: { role: selectedRole, limit: 50 } })
+      .then(res => {
+        const users = (res.data as { items?: Array<{ id: string; full_name: string; employee_id: string }> })?.items
+          || (Array.isArray(res.data) ? res.data : []);
+        setTeamUsers(users);
+        setSelectedUserId(''); // сброс при смене роли
+      })
+      .catch(() => setTeamUsers([]));
+  }, [isAdmin, selectedRole]);
+
+  // Определяем чей Пульс загружать
+  const targetUserId = isAdmin && selectedUserId ? selectedUserId : userId;
+
   const loadPulse = useCallback(async () => {
-    if (!userId) return;
+    if (!targetUserId) return;
     setLoading(true);
     setError(null);
     try {
       const roleParam = isAdmin ? selectedRole : undefined;
-      const res = await pulseApi.getUserPulse(userId, roleParam);
+      const res = await pulseApi.getUserPulse(targetUserId, roleParam);
       setPulse(res.data);
     } catch (e: unknown) {
       const err = e as { response?: { status: number } };
@@ -74,7 +93,7 @@ export function PulsePage() {
     } finally {
       setLoading(false);
     }
-  }, [userId, isAdmin, selectedRole]);
+  }, [targetUserId, isAdmin, selectedRole]);
 
   useEffect(() => {
     loadPulse();
@@ -90,7 +109,7 @@ export function PulsePage() {
     setExpandedComp(compId);
     setLoadingCourses(true);
     try {
-      const res = await pulseApi.getCompetencyCourses(compId, userId || undefined);
+      const res = await pulseApi.getCompetencyCourses(compId, targetUserId || undefined);
       setCourses(res.data.courses);
     } catch {
       setCourses([]);
@@ -140,10 +159,10 @@ export function PulsePage() {
   if (!pulse || pulse.competencies.length === 0) {
     return (
       <div className="space-y-4">
-        {/* Dropdown для админа даже когда данных нет */}
+        {/* Dropdown для админа */}
         {isAdmin && (
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-sm text-gray-500">{t('pulse.viewRole') || 'Показать Pulse для роли'}:</span>
+          <div className="flex flex-wrap items-center gap-3 mb-4">
+            <span className="text-sm text-gray-500">Роль:</span>
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
@@ -152,6 +171,19 @@ export function PulsePage() {
               {PULSE_ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
                   {lang === 'uz' ? r.label.uz : r.label.ru}
+                </option>
+              ))}
+            </select>
+            <span className="text-sm text-gray-500">Сотрудник:</span>
+            <select
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
+              className="px-3 py-1.5 border rounded-lg text-sm bg-white min-w-[180px]"
+            >
+              <option value="">Вся команда</option>
+              {teamUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.full_name || u.employee_id}
                 </option>
               ))}
             </select>
@@ -167,10 +199,10 @@ export function PulsePage() {
 
   return (
     <div className="space-y-6">
-      {/* Dropdown роли для админа */}
+      {/* Dropdown роли + сотрудника для админа */}
       {isAdmin && (
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-gray-500">{t('pulse.viewRole') || 'Показать Pulse для роли'}:</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm text-gray-500">{t('pulse.viewRole') || 'Роль'}:</span>
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -179,6 +211,20 @@ export function PulsePage() {
             {PULSE_ROLES.map((r) => (
               <option key={r.value} value={r.value}>
                 {lang === 'uz' ? r.label.uz : r.label.ru}
+              </option>
+            ))}
+          </select>
+
+          <span className="text-sm text-gray-500">Сотрудник:</span>
+          <select
+            value={selectedUserId}
+            onChange={(e) => setSelectedUserId(e.target.value)}
+            className="px-3 py-1.5 border rounded-lg text-sm bg-white font-medium min-w-[180px]"
+          >
+            <option value="">Вся команда (среднее)</option>
+            {teamUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.full_name || u.employee_id}
               </option>
             ))}
           </select>
