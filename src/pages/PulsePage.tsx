@@ -73,7 +73,10 @@ export function PulsePage() {
   }, [isAdmin, selectedRole]);
 
   // Определяем чей Пульс загружать
-  const targetUserId = isAdmin && selectedUserId ? selectedUserId : userId;
+  // Для админа: если не выбран конкретный пользователь → берём первого из списка роли
+  const targetUserId = isAdmin
+    ? (selectedUserId || teamUsers[0]?.id || userId)
+    : userId;
 
   const loadPulse = useCallback(async () => {
     if (!targetUserId) return;
