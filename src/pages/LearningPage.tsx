@@ -49,6 +49,7 @@ export function LearningPage() {
   const [courseData, setCourseData] = useState<CourseDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
 
   // Quiz state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -104,12 +105,13 @@ export function LearningPage() {
     setView('map');
   };
 
-  // Open section (village or regular)
-  const openSection = async (sectionId: string, isVillage = false) => {
+  // Open section (village or regular), optionally filtered to specific level
+  const openSection = async (sectionId: string, isVillage = false, level?: string) => {
     try {
       setIsLoading(true);
       const resp = await learningApi.getSectionCourses(sectionId);
       setSectionData(resp.data);
+      setSelectedLevel(level || null);
       // Route village sections to VillageView, regular to SectionView
       const isVillageSection = isVillage || resp.data.section.is_village;
       setView(isVillageSection ? 'village' : 'section');
@@ -266,6 +268,7 @@ export function LearningPage() {
         data={sectionData}
         onBack={goBack}
         onOpenCourse={openCourse}
+        selectedLevel={selectedLevel}
       />
     );
   }
@@ -407,13 +410,33 @@ function SectionView({
   data,
   onBack,
   onOpenCourse,
+  selectedLevel,
 }: {
   data: SectionCoursesResponse;
   onBack: () => void;
   onOpenCourse: (id: string) => void;
+  selectedLevel?: string | null;
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
+  // Если выбран конкретный уровень — считаем прогресс только по нему
+  const filteredLevels = data.levels
+    .filter((level) => (level.courses && level.courses.length > 0) || level.courses_preview_count)
+    .filter((level) => !selectedLevel || level.level === selectedLevel);
+
+  const progress = selectedLevel
+    ? (() => {
+        const lvl = data.levels.find((l) => l.level === selectedLevel);
+        if (!lvl) return data.user_progress;
+        const total = lvl.courses?.length ?? 0;
+        const completed = lvl.courses?.filter((c) => c.status === 'completed').length ?? 0;
+        return { completed, total, percentage: total > 0 ? (completed / total) * 100 : 0 };
+      })()
+    : data.user_progress;
+
+  // Название уровня для заголовка
+  const LEVEL_LABELS: Record<string, string> = { trainee: 'Стажёр', practitioner: 'Практик', expert: 'Эксперт', master: 'Мастер' };
+
   return (
     <div className="max-w-3xl mx-auto">
       {/* Back */}
@@ -424,7 +447,10 @@ function SectionView({
 
       {/* Section Header Card */}
       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 mb-6 text-white shadow-xl">
-        <h2 className="text-xl font-bold mb-1">{bl(data.section.title, lang)}</h2>
+        <h2 className="text-xl font-bold mb-1">
+          {bl(data.section.title, lang)}
+          {selectedLevel && <span className="text-slate-400 font-normal text-base ml-2">/ {LEVEL_LABELS[selectedLevel] || selectedLevel}</span>}
+        </h2>
         {bl(data.section.description, lang) && (
           <p className="text-slate-300 text-sm mb-4">{bl(data.section.description, lang)}</p>
         )}
@@ -432,26 +458,24 @@ function SectionView({
           <div className="flex-1">
             <div className="flex justify-between text-xs mb-1.5">
               <span className="text-slate-400">{t('learning.progress')}</span>
-              <span className="text-white font-semibold">{data.user_progress.completed}/{data.user_progress.total}</span>
+              <span className="text-white font-semibold">{progress.completed}/{progress.total}</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2">
               <div
                 className="h-2 rounded-full bg-gradient-to-r from-blue-400 to-emerald-400 transition-all duration-500"
-                style={{ width: `${data.user_progress.percentage}%` }}
+                style={{ width: `${progress.percentage}%` }}
               />
             </div>
           </div>
           <div className="text-2xl font-bold text-emerald-400 tabular-nums">
-            {Math.round(data.user_progress.percentage)}%
+            {Math.round(progress.percentage)}%
           </div>
         </div>
       </div>
 
-      {/* Levels with courses — показываем все уровни у которых есть курсы */}
+      {/* Levels with courses — если выбран конкретный уровень с карты, показываем только его */}
       <div className="space-y-5">
-        {data.levels
-          .filter((level) => (level.courses && level.courses.length > 0) || level.courses_preview_count)
-          .map((level) => (
+        {filteredLevels.map((level) => (
             <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} />
           ))}
       </div>

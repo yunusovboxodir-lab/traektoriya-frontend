@@ -17,7 +17,7 @@ import {
 
 interface Props {
   data: LearningMapResponse;
-  onOpenSection: (sectionId: string, isVillage: boolean) => void;
+  onOpenSection: (sectionId: string, isVillage: boolean, level?: string) => void;
 }
 
 // ============================================================
@@ -739,7 +739,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
                     key={bKey}
                     className="building-positioner"
                     style={{ left: `${(bx / W) * 100}%`, top: `${(by / H) * 100}%` }}
-                    onClick={() => onOpenSection(bld.section.section_id, !!bld.section.is_village)}
+                    onClick={() => onOpenSection(bld.section.section_id, !!bld.section.is_village, bld.levelInZone)}
                     onMouseEnter={() => {
                       setHoveredBuilding(bKey);
                       setTooltip({ x: bx, y: by - bHeight - 30, building: bld, zoneColor: zone.color });
