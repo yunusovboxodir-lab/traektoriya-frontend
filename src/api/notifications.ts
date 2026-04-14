@@ -18,15 +18,15 @@ export interface NotificationsResponse {
 
 export const notificationsApi = {
   list: (limit = 30, unread_only = false) =>
-    api.get<NotificationsResponse>('/notifications', {
+    api.get<NotificationsResponse>('/api/v1/notifications', {
       params: { limit, unread_only },
     }),
 
-  readAll: () => api.post<{ ok: boolean }>('/notifications/read-all'),
+  readAll: () => api.post<{ ok: boolean }>('/api/v1/notifications/read-all'),
 
   markRead: (id: string) =>
-    api.patch<AppNotification>(`/notifications/${id}/read`),
+    api.patch<AppNotification>(`/api/v1/notifications/${id}/read`),
 
   remove: (id: string) =>
-    api.delete<{ deleted: boolean }>(`/notifications/${id}`),
+    api.delete<{ deleted: boolean }>(`/api/v1/notifications/${id}`),
 };
