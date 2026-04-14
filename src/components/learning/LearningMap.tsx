@@ -58,15 +58,14 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
-    // Desktop: TRAINEE — left column. Grid 3 cols × 3 rows (9 slots).
-    cx: 155, cy: 300,
+    // Desktop: TRAINEE/SPRING — column 1 (x: 0-300), 9 stations along zigzag rails
+    cx: 150, cy: 350,
     buildingSlots: [
-      // Top row
-      { dx: -100, dy: -230 }, { dx: 0, dy: -250 }, { dx: 100, dy: -230 },
-      // Middle row
-      { dx: -100, dy: -10 }, { dx: 0, dy: 10 },   { dx: 100, dy: -10 },
-      // Bottom row
-      { dx: -100, dy: 200 }, { dx: 0, dy: 230 },  { dx: 100, dy: 200 },
+      { dx: -90, dy: -270 }, { dx: 70, dy: -200 },
+      { dx: -85, dy: -130 }, { dx: 80, dy: -60 },
+      { dx: -90, dy: 10 },   { dx: 75, dy: 80 },
+      { dx: -85, dy: 150 },  { dx: 80, dy: 220 },
+      { dx: -90, dy: 290 },
     ],
     // Mobile: top zone — grid 3 cols × 3 rows
     mcx: 200, mcy: 150,
@@ -86,13 +85,13 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
-    // Desktop: PRACTITIONER — bottom-middle. Grid 4 cols × 2 rows (8 slots, use 7).
-    cx: 620, cy: 510,
+    // Desktop: PRACTITIONER/SUMMER — column 2 (x: 300-600), 7 stations along zigzag rails
+    cx: 450, cy: 350,
     buildingSlots: [
-      // Top row (4)
-      { dx: -270, dy: -90 }, { dx: -90, dy: -90 }, { dx: 90, dy: -90 }, { dx: 270, dy: -90 },
-      // Bottom row (4)
-      { dx: -270, dy: 90 },  { dx: -90, dy: 90 },  { dx: 90, dy: 90 },  { dx: 270, dy: 90 },
+      { dx: -90, dy: -270 }, { dx: 70, dy: -180 },
+      { dx: -85, dy: -90 },  { dx: 80, dy: 0 },
+      { dx: -90, dy: 90 },   { dx: 75, dy: 180 },
+      { dx: -85, dy: 270 },
     ],
     // Mobile: second zone — grid 3 cols × 3 rows (9 slots)
     mcx: 200, mcy: 450,
@@ -112,12 +111,12 @@ const ZONES: ZoneConfig[] = [
     color: '#FF9800',
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
-    // Desktop: EXPERT — top-middle. 5 slots in single row.
-    cx: 620, cy: 160,
+    // Desktop: EXPERT/AUTUMN — column 3 (x: 600-900), 5 stations along zigzag rails
+    cx: 750, cy: 350,
     buildingSlots: [
-      { dx: -260, dy: 0 }, { dx: -130, dy: 0 }, { dx: 0, dy: 0 }, { dx: 130, dy: 0 }, { dx: 260, dy: 0 },
-      // Spare slots for safety
-      { dx: -200, dy: 80 }, { dx: 0, dy: 80 }, { dx: 200, dy: 80 },
+      { dx: -90, dy: -240 }, { dx: 70, dy: -120 },
+      { dx: -85, dy: 0 },    { dx: 80, dy: 120 },
+      { dx: -90, dy: 240 },
     ],
     // Mobile: third zone — grid 3 cols × 2 rows
     mcx: 200, mcy: 750,
@@ -136,17 +135,13 @@ const ZONES: ZoneConfig[] = [
     color: '#F44336',
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
-    // Desktop: MASTER — right column. Grid 2 cols × 4 rows (8 slots, use 7).
-    cx: 1065, cy: 300,
+    // Desktop: MASTER/WINTER — column 4 (x: 900-1200), 7 stations along zigzag rails
+    cx: 1050, cy: 350,
     buildingSlots: [
-      // Top
-      { dx: -75, dy: -240 }, { dx: 75, dy: -240 },
-      // Upper-mid
-      { dx: -75, dy: -80 },  { dx: 75, dy: -80 },
-      // Lower-mid
-      { dx: -75, dy: 80 },   { dx: 75, dy: 80 },
-      // Bottom
-      { dx: -75, dy: 240 },  { dx: 75, dy: 240 },
+      { dx: -90, dy: -270 }, { dx: 70, dy: -180 },
+      { dx: -85, dy: -90 },  { dx: 80, dy: 0 },
+      { dx: -90, dy: 90 },   { dx: 75, dy: 180 },
+      { dx: -85, dy: 270 },
     ],
     // Mobile: bottom zone — grid 3 cols × 3 rows
     mcx: 200, mcy: 1050,
@@ -251,33 +246,36 @@ function pointsToPath(pts: Array<{ x: number; y: number }>): string {
   return d + ' Z';
 }
 
-// Desktop territory layout
+// Desktop territory layout — 4 vertical columns (Spring → Summer → Autumn → Winter)
 function buildDesktopTerritories() {
-  const b1x = 310; const b2x = 930; const b3y = 310;
+  const b1x = 300; const b2x = 600; const b3x = 900;
   const border1 = wavyVerticalBorder(b1x, 42, DH);
   const border2 = wavyVerticalBorder(b2x, 137, DH);
-  const border3 = wavyHorizontalBorder(b3y, b1x, b2x, 256);
+  const border3 = wavyVerticalBorder(b3x, 256, DH);
   const b1pts = extractPoints(border1);
   const b2pts = extractPoints(border2);
   const b3pts = extractPoints(border3);
-  const b3reversed = [...b3pts].reverse();
 
+  // Trainee — left column (0 → border1)
   const t0 = [{ x: 0, y: 0 }, ...b1pts, { x: 0, y: DH }];
+  // Practitioner — column between border1 and border2
   const t1 = [
-    ...b3pts,
-    ...b2pts.filter(p => p.y >= b3y - 30),
-    { x: b2pts[b2pts.length - 1]?.x ?? b2x, y: DH },
-    { x: b1pts[b1pts.length - 1]?.x ?? b1x, y: DH },
-    ...[...b1pts].reverse().filter(p => p.y >= b3y - 30),
-  ];
-  const t2 = [
     { x: b1pts[0]?.x ?? b1x, y: 0 },
     { x: b2pts[0]?.x ?? b2x, y: 0 },
-    ...b2pts.filter(p => p.y <= b3y + 30),
-    ...b3reversed,
-    ...b1pts.filter(p => p.y <= b3y + 30).reverse(),
+    ...b2pts,
+    { x: b1pts[b1pts.length - 1]?.x ?? b1x, y: DH },
+    ...[...b1pts].reverse(),
   ];
-  const t3 = [{ x: DW, y: 0 }, ...b2pts, { x: DW, y: DH }];
+  // Expert — column between border2 and border3
+  const t2 = [
+    { x: b2pts[0]?.x ?? b2x, y: 0 },
+    { x: b3pts[0]?.x ?? b3x, y: 0 },
+    ...b3pts,
+    { x: b2pts[b2pts.length - 1]?.x ?? b2x, y: DH },
+    ...[...b2pts].reverse(),
+  ];
+  // Master — right column (border3 → DW)
+  const t3 = [{ x: DW, y: 0 }, ...b3pts, { x: DW, y: DH }];
 
   return {
     borders: [border1, border2, border3],
@@ -443,32 +441,40 @@ export function LearningMap({ data, onOpenSection }: Props) {
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            {/* Landscape patterns */}
-            <pattern id="pat-trainee" patternUnits="userSpaceOnUse" width="20" height="20">
-              <rect width="20" height="20" fill="#1a3a28" />
-              <circle cx="4" cy="6" r="0.8" fill="#2d5a3f" opacity="0.6" />
-              <circle cx="14" cy="3" r="0.6" fill="#3a6b4a" opacity="0.4" />
-              <circle cx="9" cy="14" r="0.7" fill="#2d5a3f" opacity="0.5" />
-              <circle cx="17" cy="16" r="0.5" fill="#3a6b4a" opacity="0.3" />
-            </pattern>
-            <pattern id="pat-practitioner" patternUnits="userSpaceOnUse" width="24" height="24">
-              <rect width="24" height="24" fill="#142840" />
-              <line x1="0" y1="12" x2="24" y2="12" stroke="#1e3a5f" strokeWidth="0.5" opacity="0.25" />
-              <line x1="12" y1="0" x2="12" y2="24" stroke="#1e3a5f" strokeWidth="0.5" opacity="0.25" />
-            </pattern>
-            <pattern id="pat-expert" patternUnits="userSpaceOnUse" width="18" height="18">
-              <rect width="18" height="18" fill="#2d1e14" />
-              <circle cx="3" cy="5" r="0.6" fill="#4a3020" opacity="0.4" />
-              <circle cx="12" cy="2" r="0.4" fill="#5a3d28" opacity="0.3" />
-              <circle cx="7" cy="12" r="0.7" fill="#4a3020" opacity="0.35" />
-              <circle cx="15" cy="15" r="0.5" fill="#5a3d28" opacity="0.3" />
-            </pattern>
-            <pattern id="pat-master" patternUnits="userSpaceOnUse" width="16" height="16">
-              <rect width="16" height="16" fill="#251010" />
-              <line x1="0" y1="16" x2="16" y2="0" stroke="#3a1a1a" strokeWidth="0.6" opacity="0.35" />
-              <line x1="8" y1="16" x2="16" y2="8" stroke="#3a1a1a" strokeWidth="0.4" opacity="0.25" />
-              <line x1="0" y1="8" x2="8" y2="0" stroke="#3a1a1a" strokeWidth="0.4" opacity="0.25" />
-            </pattern>
+            {/* Seasonal sky-to-ground gradients */}
+            {/* SPRING — Trainee (light green grass, warm sky) */}
+            <linearGradient id="pat-trainee" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#a3d3eb" />
+              <stop offset="40%" stopColor="#cfeae0" />
+              <stop offset="60%" stopColor="#7fc88a" />
+              <stop offset="100%" stopColor="#5ba86a" />
+            </linearGradient>
+            {/* SUMMER — Practitioner (vivid blue sky, lush green) */}
+            <linearGradient id="pat-practitioner" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7cc1ec" />
+              <stop offset="45%" stopColor="#b6e0f0" />
+              <stop offset="60%" stopColor="#88c270" />
+              <stop offset="100%" stopColor="#4c8d4d" />
+            </linearGradient>
+            {/* AUTUMN — Expert (warm orange sky, golden ground) */}
+            <linearGradient id="pat-expert" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f5b86a" />
+              <stop offset="40%" stopColor="#f6cf91" />
+              <stop offset="60%" stopColor="#c98640" />
+              <stop offset="100%" stopColor="#8b5524" />
+            </linearGradient>
+            {/* WINTER — Master (deep night sky, snowy ground) */}
+            <linearGradient id="pat-master" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1a2a4a" />
+              <stop offset="40%" stopColor="#3b4d70" />
+              <stop offset="60%" stopColor="#cfd9e4" />
+              <stop offset="100%" stopColor="#aab8c8" />
+            </linearGradient>
+            {/* River gradient (Summer) */}
+            <linearGradient id="riverGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5fa3d6" />
+              <stop offset="100%" stopColor="#3779b3" />
+            </linearGradient>
             <filter id="zone-glow" x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur in="SourceGraphic" stdDeviation="10" />
             </filter>
@@ -489,65 +495,286 @@ export function LearningMap({ data, onOpenSection }: Props) {
             );
           })}
 
-          {/* === Relief elements === */}
+          {/* === Seasonal landscape + rails + train === */}
           {!isMobile ? (
             <g>
-              {/* TRAINEE (left, 0-310): gentle green hills + trees */}
-              <ellipse cx="100" cy="630" rx="160" ry="45" fill="#1f4a30" opacity="0.55" />
-              <ellipse cx="220" cy="660" rx="110" ry="30" fill="#1d4228" opacity="0.45" />
-              <ellipse cx="80" cy="70" rx="130" ry="40" fill="#1f4a30" opacity="0.45" />
-              {/* Trees — bigger, visible */}
-              <polygon points="25,580 45,520 65,580" fill="#2d6b3f" opacity="0.7" />
-              <polygon points="30,585 45,530 60,585" fill="#3a8050" opacity="0.5" />
-              <polygon points="240,110 260,50 280,110" fill="#2d6b3f" opacity="0.65" />
-              <polygon points="245,115 260,60 275,115" fill="#3a8050" opacity="0.45" />
-              <polygon points="10,310 30,250 50,310" fill="#2d6b3f" opacity="0.55" />
-              <polygon points="270,480 290,425 310,480" fill="#2d6b3f" opacity="0.5" />
-              <polygon points="275,485 290,435 305,485" fill="#3a8050" opacity="0.35" />
+              {/* ============ SPRING — TRAINEE (x: 0-300) ============ */}
+              {/* Bushes/grass tufts */}
+              <ellipse cx="40" cy="635" rx="55" ry="14" fill="#3e7a3e" opacity="0.85" />
+              <ellipse cx="260" cy="650" rx="50" ry="13" fill="#3e7a3e" opacity="0.8" />
+              <ellipse cx="155" cy="675" rx="80" ry="14" fill="#357036" opacity="0.7" />
+              {/* Spring trees — light green */}
+              <g>
+                <rect x="22" y="80" width="6" height="20" fill="#5d3a1f" />
+                <circle cx="25" cy="70" r="22" fill="#7cc26a" />
+                <circle cx="18" cy="62" r="14" fill="#8ed378" opacity="0.9" />
+                <circle cx="33" cy="65" r="13" fill="#94db7d" opacity="0.85" />
+              </g>
+              <g>
+                <rect x="270" y="140" width="6" height="22" fill="#5d3a1f" />
+                <circle cx="273" cy="130" r="20" fill="#7cc26a" />
+                <circle cx="280" cy="120" r="13" fill="#94db7d" opacity="0.9" />
+              </g>
+              <g>
+                <rect x="15" y="360" width="6" height="20" fill="#5d3a1f" />
+                <circle cx="18" cy="350" r="18" fill="#7cc26a" />
+              </g>
+              <g>
+                <rect x="275" y="475" width="6" height="22" fill="#5d3a1f" />
+                <circle cx="278" cy="465" r="19" fill="#7cc26a" />
+                <circle cx="285" cy="458" r="12" fill="#94db7d" opacity="0.85" />
+              </g>
+              {/* Flowers */}
+              <circle cx="60" cy="640" r="2.5" fill="#ffd54f" />
+              <circle cx="80" cy="650" r="2" fill="#ff8a80" />
+              <circle cx="200" cy="660" r="2.5" fill="#ce93d8" />
+              <circle cx="225" cy="655" r="2" fill="#ffd54f" />
+              {/* Sun */}
+              <circle cx="245" cy="55" r="22" fill="#ffe066" opacity="0.85" />
+              <circle cx="245" cy="55" r="14" fill="#fff3b0" />
 
-              {/* EXPERT (top-center, 310-930 x 0-310): sandy dunes — bigger */}
-              <ellipse cx="480" cy="40" rx="200" ry="40" fill="#3d2818" opacity="0.45" />
-              <ellipse cx="780" cy="55" rx="160" ry="35" fill="#3d2818" opacity="0.4" />
-              <ellipse cx="380" cy="280" rx="130" ry="25" fill="#3d2818" opacity="0.35" />
-              <ellipse cx="850" cy="270" rx="80" ry="18" fill="#3d2818" opacity="0.3" />
+              {/* SPRING rails — vertical zigzag */}
+              <path d="M 150 30 Q 70 110 150 200 Q 230 290 150 380 Q 70 470 150 560 Q 230 650 150 700"
+                    fill="none" stroke="#3a2818" strokeWidth="14" strokeLinecap="round" opacity="0.65" />
+              <path d="M 150 30 Q 70 110 150 200 Q 230 290 150 380 Q 70 470 150 560 Q 230 650 150 700"
+                    fill="none" stroke="#5d3a1f" strokeWidth="10" strokeLinecap="round" opacity="0.5" />
+              {/* Rail ties */}
+              {Array.from({ length: 18 }).map((_, i) => {
+                const t = i / 17; const y = 30 + t * 670;
+                return <line key={`tt-${i}`} x1={138} y1={y} x2={162} y2={y} stroke="#3a2818" strokeWidth="2" opacity="0.5" />;
+              })}
 
-              {/* PRACTITIONER (bottom-center, 310-930 x 310-700): rolling waves */}
-              <ellipse cx="460" cy="660" rx="170" ry="30" fill="#1a3555" opacity="0.45" />
-              <ellipse cx="770" cy="680" rx="130" ry="25" fill="#1a3555" opacity="0.4" />
-              <ellipse cx="600" cy="640" rx="90" ry="15" fill="#1e3d60" opacity="0.3" />
+              {/* Spring train — small, bright pink/red */}
+              <g transform="translate(150, 600)">
+                <rect x="-22" y="-18" width="44" height="20" rx="4" fill="#e8523c" stroke="#7a1e10" strokeWidth="1.2" />
+                <rect x="-18" y="-15" width="10" height="9" fill="#ffe082" />
+                <rect x="-2" y="-15" width="10" height="9" fill="#ffe082" />
+                <rect x="14" y="-12" width="6" height="9" fill="#1a1a1a" />
+                <circle cx="-12" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="-12" cy="6" r="2" fill="#888" />
+                <circle cx="12" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="12" cy="6" r="2" fill="#888" />
+                {/* Smoke stack */}
+                <rect x="14" y="-26" width="4" height="11" fill="#3a2818" />
+                <circle cx="20" cy="-32" r="5" fill="#e0e0e0" opacity="0.8" />
+                <circle cx="26" cy="-38" r="4" fill="#e0e0e0" opacity="0.6" />
+              </g>
 
-              {/* MASTER (right, 930-1200): BIG mountains */}
-              {/* Main peak */}
-              <polygon points="980,700 1070,250 1160,700" fill="#4a2222" opacity="0.75" />
-              <polygon points="1000,700 1070,300 1140,700" fill="#552828" opacity="0.5" />
-              {/* Second peak */}
-              <polygon points="930,700 990,350 1060,700" fill="#3d1818" opacity="0.65" />
-              {/* Third peak */}
-              <polygon points="1100,700 1160,380 1200,700" fill="#3a1515" opacity="0.6" />
-              {/* Snow caps — larger */}
-              <polygon points="1050,275 1070,250 1090,275" fill="rgba(255,255,255,0.25)" />
-              <polygon points="1055,290 1070,265 1085,290" fill="rgba(255,255,255,0.15)" />
-              <polygon points="975,370 990,350 1005,370" fill="rgba(255,255,255,0.2)" />
-              <polygon points="1145,400 1160,380 1175,400" fill="rgba(255,255,255,0.18)" />
-              {/* Mountain ridges */}
-              <line x1="1070" y1="250" x2="990" y2="350" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="1070" y1="250" x2="1160" y2="380" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+              {/* ============ SUMMER — PRACTITIONER (x: 300-600) ============ */}
+              {/* River curve */}
+              <path d="M 305 480 Q 380 510 455 490 Q 540 470 595 510 L 595 540 Q 540 500 455 520 Q 380 540 305 510 Z"
+                    fill="url(#riverGrad)" opacity="0.85" />
+              {/* River reflections */}
+              <line x1="320" y1="500" x2="345" y2="500" stroke="#a8d8f0" strokeWidth="1.5" opacity="0.6" />
+              <line x1="490" y1="510" x2="520" y2="510" stroke="#a8d8f0" strokeWidth="1.5" opacity="0.6" />
+              {/* Summer trees — vivid green, fuller */}
+              <g>
+                <rect x="320" y="100" width="7" height="22" fill="#4a2c12" />
+                <circle cx="324" cy="90" r="24" fill="#4a9c3e" />
+                <circle cx="316" cy="80" r="15" fill="#5fb24a" opacity="0.9" />
+                <circle cx="334" cy="83" r="14" fill="#5fb24a" opacity="0.85" />
+              </g>
+              <g>
+                <rect x="565" y="130" width="7" height="22" fill="#4a2c12" />
+                <circle cx="568" cy="118" r="22" fill="#4a9c3e" />
+                <circle cx="578" cy="108" r="14" fill="#5fb24a" opacity="0.9" />
+              </g>
+              <g>
+                <rect x="320" y="610" width="7" height="22" fill="#4a2c12" />
+                <circle cx="324" cy="600" r="20" fill="#4a9c3e" />
+              </g>
+              <g>
+                <rect x="568" y="630" width="7" height="22" fill="#4a2c12" />
+                <circle cx="572" cy="620" r="22" fill="#4a9c3e" />
+              </g>
+              {/* Sailboat on river */}
+              <g transform="translate(420, 488)">
+                <path d="M -10 8 L 10 8 L 7 13 L -7 13 Z" fill="#5d3a1f" />
+                <path d="M 0 -10 L 0 8 L -8 8 Z" fill="#fff" stroke="#5d3a1f" strokeWidth="0.8" />
+              </g>
+              {/* Sun */}
+              <circle cx="540" cy="55" r="20" fill="#ffe066" opacity="0.9" />
+              <circle cx="540" cy="55" r="13" fill="#fff3b0" />
+
+              {/* SUMMER rails — zigzag avoiding river */}
+              <path d="M 450 30 Q 370 100 450 180 Q 530 260 450 340 L 450 460 L 450 700"
+                    fill="none" stroke="#3a2818" strokeWidth="14" strokeLinecap="round" opacity="0.65" />
+              <path d="M 450 30 Q 370 100 450 180 Q 530 260 450 340 L 450 460 L 450 700"
+                    fill="none" stroke="#5d3a1f" strokeWidth="10" strokeLinecap="round" opacity="0.5" />
+              {Array.from({ length: 18 }).map((_, i) => {
+                const t = i / 17; const y = 30 + t * 670;
+                return <line key={`pt-${i}`} x1={438} y1={y} x2={462} y2={y} stroke="#3a2818" strokeWidth="2" opacity="0.5" />;
+              })}
+
+              {/* Summer train — blue passenger */}
+              <g transform="translate(450, 250)">
+                <rect x="-26" y="-20" width="52" height="22" rx="3" fill="#2c5fa8" stroke="#1a3d70" strokeWidth="1.2" />
+                <rect x="-22" y="-16" width="9" height="10" fill="#a8d8f0" />
+                <rect x="-9" y="-16" width="9" height="10" fill="#a8d8f0" />
+                <rect x="4" y="-16" width="9" height="10" fill="#a8d8f0" />
+                <rect x="17" y="-16" width="6" height="10" fill="#1a1a1a" />
+                <circle cx="-15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="-15" cy="6" r="2" fill="#888" />
+                <circle cx="15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="15" cy="6" r="2" fill="#888" />
+              </g>
+
+              {/* ============ AUTUMN — EXPERT (x: 600-900) ============ */}
+              {/* Autumn trees — orange/red */}
+              <g>
+                <rect x="615" y="80" width="7" height="22" fill="#3a1f08" />
+                <circle cx="618" cy="68" r="22" fill="#d35400" />
+                <circle cx="610" cy="58" r="14" fill="#e67e22" opacity="0.9" />
+                <circle cx="626" cy="60" r="13" fill="#f39c12" opacity="0.9" />
+              </g>
+              <g>
+                <rect x="870" y="100" width="7" height="22" fill="#3a1f08" />
+                <circle cx="873" cy="88" r="22" fill="#c0392b" />
+                <circle cx="882" cy="78" r="14" fill="#e67e22" opacity="0.9" />
+                <circle cx="864" cy="80" r="12" fill="#d35400" opacity="0.85" />
+              </g>
+              <g>
+                <rect x="615" y="610" width="7" height="22" fill="#3a1f08" />
+                <circle cx="619" cy="600" r="20" fill="#d35400" />
+                <circle cx="610" cy="592" r="12" fill="#e67e22" opacity="0.9" />
+              </g>
+              <g>
+                <rect x="868" y="635" width="7" height="22" fill="#3a1f08" />
+                <circle cx="871" cy="624" r="20" fill="#c0392b" />
+                <circle cx="880" cy="616" r="12" fill="#f39c12" opacity="0.85" />
+              </g>
+              {/* Falling leaves */}
+              <circle cx="700" cy="200" r="2.5" fill="#e67e22" />
+              <circle cx="780" cy="350" r="2" fill="#d35400" />
+              <circle cx="730" cy="450" r="2.5" fill="#f39c12" />
+              <circle cx="820" cy="280" r="2" fill="#c0392b" />
+              {/* Setting sun (bigger, oranger) */}
+              <circle cx="840" cy="60" r="25" fill="#ff7043" opacity="0.85" />
+              <circle cx="840" cy="60" r="17" fill="#ffab40" />
+
+              {/* AUTUMN rails */}
+              <path d="M 750 30 Q 670 110 750 200 Q 830 290 750 380 Q 670 470 750 560 Q 830 650 750 700"
+                    fill="none" stroke="#3a2818" strokeWidth="14" strokeLinecap="round" opacity="0.65" />
+              <path d="M 750 30 Q 670 110 750 200 Q 830 290 750 380 Q 670 470 750 560 Q 830 650 750 700"
+                    fill="none" stroke="#5d3a1f" strokeWidth="10" strokeLinecap="round" opacity="0.5" />
+              {Array.from({ length: 18 }).map((_, i) => {
+                const t = i / 17; const y = 30 + t * 670;
+                return <line key={`et-${i}`} x1={738} y1={y} x2={762} y2={y} stroke="#3a2818" strokeWidth="2" opacity="0.5" />;
+              })}
+
+              {/* Autumn train — brown freight */}
+              <g transform="translate(750, 420)">
+                <rect x="-26" y="-22" width="52" height="24" rx="3" fill="#7a3b1a" stroke="#3d1c0a" strokeWidth="1.2" />
+                <rect x="-22" y="-18" width="44" height="14" fill="#5a2a12" stroke="#3d1c0a" strokeWidth="0.8" />
+                <line x1="-22" y1="-12" x2="22" y2="-12" stroke="#3d1c0a" strokeWidth="0.8" />
+                <line x1="-22" y1="-6" x2="22" y2="-6" stroke="#3d1c0a" strokeWidth="0.8" />
+                <circle cx="-15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="-15" cy="6" r="2" fill="#888" />
+                <circle cx="15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="15" cy="6" r="2" fill="#888" />
+              </g>
+
+              {/* ============ WINTER — MASTER (x: 900-1200) ============ */}
+              {/* Snow piles */}
+              <ellipse cx="950" cy="660" rx="60" ry="16" fill="#ffffff" opacity="0.9" />
+              <ellipse cx="1080" cy="675" rx="80" ry="18" fill="#ffffff" opacity="0.85" />
+              <ellipse cx="1180" cy="660" rx="50" ry="14" fill="#ffffff" opacity="0.9" />
+              {/* Pine trees with snow */}
+              <g>
+                <polygon points="930,150 950,80 970,150" fill="#1d4228" />
+                <polygon points="932,135 950,90 968,135" fill="#235a30" opacity="0.85" />
+                <polygon points="935,80 950,80 965,80 950,72" fill="#ffffff" />
+                <rect x="947" y="150" width="6" height="14" fill="#3a1f08" />
+              </g>
+              <g>
+                <polygon points="1170,160 1190,90 1210,160" fill="#1d4228" />
+                <polygon points="1172,140 1190,100 1208,140" fill="#235a30" opacity="0.85" />
+                <polygon points="1175,90 1205,90 1190,80" fill="#ffffff" />
+                <rect x="1187" y="160" width="6" height="14" fill="#3a1f08" />
+              </g>
+              <g>
+                <polygon points="930,540 950,470 970,540" fill="#1d4228" />
+                <polygon points="935,475 965,475 950,465" fill="#ffffff" />
+                <rect x="947" y="540" width="6" height="14" fill="#3a1f08" />
+              </g>
+              <g>
+                <polygon points="1170,560 1190,490 1210,560" fill="#1d4228" />
+                <polygon points="1175,495 1205,495 1190,485" fill="#ffffff" />
+                <rect x="1187" y="560" width="6" height="14" fill="#3a1f08" />
+              </g>
+              {/* Moon */}
+              <circle cx="1140" cy="55" r="20" fill="#fff8e1" opacity="0.95" />
+              <circle cx="1148" cy="50" r="3" fill="#dcd6c0" opacity="0.6" />
+              <circle cx="1135" cy="63" r="2" fill="#dcd6c0" opacity="0.6" />
+              {/* Stars */}
+              <circle cx="970" cy="40" r="1.5" fill="#ffffff" />
+              <circle cx="1020" cy="60" r="1" fill="#ffffff" />
+              <circle cx="1080" cy="35" r="1.5" fill="#ffffff" />
+              <circle cx="1200" cy="80" r="1" fill="#ffffff" />
+              {/* Snowflakes */}
+              <circle cx="990" cy="200" r="1.2" fill="#ffffff" opacity="0.7" />
+              <circle cx="1100" cy="280" r="1" fill="#ffffff" opacity="0.6" />
+              <circle cx="1020" cy="350" r="1.5" fill="#ffffff" opacity="0.8" />
+              <circle cx="1170" cy="400" r="1" fill="#ffffff" opacity="0.7" />
+              <circle cx="950" cy="450" r="1.3" fill="#ffffff" opacity="0.7" />
+
+              {/* WINTER rails */}
+              <path d="M 1050 30 Q 970 110 1050 200 Q 1130 290 1050 380 Q 970 470 1050 560 Q 1130 650 1050 700"
+                    fill="none" stroke="#1a2030" strokeWidth="14" strokeLinecap="round" opacity="0.7" />
+              <path d="M 1050 30 Q 970 110 1050 200 Q 1130 290 1050 380 Q 970 470 1050 560 Q 1130 650 1050 700"
+                    fill="none" stroke="#3a4560" strokeWidth="10" strokeLinecap="round" opacity="0.6" />
+              {Array.from({ length: 18 }).map((_, i) => {
+                const t = i / 17; const y = 30 + t * 670;
+                return <line key={`mt-${i}`} x1={1038} y1={y} x2={1062} y2={y} stroke="#1a2030" strokeWidth="2" opacity="0.6" />;
+              })}
+
+              {/* Winter train — dark blue with snow on top */}
+              <g transform="translate(1050, 350)">
+                <rect x="-26" y="-20" width="52" height="22" rx="3" fill="#1d3a6b" stroke="#0d1f3d" strokeWidth="1.2" />
+                <rect x="-26" y="-22" width="52" height="3" fill="#ffffff" opacity="0.9" />
+                <rect x="-22" y="-15" width="9" height="9" fill="#a8c8e8" />
+                <rect x="-9" y="-15" width="9" height="9" fill="#a8c8e8" />
+                <rect x="4" y="-15" width="9" height="9" fill="#a8c8e8" />
+                <rect x="17" y="-15" width="6" height="9" fill="#1a1a1a" />
+                <circle cx="-15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="-15" cy="6" r="2" fill="#888" />
+                <circle cx="15" cy="6" r="5" fill="#1a1a1a" />
+                <circle cx="15" cy="6" r="2" fill="#888" />
+              </g>
             </g>
           ) : (
             <g>
-              {/* Mobile relief */}
-              {/* Trainee hills + trees */}
-              <ellipse cx="80" cy="260" rx="100" ry="28" fill="#1f4a30" opacity="0.45" />
-              <polygon points="330,60 350,10 370,60" fill="#2d6b3f" opacity="0.6" />
-              <polygon points="335,65 350,20 365,65" fill="#3a8050" opacity="0.4" />
-              {/* Expert dunes */}
-              <ellipse cx="300" cy="620" rx="120" ry="22" fill="#3d2818" opacity="0.4" />
-              <ellipse cx="80" cy="640" rx="90" ry="18" fill="#3d2818" opacity="0.35" />
-              {/* Master mountains — big */}
-              <polygon points="60,1200 160,920 260,1200" fill="#4a2222" opacity="0.7" />
-              <polygon points="200,1200 300,960 400,1200" fill="#3d1818" opacity="0.6" />
-              <polygon points="145,940 160,920 175,940" fill="rgba(255,255,255,0.22)" />
-              <polygon points="285,980 300,960 315,980" fill="rgba(255,255,255,0.18)" />
+              {/* Mobile — simplified seasonal landscape (4 horizontal stripes) */}
+              {/* Spring */}
+              <circle cx="350" cy="50" r="18" fill="#ffe066" opacity="0.85" />
+              <g>
+                <rect x="30" y="220" width="5" height="18" fill="#5d3a1f" />
+                <circle cx="32" cy="210" r="16" fill="#7cc26a" />
+              </g>
+              {/* Summer */}
+              <path d="M 0 540 Q 100 555 200 545 Q 300 535 400 555 L 400 580 Q 300 560 200 570 Q 100 580 0 565 Z"
+                    fill="url(#riverGrad)" opacity="0.85" />
+              <g>
+                <rect x="350" y="320" width="5" height="18" fill="#4a2c12" />
+                <circle cx="352" cy="310" r="16" fill="#4a9c3e" />
+              </g>
+              {/* Autumn */}
+              <g>
+                <rect x="40" y="620" width="5" height="18" fill="#3a1f08" />
+                <circle cx="42" cy="610" r="16" fill="#d35400" />
+              </g>
+              <circle cx="345" cy="660" r="16" fill="#ff7043" opacity="0.85" />
+              {/* Winter */}
+              <ellipse cx="200" cy="1170" rx="180" ry="14" fill="#ffffff" opacity="0.85" />
+              <g>
+                <polygon points="40,990 60,930 80,990" fill="#1d4228" />
+                <polygon points="45,935 75,935 60,925" fill="#ffffff" />
+              </g>
+              <g>
+                <polygon points="320,1010 340,950 360,1010" fill="#1d4228" />
+                <polygon points="325,955 355,955 340,945" fill="#ffffff" />
+              </g>
+              <circle cx="350" cy="930" r="14" fill="#fff8e1" opacity="0.95" />
             </g>
           )}
 
