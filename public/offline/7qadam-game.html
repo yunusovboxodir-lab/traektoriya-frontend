@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 Qadam O'yin — N'Medov Sales Academy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23f97316' rx='20' width='100' height='100'/><text x='50%' y='58%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='60' font-weight='bold'>N</text></svg>">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body { font-family: 'Segoe UI', system-ui, sans-serif; }
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.winner-pulse { animation: pulse 1s ease-in-out infinite; }
+@keyframes confetti { 0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+.confetti-piece { position: fixed; top: -10px; animation: confetti 3s ease-in forwards; pointer-events: none; z-index: 1000; }
+</style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white">
+<div id="app" class="max-w-4xl mx-auto px-4 py-6"></div>
+
+<script>
+// ============================================
+// 7 QADAM GAME — "RAQOBAT"
+// Jamoa A: MULOQOT (Reja+Ochish+FUP+Yopish)
+// Jamoa B: AMALIYOT (Ko'zdan+Merchandayzing+Tahlil)
+// Predystoriya: Raqobatchi ustidan g'alaba
+// ============================================
+
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdd8y-oYSfOVl-69YQ93hxlEH9QMF4mxb2Z1tNB4GeruHvIt_4kGTZ4PytXn_9OeFb1w/exec";
+
+const ROUNDS = [
+  {
+    id: 1,
+    title: "1-raund: Birinchi tashrif",
+    subtitle: "Yangi do'konga birinchi marta kiryapsiz",
+    description: "Siz va raqobatchingiz bir xil do'konga birinchi marta kiryapsiz. Do'kon egasi hali ikkalangizni ham tanimaydi. Kim yaxshiroq taassurot qoldiradi?",
+    a_task: "MULOQOT jamoa: Reja tuzing, do'kon egasi bilan salomlashing, o'zingizni tanishtiring va ishonch hosil qiling. FUP bilan mahsulotni taklif qiling.",
+    b_task: "AMALIYOT jamoa: Do'konni ko'zdan kechiring, javondagi bo'sh joyni toping, merchandayzing rejasi tuzing va raqobatchi holatini tahlil qiling.",
+    max_score: 25
+  },
+  {
+    id: 2,
+    title: "2-raund: Qaytib kelish",
+    subtitle: "Bir hafta o'tdi, yana keldingiz",
+    description: "Birinchi tashrifdan keyin do'kon egasi sizning mahsulotingizni olgan. Endi qaytib keldingiz — raqobatchi ham kelgan. Kim do'konni o'ziga tortadi?",
+    a_task: "MULOQOT jamoa: Do'kon egasiga sotish natijalari haqida gapiring, yangi buyurtma oling, FUP bilan yangi SKU taklif qiling.",
+    b_task: "AMALIYOT jamoa: Javonni tekshiring, FIFO tartibga soling, POS material o'rnating, raqobatchi harakatlarini tahlil qiling.",
+    max_score: 25
+  },
+  {
+    id: 3,
+    title: "3-raund: Muammo",
+    subtitle: "Do'kon egasi norozi — raqobatchi yaxshiroq taklif bermoqda",
+    description: "Do'kon egasi: 'Raqobatchingiz arzonroq taklif berdi va javonda yaxshiroq joylashtirilgan. Nega sizdan olishim kerak?'",
+    a_task: "MULOQOT jamoa: Do'kon egasi e'tirozini hal qiling. Narx emas, qiymat haqida gapiring. Yopish texnikasi bilan buyurtma oling.",
+    b_task: "AMALIYOT jamoa: Javon auditini o'tkazing — qayerda yo'qotmoqsiz? Vizual ustunlikni yarating. Tahlil asosida keyingi strategiyani tuzing.",
+    max_score: 25
+  },
+  {
+    id: 4,
+    title: "4-raund: Birlashtirish",
+    subtitle: "Jamoalar birlashadi — 7 qadam yaxlit tizim",
+    description: "Endi ikkala jamoa birgalikda: to'liq 7 qadam tizimini qo'llab, raqobatchi ustidan uzil-kesil g'alaba qozoning.",
+    a_task: "Birlashgan topshiriq: To'liq 7 qadam tizimi — har bir bosqich qanday rol o'ynaydi va ular birgalikda qanday ishlaydi?",
+    b_task: "Birlashgan topshiriq: To'liq 7 qadam tizimi — har bir bosqich qanday rol o'ynaydi va ular birgalikda qanday ishlaydi?",
+    max_score: 25
+  }
+];
+
+let state = {
+  screen: 'setup',
+  teams: { a: 'MULOQOT', b: 'AMALIYOT' },
+  currentRound: 0,
+  scores: { a: [null, null, null, null], b: [null, null, null, null] },
+  gameDate: new Date().toISOString().split('T')[0],
+  location: '',
+  sending: false,
+  sent: false
+};
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'setup') renderSetup(app);
+  else if (state.screen === 'game') renderGame(app);
+  else if (state.screen === 'results') renderResults(app);
+}
+
+function renderSetup(app) {
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="text-center mb-8 pt-4">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-orange-500 to-amber-500 rounded-2xl mb-4">
+          <span class="text-white font-bold text-2xl">N</span>
+        </div>
+        <h1 class="text-2xl font-bold mb-1">7 Qadam: RAQOBAT</h1>
+        <p class="text-gray-400 text-sm">Muloqot vs Amaliyot — so'z yoki ish?</p>
+      </div>
+      <div class="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50 space-y-4 mb-4">
+        <h3 class="text-lg font-semibold">O'yin sozlamalari</h3>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">💬 A jamoa nomi</label>
+            <input id="a-name" type="text" value="${state.teams.a}" placeholder="MULOQOT"
+              class="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white focus:border-purple-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">🔧 B jamoa nomi</label>
+            <input id="b-name" type="text" value="${state.teams.b}" placeholder="AMALIYOT"
+              class="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">Joylashuv</label>
+          <input id="location" type="text" placeholder="Masalan: Toshkent, Samarqand..."
+            class="w-full bg-slate-700/50 border border-slate-600/50 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:border-orange-500 focus:outline-none"
+            value="${state.location}">
+        </div>
+      </div>
+      <div class="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50 mb-4">
+        <h3 class="text-lg font-semibold mb-3">Qoidalar</h3>
+        <div class="space-y-3 text-gray-300 text-sm">
+          <div class="flex gap-3">
+            <span class="text-purple-400 font-bold shrink-0">💬 MULOQOT</span>
+            <span>Reja + Ochish + FUP + Yopish — so'z kuchi</span>
+          </div>
+          <div class="flex gap-3">
+            <span class="text-emerald-400 font-bold shrink-0">🔧 AMALIYOT</span>
+            <span>Ko'zdan kechirish + Merchandayzing + Tahlil — ish kuchi</span>
+          </div>
+          <div class="border-t border-slate-700 pt-3">
+            <p>4 raund • Stsenariy: bir xil do'konga ikki raqobatchi</p>
+            <p>Har bir raund: 0-25 ball</p>
+            <p>4-raund: jamoalar birlashadi → 7 qadam tizimi kuchi</p>
+          </div>
+        </div>
+      </div>
+      <button onclick="startGame()" class="w-full py-4 rounded-2xl font-semibold text-lg bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-lg transition-all">O'yinni boshlash →</button>
+      <div class="text-center mt-4"><a href="/" class="text-gray-500 text-sm hover:text-gray-300">← Bosh sahifa</a></div>
+    </div>`;
+}
+
+function startGame() {
+  state.teams.a = document.getElementById('a-name').value.trim() || 'MULOQOT';
+  state.teams.b = document.getElementById('b-name').value.trim() || 'AMALIYOT';
+  state.location = document.getElementById('location').value.trim();
+  state.screen = 'game'; state.currentRound = 0;
+  window.scrollTo(0, 0); render();
+}
+
+function renderGame(app) {
+  const round = ROUNDS[state.currentRound];
+  const aTotal = state.scores.a.reduce((s, v) => s + (v || 0), 0);
+  const bTotal = state.scores.b.reduce((s, v) => s + (v || 0), 0);
+
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="grid grid-cols-3 gap-2 mb-6">
+        <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 text-center">
+          <p class="text-xs text-purple-400 mb-1">💬 ${state.teams.a}</p>
+          <p class="text-3xl font-bold text-purple-400">${aTotal}</p>
+        </div>
+        <div class="flex items-center justify-center">
+          <div class="text-center"><p class="text-xs text-gray-500">Raund</p><p class="text-2xl font-bold text-white">${state.currentRound + 1}/4</p></div>
+        </div>
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-center">
+          <p class="text-xs text-emerald-400 mb-1">🔧 ${state.teams.b}</p>
+          <p class="text-3xl font-bold text-emerald-400">${bTotal}</p>
+        </div>
+      </div>
+      <div class="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50 mb-4">
+        <h2 class="text-xl font-bold mb-1">${round.title}</h2>
+        <p class="text-gray-400 text-sm mb-4">${round.subtitle}</p>
+        <div class="bg-slate-700/30 rounded-2xl p-4 mb-4">
+          <p class="text-gray-300 leading-relaxed">${round.description}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="bg-purple-500/5 border border-purple-500/20 rounded-2xl p-4">
+            <p class="text-xs text-purple-400 font-semibold mb-2">💬 ${state.teams.a} topshirig'i:</p>
+            <p class="text-gray-300 text-sm">${round.a_task}</p>
+          </div>
+          <div class="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4">
+            <p class="text-xs text-emerald-400 font-semibold mb-2">🔧 ${state.teams.b} topshirig'i:</p>
+            <p class="text-gray-300 text-sm">${round.b_task}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-purple-400 mb-2 font-semibold">💬 ${state.teams.a} ball (0-${round.max_score})</label>
+            <input id="a-score" type="number" min="0" max="${round.max_score}"
+              value="${state.scores.a[state.currentRound] !== null ? state.scores.a[state.currentRound] : ''}" placeholder="0"
+              class="w-full bg-slate-700/50 border border-purple-500/30 rounded-xl px-4 py-4 text-2xl text-center text-purple-400 font-bold focus:border-purple-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-sm text-emerald-400 mb-2 font-semibold">🔧 ${state.teams.b} ball (0-${round.max_score})</label>
+            <input id="b-score" type="number" min="0" max="${round.max_score}"
+              value="${state.scores.b[state.currentRound] !== null ? state.scores.b[state.currentRound] : ''}" placeholder="0"
+              class="w-full bg-slate-700/50 border border-emerald-500/30 rounded-xl px-4 py-4 text-2xl text-center text-emerald-400 font-bold focus:border-emerald-500 focus:outline-none">
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        ${state.currentRound > 0 ? `<button onclick="prevRound()" class="flex-1 py-3 rounded-xl border border-slate-600/50 text-gray-400 hover:text-white transition-all">← Oldingi</button>` : `<button onclick="backToSetup()" class="flex-1 py-3 rounded-xl border border-slate-600/50 text-gray-400 hover:text-white transition-all">← Sozlamalar</button>`}
+        ${state.currentRound < 3 ? `<button onclick="nextRound()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold hover:shadow-lg transition-all">Keyingi raund →</button>` : `<button onclick="finishGame()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold hover:shadow-lg transition-all">✓ O'yinni yakunlash</button>`}
+      </div>
+      <div class="flex justify-center gap-3 mt-4">
+        ${ROUNDS.map((_, i) => {
+          const active = i === state.currentRound;
+          const done = state.scores.a[i] !== null && state.scores.b[i] !== null;
+          return `<button onclick="goToRound(${i})" class="w-10 h-10 rounded-xl text-sm font-semibold transition-all ${active ? 'bg-orange-500 text-white' : done ? 'bg-slate-600 text-white' : 'bg-slate-700/50 text-gray-500 hover:bg-slate-700'}">${i+1}</button>`;
+        }).join('')}
+      </div>
+    </div>`;
+}
+
+function saveCurrentScores() {
+  const aVal = document.getElementById('a-score')?.value;
+  const bVal = document.getElementById('b-score')?.value;
+  const mx = ROUNDS[state.currentRound].max_score;
+  if (aVal !== '' && aVal !== undefined) state.scores.a[state.currentRound] = Math.min(Math.max(parseInt(aVal) || 0, 0), mx);
+  if (bVal !== '' && bVal !== undefined) state.scores.b[state.currentRound] = Math.min(Math.max(parseInt(bVal) || 0, 0), mx);
+}
+
+function nextRound() { saveCurrentScores(); if (state.currentRound < 3) { state.currentRound++; window.scrollTo(0,0); render(); } }
+function prevRound() { saveCurrentScores(); if (state.currentRound > 0) { state.currentRound--; window.scrollTo(0,0); render(); } }
+function goToRound(i) { saveCurrentScores(); state.currentRound = i; window.scrollTo(0,0); render(); }
+function backToSetup() { saveCurrentScores(); state.screen = 'setup'; render(); }
+
+function finishGame() {
+  saveCurrentScores();
+  for (let i = 0; i < 4; i++) {
+    if (state.scores.a[i] === null) state.scores.a[i] = 0;
+    if (state.scores.b[i] === null) state.scores.b[i] = 0;
+  }
+  state.screen = 'results'; window.scrollTo(0,0);
+  // confetti
+  const colors = ['#f97316','#a855f7','#22c55e','#eab308','#ec4899'];
+  for (let i = 0; i < 40; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random()*100+'vw';
+    el.style.width = (Math.random()*10+5)+'px'; el.style.height = (Math.random()*10+5)+'px';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.borderRadius = Math.random()>0.5?'50%':'0';
+    el.style.animationDelay = Math.random()*2+'s'; el.style.animationDuration = (Math.random()*2+2)+'s';
+    document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
+  }
+  sendGameToGoogle();
+  render();
+}
+
+async function sendGameToGoogle() {
+  if (state.sending || state.sent) return;
+  state.sending = true;
+  const aTotal = state.scores.a.reduce((s,v)=>s+v,0);
+  const bTotal = state.scores.b.reduce((s,v)=>s+v,0);
+  const payload = {
+    type: 'game', gameType: '7Qadam',
+    date: state.gameDate, location: state.location, teams: state.teams,
+    rounds: ROUNDS.map((r,i) => ({ round: r.id, title: r.title, a_score: state.scores.a[i], b_score: state.scores.b[i] })),
+    totals: { a: aTotal, b: bTotal },
+    winner: aTotal > bTotal ? 'MULOQOT' : bTotal > aTotal ? 'AMALIYOT' : 'DRAW'
+  };
+  try {
+    await fetch(GOOGLE_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    state.sent = true;
+  } catch(e) { console.error(e); }
+  state.sending = false; render();
+}
+
+function renderResults(app) {
+  const aTotal = state.scores.a.reduce((s,v)=>s+v,0);
+  const bTotal = state.scores.b.reduce((s,v)=>s+v,0);
+  const mx = ROUNDS.reduce((s,r)=>s+r.max_score,0);
+  const winner = aTotal > bTotal ? 'a' : bTotal > aTotal ? 'b' : 'draw';
+
+  app.innerHTML = `
+    <div class="fade-in">
+      <div class="text-center mb-6 pt-4">
+        <h1 class="text-3xl font-bold mb-2">O'yin natijalari</h1>
+        ${state.location ? `<p class="text-gray-500 text-sm">${state.location} • ${state.gameDate}</p>` : ''}
+      </div>
+      <div class="bg-gradient-to-r ${winner === 'a' ? 'from-purple-500/20 to-purple-500/5 border-purple-500/30' : winner === 'b' ? 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/30' : 'from-slate-500/20 to-slate-500/5 border-slate-500/30'} border rounded-3xl p-6 text-center mb-6 ${winner !== 'draw' ? 'winner-pulse' : ''}">
+        <p class="text-sm text-gray-400 mb-1">${winner !== 'draw' ? "G'olib" : "Durrang!"}</p>
+        <p class="text-3xl font-bold ${winner === 'a' ? 'text-purple-400' : winner === 'b' ? 'text-emerald-400' : 'text-white'}">
+          ${winner === 'a' ? '💬 ' + state.teams.a : winner === 'b' ? '🔧 ' + state.teams.b : '🤝 Durrang'}
+        </p>
+        ${winner !== 'draw' ? `<p class="text-gray-400 text-sm mt-1">${Math.abs(aTotal - bTotal)} ball farq bilan</p>` : ''}
+      </div>
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 text-center">
+          <p class="text-xs text-purple-400 mb-1">💬 ${state.teams.a}</p>
+          <p class="text-4xl font-bold text-purple-400">${aTotal}</p>
+          <p class="text-xs text-gray-500 mt-1">${mx} dan</p>
+        </div>
+        <div class="flex items-center justify-center text-gray-600 text-2xl font-bold">VS</div>
+        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-center">
+          <p class="text-xs text-emerald-400 mb-1">🔧 ${state.teams.b}</p>
+          <p class="text-4xl font-bold text-emerald-400">${bTotal}</p>
+          <p class="text-xs text-gray-500 mt-1">${mx} dan</p>
+        </div>
+      </div>
+      <div class="bg-slate-800/50 backdrop-blur-xl rounded-3xl p-6 border border-slate-700/50 mb-6">
+        <h3 class="text-sm font-semibold text-gray-400 mb-4">Raundlar bo'yicha</h3>
+        <div class="space-y-3">
+          ${ROUNDS.map((r,i) => {
+            const a = state.scores.a[i], b = state.scores.b[i];
+            const rw = a > b ? 'a' : b > a ? 'b' : 'draw';
+            return `<div class="flex items-center gap-3">
+              <span class="text-xs text-gray-500 w-20 shrink-0">Raund ${i+1}</span>
+              <div class="flex-1 flex items-center gap-2">
+                <span class="text-sm font-semibold ${rw==='a'?'text-purple-400':'text-gray-400'} w-8 text-right">${a}</span>
+                <div class="flex-1 h-3 bg-slate-700/50 rounded-full overflow-hidden"><div class="bg-purple-500 h-full" style="width:${r.max_score>0?(a/r.max_score*100):0}%"></div></div>
+                <div class="flex-1 h-3 bg-slate-700/50 rounded-full overflow-hidden flex justify-end"><div class="bg-emerald-500 h-full" style="width:${r.max_score>0?(b/r.max_score*100):0}%"></div></div>
+                <span class="text-sm font-semibold ${rw==='b'?'text-emerald-400':'text-gray-400'} w-8">${b}</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-3xl p-6 mb-6">
+        <h3 class="text-lg font-bold text-amber-400 mb-2">💡 Asosiy xulosa</h3>
+        <p class="text-gray-300 leading-relaxed">
+          Muvaffaqiyatli tashrif faqat <strong class="text-purple-400">muloqot</strong> yoki faqat <strong class="text-emerald-400">amaliyot</strong> bilan emas.
+          <strong class="text-white">Haqiqiy natija — 7 qadamning hammasini ketma-ket, izchil bajarishda.</strong>
+          So'z va ish birgalikda ishlaydi!
+        </p>
+      </div>
+      <div class="text-center text-sm ${state.sent?'text-green-400':state.sending?'text-amber-400':'text-gray-500'} mb-4">
+        ${state.sent ? '✓ Natijalar bazaga saqlandi' : state.sending ? '⏳ Saqlanmoqda...' : ''}
+      </div>
+      <div class="flex gap-3">
+        <a href="/" class="flex-1 py-3 rounded-xl border border-slate-600/50 text-gray-400 text-center hover:text-white transition-all">← Bosh sahifa</a>
+        <button onclick="newGame()" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-semibold hover:shadow-lg transition-all">Yangi o'yin</button>
+      </div>
+    </div>`;
+}
+
+function newGame() {
+  state = { screen:'setup', teams:{a:'MULOQOT',b:'AMALIYOT'}, currentRound:0, scores:{a:[null,null,null,null],b:[null,null,null,null]}, gameDate:new Date().toISOString().split('T')[0], location:'', sending:false, sent:false };
+  render();
+}
+
+render();
+</script>
+</body>
+</html>

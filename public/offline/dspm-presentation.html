@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DSPM Trening Dasturi — N'Medov</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sand: #f5f0e8; --sand-dark: #e8e0d0; --warm: #d4c5a9;
+  --charcoal: #2d2a26; --charcoal-light: #4a453d;
+  --gold: #c8a835; --gold-light: #e0c94f;
+  --red: #c0392b; --red-light: #e74c3c;
+  --teal: #1a8a7d; --blue: #2c6fbb; --orange: #d4731a; --green: #27864a;
+  --cream: #faf7f0; --text: #2d2a26; --text-dim: #7a7267; --white: #ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--sand);color:var(--text);overflow:hidden;height:100vh;height:100dvh;user-select:none;-webkit-tap-highlight-color:transparent}
+.deck{width:100vw;height:100vh;height:100dvh;position:relative}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:5vh 6vw 72px;opacity:0;pointer-events:none;transform:translateY(20px);transition:opacity .5s,transform .5s;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.slide.active{opacity:1;pointer-events:auto;transform:translateY(0)}
+.slide.scroll-slide{padding-bottom:90px}
+
+/* LANG TOGGLE */
+.lang-toggle{position:fixed;top:12px;right:16px;z-index:200;display:flex;background:rgba(45,42,38,.9);backdrop-filter:blur(12px);border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.1);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.lang-btn{padding:8px 16px;font-family:'DM Sans';font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;border:none;background:transparent;color:rgba(255,255,255,.5);transition:all .25s}
+.lang-btn.active{background:var(--gold);color:var(--charcoal)}
+
+/* NAV */
+.nav-bar{position:fixed;bottom:0;left:0;right:0;height:56px;background:rgba(45,42,38,.95);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-bar .ptrack{position:absolute;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.1)}
+.nav-bar .pfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--red));transition:width .4s}
+.nb{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:var(--sand);padding:8px 18px;border-radius:8px;font-family:'DM Sans';font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.nb:hover,.nb:active{background:rgba(255,255,255,.15)}.nb:disabled{opacity:.3;cursor:default}
+.nb.pri{background:var(--gold);border-color:var(--gold);color:var(--charcoal)}.nb.pri:hover,.nb.pri:active{background:var(--gold-light)}
+.ni{font-size:12px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:1px}
+
+/* PHASE */
+.phase{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.phase-pre{background:rgba(44,111,187,.12);color:var(--blue);border:1px solid rgba(44,111,187,.2)}
+.phase-problem{background:rgba(192,57,43,.1);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.phase-theory{background:rgba(200,168,53,.12);color:var(--gold);border:1px solid rgba(200,168,53,.2)}
+.phase-game{background:rgba(192,57,43,.12);color:var(--red);border:1px solid rgba(192,57,43,.2)}
+.phase-post{background:rgba(39,134,74,.12);color:var(--green);border:1px solid rgba(39,134,74,.2)}
+
+/* TYPO */
+h1{font-family:'DM Serif Display',serif;font-size:clamp(32px,5vw,60px);line-height:1.1;color:var(--charcoal)}
+h2{font-family:'DM Serif Display',serif;font-size:clamp(22px,3.5vw,42px);line-height:1.15;color:var(--charcoal)}
+h3{font-size:clamp(16px,2.5vw,26px);font-weight:700}
+.sub{font-size:clamp(13px,1.5vw,17px);color:var(--text-dim);margin-top:8px}
+.accent{color:var(--gold)}.red{color:var(--red)}
+
+/* CARDS */
+.cards{display:grid;gap:12px;margin-top:20px}
+.c4{grid-template-columns:repeat(4,1fr)}.c3{grid-template-columns:repeat(3,1fr)}.c2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--white);border:1px solid var(--sand-dark);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .25s,box-shadow .25s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.card h4{font-size:14px;font-weight:700;margin-bottom:6px}.card p{font-size:12px;color:var(--text-dim);line-height:1.5}
+.card-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:10px}
+.card-d{border-left:4px solid var(--teal)}.card-s{border-left:4px solid var(--gold)}
+.card-p{border-left:4px solid var(--blue)}.card-m{border-left:4px solid var(--orange)}
+
+/* PROBLEM SCENARIO */
+.scenario{background:var(--white);border:2px solid var(--sand-dark);border-radius:20px;padding:28px;max-width:800px;margin:16px auto 0;position:relative;overflow:hidden}
+.scenario::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.scenario-d::before{background:var(--teal)}.scenario-s::before{background:var(--gold)}
+.scenario-p::before{background:var(--blue)}.scenario-m::before{background:var(--orange)}
+.scenario-icon{font-size:40px;margin-bottom:10px}
+.scenario-story{font-size:15px;line-height:1.7;color:var(--charcoal);margin-bottom:14px}
+.scenario-question{font-size:16px;font-weight:800;color:var(--red);padding:14px 18px;border-radius:12px;background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.15)}
+.discuss-badge{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;background:var(--charcoal);color:var(--sand);font-size:12px;font-weight:700;letter-spacing:1px;margin-top:12px}
+
+/* INSIGHT */
+.insight{margin-top:16px;padding:14px 18px;border-radius:12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;background:rgba(200,168,53,.08);border:1px solid rgba(200,168,53,.2);color:var(--charcoal)}
+
+/* KPI */
+.kpi-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--sand-dark)}
+.kpi-label{flex:1;font-size:13px;font-weight:500}
+.kpi-val{padding:4px 14px;border-radius:8px;font-size:12px;font-weight:700;color:white}
+
+/* QUIZ — FIXED */
+.quiz-wrap{max-width:700px;margin:0 auto;width:100%}
+.qq{background:var(--white);border:1px solid var(--sand-dark);border-radius:16px;padding:16px;margin-bottom:10px}
+.qq h4{font-size:13px;font-weight:700;margin-bottom:10px}
+.qo{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.qopt{padding:10px 12px;border-radius:10px;border:2px solid var(--sand-dark);background:var(--cream);cursor:pointer;font-size:12px;font-family:'DM Sans';color:var(--text);transition:all .2s;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.qopt:hover{border-color:var(--gold);background:rgba(200,168,53,.06)}
+.qopt.sel{border-color:var(--gold);background:rgba(200,168,53,.12);font-weight:600}
+.qopt.ok{border-color:var(--green);background:rgba(39,134,74,.1);color:var(--green);font-weight:600}
+.qopt.no{border-color:var(--red);background:rgba(192,57,43,.06);color:var(--red);opacity:.7}
+.qopt.dis{pointer-events:none}
+.qbtn{margin-top:14px;width:100%;padding:14px;border-radius:12px;background:var(--gold);border:none;color:var(--charcoal);font-family:'DM Sans';font-size:15px;font-weight:700;cursor:pointer;transition:all .25s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.qbtn:hover,.qbtn:active{background:var(--gold-light)}
+.qbtn:disabled{opacity:.4;cursor:default;background:var(--sand-dark)}
+.quiz-counter{text-align:center;padding:8px 16px;border-radius:10px;background:rgba(44,111,187,.08);border:1px solid rgba(44,111,187,.15);color:var(--blue);font-size:12px;font-weight:700;margin-bottom:14px;transition:all .3s}
+.quiz-counter.complete{background:rgba(39,134,74,.1);border-color:rgba(39,134,74,.2);color:var(--green)}
+
+/* GAME */
+.score-input{width:100%;padding:14px;border-radius:12px;border:2px solid var(--sand-dark);background:var(--cream);font-family:'DM Serif Display';font-size:28px;text-align:center;color:var(--charcoal);transition:border-color .2s}
+.score-input:focus{border-color:var(--gold);outline:none}
+.round-card{background:var(--white);border:1px solid var(--sand-dark);border-radius:16px;padding:20px;margin-bottom:14px}
+.result-circle{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-family:'DM Serif Display';font-size:36px;color:white}
+
+/* DECORATIVE */
+.dot-pattern{position:absolute;top:20px;right:40px;width:80px;height:80px;background:radial-gradient(circle,var(--warm) 1px,transparent 1px);background-size:12px 12px;opacity:.5;pointer-events:none}
+.corner-accent{position:absolute;bottom:70px;left:0;width:120px;height:4px;background:linear-gradient(90deg,var(--gold),transparent);pointer-events:none}
+
+/* CONFETTI */
+@keyframes confetti{0%{transform:translateY(-100vh) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+.confetti{position:fixed;top:-10px;pointer-events:none;z-index:1000}
+
+/* ========== MOBILE ========== */
+@media(max-width:768px){
+  .c4{grid-template-columns:repeat(2,1fr)}
+  .c3{grid-template-columns:repeat(2,1fr)}
+  .c2,.qo{grid-template-columns:1fr}
+  .slide{padding:3vh 4vw 72px}
+  .slide.scroll-slide{padding-bottom:90px}
+  .scenario{padding:20px}
+  .scenario-story{font-size:14px;line-height:1.6}
+  .scenario-question{font-size:14px;padding:12px 14px}
+  .card{padding:14px}
+  .result-circle{width:80px;height:80px;font-size:28px}
+  .lang-toggle{top:8px;right:8px}
+  .lang-btn{padding:6px 12px;font-size:11px}
+  .nav-bar{padding:0 12px}
+  h1{font-size:clamp(28px,8vw,48px)}
+  h2{font-size:clamp(20px,5vw,32px)}
+}
+
+@media(max-width:380px){
+  .c4,.c3,.c2{grid-template-columns:1fr}
+  .slide{padding:2vh 3vw 72px}
+  .card{padding:12px}
+  .nb{padding:6px 12px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE TOGGLE -->
+<div class="lang-toggle">
+  <button class="lang-btn active" onclick="setLang('uz')">UZ</button>
+  <button class="lang-btn" onclick="setLang('ru')">RU</button>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S0: TITLE -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide active" data-slide="0" style="text-align:center;background:linear-gradient(135deg,var(--sand) 0%,var(--sand-dark) 50%,rgba(192,57,43,.04) 100%);">
+  <div class="dot-pattern"></div>
+  <div style="margin-bottom:16px;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;background:linear-gradient(135deg,var(--gold),var(--red));border-radius:18px;">
+      <span style="color:white;font-weight:900;font-size:28px;">N</span>
+    </div>
+  </div>
+  <h1 style="font-size:clamp(36px,6vw,72px);">DSPM <span class="red" data-uz="Trening" data-ru="Тренинг">Trening</span></h1>
+  <div style="width:60px;height:4px;background:var(--gold);border-radius:2px;margin:16px auto;"></div>
+  <p class="sub" style="font-size:17px;max-width:550px;margin:0 auto;" data-uz="Muammolarni his qiling • Yechimni o'rganing • Amaliyotda sinang" data-ru="Прочувствуйте проблемы • Изучите решение • Проверьте на практике">Muammolarni his qiling • Yechimni o'rganing • Amaliyotda sinang</p>
+  <div class="cards c4" style="max-width:700px;margin:32px auto 0;">
+    <div style="text-align:center;padding:12px;"><div style="font-size:24px;">📝</div><p style="font-size:11px;color:var(--text-dim);margin-top:4px;" data-uz="PRE-Test" data-ru="PRE-Тест">PRE-Test</p></div>
+    <div style="text-align:center;padding:12px;"><div style="font-size:24px;">⚠️</div><p style="font-size:11px;color:var(--text-dim);margin-top:4px;" data-uz="Muammolar" data-ru="Проблемы">Muammolar</p></div>
+    <div style="text-align:center;padding:12px;"><div style="font-size:24px;">💡</div><p style="font-size:11px;color:var(--text-dim);margin-top:4px;" data-uz="DSPM Yechim" data-ru="DSPM Решение">DSPM Yechim</p></div>
+    <div style="text-align:center;padding:12px;"><div style="font-size:24px;">🇺🇸</div><p style="font-size:11px;color:var(--text-dim);margin-top:4px;" data-uz="O'yin + Test" data-ru="Игра + Тест">O'yin + Test</p></div>
+  </div>
+  <p style="margin-top:32px;font-size:11px;color:var(--text-dim);letter-spacing:2px;font-weight:600;">N'MEDOV SALES ACADEMY • 2026</p>
+  <div class="corner-accent"></div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S1: PRE-TEST INTRO -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="1">
+  <div class="phase phase-pre"><span data-uz="📝 1-BOSQICH: PRE-TEST" data-ru="📝 ЭТАП 1: PRE-TEST">📝 1-BOSQICH: PRE-TEST</span></div>
+  <h2 data-uz="Bilimlaringizni baholaylik" data-ru="Оценим ваши знания">Bilimlaringizni baholaylik</h2>
+  <p class="sub" data-uz="Trening boshlanishidan oldin — hozirgi darajangizni o'lchaylik" data-ru="Перед началом тренинга — измерим ваш текущий уровень">Trening boshlanishidan oldin — hozirgi darajangizni o'lchaylik</p>
+  <div class="cards c3" style="margin-top:24px;">
+    <div class="card"><div class="card-icon" style="background:rgba(44,111,187,.1);">⏱️</div><h4 data-uz="5 daqiqa" data-ru="5 минут">5 daqiqa</h4><p data-uz="15 ta savol — tezkor va oson" data-ru="15 вопросов — быстро и просто">15 ta savol — tezkor va oson</p></div>
+    <div class="card"><div class="card-icon" style="background:rgba(200,168,53,.1);">🎯</div><h4 data-uz="Maqsad" data-ru="Цель">Maqsad</h4><p data-uz="Boshlang'ich bilimni o'lchash" data-ru="Измерить начальные знания">Boshlang'ich bilimni o'lchash</p></div>
+    <div class="card"><div class="card-icon" style="background:rgba(39,134,74,.1);">📊</div><h4 data-uz="Taqqoslash" data-ru="Сравнение">Taqqoslash</h4><p data-uz="Oxirida qayta topshirasiz — o'sishni ko'rasiz" data-ru="В конце пересдадите — увидите рост">Oxirida qayta topshirasiz — o'sishni ko'rasiz</p></div>
+  </div>
+  <div class="insight"><span>💡</span><span data-uz="Bu baholash uchun emas — o'rganish uchun! Dadil javob bering." data-ru="Это не для оценки — это для обучения! Отвечайте смело.">Bu baholash uchun emas — o'rganish uchun! Dadil javob bering.</span></div>
+</div>
+
+<!-- S2: PRE-TEST -->
+<div class="slide scroll-slide" data-slide="2">
+  <div class="phase phase-pre">📝 PRE-TEST</div>
+  <div class="quiz-wrap" id="preQuizWrap"></div>
+</div>
+
+<!-- S3: PRE-TEST RESULTS -->
+<div class="slide" data-slide="3" style="text-align:center;">
+  <div class="phase phase-pre" data-uz="📝 PRE-TEST NATIJA" data-ru="📝 РЕЗУЛЬТАТ PRE-TEST">📝 PRE-TEST NATIJA</div>
+  <div class="result-circle" id="preCircle" style="background:var(--blue);">0%</div>
+  <h2 data-uz="Sizning boshlang'ich darajangiz" data-ru="Ваш начальный уровень">Sizning boshlang'ich darajangiz</h2>
+  <p class="sub" id="preSub">0 / 15</p>
+  <p style="margin-top:8px;font-size:14px;color:var(--text-dim);" id="preMsg"></p>
+  <div class="insight" style="max-width:500px;margin:24px auto 0;">
+    <span>⚠️</span><span data-uz="Endi haqiqiy muammolarni ko'ramiz — nima uchun DSPM kerakligini his qilasiz!" data-ru="Сейчас увидим реальные проблемы — почувствуете, зачем нужен DSPM!">Endi haqiqiy muammolarni ko'ramiz — nima uchun DSPM kerakligini his qilasiz!</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S4-8: MUAMMOLAR -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="4">
+  <div class="phase phase-problem"><span data-uz="⚠️ 2-BOSQICH: HAQIQIY MUAMMOLAR" data-ru="⚠️ ЭТАП 2: РЕАЛЬНЫЕ ПРОБЛЕМЫ">⚠️ 2-BOSQICH: HAQIQIY MUAMMOLAR</span></div>
+  <h2><span data-uz="Bularni" data-ru="Вы это">Bularni</span> <span class="red" data-uz="boshdan kechirgansiz" data-ru="переживали">boshdan kechirgansiz</span></h2>
+  <p class="sub" data-uz="Keling, savdo vakilning kundalik muammolarini ko'rib chiqamiz" data-ru="Давайте разберём ежедневные проблемы торгового представителя">Keling, savdo vakilning kundalik muammolarini ko'rib chiqamiz</p>
+  <div class="cards c4" style="margin-top:24px;">
+    <div class="card" style="border-top:4px solid var(--red);text-align:center;"><div style="font-size:36px;margin-bottom:8px;">😤</div><h4 data-uz="Muammo #1" data-ru="Проблема #1">Muammo #1</h4><p data-uz="Mahsulot yo'q" data-ru="Нет товара">Mahsulot yo'q</p></div>
+    <div class="card" style="border-top:4px solid var(--red);text-align:center;"><div style="font-size:36px;margin-bottom:8px;">😡</div><h4 data-uz="Muammo #2" data-ru="Проблема #2">Muammo #2</h4><p data-uz="Javonda ko'rinmas" data-ru="Не видно на полке">Javonda ko'rinmas</p></div>
+    <div class="card" style="border-top:4px solid var(--red);text-align:center;"><div style="font-size:36px;margin-bottom:8px;">😰</div><h4 data-uz="Muammo #3" data-ru="Проблема #3">Muammo #3</h4><p data-uz="Narx noto'g'ri" data-ru="Неправильная цена">Narx noto'g'ri</p></div>
+    <div class="card" style="border-top:4px solid var(--red);text-align:center;"><div style="font-size:36px;margin-bottom:8px;">😔</div><h4 data-uz="Muammo #4" data-ru="Проблема #4">Muammo #4</h4><p data-uz="Tartibsizlik" data-ru="Беспорядок">Tartibsizlik</p></div>
+  </div>
+  <div class="insight" style="background:rgba(192,57,43,.06);border-color:rgba(192,57,43,.15);">
+    <span>🎙️</span><span data-uz="Har bir stsenariyni birga muhokama qilamiz. Siz shu vaziyatda nima qilgan bo'lardingiz?" data-ru="Каждый сценарий обсудим вместе. Что бы вы сделали в такой ситуации?">Har bir stsenariyni birga muhokama qilamiz. Siz shu vaziyatda nima qilgan bo'lardingiz?</span>
+  </div>
+</div>
+
+<!-- MUAMMO #1: DISTRIBUTION -->
+<div class="slide" data-slide="5">
+  <div class="phase phase-problem"><span data-uz="⚠️ MUAMMO #1" data-ru="⚠️ ПРОБЛЕМА #1">⚠️ MUAMMO #1</span></div>
+  <div class="scenario scenario-d">
+    <div class="scenario-icon">😤</div>
+    <div class="scenario-story" data-uz="Siz 20 ta do'konga tashrif buyurdingiz. <strong>8 tasida</strong> sizning mahsulot umuman yo'q — «tugagan» yoki «buyurtma bermagan».\nRaqobatchi esa <strong>18 tadan 18 tasida</strong> turibdi.<br><br>Oy oxirida supervisor so'raydi: <em>«Nega sotuv pasaygan?»</em><br>Siz javob berasiz: <em>«Do'konlar buyurtma bermayapti...»</em><br><br>Lekin haqiqiy savol: <strong>Nima uchun 12 ta do'kondan faqat 8 tasida mahsulot bor?</strong>" data-ru="Вы посетили 20 точек. В <strong>8 из них</strong> вашего товара нет — «закончился» или «не заказывали».\nКонкурент стоит в <strong>18 из 18</strong>.<br><br>В конце месяца супервайзер спрашивает: <em>«Почему продажи упали?»</em><br>Вы отвечаете: <em>«Магазины не заказывают...»</em><br><br>Но настоящий вопрос: <strong>Почему из 12 точек товар есть только в 8?</strong>">
+      Siz 20 ta do'konga tashrif buyurdingiz. <strong>8 tasida</strong> sizning mahsulot umuman yo'q — «tugagan» yoki «buyurtma bermagan».
+      Raqobatchi esa <strong>18 tadan 18 tasida</strong> turibdi.<br><br>
+      Oy oxirida supervisor so'raydi: <em>«Nega sotuv pasaygan?»</em><br>
+      Siz javob berasiz: <em>«Do'konlar buyurtma bermayapti...»</em><br><br>
+      Lekin haqiqiy savol: <strong>Nima uchun 12 ta do'kondan faqat 8 tasida mahsulot bor?</strong>
+    </div>
+    <div class="scenario-question" data-uz="🎙️ MUHOKAMA: Sizning hududingizda mahsulot qancha do'konda bor? Nega ba'zilarida yo'q?" data-ru="🎙️ ОБСУЖДЕНИЕ: В скольких точках вашей территории есть товар? Почему в некоторых нет?">
+      🎙️ MUHOKAMA: Sizning hududingizda mahsulot qancha do'konda bor? Nega ba'zilarida yo'q?
+    </div>
+    <div class="discuss-badge"><span data-uz="💬 2 daqiqa muhokama" data-ru="💬 2 минуты обсуждение">💬 2 daqiqa muhokama</span></div>
+  </div>
+</div>
+
+<!-- MUAMMO #2: SHELVING -->
+<div class="slide" data-slide="6">
+  <div class="phase phase-problem"><span data-uz="⚠️ MUAMMO #2" data-ru="⚠️ ПРОБЛЕМА #2">⚠️ MUAMMO #2</span></div>
+  <div class="scenario scenario-s">
+    <div class="scenario-icon">😡</div>
+    <div class="scenario-story" data-uz="Do'konga kirdingiz. Sizning mahsulot bor — lekin <strong>eng pastki javonda</strong>, polga yaqin.\nRaqobatchi esa <strong>ko'z darajasida</strong>, 3 ta facing bilan.<br><br>Do'kon egasi: <em>«Sizning tovar sekin sotilayapti, joyni kamaytirdim.»</em><br>Aslida sekin sotilayapti chunki <strong>hech kim ko'rmayapti</strong>!<br><br><strong>Xaridor 3-5 soniyada qaror qiladi — ko'rmasa, olmaydi.</strong>" data-ru="Вы зашли в магазин. Ваш товар есть — но на <strong>нижней полке</strong>, у пола.\nКонкурент — <strong>на уровне глаз</strong>, 3 фейсинга.<br><br>Владелец: <em>«Ваш товар плохо продаётся, я уменьшил место.»</em><br>На самом деле плохо продаётся, потому что <strong>никто не видит</strong>!<br><br><strong>Покупатель решает за 3-5 секунд — не видит, не берёт.</strong>">
+      Do'konga kirdingiz. Sizning mahsulot bor — lekin <strong>eng pastki javonda</strong>, polga yaqin.
+      Raqobatchi esa <strong>ko'z darajasida</strong>, 3 ta facing bilan.<br><br>
+      Do'kon egasi: <em>«Sizning tovar sekin sotilayapti, joyni kamaytirdim.»</em><br>
+      Aslida sekin sotilayapti chunki <strong>hech kim ko'rmayapti</strong>!<br><br>
+      <strong>Xaridor 3-5 soniyada qaror qiladi — ko'rmasa, olmaydi.</strong>
+    </div>
+    <div class="scenario-question" data-uz="🎙️ MUHOKAMA: Sizning mahsulotingiz javonda qayerda turadi? Ko'z darajasidami?" data-ru="🎙️ ОБСУЖДЕНИЕ: Где стоит ваш товар на полке? На уровне глаз?">
+      🎙️ MUHOKAMA: Sizning mahsulotingiz javonda qayerda turadi? Ko'z darajasidami?
+    </div>
+    <div class="discuss-badge"><span data-uz="💬 2 daqiqa muhokama" data-ru="💬 2 минуты обсуждение">💬 2 daqiqa muhokama</span></div>
+  </div>
+</div>
+
+<!-- MUAMMO #3: PRICING -->
+<div class="slide" data-slide="7">
+  <div class="phase phase-problem"><span data-uz="⚠️ MUAMMO #3" data-ru="⚠️ ПРОБЛЕМА #3">⚠️ MUAMMO #3</span></div>
+  <div class="scenario scenario-p">
+    <div class="scenario-icon">😰</div>
+    <div class="scenario-story" data-uz="Do'konga kirdingiz. Sizning mahsulot javonda bor, joy yaxshi. Lekin...<br><strong>Narx yorlig'i yo'q!</strong> Yonida raqobatchi — narxi aniq ko'rinib turibdi.<br><br>Yoki boshqa holat: do'kon egasi narxni <strong>15% oshirib</strong> qo'ygan.\nXaridor qaraydi: <em>«Qimmat ekan»</em> — va raqobatchini oladi.<br><br><strong>Narxni ko'rmaydigan xaridor — sotib olmaydigan xaridor.</strong>" data-ru="Вы зашли в магазин. Ваш товар на полке, место хорошее. Но...<br><strong>Нет ценника!</strong> Рядом конкурент — цена видна чётко.<br><br>Или другая ситуация: владелец <strong>накинул 15%</strong>.\nПокупатель смотрит: <em>«Дорого»</em> — и берёт конкурента.<br><br><strong>Покупатель, который не видит цену — не покупает.</strong>">
+      Do'konga kirdingiz. Sizning mahsulot javonda bor, joy yaxshi. Lekin...<br>
+      <strong>Narx yorlig'i yo'q!</strong> Yonida raqobatchi — narxi aniq ko'rinib turibdi.<br><br>
+      Yoki boshqa holat: do'kon egasi narxni <strong>15% oshirib</strong> qo'ygan.
+      Xaridor qaraydi: <em>«Qimmat ekan»</em> — va raqobatchini oladi.<br><br>
+      <strong>Narxni ko'rmaydigan xaridor — sotib olmaydigan xaridor.</strong>
+    </div>
+    <div class="scenario-question" data-uz="🎙️ MUHOKAMA: Sizning do'konlaringizda narx yorliqlari bormi? RRP ga mos narx qo'yilganmi?" data-ru="🎙️ ОБСУЖДЕНИЕ: Есть ли ценники в ваших точках? Соответствует ли цена РРЦ?">
+      🎙️ MUHOKAMA: Sizning do'konlaringizda narx yorliqlari bormi? RRP ga mos narx qo'yilganmi?
+    </div>
+    <div class="discuss-badge"><span data-uz="💬 2 daqiqa muhokama" data-ru="💬 2 минуты обсуждение">💬 2 daqiqa muhokama</span></div>
+  </div>
+</div>
+
+<!-- MUAMMO #4: MERCHANDISING -->
+<div class="slide" data-slide="8">
+  <div class="phase phase-problem"><span data-uz="⚠️ MUAMMO #4" data-ru="⚠️ ПРОБЛЕМА #4">⚠️ MUAMMO #4</span></div>
+  <div class="scenario scenario-m">
+    <div class="scenario-icon">😔</div>
+    <div class="scenario-story" data-uz="Do'konga kirdingiz. Mahsulot bor, joy bor, narx bor. Lekin...<br>Qadoqlar <strong>teskari</strong> turibdi. Ba'zilari <strong>muddati o'tgan</strong>.\nPOSM material <strong>yirtilgan</strong>. Changli javon.<br><br>Yonida raqobatchi — <strong>tertiblangan, chiroyli POSM, yangi partiya</strong> oldinda.<br><br>Xaridor ikkalasiga qaraydi. <strong>Qaysiini oladi?</strong> Javob aniq." data-ru="Вы зашли в магазин. Товар есть, место есть, цена есть. Но...<br>Упаковки стоят <strong>задом наперёд</strong>. Некоторые <strong>просрочены</strong>.\nPOSM материалы <strong>порваны</strong>. Пыльная полка.<br><br>Рядом конкурент — <strong>аккуратно, красивый POSM, свежая партия</strong> впереди.<br><br>Покупатель смотрит на обоих. <strong>Кого возьмёт?</strong> Ответ очевиден.">
+      Do'konga kirdingiz. Mahsulot bor, joy bor, narx bor. Lekin...<br>
+      Qadoqlar <strong>teskari</strong> turibdi. Ba'zilari <strong>muddati o'tgan</strong>.
+      POSM material <strong>yirtilgan</strong>. Changli javon.<br><br>
+      Yonida raqobatchi — <strong>tertiblangan, chiroyli POSM, yangi partiya</strong> oldinda.<br><br>
+      Xaridor ikkalasiga qaraydi. <strong>Qaysiini oladi?</strong> Javob aniq.
+    </div>
+    <div class="scenario-question" data-uz="🎙️ MUHOKAMA: O'zingiz xaridor sifatida — tartibli yoki tartibsiz javondagi tovarni olasizmi?" data-ru="🎙️ ОБСУЖДЕНИЕ: Как покупатель — вы бы взяли товар с аккуратной или неряшливой полки?">
+      🎙️ MUHOKAMA: O'zingiz xaridor sifatida — tartibli yoki tartibsiz javondagi tovarni olasizmi?
+    </div>
+    <div class="discuss-badge"><span data-uz="💬 2 daqiqa muhokama" data-ru="💬 2 минуты обсуждение">💬 2 daqiqa muhokama</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S9: BRIDGE -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="9" style="text-align:center;">
+  <div style="font-size:56px;margin-bottom:16px;">💡</div>
+  <h2><span data-uz="Barcha muammolarning" data-ru="У всех проблем">Barcha muammolarning</span> <span class="accent" data-uz="bitta yechimi" data-ru="одно решение">bitta yechimi</span> <span data-uz="bor" data-ru="есть">bor</span></h2>
+  <div style="width:60px;height:4px;background:var(--gold);border-radius:2px;margin:16px auto;"></div>
+  <p class="sub" style="max-width:500px;margin:0 auto;" data-uz="Siz ko'rgan 4 muammo — bu DSPM tizimining 4 komponentiga to'g'ri keladi" data-ru="4 проблемы, которые вы увидели — это 4 компонента системы DSPM">Siz ko'rgan 4 muammo — bu DSPM tizimining 4 komponentiga to'g'ri keladi</p>
+  <div class="cards c4" style="max-width:700px;margin:24px auto 0;">
+    <div class="card" style="text-align:center;border-top:4px solid var(--teal);"><p style="font-size:13px;color:var(--red);margin-bottom:8px;" data-uz="😤 Mahsulot yo'q" data-ru="😤 Нет товара">😤 Mahsulot yo'q</p><div style="font-size:24px;margin-bottom:4px;">⬇️</div><h4 style="color:var(--teal);">D — Distribution</h4></div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--gold);"><p style="font-size:13px;color:var(--red);margin-bottom:8px;" data-uz="😡 Ko'rinmas" data-ru="😡 Не видно">😡 Ko'rinmas</p><div style="font-size:24px;margin-bottom:4px;">⬇️</div><h4 style="color:var(--gold);">S — Shelving</h4></div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--blue);"><p style="font-size:13px;color:var(--red);margin-bottom:8px;" data-uz="😰 Narx noto'g'ri" data-ru="😰 Неправильная цена">😰 Narx noto'g'ri</p><div style="font-size:24px;margin-bottom:4px;">⬇️</div><h4 style="color:var(--blue);">P — Pricing</h4></div>
+    <div class="card" style="text-align:center;border-top:4px solid var(--orange);"><p style="font-size:13px;color:var(--red);margin-bottom:8px;" data-uz="😔 Tartibsizlik" data-ru="😔 Беспорядок">😔 Tartibsizlik</p><div style="font-size:24px;margin-bottom:4px;">⬇️</div><h4 style="color:var(--orange);">M — Merchandising</h4></div>
+  </div>
+  <div class="insight" style="max-width:600px;margin:24px auto 0;justify-content:center;font-size:15px;font-weight:700;" data-uz="DSPM = 4 muammoning tizimli yechimi" data-ru="DSPM = системное решение 4 проблем">
+    DSPM = 4 muammoning tizimli yechimi
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S10-13: DSPM THEORY -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="10">
+  <div class="phase phase-theory" style="color:var(--teal);background:rgba(26,138,125,.1);border-color:rgba(26,138,125,.2);"><span data-uz="📦 YECHIM #1: DISTRIBUTION" data-ru="📦 РЕШЕНИЕ #1: DISTRIBUTION">📦 YECHIM #1: DISTRIBUTION</span></div>
+  <h2><span style="color:var(--red);" data-uz="😤 Mahsulot yo'q" data-ru="😤 Нет товара">😤 Mahsulot yo'q</span> → <span style="color:var(--teal);" data-uz="Distribyutsiya!" data-ru="Дистрибуция!">Distribyutsiya!</span></h2>
+  <p class="sub" data-uz="Mahsulot do'konda bo'lmasa — sotib olish imkoni yo'q" data-ru="Если товара нет в магазине — купить невозможно">Mahsulot do'konda bo'lmasa — sotib olish imkoni yo'q</p>
+  <div class="cards c2" style="margin-top:20px;">
+    <div class="card card-d"><h4 data-uz="📊 Sonli distribyutsiya (ND)" data-ru="📊 Числовая дистрибуция (ND)">📊 Sonli distribyutsiya (ND)</h4><p data-uz="100 ta do'kondan 85 tasida mahsulot bor = 85% ND" data-ru="Из 100 точек товар есть в 85 = 85% ND">100 ta do'kondan 85 tasida mahsulot bor = <strong>85% ND</strong></p><div class="kpi-bar" style="margin-top:12px;"><span class="kpi-label" data-uz="Maqsad" data-ru="Цель">Maqsad</span><span class="kpi-val" style="background:var(--teal);">85%+</span></div></div>
+    <div class="card card-d"><h4 data-uz="📦 SKU qamrovi" data-ru="📦 Покрытие SKU">📦 SKU qamrovi</h4><p data-uz="Assortiment rejasidagi 20 SKUdan 15 tasi bor = 75%" data-ru="Из 20 SKU ассортиментного плана 15 есть = 75%">Assortiment rejasidagi 20 SKUdan 15 tasi bor = <strong>75%</strong></p><div class="kpi-bar" style="margin-top:12px;"><span class="kpi-label" data-uz="Maqsad" data-ru="Цель">Maqsad</span><span class="kpi-val" style="background:var(--teal);">80%+</span></div></div>
+  </div>
+  <div class="insight" style="background:rgba(26,138,125,.08);border-color:rgba(26,138,125,.2);"><span>💡</span><span data-uz="OOS (Out of Stock) = yo'qotilgan sotuv. Har bir bo'sh do'kon = raqobatchiga sovg'a." data-ru="OOS (Out of Stock) = потерянная продажа. Каждая пустая точка = подарок конкуренту.">OOS (Out of Stock) = yo'qotilgan sotuv. Har bir bo'sh do'kon = raqobatchiga sovg'a.</span></div>
+</div>
+
+<div class="slide" data-slide="11">
+  <div class="phase phase-theory" style="color:var(--gold);background:rgba(200,168,53,.1);border-color:rgba(200,168,53,.2);"><span data-uz="🏪 YECHIM #2: SHELVING" data-ru="🏪 РЕШЕНИЕ #2: SHELVING">🏪 YECHIM #2: SHELVING</span></div>
+  <h2><span style="color:var(--red);" data-uz="😡 Ko'rinmas" data-ru="😡 Не видно">😡 Ko'rinmas</span> → <span class="accent" data-uz="Javon joylashuvi!" data-ru="Полочное размещение!">Javon joylashuvi!</span></h2>
+  <p class="sub" data-uz="Ko'z darajasi = xarid darajasi" data-ru="Уровень глаз = уровень покупки">Ko'z darajasi = xarid darajasi</p>
+  <div class="cards c3" style="margin-top:20px;">
+    <div class="card card-s"><h4 data-uz="👁️ Ko'z darajasi" data-ru="👁️ Уровень глаз">👁️ Ko'z darajasi</h4><p data-uz="1.2–1.6 metr — xaridor birinchi navbatda shu yerga qaraydi. Pastki javon 30-40% kam sotiladi!" data-ru="1.2–1.6 м — покупатель смотрит сюда первым. Нижняя полка продаёт на 30-40% меньше!">1.2–1.6 metr — xaridor birinchi navbatda shu yerga qaraydi. Pastki javon <strong>30-40% kam</strong> sotiladi!</p></div>
+    <div class="card card-s"><h4 data-uz="📏 Facing" data-ru="📏 Фейсинг">📏 Facing</h4><p data-uz="Xaridorga ko'rinadigan mahsulot birliklari soni — ko'p facing = kuchli vizual ta'sir" data-ru="Количество видимых единиц товара — больше фейсинг = сильнее визуальное воздействие">Xaridorga ko'rinadigan mahsulot birliklari soni — ko'p facing = kuchli vizual ta'sir</p></div>
+    <div class="card card-s"><h4 data-uz="📐 SOS (Share of Shelf)" data-ru="📐 SOS (Доля полки)">📐 SOS (Share of Shelf)</h4><p data-uz="Javondagi ulushingiz. Maqsad: 40%+ kategoriyada" data-ru="Ваша доля на полке. Цель: 40%+ в категории">Javondagi ulushingiz. Maqsad: <strong>40%+</strong> kategoriyada</p></div>
+  </div>
+  <div class="insight" style="background:rgba(200,168,53,.06);border-color:rgba(200,168,53,.15);"><span>💡</span><span data-uz="Esladingizmi? Muammo #2 — mahsulot bor, lekin pastki javonda. SHELVING buning yechimi!" data-ru="Помните? Проблема #2 — товар есть, но на нижней полке. SHELVING — решение!">Esladingizmi? Muammo #2 — mahsulot bor, lekin pastki javonda. SHELVING buning yechimi!</span></div>
+</div>
+
+<div class="slide" data-slide="12">
+  <div class="phase phase-theory" style="color:var(--blue);background:rgba(44,111,187,.1);border-color:rgba(44,111,187,.2);"><span data-uz="💰 YECHIM #3: PRICING" data-ru="💰 РЕШЕНИЕ #3: PRICING">💰 YECHIM #3: PRICING</span></div>
+  <h2><span style="color:var(--red);" data-uz="😰 Narx noto'g'ri" data-ru="😰 Неправильная цена">😰 Narx noto'g'ri</span> → <span style="color:var(--blue);" data-uz="Narxlash!" data-ru="Ценообразование!">Narxlash!</span></h2>
+  <p class="sub" data-uz="To'g'ri narx + ko'rinadigan narx = sotuv" data-ru="Правильная цена + видимая цена = продажа">To'g'ri narx + ko'rinadigan narx = sotuv</p>
+  <div class="cards c3" style="margin-top:20px;">
+    <div class="card" style="text-align:center;border-left:4px solid var(--red);"><h4 style="color:var(--red);" data-uz="✗ Qimmat" data-ru="✗ Дорого">✗ Qimmat</h4><p data-uz="Xaridor olmaydi — raqobatchi yutadi" data-ru="Покупатель не берёт — конкурент выигрывает">Xaridor olmaydi — raqobatchi yutadi</p></div>
+    <div class="card" style="text-align:center;border-left:4px solid var(--green);"><h4 style="color:var(--green);" data-uz="✓ RRP" data-ru="✓ РРЦ">✓ RRP</h4><p data-uz="Optimal — foyda va sotuv balansi" data-ru="Оптимально — баланс прибыли и продаж">Optimal — foyda va sotuv balansi</p></div>
+    <div class="card" style="text-align:center;border-left:4px solid var(--orange);"><h4 style="color:var(--orange);" data-uz="⚠ Arzon" data-ru="⚠ Дёшево">⚠ Arzon</h4><p data-uz="Sotuv bor — lekin margina yo'q" data-ru="Продажи есть — но маржи нет">Sotuv bor — lekin margina yo'q</p></div>
+  </div>
+  <div class="cards c2" style="margin-top:12px;">
+    <div class="card card-p"><h4>🏷️ RRP</h4><p data-uz="Tavsiya etilgan chakana narx — kompaniya belgilagan optimal narx" data-ru="Рекомендованная розничная цена — оптимальная цена от компании">Tavsiya etilgan chakana narx — kompaniya belgilagan optimal narx</p></div>
+    <div class="card card-p"><h4 data-uz="📋 Narx yorlig'i" data-ru="📋 Ценник">📋 Narx yorlig'i</h4><p data-uz="Narxsiz mahsulot sotilmaydi! Xaridor narxni ko'rmasa — o'tib ketadi" data-ru="Без ценника товар не продаётся! Покупатель не видит цену — проходит мимо">Narxsiz mahsulot sotilmaydi! Xaridor narxni ko'rmasa — o'tib ketadi</p></div>
+  </div>
+</div>
+
+<div class="slide" data-slide="13">
+  <div class="phase phase-theory" style="color:var(--orange);background:rgba(212,115,26,.1);border-color:rgba(212,115,26,.2);"><span data-uz="🎨 YECHIM #4: MERCHANDISING" data-ru="🎨 РЕШЕНИЕ #4: MERCHANDISING">🎨 YECHIM #4: MERCHANDISING</span></div>
+  <h2><span style="color:var(--red);" data-uz="😔 Tartibsizlik" data-ru="😔 Беспорядок">😔 Tartibsizlik</span> → <span style="color:var(--orange);" data-uz="Merchandayzing!" data-ru="Мерчандайзинг!">Merchandayzing!</span></h2>
+  <p class="sub" data-uz="Vizual bezak + tartib + POSM = xaridor ishonchi" data-ru="Визуальное оформление + порядок + POSM = доверие покупателя">Vizual bezak + tartib + POSM = xaridor ishonchi</p>
+  <div class="cards c2" style="margin-top:20px;">
+    <div class="card card-m"><h4 data-uz="📦 FIFO qoidasi" data-ru="📦 Правило FIFO">📦 FIFO qoidasi</h4><p data-uz="First In, First Out — eski tovar oldinda, yangi orqada. Muddati o'tgan tovar = zarar + ishonch yo'qotilishi" data-ru="First In, First Out — старый товар впереди, новый сзади. Просрочка = убыток + потеря доверия"><strong>First In, First Out</strong> — eski tovar oldinda, yangi orqada. Muddati o'tgan tovar = zarar + ishonch yo'qotilishi</p></div>
+    <div class="card card-m"><h4 data-uz="🎯 POSM materiallari" data-ru="🎯 POSM материалы">🎯 POSM materiallari</h4><p data-uz="Poster, wobbler, shelftalker — e'tiborni tortadi. Yirtilgan POSM = brend obro'si tushadi" data-ru="Постер, воблер, шелфтокер — привлекают внимание. Порванный POSM = репутация бренда падает">Poster, wobbler, shelftalker — e'tiborni tortadi. Yirtilgan POSM = brend obro'si tushadi</p></div>
+    <div class="card card-m"><h4 data-uz="🔗 Cross-merchandising" data-ru="🔗 Кросс-мерчандайзинг">🔗 Cross-merchandising</h4><p data-uz="Bog'liq tovarlarni yonma-yon: chips + cola = +20% sotuv" data-ru="Сопутствующие товары рядом: чипсы + кола = +20% продаж">Bog'liq tovarlarni yonma-yon: chips + cola = +20% sotuv</p></div>
+    <div class="card card-m"><h4 data-uz="🧹 Tartib va tozalik" data-ru="🧹 Порядок и чистота">🧹 Tartib va tozalik</h4><p data-uz="Yuzini oldinga qaratish, changsizlash. Tartibsiz javon = ishonchsiz brend" data-ru="Лицом к покупателю, без пыли. Неряшливая полка = ненадёжный бренд">Yuzini oldinga qaratish, changsizlash. Tartibsiz javon = ishonchsiz brend</p></div>
+  </div>
+</div>
+
+<!-- S14: DSPM SYSTEM -->
+<div class="slide" data-slide="14" style="text-align:center;">
+  <div class="phase phase-theory"><span data-uz="⚡ DSPM TIZIMI" data-ru="⚡ СИСТЕМА DSPM">⚡ DSPM TIZIMI</span></div>
+  <h2><span data-uz="4 muammo — 4 yechim —" data-ru="4 проблемы — 4 решения —">4 muammo — 4 yechim —</span> <span class="accent" data-uz="1 tizim" data-ru="1 система">1 tizim</span></h2>
+  <p class="sub" style="max-width:500px;margin:8px auto 0;" data-uz="DSPM zanjir. Bitta halqa zaif — butun tizim zaiflanadi." data-ru="DSPM — цепь. Одно слабое звено — вся система ослабевает.">DSPM zanjir. Bitta halqa zaif — butun tizim zaiflanadi.</p>
+  <div class="cards c4" style="max-width:700px;margin:24px auto 0;">
+    <div class="card card-d" style="text-align:center;"><div style="font-size:32px;">📦</div><h4 style="color:var(--teal);">D → 85%</h4><p data-uz="Mavjudlik" data-ru="Наличие">Mavjudlik</p></div>
+    <div class="card card-s" style="text-align:center;"><div style="font-size:32px;">🏪</div><h4 style="color:var(--gold);">S → 40%</h4><p data-uz="Javon ulushi" data-ru="Доля полки">Javon ulushi</p></div>
+    <div class="card card-p" style="text-align:center;"><div style="font-size:32px;">💰</div><h4 style="color:var(--blue);">P → RRP</h4><p data-uz="Narx nazorati" data-ru="Контроль цен">Narx nazorati</p></div>
+    <div class="card card-m" style="text-align:center;"><div style="font-size:32px;">🎨</div><h4 style="color:var(--orange);">M → POSM</h4><p data-uz="Vizual bezak" data-ru="Визуальное оформление">Vizual bezak</p></div>
+  </div>
+  <div class="insight" style="max-width:600px;margin:24px auto 0;justify-content:center;font-size:15px;font-weight:700;" data-uz="D + S + P + M = MUAMMOLAR YO'Q = SOTUV O'SADI" data-ru="D + S + P + M = НЕТ ПРОБЛЕМ = ПРОДАЖИ РАСТУТ">
+    D + S + P + M = MUAMMOLAR YO'Q = SOTUV O'SADI
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S15: GAME INTRO -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="15" style="text-align:center;background:linear-gradient(135deg,var(--sand) 0%,rgba(192,57,43,.06) 100%);">
+  <div class="phase phase-game"><span data-uz="🎮 3-BOSQICH: STRATEGIK O'YIN" data-ru="🎮 ЭТАП 3: СТРАТЕГИЧЕСКАЯ ИГРА">🎮 3-BOSQICH: STRATEGIK O'YIN</span></div>
+  <div style="font-size:48px;margin-bottom:8px;">🇺🇸</div>
+  <h1 style="font-size:clamp(32px,5vw,56px);">N'MEDOV <span class="red">goes USA</span></h1>
+  <div style="width:60px;height:4px;background:var(--red);border-radius:2px;margin:12px auto;"></div>
+  <p class="sub" style="font-size:15px;max-width:600px;margin:0 auto 20px;" data-uz="N'MEDOV AQSh bozoriga chiqish qarorini qabul qildi. Sizning jamoangiz — fokus-guruh sifatida AQShga yuboriladi. <strong>3 oy. Cheksiz resurslar. Faqat DSPM hal qiladi.</strong>" data-ru="N'MEDOV принял решение выйти на рынок США. Ваша команда отправляется как фокус-группа. <strong>3 месяца. Безлимитные ресурсы. Решает только DSPM.</strong>">
+    N'MEDOV AQSh bozoriga chiqish qarorini qabul qildi. Sizning jamoangiz — fokus-guruh sifatida AQShga yuboriladi.
+    <strong style="color:var(--charcoal);">3 oy. Cheksiz resurslar. Faqat DSPM hal qiladi.</strong>
+  </p>
+  <div class="cards c4" style="max-width:650px;margin:0 auto;">
+    <div class="card" style="text-align:center;border-left:4px solid var(--red);"><h4 data-uz="4 jamoa" data-ru="4 команды">4 jamoa</h4><p data-uz="Raqobat" data-ru="Конкуренция">Raqobat</p></div>
+    <div class="card" style="text-align:center;border-left:4px solid var(--gold);"><h4 data-uz="3 raund" data-ru="3 раунда">3 raund</h4><p data-uz="3 oy" data-ru="3 месяца">3 oy</p></div>
+    <div class="card" style="text-align:center;border-left:4px solid var(--blue);"><h4>DSPM</h4><p data-uz="Har bir qaror" data-ru="Каждое решение">Har bir qaror</p></div>
+    <div class="card" style="text-align:center;border-left:4px solid var(--green);"><h4 data-uz="G'olib" data-ru="Победитель">G'olib</h4><p data-uz="Eng yaxshi tizim" data-ru="Лучшая система">Eng yaxshi tizim</p></div>
+  </div>
+</div>
+
+<!-- S16: GAME SETUP -->
+<div class="slide scroll-slide" data-slide="16">
+  <div class="phase phase-game"><span data-uz="🎮 JAMOALAR" data-ru="🎮 КОМАНДЫ">🎮 JAMOALAR</span></div>
+  <h2 data-uz="Jamoa nomlarini kiriting" data-ru="Введите названия команд">Jamoa nomlarini kiriting</h2>
+  <div class="cards c2" style="margin-top:20px;max-width:700px;">
+    <div class="card" style="border-left:4px solid var(--teal);"><label style="font-size:12px;font-weight:700;color:var(--teal);letter-spacing:1px;">🟢 1-<span data-uz="JAMOA" data-ru="КОМАНДА">JAMOA</span></label><input id="t1" type="text" value="Alpha" class="score-input" style="font-size:18px;margin-top:8px;"></div>
+    <div class="card" style="border-left:4px solid var(--gold);"><label style="font-size:12px;font-weight:700;color:var(--gold);letter-spacing:1px;">🟡 2-<span data-uz="JAMOA" data-ru="КОМАНДА">JAMOA</span></label><input id="t2" type="text" value="Bravo" class="score-input" style="font-size:18px;margin-top:8px;"></div>
+    <div class="card" style="border-left:4px solid var(--blue);"><label style="font-size:12px;font-weight:700;color:var(--blue);letter-spacing:1px;">🔵 3-<span data-uz="JAMOA" data-ru="КОМАНДА">JAMOA</span></label><input id="t3" type="text" value="Charlie" class="score-input" style="font-size:18px;margin-top:8px;"></div>
+    <div class="card" style="border-left:4px solid var(--red);"><label style="font-size:12px;font-weight:700;color:var(--red);letter-spacing:1px;">🔴 4-<span data-uz="JAMOA" data-ru="КОМАНДА">JAMOA</span></label><input id="t4" type="text" value="Delta" class="score-input" style="font-size:18px;margin-top:8px;"></div>
+  </div>
+</div>
+
+<!-- S17-19: ROUNDS -->
+<div class="slide scroll-slide" data-slide="17" id="round1Slide"></div>
+<div class="slide scroll-slide" data-slide="18" id="round2Slide"></div>
+<div class="slide scroll-slide" data-slide="19" id="round3Slide"></div>
+
+<!-- S20: GAME RESULTS -->
+<div class="slide" data-slide="20" id="gameResultSlide" style="text-align:center;"></div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- S21: POST-TEST INTRO -->
+<!-- ═══════════════════════════════════════ -->
+<div class="slide" data-slide="21">
+  <div class="phase phase-post"><span data-uz="✅ 4-BOSQICH: POST-TEST" data-ru="✅ ЭТАП 4: POST-TEST">✅ 4-BOSQICH: POST-TEST</span></div>
+  <h2 data-uz="Nima o'zgarganini ko'ramiz" data-ru="Посмотрим, что изменилось">Nima o'zgarganini ko'ramiz</h2>
+  <p class="sub" data-uz="Xuddi shu 15 savol — lekin endi siz DSPM ni his qildingiz va o'rgandingiz!" data-ru="Те же 15 вопросов — но теперь вы прочувствовали и изучили DSPM!">Xuddi shu 15 savol — lekin endi siz DSPM ni his qildingiz va o'rgandingiz!</p>
+  <div class="cards c2" style="margin-top:24px;max-width:500px;">
+    <div class="card" style="text-align:center;"><div style="font-size:36px;">📝</div><h4>PRE-Test</h4><p data-uz="Treningdan oldin" data-ru="До тренинга">Treningdan oldin</p><div id="preScoreReminder" style="font-family:'DM Serif Display';font-size:32px;color:var(--blue);margin-top:8px;">—%</div></div>
+    <div class="card" style="text-align:center;"><div style="font-size:36px;">✅</div><h4>POST-Test</h4><p data-uz="Hozir topshirasiz" data-ru="Сдаёте сейчас">Hozir topshirasiz</p><div style="font-family:'DM Serif Display';font-size:32px;color:var(--green);margin-top:8px;">?</div></div>
+  </div>
+  <div class="insight" style="max-width:500px;margin-top:24px;"><span>🚀</span><span data-uz="Maqsad — o'sishni ko'rish. Har bir foiz — sizning rivojlanishingiz!" data-ru="Цель — увидеть рост. Каждый процент — ваше развитие!">Maqsad — o'sishni ko'rish. Har bir foiz — sizning rivojlanishingiz!</span></div>
+</div>
+
+<!-- S22: POST-TEST -->
+<div class="slide scroll-slide" data-slide="22">
+  <div class="phase phase-post">✅ POST-TEST</div>
+  <div class="quiz-wrap" id="postQuizWrap"></div>
+</div>
+
+<!-- S23: POST RESULTS -->
+<div class="slide" data-slide="23" id="postResultSlide" style="text-align:center;"></div>
+
+<!-- S24: RAHMAT -->
+<div class="slide" data-slide="24" style="text-align:center;background:linear-gradient(135deg,var(--sand) 0%,var(--sand-dark) 50%,rgba(192,57,43,.04) 100%);">
+  <div class="dot-pattern"></div>
+  <h1 style="font-size:clamp(40px,7vw,72px);" data-uz="RAHMAT!" data-ru="СПАСИБО!">RAHMAT!</h1>
+  <div style="width:60px;height:4px;background:var(--gold);border-radius:2px;margin:16px auto;"></div>
+  <p class="sub" style="font-size:16px;max-width:500px;margin:0 auto;" data-uz="DSPM trening dasturini muvaffaqiyatli o'tdingiz" data-ru="Вы успешно прошли тренинг-программу DSPM">DSPM trening dasturini muvaffaqiyatli o'tdingiz</p>
+  <div style="margin-top:28px;text-align:left;max-width:350px;margin-left:auto;margin-right:auto;">
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:14px;height:14px;border-radius:4px;background:var(--teal);display:inline-block;flex-shrink:0;"></span><span style="font-size:15px;" data-uz="Distribution — ko'proq nuqtalarga yeting" data-ru="Distribution — охватывайте больше точек">Distribution — ko'proq nuqtalarga yeting</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:14px;height:14px;border-radius:4px;background:var(--gold);display:inline-block;flex-shrink:0;"></span><span style="font-size:15px;" data-uz="Shelving — javonda ajralib turing" data-ru="Shelving — выделяйтесь на полке">Shelving — javonda ajralib turing</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:14px;height:14px;border-radius:4px;background:var(--blue);display:inline-block;flex-shrink:0;"></span><span style="font-size:15px;" data-uz="Pricing — narxni nazorat qiling" data-ru="Pricing — контролируйте цены">Pricing — narxni nazorat qiling</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;"><span style="width:14px;height:14px;border-radius:4px;background:var(--orange);display:inline-block;flex-shrink:0;"></span><span style="font-size:15px;" data-uz="Merchandising — nuqtani jonlantiring" data-ru="Merchandising — оживляйте точку">Merchandising — nuqtani jonlantiring</span></div>
+  </div>
+  <p style="margin-top:32px;font-size:11px;color:var(--text-dim);letter-spacing:2px;font-weight:600;">N'MEDOV SALES ACADEMY • 2026</p>
+  <div class="corner-accent"></div>
+</div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="nav-bar">
+  <div class="ptrack"><div class="pfill" id="pf"></div></div>
+  <button class="nb" id="pBtn" onclick="go(-1)" disabled><span data-uz="← Oldingi" data-ru="← Назад">← Oldingi</span></button>
+  <span class="ni" id="nInfo">1 / 25</span>
+  <button class="nb pri" id="nBtn" onclick="go(1)"><span data-uz="Keyingi →" data-ru="Далее →">Keyingi →</span></button>
+</div>
+
+<script>
+// ====== LANGUAGE SYSTEM ======
+let currentLang = 'uz';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.trim().toLowerCase() === lang);
+  });
+  // Update all elements with data-uz/data-ru
+  document.querySelectorAll('[data-uz][data-ru]').forEach(el => {
+    el.innerHTML = el.getAttribute('data-' + lang);
+  });
+  // Rebuild quizzes if not yet submitted
+  if (!window.preSubmitted) makeQuiz('preQuizWrap', 'pre');
+  if (!window.postSubmitted) makeQuiz('postQuizWrap', 'post');
+}
+
+// ====== QUIZ — FIXED ======
+const QUESTIONS_UZ = [
+  {q:"1. DSPM dagi «D» nimani bildiradi?",o:["Distribution — Tarqatish","Design — Dizayn","Discount — Chegirma","Demand — Talab"],c:0},
+  {q:"2. Sonli distribyutsiya (ND) nima?",o:["Mahsulot mavjud nuqtalar foizi","SKU soni","Sotuv hajmi","Agent soni"],c:0},
+  {q:"3. OOS (Out of Stock) nima?",o:["Tovarning javonda tugashi","Yangi tovar kirishi","Aksiya turi","Javon hajmi"],c:0},
+  {q:"4. Javonda eng yaxshi joy qayerda?",o:["Ko'z darajasi (1.2-1.6m)","Eng past javon","Eng yuqori javon","Kassa orqasi"],c:0},
+  {q:"5. FIFO qoidasi nimani anglatadi?",o:["Eski tovar — oldinda","Yangi tovar — oldinda","Katta tovar — oldinda","Arzon tovar — oldinda"],c:0},
+  {q:"6. RRP nima?",o:["Tavsiya etilgan chakana narx","Ulgurji narx","Aksiya narxi","Raqobatchi narxi"],c:0},
+  {q:"7. Narx yorlig'ining asosiy vazifasi?",o:["Xaridor uchun shaffoflik","Dekoratsiya","Raqobatchi uchun ma'lumot","Agent uchun eslatma"],c:0},
+  {q:"8. Cross-merchandising nima?",o:["Bog'liq tovarlarni yonma-yon qo'yish","Raqobatchini yoniga qo'yish","Narxni oshirish","Tovarni yashirish"],c:0},
+  {q:"9. POSM materiallariga nima kiradi?",o:["Poster, wobbler, shelftalker","Faqat narx yorlig'i","Faqat TV reklama","Hech narsa"],c:0},
+  {q:"10. Distribyutsiya KPI maqsadi?",o:["85%+ sonli distribyutsiya","50% sotuv","10 ta aksiya","100 ta SKU"],c:0},
+  {q:"11. SOS (Share of Shelf) maqsadi?",o:["40%+ kategoriyada","10%","5%","90%"],c:0},
+  {q:"12. Facing (feysing) nima?",o:["Xaridorga ko'rinadigan mahsulot soni","Mahsulot og'irligi","Do'kon hajmi","Javon uzunligi"],c:0},
+  {q:"13. SKU qamrovi nima?",o:["Assortiment rejasidagi mavjud ulush","Ombordagi tovar soni","Kunlik sotuv","Agent marshruti"],c:0},
+  {q:"14. DSPM da «P» nimani bildiradi?",o:["Pricing — Narxlash","Promotion — Targ'ibot","Product — Mahsulot","Profit — Foyda"],c:0},
+  {q:"15. DSPM tizim sifatida ishlaydi chunki:",o:["Har bir element boshqasini kuchaytiradi","Faqat D muhim","Faqat M muhim","Alohida ishlaydi"],c:0},
+];
+
+const QUESTIONS_RU = [
+  {q:"1. Что означает «D» в DSPM?",o:["Distribution — Дистрибуция","Design — Дизайн","Discount — Скидка","Demand — Спрос"],c:0},
+  {q:"2. Что такое числовая дистрибуция (ND)?",o:["Процент точек с наличием товара","Количество SKU","Объём продаж","Количество агентов"],c:0},
+  {q:"3. Что такое OOS (Out of Stock)?",o:["Отсутствие товара на полке","Ввод нового товара","Тип акции","Объём полки"],c:0},
+  {q:"4. Лучшее место на полке?",o:["Уровень глаз (1.2-1.6м)","Нижняя полка","Верхняя полка","За кассой"],c:0},
+  {q:"5. Что означает правило FIFO?",o:["Старый товар — впереди","Новый товар — впереди","Крупный товар — впереди","Дешёвый товар — впереди"],c:0},
+  {q:"6. Что такое RRP?",o:["Рекомендованная розничная цена","Оптовая цена","Акционная цена","Цена конкурента"],c:0},
+  {q:"7. Основная функция ценника?",o:["Прозрачность для покупателя","Декорация","Информация для конкурента","Напоминание для агента"],c:0},
+  {q:"8. Что такое кросс-мерчандайзинг?",o:["Размещение сопутствующих товаров рядом","Размещение рядом с конкурентом","Повышение цены","Сокрытие товара"],c:0},
+  {q:"9. Что входит в POSM материалы?",o:["Постер, воблер, шелфтокер","Только ценник","Только ТВ реклама","Ничего"],c:0},
+  {q:"10. Цель KPI по дистрибуции?",o:["85%+ числовая дистрибуция","50% продаж","10 акций","100 SKU"],c:0},
+  {q:"11. Цель SOS (доля полки)?",o:["40%+ в категории","10%","5%","90%"],c:0},
+  {q:"12. Что такое фейсинг?",o:["Количество видимых единиц товара","Вес товара","Размер магазина","Длина полки"],c:0},
+  {q:"13. Что такое покрытие SKU?",o:["Доля из ассортиментного плана","Количество товара на складе","Дневные продажи","Маршрут агента"],c:0},
+  {q:"14. Что означает «P» в DSPM?",o:["Pricing — Ценообразование","Promotion — Продвижение","Product — Продукт","Profit — Прибыль"],c:0},
+  {q:"15. DSPM работает как система, потому что:",o:["Каждый элемент усиливает другие","Только D важен","Только M важен","Элементы работают отдельно"],c:0},
+];
+
+function shuffleArr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+
+function makeQuiz(containerId, prefix) {
+  const srcQuestions = currentLang === 'ru' ? QUESTIONS_RU : QUESTIONS_UZ;
+  const qs = shuffleArr(srcQuestions).map(q => {
+    const ct = q.o[q.c]; const sh = shuffleArr(q.o);
+    return {...q, o:sh, c:sh.indexOf(ct)};
+  });
+  window[prefix+'_qs'] = qs;
+  window[prefix+'_ans'] = new Array(qs.length).fill(-1);
+
+  const title = prefix === 'pre'
+    ? (currentLang === 'ru' ? 'PRE-Тест: Проверьте знания' : 'PRE-Test: Bilimlarni tekshiring')
+    : (currentLang === 'ru' ? 'POST-Тест: Увидьте рост' : "POST-Test: O'sishni ko'ring");
+
+  const counterLabel = currentLang === 'ru' ? 'Отвечено' : 'Javob berildi';
+  const btnLabel = currentLang === 'ru' ? 'Показать результат' : "Natijani ko'rish";
+
+  document.getElementById(containerId).innerHTML =
+    `<h2 style="margin-bottom:16px;">${title}</h2>`+
+    `<div class="quiz-counter" id="${prefix}Counter">${counterLabel}: 0 / ${qs.length}</div>`+
+    qs.map((q,qi)=>`<div class="qq"><h4>${q.q}</h4><div class="qo">${q.o.map((o,oi)=>`<button class="qopt" data-p="${prefix}" data-q="${qi}" data-o="${oi}" onclick="selQ('${prefix}',${qi},${oi})">${o}</button>`).join('')}</div></div>`).join('')+
+    `<button class="qbtn" id="${prefix}Btn" disabled onclick="submitQ('${prefix}')">${btnLabel}</button>`;
+}
+
+function selQ(p, qi, oi) {
+  window[p+'_ans'][qi] = oi;
+  // Update visual selection
+  document.querySelectorAll(`.qopt[data-p="${p}"][data-q="${qi}"]`).forEach(b => b.classList.remove('sel'));
+  const clicked = document.querySelector(`.qopt[data-p="${p}"][data-q="${qi}"][data-o="${oi}"]`);
+  if (clicked) clicked.classList.add('sel');
+
+  // Count answered
+  const answered = window[p+'_ans'].filter(a => a >= 0).length;
+  const total = window[p+'_ans'].length;
+  const counterLabel = currentLang === 'ru' ? 'Отвечено' : 'Javob berildi';
+  const counter = document.getElementById(p+'Counter');
+  if (counter) {
+    counter.textContent = `${counterLabel}: ${answered} / ${total}`;
+    counter.classList.toggle('complete', answered === total);
+  }
+
+  // Enable button when ALL questions answered
+  const btn = document.getElementById(p+'Btn');
+  if (btn) btn.disabled = answered < total;
+}
+
+function submitQ(p) {
+  window[p+'Submitted'] = true;
+  const qs = window[p+'_qs'], ans = window[p+'_ans'];
+  let s = 0;
+  qs.forEach((q, qi) => {
+    document.querySelectorAll(`.qopt[data-p="${p}"][data-q="${qi}"]`).forEach(b => {
+      b.classList.add('dis');
+      const oi = +b.dataset.o;
+      if (oi === q.c) b.classList.add('ok');
+      if (ans[qi] === oi && oi !== q.c) b.classList.add('no');
+    });
+    if (ans[qi] === q.c) s++;
+  });
+  document.getElementById(p+'Btn').style.display = 'none';
+  const pct = Math.round(s / qs.length * 100);
+  window[p+'Score'] = pct;
+  window[p+'Right'] = s;
+
+  if (p === 'pre') {
+    document.getElementById('preCircle').textContent = pct + '%';
+    document.getElementById('preCircle').style.background = pct >= 70 ? 'var(--green)' : pct >= 50 ? 'var(--gold)' : 'var(--red)';
+    document.getElementById('preSub').textContent = s + ' / 15';
+    const msgs = currentLang === 'ru'
+      ? [pct>=70?'Хороший начальный уровень!':pct>=50?'Средний — тренинг поможет!':'Не удивительно — для этого и тренинг!']
+      : [pct>=70?"Yaxshi boshlang'ich daraja!":pct>=50?"O'rtacha — trening yordam beradi!":"Ajablanarli emas — buning uchun trening bor!"];
+    document.getElementById('preMsg').textContent = msgs[0];
+    setTimeout(() => go(1), 1200);
+  } else {
+    renderPostResult();
+    setTimeout(() => go(1), 1200);
+  }
+}
+
+function renderPostResult() {
+  const pre = window.preScore || 0, post = window.postScore || 0, diff = post - pre;
+  const isRu = currentLang === 'ru';
+  const compLabel = isRu ? '✅ СРАВНЕНИЕ' : "✅ TAQQOSLASH";
+  const growthLabel = isRu ? 'Ваш рост' : "Sizning o'sishingiz";
+  const preLabel = 'PRE-Test'; const postLabel = 'POST-Test';
+
+  let msg;
+  if (isRu) {
+    msg = diff > 15 ? '🏆 Отличный рост! Вы полностью освоили DSPM!' : diff > 5 ? '🚀 Хороший рост! Продолжайте!' : diff >= 0 ? '📈 Есть рост — закрепите на практике!' : '📚 Пересмотрите материал.';
+  } else {
+    msg = diff > 15 ? "🏆 Ajoyib o'sish! DSPM ni mukammal o'zlashtirdingiz!" : diff > 5 ? "🚀 Yaxshi o'sish! Davom eting!" : diff >= 0 ? "📈 O'sish bor — amaliyotda mustahkamlang!" : "📚 Materialni qayta ko'rib chiqing.";
+  }
+
+  document.getElementById('postResultSlide').innerHTML = `
+    <div class="phase phase-post">${compLabel}</div>
+    <h2 style="margin-bottom:24px;">${growthLabel}</h2>
+    <div style="display:flex;gap:20px;justify-content:center;align-items:flex-end;margin-bottom:24px;flex-wrap:wrap;">
+      <div><div class="result-circle" style="background:var(--blue);">${pre}%</div><p style="font-size:14px;color:var(--text-dim);">${preLabel}</p></div>
+      <div style="font-size:32px;color:${diff>=0?'var(--green)':'var(--red)'};font-weight:900;padding-bottom:40px;">${diff>=0?'→ +'+diff+'%':'→ '+diff+'%'}</div>
+      <div><div class="result-circle" style="background:var(--green);">${post}%</div><p style="font-size:14px;color:var(--text-dim);">${postLabel}</p></div>
+    </div>
+    <p style="font-size:14px;color:var(--text-dim);">PRE: ${window.preRight||0}/15 → POST: ${window.postRight||0}/15</p>
+    <div class="insight" style="max-width:500px;margin:24px auto 0;justify-content:center;">
+      <span>${msg}</span>
+    </div>`;
+}
+
+// ====== GAME ======
+const ROUNDS_UZ = [
+  {id:1,title:"1-OY: Kirish",sub:"Nyu-Yorkga birinchi qadam",bg:"var(--teal)",
+   desc:"Siz Nyu-Yorkga yetib keldingiz. Hech kim N'Medov ni bilmaydi. 500 ta do'kon bor. 1 oy vaqt va cheksiz resurs.",
+   task:"DSPM strategiya tuzing: qancha do'konga kirasiz (D), javonda qanday joylashasiz (S), narxni qanday belgilaysiz (P), qanday POSM ishlatasiz (M)?",
+   criteria:"Strategiya realligi (5) + DSPM balans (5) + Kreativlik (5) + Taqdimot (5) + AQSh tushunish (5)"},
+  {id:2,title:"2-OY: Raqobat",sub:"Amerika brendi hujum qilmoqda",bg:"var(--gold)",
+   desc:"Birinchi oy natijalari chiqdi. Lekin kuchli raqobatchi sizning do'konlaringizga kirdi. Narxlari arzonroq, javoningizni surib qo'ydi.",
+   task:"Javob strategiya: Distribution himoya (D), Javon qaytarish (S), Narx strategiya (P), Vizual ustunlik (M) — qanday g'alaba qilasiz?",
+   criteria:"Raqobat tahlili (5) + Taktik qarorlar (5) + DSPM integratsiya (5) + Ijodiylik (5) + Amalga oshirish (5)"},
+  {id:3,title:"3-OY: O'sish",sub:"Bozor ulushini 2x oshirish",bg:"var(--red)",
+   desc:"O'rnashib oldingiz. Kompaniya 3-oy oxirigacha bozor ulushini 2 baravar oshirishni talab qilmoqda.",
+   task:"FINAL: 2x o'sish rejasi. Yangi hududlar (D), Premium joylashuv (S), Aksiya vs RRP (P), 360° merchandayzing (M).",
+   criteria:"Ambitsiya (5) + Reallik (5) + DSPM mukammalligi (5) + Taqdimot sifati (5) + Jamoaviylik (5)"}
+];
+const ROUNDS_RU = [
+  {id:1,title:"МЕСЯЦ 1: Вход",sub:"Первый шаг в Нью-Йорке",bg:"var(--teal)",
+   desc:"Вы прибыли в Нью-Йорк. Никто не знает N'Medov. 500 магазинов. 1 месяц и неограниченные ресурсы.",
+   task:"Составьте DSPM стратегию: сколько точек охватите (D), как разместитесь на полке (S), как установите цену (P), какой POSM используете (M)?",
+   criteria:"Реалистичность стратегии (5) + Баланс DSPM (5) + Креативность (5) + Презентация (5) + Понимание рынка США (5)"},
+  {id:2,title:"МЕСЯЦ 2: Конкуренция",sub:"Американский бренд атакует",bg:"var(--gold)",
+   desc:"Результаты первого месяца вышли. Но сильный конкурент зашёл в ваши точки. Цены ниже, вас сдвинули с полки.",
+   task:"Ответная стратегия: Защита дистрибуции (D), Возврат полки (S), Ценовая стратегия (P), Визуальное превосходство (M) — как победите?",
+   criteria:"Анализ конкуренции (5) + Тактические решения (5) + Интеграция DSPM (5) + Креативность (5) + Реализуемость (5)"},
+  {id:3,title:"МЕСЯЦ 3: Рост",sub:"Увеличить долю рынка в 2 раза",bg:"var(--red)",
+   desc:"Вы закрепились. Компания требует удвоить долю рынка к концу 3-го месяца.",
+   task:"ФИНАЛ: План роста 2x. Новые территории (D), Премиум-размещение (S), Акция vs РРЦ (P), 360° мерчандайзинг (M).",
+   criteria:"Амбиция (5) + Реалистичность (5) + Полнота DSPM (5) + Качество презентации (5) + Командная работа (5)"}
+];
+
+const TC = ['var(--teal)','var(--gold)','var(--blue)','var(--red)'];
+const TI = ['🟢','🟡','🔵','🔴'];
+let gs = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]];
+
+function renderGameRounds() {
+  const t = [document.getElementById('t1').value||'Alpha',document.getElementById('t2').value||'Bravo',document.getElementById('t3').value||'Charlie',document.getElementById('t4').value||'Delta'];
+  window.teamNames = t;
+  const ROUNDS = currentLang === 'ru' ? ROUNDS_RU : ROUNDS_UZ;
+  ROUNDS.forEach((r, ri) => {
+    document.getElementById('round'+(ri+1)+'Slide').innerHTML = `
+      <div class="phase phase-game">🎮 ${r.title}</div><h2>${r.sub}</h2>
+      <div class="round-card" style="margin-top:16px;">
+        <p style="font-size:14px;line-height:1.7;color:var(--text-dim);">${r.desc}</p>
+        <div style="margin-top:12px;padding:12px 16px;border-radius:10px;background:rgba(192,57,43,.06);border:1px solid rgba(192,57,43,.15);">
+          <p style="font-size:13px;font-weight:600;color:var(--charcoal);">📋 ${r.task}</p>
+        </div>
+        <p style="margin-top:8px;font-size:11px;color:var(--text-dim);">${r.criteria}</p>
+      </div>
+      <div class="cards c2" style="margin-top:12px;">
+        ${t.map((tn,ti)=>`<div class="card" style="border-left:4px solid ${TC[ti]};"><label style="font-size:12px;font-weight:700;color:${TC[ti]};letter-spacing:1px;">${TI[ti]} ${tn} (0-25)</label><input type="number" min="0" max="25" id="gs_${ri}_${ti}" value="${gs[ti][ri]||''}" placeholder="0" class="score-input" style="margin-top:8px;" onchange="saveGS(${ri},${ti},this.value)"></div>`).join('')}
+      </div>`;
+  });
+}
+function saveGS(ri,ti,v){gs[ti][ri]=Math.min(Math.max(parseInt(v)||0,0),25);}
+
+function renderGameResult() {
+  const t = window.teamNames || ['Alpha','Bravo','Charlie','Delta'];
+  const isRu = currentLang === 'ru';
+  const totals = gs.map(s => s.reduce((a,b) => a+b, 0));
+  const mx = Math.max(...totals), wi = totals.indexOf(mx);
+  const colors = ['#1a8a7d','#c8a835','#2c6fbb','#c0392b','#d4731a'];
+  for(let i=0;i<50;i++){const el=document.createElement('div');el.className='confetti';el.style.left=Math.random()*100+'vw';el.style.width=(Math.random()*10+5)+'px';el.style.height=(Math.random()*10+5)+'px';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.borderRadius=Math.random()>.5?'50%':'0';el.style.animation=`confetti ${Math.random()*2+2}s ease-in ${Math.random()*2}s forwards`;document.body.appendChild(el);setTimeout(()=>el.remove(),5000);}
+  document.getElementById('gameResultSlide').innerHTML = `
+    <div class="phase phase-game">🏆 ${isRu?'РЕЗУЛЬТАТЫ ИГРЫ':"O'YIN NATIJALARI"}</div>
+    <div style="font-size:36px;">🇺🇸</div>
+    <h2>${isRu?'Победитель на рынке США':"AQSh bozorida"} <span class="red">${isRu?'':'g\'olib'}</span></h2>
+    <div style="margin:20px auto;padding:16px 24px;border-radius:16px;display:inline-block;background:linear-gradient(135deg,rgba(200,168,53,.15),rgba(192,57,43,.08));border:2px solid var(--gold);">
+      <p style="font-size:13px;color:var(--text-dim);">🏆 ${isRu?'ПОБЕДИТЕЛЬ':"G'OLIB"}</p>
+      <p style="font-family:'DM Serif Display';font-size:36px;color:var(--charcoal);">${TI[wi]} ${t[wi]}</p>
+      <p style="font-size:14px;color:var(--text-dim);">${mx} / 75 ${isRu?'баллов':'ball'}</p>
+    </div>
+    <div class="cards c4" style="max-width:700px;margin:20px auto;">
+      ${t.map((tn,i)=>`<div class="card" style="text-align:center;border-left:4px solid ${TC[i]};${i===wi?'border:2px solid var(--gold);box-shadow:0 4px 24px rgba(200,168,53,.2);':''}"><p style="font-size:11px;color:var(--text-dim);">${TI[i]} ${tn}</p><p style="font-family:'DM Serif Display';font-size:32px;color:${TC[i]};">${totals[i]}</p><p style="font-size:11px;color:var(--text-dim);">${gs[i].join(' + ')}</p></div>`).join('')}
+    </div>
+    <div class="insight" style="max-width:600px;margin:16px auto;justify-content:center;font-size:15px;font-weight:700;">
+      ${isRu?'🇺🇸 Победа на рынке США = полное применение системы DSPM!':"🇺🇸 AQSh bozorida g'alaba = DSPM tizimini to'liq qo'llash!"}
+    </div>`;
+}
+
+// ====== NAV ======
+const slides = document.querySelectorAll('.slide'), tot = slides.length;
+let cur = 0;
+
+function upd() {
+  slides.forEach((s,i) => {
+    s.classList.remove('active');
+    if (i === cur) s.classList.add('active');
+  });
+  document.getElementById('pBtn').disabled = cur === 0;
+  document.getElementById('nBtn').disabled = cur === tot - 1;
+  document.getElementById('nInfo').textContent = `${cur+1} / ${tot}`;
+  document.getElementById('pf').style.width = ((cur+1)/tot*100) + '%';
+}
+
+function go(d) {
+  const n = cur + d;
+  if (n < 0 || n >= tot) return;
+  if (n === 16 && d === 1) renderGameRounds();
+  if (n === 20 && d === 1) renderGameResult();
+  if (n === 21 && d === 1) document.getElementById('preScoreReminder').textContent = (window.preScore||0) + '%';
+  cur = n;
+  upd();
+  slides[cur].scrollTop = 0;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+});
+
+// Touch swipe — improved for mobile
+let tx = 0, ty = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, {passive: true});
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  const dy = e.changedTouches[0].clientY - ty;
+  // Only swipe if horizontal movement > vertical (prevent conflicts with scrolling)
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+}, {passive: true});
+
+// Init
+makeQuiz('preQuizWrap', 'pre');
+makeQuiz('postQuizWrap', 'post');
+upd();
+</script>
+</body>
+</html>
