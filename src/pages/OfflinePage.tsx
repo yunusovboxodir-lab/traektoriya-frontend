@@ -423,7 +423,7 @@ export function OfflinePage() {
     try {
       const params = programFilter !== 'all' ? { program: programFilter } : undefined;
       const res = await offlineApi.getSessions(params);
-      setSessions(res.data.items);
+      setSessions(res.data.sessions || []);
     } catch {
       toast.error('Ошибка загрузки сессий');
     } finally {

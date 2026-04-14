@@ -57,7 +57,7 @@ export const offlineApi = {
   }) => api.post<OfflineSession>('/api/v1/offline/sessions', data),
 
   getSessions: (params?: { program?: string; region?: string; status?: string }) =>
-    api.get<{ items: OfflineSession[] }>('/api/v1/offline/sessions', { params }),
+    api.get<{ sessions: OfflineSession[]; count: number }>('/api/v1/offline/sessions', { params }),
 
   getSession: (id: string) =>
     api.get<OfflineSession & { test_results: OfflineTestResult[]; game_results: OfflineGameResult[] }>(
