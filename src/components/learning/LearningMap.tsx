@@ -58,31 +58,22 @@ const ZONES: ZoneConfig[] = [
     color: '#4CAF50',
     colorDark: '#1b3d20',
     glowColor: 'rgba(76,175,80,0.35)',
-    // Desktop: left column — road at cx, buildings left/right
+    // Desktop: TRAINEE — left column. Grid 3 cols × 3 rows (9 slots).
     cx: 155, cy: 300,
     buildingSlots: [
-      { dx: -110, dy: -240 },
-      { dx: 90, dy: -190 },
-      { dx: -105, dy: -120 },
-      { dx: 95, dy: -60 },
-      { dx: -110, dy: 0 },
-      { dx: 90, dy: 60 },
-      { dx: -100, dy: 130 },
-      { dx: 95, dy: 190 },
-      { dx: -100, dy: 260 },
+      // Top row
+      { dx: -100, dy: -230 }, { dx: 0, dy: -250 }, { dx: 100, dy: -230 },
+      // Middle row
+      { dx: -100, dy: -10 }, { dx: 0, dy: 10 },   { dx: 100, dy: -10 },
+      // Bottom row
+      { dx: -100, dy: 200 }, { dx: 0, dy: 230 },  { dx: 100, dy: 200 },
     ],
-    // Mobile: top zone (y=0..300)
+    // Mobile: top zone — grid 3 cols × 3 rows
     mcx: 200, mcy: 150,
     mobileBuildingSlots: [
-      { dx: -130, dy: -100 },
-      { dx: 30, dy: -110 },
-      { dx: 130, dy: -95 },
-      { dx: -120, dy: -10 },
-      { dx: 50, dy: -20 },
-      { dx: 140, dy: 5 },
-      { dx: -80, dy: 70 },
-      { dx: 80, dy: 80 },
-      { dx: 0, dy: 110 },
+      { dx: -130, dy: -100 }, { dx: 0, dy: -110 }, { dx: 130, dy: -100 },
+      { dx: -130, dy: 0 },    { dx: 0, dy: 0 },    { dx: 130, dy: 0 },
+      { dx: -130, dy: 100 },  { dx: 0, dy: 110 },  { dx: 130, dy: 100 },
     ],
     wallColor: '#a8d5a2',
     wallSideColor: '#8bc185',
@@ -95,29 +86,20 @@ const ZONES: ZoneConfig[] = [
     color: '#2196F3',
     colorDark: '#152d45',
     glowColor: 'rgba(33,150,243,0.35)',
-    // Desktop: bottom-middle — buildings alternating left/right of center road
+    // Desktop: PRACTITIONER — bottom-middle. Grid 4 cols × 2 rows (8 slots, use 7).
     cx: 620, cy: 510,
     buildingSlots: [
-      { dx: -250, dy: -110 },
-      { dx: -110, dy: -120 },
-      { dx: 110, dy: -100 },
-      { dx: 250, dy: -110 },
-      { dx: -240, dy: 20 },
-      { dx: -100, dy: 30 },
-      { dx: 120, dy: 15 },
-      { dx: 260, dy: 35 },
+      // Top row (4)
+      { dx: -270, dy: -90 }, { dx: -90, dy: -90 }, { dx: 90, dy: -90 }, { dx: 270, dy: -90 },
+      // Bottom row (4)
+      { dx: -270, dy: 90 },  { dx: -90, dy: 90 },  { dx: 90, dy: 90 },  { dx: 270, dy: 90 },
     ],
-    // Mobile: second zone (y=300..600)
+    // Mobile: second zone — grid 3 cols × 3 rows (9 slots)
     mcx: 200, mcy: 450,
     mobileBuildingSlots: [
-      { dx: -130, dy: -90 },
-      { dx: 30, dy: -100 },
-      { dx: 130, dy: -85 },
-      { dx: -120, dy: 0 },
-      { dx: 50, dy: -10 },
-      { dx: 140, dy: 15 },
-      { dx: -80, dy: 80 },
-      { dx: 80, dy: 90 },
+      { dx: -130, dy: -100 }, { dx: 0, dy: -110 }, { dx: 130, dy: -100 },
+      { dx: -130, dy: 0 },    { dx: 0, dy: 0 },    { dx: 130, dy: 0 },
+      { dx: -130, dy: 100 },  { dx: 0, dy: 110 },  { dx: 130, dy: 100 },
     ],
     wallColor: '#a0c4e8',
     wallSideColor: '#85b0d8',
@@ -130,29 +112,18 @@ const ZONES: ZoneConfig[] = [
     color: '#FF9800',
     colorDark: '#3a2810',
     glowColor: 'rgba(255,152,0,0.35)',
-    // Desktop: top-middle
+    // Desktop: EXPERT — top-middle. 5 slots in single row.
     cx: 620, cy: 160,
     buildingSlots: [
-      { dx: -250, dy: -70 },
-      { dx: -110, dy: -80 },
-      { dx: 110, dy: -60 },
-      { dx: 250, dy: -70 },
-      { dx: -240, dy: 50 },
-      { dx: -100, dy: 60 },
-      { dx: 120, dy: 45 },
-      { dx: 260, dy: 60 },
+      { dx: -260, dy: 0 }, { dx: -130, dy: 0 }, { dx: 0, dy: 0 }, { dx: 130, dy: 0 }, { dx: 260, dy: 0 },
+      // Spare slots for safety
+      { dx: -200, dy: 80 }, { dx: 0, dy: 80 }, { dx: 200, dy: 80 },
     ],
-    // Mobile: third zone (y=600..900)
+    // Mobile: third zone — grid 3 cols × 2 rows
     mcx: 200, mcy: 750,
     mobileBuildingSlots: [
-      { dx: -130, dy: -90 },
-      { dx: 30, dy: -100 },
-      { dx: 130, dy: -85 },
-      { dx: -120, dy: 0 },
-      { dx: 50, dy: -10 },
-      { dx: 140, dy: 15 },
-      { dx: -80, dy: 80 },
-      { dx: 80, dy: 90 },
+      { dx: -130, dy: -50 }, { dx: 0, dy: -60 }, { dx: 130, dy: -50 },
+      { dx: -130, dy: 60 },  { dx: 0, dy: 70 },  { dx: 130, dy: 60 },
     ],
     wallColor: '#f5d6a8',
     wallSideColor: '#e8c088',
@@ -165,29 +136,24 @@ const ZONES: ZoneConfig[] = [
     color: '#F44336',
     colorDark: '#3a1515',
     glowColor: 'rgba(244,67,54,0.35)',
-    // Desktop: right column
+    // Desktop: MASTER — right column. Grid 2 cols × 4 rows (8 slots, use 7).
     cx: 1065, cy: 300,
     buildingSlots: [
-      { dx: -100, dy: -240 },
-      { dx: 85, dy: -180 },
-      { dx: -95, dy: -110 },
-      { dx: 80, dy: -40 },
-      { dx: -90, dy: 30 },
-      { dx: 85, dy: 100 },
-      { dx: -95, dy: 170 },
-      { dx: 85, dy: 240 },
+      // Top
+      { dx: -75, dy: -240 }, { dx: 75, dy: -240 },
+      // Upper-mid
+      { dx: -75, dy: -80 },  { dx: 75, dy: -80 },
+      // Lower-mid
+      { dx: -75, dy: 80 },   { dx: 75, dy: 80 },
+      // Bottom
+      { dx: -75, dy: 240 },  { dx: 75, dy: 240 },
     ],
-    // Mobile: bottom zone (y=900..1200)
+    // Mobile: bottom zone — grid 3 cols × 3 rows
     mcx: 200, mcy: 1050,
     mobileBuildingSlots: [
-      { dx: -130, dy: -90 },
-      { dx: 30, dy: -100 },
-      { dx: 130, dy: -85 },
-      { dx: -120, dy: 0 },
-      { dx: 50, dy: -10 },
-      { dx: 140, dy: 15 },
-      { dx: -80, dy: 80 },
-      { dx: 80, dy: 90 },
+      { dx: -130, dy: -100 }, { dx: 0, dy: -110 }, { dx: 130, dy: -100 },
+      { dx: -130, dy: 0 },    { dx: 0, dy: 0 },    { dx: 130, dy: 0 },
+      { dx: -130, dy: 100 },  { dx: 0, dy: 110 },  { dx: 130, dy: 100 },
     ],
     wallColor: '#e8a8a0',
     wallSideColor: '#d89088',
@@ -349,43 +315,7 @@ const MOBILE_TERRITORY = buildMobileTerritories();
 // Smooth Catmull-Rom path + nearest-neighbor ordering
 // ============================================================
 
-function smoothCatmullRom(pts: Array<{ x: number; y: number }>): string {
-  if (pts.length < 2) return '';
-  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[Math.max(0, i - 1)];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[Math.min(pts.length - 1, i + 2)];
-    const t = 0.3;
-    const cp1x = p1.x + (p2.x - p0.x) * t;
-    const cp1y = p1.y + (p2.y - p0.y) * t;
-    const cp2x = p2.x - (p3.x - p1.x) * t;
-    const cp2y = p2.y - (p3.y - p1.y) * t;
-    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
-  }
-  return d;
-}
-
-// Order zone buildings by nearest-neighbor for shortest path
-function nearestNeighborOrder(pts: Array<{ x: number; y: number }>): Array<{ x: number; y: number }> {
-  if (pts.length <= 2) return pts;
-  const remaining = [...pts];
-  const result: Array<{ x: number; y: number }> = [remaining.shift()!];
-  while (remaining.length > 0) {
-    const last = result[result.length - 1];
-    let bestIdx = 0;
-    let bestDist = Infinity;
-    for (let i = 0; i < remaining.length; i++) {
-      const dx = remaining[i].x - last.x;
-      const dy = remaining[i].y - last.y;
-      const dist = dx * dx + dy * dy;
-      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
-    }
-    result.push(remaining.splice(bestIdx, 1)[0]);
-  }
-  return result;
-}
+// (road utilities removed — buildings now placed on a fixed grid per zone)
 
 // ============================================================
 // Building data distribution
@@ -472,49 +402,6 @@ export function LearningMap({ data, onOpenSection }: Props) {
   // Get zone position based on layout
   const getZoneCenter = (zone: ZoneConfig) => isMobile ? { x: zone.mcx, y: zone.mcy } : { x: zone.cx, y: zone.cy };
   const getSlots = (zone: ZoneConfig) => isMobile ? zone.mobileBuildingSlots : zone.buildingSlots;
-
-  // Collect building positions AND road waypoints
-  // Road runs along the CENTER of each zone; buildings sit on either side
-  const { roadWaypoints } = useMemo(() => {
-    const bldPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
-    const roadPts: Array<{ x: number; y: number; zoneIdx: number }> = [];
-    for (let zi = 0; zi < ZONES.length; zi++) {
-      const zone = ZONES[zi];
-      const center = getZoneCenter(zone);
-      const slots = getSlots(zone);
-      const buildings = zoneData.get(zone.level) || [];
-      const count = Math.max(buildings.length, 1);
-      const rawBld: Array<{ x: number; y: number }> = [];
-      for (let bi = 0; bi < count; bi++) {
-        const slot = slots[bi % slots.length];
-        rawBld.push({ x: center.x + slot.dx, y: center.y + slot.dy });
-      }
-      const orderedBld = nearestNeighborOrder(rawBld);
-      for (const p of orderedBld) bldPts.push({ ...p, zoneIdx: zi });
-      // Road: runs through zone center at each building's Y position
-      for (const p of orderedBld) {
-        roadPts.push({ x: center.x, y: p.y, zoneIdx: zi });
-      }
-    }
-    return { roadWaypoints: roadPts };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [zoneData, isMobile]);
-
-  // Completed count for road coloring
-  const completedCount = useMemo(() => {
-    let count = 0;
-    for (let zi = 0; zi < ZONES.length; zi++) {
-      const buildings = zoneData.get(ZONES[zi].level) || [];
-      for (const bld of buildings) {
-        if (bld.isCompleted) count++;
-        else return count;
-      }
-      if (!buildings.every(b => b.isCompleted)) return count;
-    }
-    return count;
-  }, [zoneData]);
-
-  const roadPath = useMemo(() => smoothCatmullRom(roadWaypoints), [roadWaypoints]);
 
   return (
     <div className="relative w-full">
@@ -669,21 +556,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
             <path key={`border-${i}`} d={b} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" strokeDasharray="8 6" strokeLinecap="round" />
           ))}
 
-          {/* Road — thinner, cleaner */}
-          <path d={roadPath} fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="14" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="rgba(60,60,60,0.4)" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-          <path d={roadPath} fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1" strokeDasharray="6 6" strokeLinecap="round" />
-
-          {/* Road waypoints near buildings */}
-          {roadWaypoints.map((pt, i) => (
-            <circle
-              key={`rd-${i}`}
-              cx={pt.x} cy={pt.y} r={3.5}
-              fill={i < completedCount ? '#4CAF50' : 'rgba(255,255,255,0.2)'}
-              stroke={i < completedCount ? '#81c784' : 'rgba(255,255,255,0.08)'}
-              strokeWidth={1}
-            />
-          ))}
+          {/* Road removed — buildings distributed evenly across each zone */}
         </svg>
 
         {/* ===== LAYER 2: 3D Houses (HTML overlay) ===== */}
