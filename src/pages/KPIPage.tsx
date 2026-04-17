@@ -253,7 +253,7 @@ function BoostPanel({ t }: { t: (key: string) => string }) {
 
   const areaLabels: Record<string, string> = {
     ai: 'AI',
-    lms: 'LMS',
+    lms: 'Пульс',
     crm: 'CRM',
   };
 
@@ -584,7 +584,7 @@ export function KPIPage() {
               <span className="text-sm font-medium">{myRank.ai_score.toFixed(0)}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-blue-200">LMS:</span>
+              <span className="text-xs text-blue-200">Пульс:</span>
               <span className="text-sm font-medium">{myRank.lms_score.toFixed(0)}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -650,7 +650,7 @@ export function KPIPage() {
                   <th className="text-left px-4 py-3 font-medium text-gray-500">#</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500">{t('kpi.leaderboard.employee')}</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-500">AI</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">LMS</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">Пульс</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-500">CRM</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-500">KPI</th>
                 </tr>
@@ -834,7 +834,7 @@ export function KPIPage() {
             <div className="flex items-center gap-3 sm:gap-4">
               <div className="hidden sm:flex items-center gap-3 text-xs text-blue-200">
                 <span>AI: {myRank.ai_score.toFixed(0)}</span>
-                <span>LMS: {myRank.lms_score.toFixed(0)}</span>
+                <span>Пульс: {myRank.lms_score.toFixed(0)}</span>
                 <span>CRM: {myRank.crm_score.toFixed(0)}</span>
               </div>
               <span className="text-xl font-bold">{myRank.total_kpi.toFixed(1)}</span>
