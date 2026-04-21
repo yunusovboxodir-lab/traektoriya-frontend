@@ -19,6 +19,7 @@ import { useToastStore } from '../stores/toastStore';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
+import { emitPulseInvalidate } from '../utils/pulseEvents';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
@@ -56,6 +57,7 @@ export function LearningPage() {
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
   const [interactiveResults, setInteractiveResults] = useState<Record<number, boolean>>({});
   const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [isSubmittingQuiz, setIsSubmittingQuiz] = useState(false);
   const [completionResult, setCompletionResult] = useState<CourseCompleteResponse | null>(null);
   const [flashcardsDone, setFlashcardsDone] = useState(false);
   const [fieldTaskDone, setFieldTaskDone] = useState(false);
@@ -150,6 +152,9 @@ export function LearningPage() {
   // Submit quiz and complete course
   const submitQuiz = async (quizQuestions?: QuizQuestion[]) => {
     if (!courseData) return;
+    // Защита от двойного сабмита (double-click / повторные вызовы):
+    // без этого на бэке может возникнуть дубль CourseCompletion.
+    if (isSubmittingQuiz || quizSubmitted) return;
     const quiz = (quizQuestions || courseData.content.quiz || []) as QuizQuestion[];
 
     // Для v3 блоковых курсов quiz может быть пустым — всё равно записываем completion
@@ -158,6 +163,7 @@ export function LearningPage() {
       ? calculateQuizScore(quiz, quizAnswers, interactiveResults)
       : 100;
 
+    setIsSubmittingQuiz(true);
     try {
       const elapsed = Math.round((Date.now() - startTime) / 1000);
       const resp = await learningApi.completeCourse(courseData.course.id, {
@@ -166,6 +172,10 @@ export function LearningPage() {
       });
       setCompletionResult(resp.data);
       setQuizSubmitted(true);
+
+      // Инвалидируем кеш пульса/компетенций, чтобы виджеты перезагрузили данные.
+      // Небольшая задержка даёт Celery время докрутить пересчёт KPI/пульса.
+      setTimeout(() => emitPulseInvalidate(), 500);
 
       if (resp.data.level_up) {
         addToast('success', resp.data.level_up.message);
@@ -184,6 +194,8 @@ export function LearningPage() {
         }
       }
       addToast('error', msg);
+    } finally {
+      setIsSubmittingQuiz(false);
     }
   };
 

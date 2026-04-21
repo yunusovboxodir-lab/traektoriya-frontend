@@ -11,6 +11,7 @@ import { useAuthStore } from '../../stores/authStore';
 import { useLangStore, useT } from '../../stores/langStore';
 import { pulseApi, type UserPulse } from '../../api/competencies';
 import { RadarChart, type RadarDataPoint } from '../competencies/RadarChart';
+import { onPulseInvalidate } from '../../utils/pulseEvents';
 
 const LEVEL_STYLES: Record<string, string> = {
   trainee: 'bg-red-100 text-red-700',
@@ -43,22 +44,34 @@ export function PulseWidget() {
 
   const userId = user?.id ? String(user.id) : null;
 
-  const loadPulse = useCallback(async () => {
-    if (!userId) return;
-    setLoading(true);
-    try {
-      const roleParam = isAdmin ? selectedRole : undefined;
-      const res = await pulseApi.getUserPulse(userId, roleParam);
-      setPulse(res.data);
-    } catch {
-      setPulse(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, isAdmin, selectedRole]);
+  const loadPulse = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!userId) return;
+      setLoading(true);
+      try {
+        const roleParam = isAdmin ? selectedRole : undefined;
+        const res = await pulseApi.getUserPulse(userId, roleParam, { signal });
+        if (!signal?.aborted) setPulse(res.data);
+      } catch {
+        if (!signal?.aborted) setPulse(null);
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [userId, isAdmin, selectedRole]
+  );
 
   useEffect(() => {
-    loadPulse();
+    const controller = new AbortController();
+    loadPulse(controller.signal);
+    // Перезагружаем пульс после завершения курса/теста (см. pulseEvents.ts).
+    const off = onPulseInvalidate(() => {
+      loadPulse();
+    });
+    return () => {
+      controller.abort();
+      off();
+    };
   }, [loadPulse]);
 
   const radarData: RadarDataPoint[] = pulse?.competencies.map((c) => ({

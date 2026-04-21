@@ -435,15 +435,17 @@ export function KPIPage() {
   const myCardRef = useRef<HTMLDivElement>(null);
   const [showSticky, setShowSticky] = useState(false);
 
-  // Auto-refresh leaderboard every 30 seconds
+  // Auto-refresh leaderboard every 30 seconds.
+  // Используем ref на актуальную loadData, чтобы setInterval не захватил
+  // устаревшее замыкание (stale closure) при смене фильтров/состояния.
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const loadDataRef = useRef<((silent?: boolean) => void) | null>(null);
 
   useEffect(() => {
-    loadData();
+    loadDataRef.current?.(false);
 
-    // Live update: refresh every 30s
     intervalRef.current = setInterval(() => {
-      loadData(true); // silent refresh
+      loadDataRef.current?.(true);
     }, 30000);
 
     return () => {
@@ -488,6 +490,9 @@ export function KPIPage() {
       if (!silent) setLoading(false);
     }
   };
+
+  // Держим ref актуальным на каждом рендере — см. useEffect с setInterval выше.
+  loadDataRef.current = loadData;
 
   // Find current user's position in leaderboard
   const myRank = leaders.find((l) => l.user_id === user?.id);

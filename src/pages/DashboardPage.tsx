@@ -45,29 +45,45 @@ export function DashboardPage() {
   useEffect(() => {
     const role = user?.role;
     const isAdmin = role === 'admin' || role === 'superadmin' || role === 'commercial_dir' || role === 'regional_manager';
+    const controller = new AbortController();
+
+    // Типы ответов API — убираем any.
+    type ProductsResp = { total?: number; length?: number; data?: unknown[] };
+    type LearningSection = { courses?: unknown[] };
+    type LearningMapResp = { sections?: LearningSection[] };
+    type TasksResp = unknown[] | { total?: number };
+
+    const applyStats = (s: OverviewStats) => {
+      if (!controller.signal.aborted) setStats(s);
+    };
 
     if (isAdmin) {
-      // Admin roles can access full analytics
       api
-        .get<OverviewStatsRaw>('/api/v1/analytics/overview')
-        .then((res) => setStats(normalizeOverview(res.data)))
-        .catch(() => {
-          setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
+        .get<OverviewStatsRaw>('/api/v1/analytics/overview', { signal: controller.signal })
+        .then((res) => applyStats(normalizeOverview(res.data)))
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          console.warn('Dashboard analytics failed:', err);
+          applyStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 });
         });
     } else {
-      // Non-admin: fetch counts from public endpoints
       Promise.all([
-        api.get('/api/v1/products', { params: { limit: 1 } }).catch(() => ({ data: { total: 0 } })),
-        api.get('/api/v1/tasks').catch(() => ({ data: [] })),
-        api.get('/api/v1/learning/map').catch(() => ({ data: { sections: [] } })),
+        api.get<ProductsResp>('/api/v1/products', { params: { limit: 1 }, signal: controller.signal })
+          .catch(() => null),
+        api.get<TasksResp>('/api/v1/tasks', { signal: controller.signal }).catch(() => null),
+        api.get<LearningMapResp>('/api/v1/learning/map', { signal: controller.signal }).catch(() => null),
       ]).then(([productsRes, tasksRes, learningRes]) => {
-        const totalProducts = (productsRes.data as any)?.total ?? (productsRes.data as any)?.length ?? 0;
-        const totalTasks = Array.isArray(tasksRes.data) ? tasksRes.data.length : (tasksRes.data as any)?.total ?? 0;
-        const sections = (learningRes.data as any)?.sections ?? learningRes.data ?? [];
+        if (controller.signal.aborted) return;
+        const totalProducts =
+          productsRes?.data?.total ?? productsRes?.data?.length ?? 0;
+        const totalTasks = Array.isArray(tasksRes?.data)
+          ? tasksRes!.data.length
+          : (tasksRes?.data as { total?: number } | undefined)?.total ?? 0;
+        const sections = learningRes?.data?.sections ?? [];
         const totalCourses = Array.isArray(sections)
-          ? sections.reduce((sum: number, s: any) => sum + (s.courses?.length ?? 0), 0)
+          ? sections.reduce((sum, s) => sum + (s.courses?.length ?? 0), 0)
           : 0;
-        setStats({
+        applyStats({
           total_products: totalProducts,
           total_users: 0,
           total_courses: totalCourses,
@@ -75,6 +91,10 @@ export function DashboardPage() {
         });
       });
     }
+
+    return () => {
+      controller.abort();
+    };
   }, [user?.role]);
 
   const today = new Date().toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', {
