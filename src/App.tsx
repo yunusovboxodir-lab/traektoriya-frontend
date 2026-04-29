@@ -32,6 +32,10 @@ const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ def
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => ({ default: m.OfflinePage })));
+const OfflineProgramsPage = lazyWithRetry(() => import('./pages/OfflineProgramsPage').then(m => ({ default: m.OfflineProgramsPage })));
+const OfflineProgramEditPage = lazyWithRetry(() => import('./pages/OfflineProgramEditPage').then(m => ({ default: m.OfflineProgramEditPage })));
+const OfflineSessionPresenterPage = lazyWithRetry(() => import('./pages/OfflineSessionPresenterPage').then(m => ({ default: m.OfflineSessionPresenterPage })));
+const OfflineMobileTestPage = lazyWithRetry(() => import('./pages/OfflineMobileTestPage').then(m => ({ default: m.OfflineMobileTestPage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
 const TranslationReviewPage = lazyWithRetry(() => import('./pages/TranslationReviewPage').then(m => ({ default: m.TranslationReviewPage })));
@@ -56,6 +60,17 @@ function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; page
   }
 
   return <Layout>{children}</Layout>;
+}
+
+// ===========================================
+// PRESENTER РОУТ — авторизация без Layout (для fullscreen-проектора)
+// ===========================================
+function PresenterRoute({ children }: { children: React.ReactNode }) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
 }
 
 // ===========================================
@@ -227,6 +242,36 @@ function AppRoutes() {
             <OfflinePage />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/offline/programs"
+        element={
+          <ProtectedRoute pageKey="offline">
+            <OfflineProgramsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/offline/programs/:programId/edit"
+        element={
+          <ProtectedRoute pageKey="offline">
+            <OfflineProgramEditPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Режим проектора — авторизация без Layout (fullscreen) */}
+      <Route
+        path="/offline/sessions/:sessionId/present"
+        element={
+          <PresenterRoute>
+            <OfflineSessionPresenterPage />
+          </PresenterRoute>
+        }
+      />
+      {/* Мобильный тест — БЕЗ авторизации (гости на тренинге) */}
+      <Route
+        path="/offline/m/:accessCode/:phase"
+        element={<OfflineMobileTestPage />}
       />
 
       {/* Аналитика = Overview + AI L&D + Effectiveness + Reports (tabs) */}

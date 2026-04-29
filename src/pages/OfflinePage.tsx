@@ -157,28 +157,35 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 function SessionCard({ session, onClick }: { session: OfflineSession; onClick: () => void }) {
   const programClass = PROGRAM_COLORS[session.program] || 'bg-gray-100 text-gray-800';
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full text-left bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-start justify-between mb-2">
-        <h3 className="font-semibold text-gray-900 text-sm">{session.title}</h3>
-        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${programClass}`}>{session.program}</span>
-      </div>
-      <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
-        {session.region && <span>{session.region}</span>}
-        {session.scheduled_date && (
-          <span>{new Date(session.scheduled_date).toLocaleDateString('ru-RU')}</span>
-        )}
-      </div>
-      <div className="flex items-center justify-between">
-        <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
-          {STATUS_LABELS[session.status] || session.status}
-        </span>
-        <span className="text-xs text-gray-500">{session.participant_count} уч.</span>
-      </div>
-    </button>
+    <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+      <button type="button" onClick={onClick} className="w-full text-left">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="font-semibold text-gray-900 text-sm">{session.title}</h3>
+          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${programClass}`}>{session.program}</span>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+          {session.region && <span>{session.region}</span>}
+          {session.scheduled_date && (
+            <span>{new Date(session.scheduled_date).toLocaleDateString('ru-RU')}</span>
+          )}
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+            {STATUS_LABELS[session.status] || session.status}
+          </span>
+          <span className="text-xs text-gray-500">{session.participant_count} уч.</span>
+        </div>
+      </button>
+      <a
+        href={`/offline/sessions/${session.id}/present`}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 block text-center text-xs px-3 py-2 bg-stone-100 hover:bg-stone-800 hover:text-white rounded-lg font-semibold text-stone-700 transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
+        🖥 Запустить на проекторе
+      </a>
+    </div>
   );
 }
 
@@ -473,12 +480,20 @@ export function OfflinePage() {
               Ввести код
             </button>
             {isAdmin && (
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Создать сессию
-              </button>
+              <>
+                <a
+                  href="/offline/programs"
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  📚 Программы
+                </a>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Создать сессию
+                </button>
+              </>
             )}
           </div>
         </div>

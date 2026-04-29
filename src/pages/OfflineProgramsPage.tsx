@@ -1,0 +1,221 @@
+/**
+ * Список офлайн-программ (ADKAR / DSPM / 7 Qadam) + создание новой.
+ */
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { offlineProgramsApi } from '../api/offlinePrograms';
+import type { Program } from '../types/offlineProgram';
+
+export function OfflineProgramsPage() {
+  const navigate = useNavigate();
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const res = await offlineProgramsApi.list({ is_active: true });
+      setPrograms(res.data.programs || []);
+      setError(null);
+    } catch (e: unknown) {
+      setError((e as Error).message || 'Ошибка загрузки');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  return (
+    <div className="max-w-7xl mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-serif text-stone-800">Программы тренингов</h1>
+          <p className="text-stone-500 mt-1">Шаблоны для офлайн-сессий — слайды, тесты, дашборды</p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => navigate('/offline')}
+            className="px-4 py-2 text-stone-700 border border-stone-300 rounded-lg hover:bg-stone-50"
+          >
+            ← К сессиям
+          </button>
+          <button
+            onClick={() => setShowCreate(true)}
+            className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
+          >
+            + Создать программу
+          </button>
+        </div>
+      </div>
+
+      {loading && <div className="text-center py-12 text-stone-400">Загрузка...</div>}
+      {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div>}
+
+      {!loading && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {programs.map((p) => (
+            <ProgramCard key={p.id} program={p} onClick={() => navigate(`/offline/programs/${p.id}/edit`)} />
+          ))}
+          {programs.length === 0 && (
+            <div className="col-span-full text-center py-16 text-stone-400">
+              Программ пока нет. Запустите{' '}
+              <code className="bg-stone-100 px-2 py-1 rounded text-sm">scripts/seed_offline_programs.py</code>{' '}
+              чтобы засеять ADKAR/DSPM/7 Qadam.
+            </div>
+          )}
+        </div>
+      )}
+
+      {showCreate && (
+        <CreateProgramModal
+          onClose={() => setShowCreate(false)}
+          onCreated={() => {
+            setShowCreate(false);
+            load();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function ProgramCard({ program, onClick }: { program: Program; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="text-left bg-white border border-stone-200 rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
+      style={{ borderTopColor: program.theme_color, borderTopWidth: 4 }}
+    >
+      <div className="flex items-start gap-3 mb-3">
+        <span className="text-4xl">{program.icon || '📋'}</span>
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-stone-800">{program.title}</h3>
+          {program.title_uz && <p className="text-xs text-stone-500 italic">{program.title_uz}</p>}
+        </div>
+      </div>
+      {program.description && (
+        <p className="text-sm text-stone-600 mb-3 line-clamp-2">{program.description}</p>
+      )}
+      <div className="flex flex-wrap gap-2 text-xs">
+        <Tag label={program.target_role.toUpperCase()} />
+        <Tag label={`${program.duration_minutes} мин`} />
+        <Tag label={`${program.num_questions} вопросов`} />
+        <Tag label={`max ${program.max_score} б`} />
+      </div>
+      <div className="mt-3 pt-3 border-t border-stone-100 text-xs text-stone-500">
+        Код: <code className="bg-stone-100 px-1.5 py-0.5 rounded">{program.code}</code>
+      </div>
+    </button>
+  );
+}
+
+function Tag({ label }: { label: string }) {
+  return (
+    <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded font-medium">
+      {label}
+    </span>
+  );
+}
+
+function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const [code, setCode] = useState('');
+  const [title, setTitle] = useState('');
+  const [titleUz, setTitleUz] = useState('');
+  const [targetRole, setTargetRole] = useState('sales_rep');
+  const [duration, setDuration] = useState(90);
+  const [numQuestions, setNumQuestions] = useState(8);
+  const [maxScore, setMaxScore] = useState(24);
+  const [themeColor, setThemeColor] = useState('#c9a961');
+  const [icon, setIcon] = useState('🎯');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await offlineProgramsApi.create({
+        code, title, title_uz: titleUz, target_role: targetRole,
+        duration_minutes: duration, num_questions: numQuestions, max_score: maxScore,
+        theme_color: themeColor, icon,
+      });
+      onCreated();
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      setError(err.response?.data?.detail || 'Ошибка создания');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-serif mb-4">Создать программу</h2>
+        {error && <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700 mb-3">{error}</div>}
+
+        <div className="space-y-3">
+          <Field label="Код (уникальный, латиницей)" value={code} onChange={setCode} placeholder="adkar | my_program" />
+          <Field label="Название (RU)" value={title} onChange={setTitle} />
+          <Field label="Название (UZ)" value={titleUz} onChange={setTitleUz} />
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Иконка" value={icon} onChange={setIcon} placeholder="🎯" />
+            <Field label="Цвет (hex)" value={themeColor} onChange={setThemeColor} />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-stone-500 uppercase">Целевая роль</label>
+            <select className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm" value={targetRole}
+              onChange={(e) => setTargetRole(e.target.value)}>
+              <option value="sales_rep">Торговый представитель</option>
+              <option value="supervisor">Супервайзер</option>
+              <option value="regional_manager">Региональный менеджер</option>
+              <option value="all">Все роли</option>
+            </select>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <NumberField label="Длительность (мин)" value={duration} onChange={setDuration} />
+            <NumberField label="Кол-во вопросов" value={numQuestions} onChange={setNumQuestions} />
+            <NumberField label="Макс. балл" value={maxScore} onChange={setMaxScore} />
+          </div>
+        </div>
+
+        <div className="flex gap-2 mt-6">
+          <button onClick={onClose} className="flex-1 px-4 py-2 border border-stone-300 rounded-lg">Отмена</button>
+          <button onClick={submit} disabled={busy || !code || !title}
+            className="flex-1 px-4 py-2 bg-stone-800 text-white rounded-lg disabled:bg-stone-400">
+            {busy ? 'Создание...' : 'Создать'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string;
+}) {
+  return (
+    <div>
+      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
+      <input className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+        value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+    </div>
+  );
+}
+
+function NumberField({ label, value, onChange }: {
+  label: string; value: number; onChange: (v: number) => void;
+}) {
+  return (
+    <div>
+      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
+      <input type="number" className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+        value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </div>
+  );
+}
