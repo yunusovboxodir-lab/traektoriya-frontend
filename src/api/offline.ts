@@ -8,6 +8,7 @@ export interface OfflineSession {
   id: string;
   title: string;
   program: string;
+  program_id: string | null;
   region: string | null;
   access_code: string;
   status: string;

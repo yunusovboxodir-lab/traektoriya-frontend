@@ -39,17 +39,21 @@ export function OfflineSessionPresenterPage() {
     (async () => {
       try {
         const sessRes = await offlineApi.getSession(sessionId);
-        setSession(sessRes.data as OfflineSession);
-        // Программа берётся через by-code (legacy program)
-        // или новый program_id (TODO: потом расширим API; пока используем code из session.program)
-        const code = (sessRes.data as { program: string }).program;
-        if (code) {
-          try {
+        const sess = sessRes.data as OfflineSession;
+        setSession(sess);
+        // Программа: сначала через UUID program_id (новый формат),
+        // fallback на code (legacy) с приведением к нижнему регистру
+        try {
+          if (sess.program_id) {
+            const progRes = await offlineProgramsApi.getById(sess.program_id);
+            setProgram(progRes.data);
+          } else if (sess.program) {
+            const code = sess.program.toLowerCase().replace(/\s+/g, '');
             const progRes = await offlineProgramsApi.getByCode(code);
             setProgram(progRes.data);
-          } catch {
-            setProgram(null);
           }
+        } catch {
+          setProgram(null);
         }
         // QR
         try {
