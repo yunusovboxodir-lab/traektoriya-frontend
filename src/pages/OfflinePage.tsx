@@ -177,7 +177,7 @@ function SessionCard({ session, onClick }: { session: OfflineSession; onClick: (
         </div>
       </button>
       <a
-        href={`/offline/sessions/${session.id}/present`}
+        href={`/activities/sessions/${session.id}/present`}
         target="_blank"
         rel="noreferrer"
         className="mt-3 block text-center text-xs px-3 py-2 bg-stone-100 hover:bg-stone-800 hover:text-white rounded-lg font-semibold text-stone-700 transition-colors"
@@ -482,7 +482,7 @@ export function OfflinePage() {
             {isAdmin && (
               <>
                 <a
-                  href="/offline/programs"
+                  href="/activities/programs"
                   className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   📚 Программы

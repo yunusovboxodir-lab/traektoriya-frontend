@@ -2,7 +2,7 @@
  * Мобильная страница теста (БЕЗ авторизации, как в adkar-test.html).
  * Порт adkar-test.html на React + Tailwind. RU/UZ переключение.
  *
- * Маршрут: /offline/m/:accessCode/:phase
+ * Маршрут: /activities/m/:accessCode/:phase
  *   accessCode — 6-значный код сессии
  *   phase      — pre | post
  */

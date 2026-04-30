@@ -2,7 +2,7 @@
  * Режим проектора. Fullscreen-страница со слайдами + спец-рендерами для дашборда.
  * Polling метрик каждые 6 сек.
  *
- * Маршрут: /offline/sessions/:sessionId/present
+ * Маршрут: /activities/sessions/:sessionId/present
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -111,7 +111,7 @@ export function OfflineSessionPresenterPage() {
     }
   };
 
-  const exitPresenter = () => navigate('/offline');
+  const exitPresenter = () => navigate('/activities');
 
   if (error) return <div className="p-8 text-red-700 bg-stone-50 min-h-screen">{error}</div>;
   if (!session) return <div className="p-8 text-stone-400 bg-stone-50 min-h-screen">Загрузка...</div>;
@@ -217,7 +217,7 @@ function SlideRenderer({ slide, lang, dashboard, qrPayload, categories, numQuest
             {slide.blocks.map((b, i) => <BlockRenderer key={i} block={b} lang={lang} />)}
             {qrPayload && (
               <div className="mt-6 p-6 bg-white rounded-2xl shadow-lg inline-block">
-                <QRCodeSVG value={`${qrPayload.mobile_url.split('/m/')[0]}/offline/m/${qrPayload.access_code}/${phase}`} size={280} />
+                <QRCodeSVG value={`${qrPayload.mobile_url.split('/m/')[0]}/activities/m/${qrPayload.access_code}/${phase}`} size={280} />
                 <div className="mt-3 text-center">
                   <div className="text-xs text-stone-500 uppercase tracking-wider">Код сессии</div>
                   <div className="text-3xl font-bold text-stone-800 tracking-widest">{qrPayload.access_code}</div>

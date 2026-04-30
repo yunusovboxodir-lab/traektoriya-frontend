@@ -39,7 +39,7 @@ export function OfflineProgramsPage() {
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => navigate('/offline')}
+            onClick={() => navigate('/activities')}
             className="px-4 py-2 text-stone-700 border border-stone-300 rounded-lg hover:bg-stone-50"
           >
             ← К сессиям
@@ -59,7 +59,7 @@ export function OfflineProgramsPage() {
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {programs.map((p) => (
-            <ProgramCard key={p.id} program={p} onClick={() => navigate(`/offline/programs/${p.id}/edit`)} />
+            <ProgramCard key={p.id} program={p} onClick={() => navigate(`/activities/programs/${p.id}/edit`)} />
           ))}
           {programs.length === 0 && (
             <div className="col-span-full text-center py-16 text-stone-400">

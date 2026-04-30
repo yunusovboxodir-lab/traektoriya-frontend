@@ -71,7 +71,7 @@ export function OfflineProgramEditPage() {
       {/* Header */}
       <div className="flex justify-between items-start mb-6">
         <div>
-          <button onClick={() => navigate('/offline/programs')}
+          <button onClick={() => navigate('/activities/programs')}
             className="text-sm text-stone-500 hover:text-stone-700 mb-2">
             ← К списку программ
           </button>

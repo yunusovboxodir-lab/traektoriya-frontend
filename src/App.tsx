@@ -236,7 +236,7 @@ function AppRoutes() {
 
       {/* Офлайн активности */}
       <Route
-        path="/offline"
+        path="/activities"
         element={
           <ProtectedRoute pageKey="offline">
             <OfflinePage />
@@ -244,7 +244,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/offline/programs"
+        path="/activities/programs"
         element={
           <ProtectedRoute pageKey="offline">
             <OfflineProgramsPage />
@@ -252,7 +252,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/offline/programs/:programId/edit"
+        path="/activities/programs/:programId/edit"
         element={
           <ProtectedRoute pageKey="offline">
             <OfflineProgramEditPage />
@@ -261,7 +261,7 @@ function AppRoutes() {
       />
       {/* Режим проектора — авторизация без Layout (fullscreen) */}
       <Route
-        path="/offline/sessions/:sessionId/present"
+        path="/activities/sessions/:sessionId/present"
         element={
           <PresenterRoute>
             <OfflineSessionPresenterPage />
@@ -270,7 +270,7 @@ function AppRoutes() {
       />
       {/* Мобильный тест — БЕЗ авторизации (гости на тренинге) */}
       <Route
-        path="/offline/m/:accessCode/:phase"
+        path="/activities/m/:accessCode/:phase"
         element={<OfflineMobileTestPage />}
       />
 
