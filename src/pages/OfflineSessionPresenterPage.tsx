@@ -221,7 +221,7 @@ function SlideRenderer({ slide, lang, dashboard, qrPayload, categories, numQuest
             {slide.blocks.map((b, i) => <BlockRenderer key={i} block={b} lang={lang} />)}
             {qrPayload && (
               <div className="mt-6 p-6 bg-white rounded-2xl shadow-lg inline-block">
-                <QRCodeSVG value={`${qrPayload.mobile_url.split('/m/')[0]}/activities/m/${qrPayload.access_code}/${phase}`} size={280} />
+                <QRCodeSVG value={qrPayload.mobile_url.replace(/\/m\/[^/]+\/[^/]+$/, `/m/${qrPayload.access_code}/${phase}`)} size={280} />
                 <div className="mt-3 text-center">
                   <div className="text-xs text-stone-500 uppercase tracking-wider">Код сессии</div>
                   <div className="text-3xl font-bold text-stone-800 tracking-widest">{qrPayload.access_code}</div>
