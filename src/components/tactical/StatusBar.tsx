@@ -1,6 +1,6 @@
 /**
- * StatusBar — верхний бар: лого, координаты, время, маршрут.
- * Адаптировано из Tactical Dashboard.html .statusbar.
+ * StatusBar — верхняя горизонтальная полоса.
+ * Структура из Tactical Dashboard.html (handoff 2026-05-01).
  */
 import { useEffect, useState } from 'react';
 
@@ -13,35 +13,39 @@ export function StatusBar() {
   }, []);
 
   const time = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const date = now.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
     <div className="statusbar">
-      <div className="sb-logo">
-        <img src="/tactical/traektoriya-logo.jpg" alt="Traektoriya" />
-        <div>
-          <div className="sb-brand">TRAEKTORIYA</div>
-          <div className="sb-mode">СТРАТЕГИЧЕСКИЙ ШТАБ · LMS-V4.2</div>
-        </div>
+      <div className="brand-wrap">
+        <button className="brand" aria-label="Меню">
+          <img src="/tactical/traektoriya-logo.jpg" alt="Traektoriya" className="brand-logo" />
+          <div className="brand-text">
+            <div className="brand-name">TRAEKTORIYA</div>
+            <div className="brand-tag">с нуля до эксперта</div>
+          </div>
+          <span className="brand-caret">▾</span>
+        </button>
       </div>
+      <div className="sb-divider" />
+      <div className="sb-mod">
+        <span className="sb-mod-num">03</span>
+        <span className="sb-mod-name">СТРАТЕГИЧЕСКИЙ ШТАБ</span>
+        <span className="sb-mod-sub">/ TACTICAL TABLE</span>
+      </div>
+      <div className="sb-divider" />
       <div className="sb-meta">
-        <div className="sb-coord">
-          <span className="sb-lbl">КООРД</span>
-          <span className="sb-val">41.2995° N · 69.2401° E</span>
-        </div>
-        <div className="sb-coord">
-          <span className="sb-lbl">СЕКТОР</span>
-          <span className="sb-val">UZ-04 · TASHKENT</span>
-        </div>
-        <div className="sb-coord">
-          <span className="sb-lbl">ДАТА</span>
-          <span className="sb-val">{date}</span>
-        </div>
-        <div className="sb-coord sb-clock">
-          <span className="sb-lbl">ВРЕМЯ</span>
-          <span className="sb-val">{time}</span>
-        </div>
+        <span className="sb-pulse" />
+        <span>СИСТЕМА · <strong>ОНЛАЙН</strong></span>
       </div>
+      <div className="sb-meta">СЕССИЯ · <strong>SES-08842-A</strong></div>
+      <div className="sb-meta">ОБНОВЛЕНО · <strong>{time} UTC+5</strong></div>
+      <div className="sb-spacer" />
+      <div className="lang-toggle" role="group" aria-label="Язык">
+        <button className="lang-opt on">РУ</button>
+        <button className="lang-opt">UZ</button>
+      </div>
+      <button className="sb-btn">ФИЛЬТРЫ</button>
+      <button className="sb-btn">ЭКСПОРТ</button>
     </div>
   );
 }
