@@ -14,8 +14,9 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { NODES, ZONES, STATE_STYLES, EDGES } from './data';
-import type { MapNode, MapZone, NodeState } from './types';
+import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as DEFAULT_EDGES } from './data';
+import type { MapEdge, MapNode, MapZone, NodeState } from './types';
+import { useLangStore } from '../../stores/langStore';
 
 const TERRITORY_NUMERAL: Record<string, string> = {
   stazher: 'I',
@@ -249,9 +250,12 @@ interface PinchMapProps {
   selectedId: string | null;
   setSelectedId: (id: string) => void;
   focusNode: MapNode | null;
+  nodes: MapNode[];
+  zones: MapZone[];
+  edges: MapEdge[];
 }
 
-function PinchMap({ selectedId, setSelectedId, focusNode }: PinchMapProps) {
+function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }: PinchMapProps) {
   const MAP_W = 1100, MAP_H = 580;
   const containerRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 220 });
@@ -317,8 +321,8 @@ function PinchMap({ selectedId, setSelectedId, focusNode }: PinchMapProps) {
   const fit = () => setTransform({ scale: 1, tx: 0, ty: 0 });
 
   const placed = useMemo(
-    () => NODES.map((n) => ({ ...n, _px: n.x * MAP_W, _py: n.y * (MAP_H - 60) + 60 })),
-    []
+    () => nodes.map((n) => ({ ...n, _px: n.x * MAP_W, _py: n.y * (MAP_H - 60) + 60 })),
+    [nodes]
   );
   const idMap = useMemo(
     () => Object.fromEntries(placed.map((n) => [n.id, n])),
@@ -363,7 +367,7 @@ function PinchMap({ selectedId, setSelectedId, focusNode }: PinchMapProps) {
             style={{ mixBlendMode: 'multiply' }} />
           <rect width={MAP_W} height={MAP_H} fill="url(#mPmVignette)" />
 
-          {ZONES.slice(0, -1).map((z) => {
+          {zones.slice(0, -1).map((z) => {
             const xs = (z.x + z.w) * MAP_W;
             return (
               <line key={z.id}
@@ -373,7 +377,7 @@ function PinchMap({ selectedId, setSelectedId, focusNode }: PinchMapProps) {
             );
           })}
 
-          {ZONES.map((z) => (
+          {zones.map((z) => (
             <text key={z.id}
               x={(z.x + z.w / 2) * MAP_W} y={32}
               textAnchor="middle"
@@ -384,7 +388,7 @@ function PinchMap({ selectedId, setSelectedId, focusNode }: PinchMapProps) {
             </text>
           ))}
 
-          {EDGES.map(([a, b], i) => {
+          {edges.map(([a, b], i) => {
             const A = idMap[a], B = idMap[b];
             if (!A || !B) return null;
             const dim = A.state === 'locked' && B.state === 'locked';
@@ -557,13 +561,15 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
 interface TerritoryListProps {
   selectedId: string | null;
   setSelectedId: (id: string) => void;
+  nodes: MapNode[];
+  zones: MapZone[];
 }
 
-function TerritoryList({ selectedId, setSelectedId }: TerritoryListProps) {
+function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryListProps) {
   return (
     <div style={{ padding: '4px 0 8px' }}>
-      {ZONES.map((z, zi) => {
-        const villages = NODES.filter((n) => n.zone === zi);
+      {zones.map((z, zi) => {
+        const villages = nodes.filter((n) => n.zone === zi);
         const totalSec = villages.reduce((s, v) => s + (v.sections ?? 0), 0);
         const doneSec = villages.reduce((s, v) => s + (v.done ?? 0), 0);
         const pct = totalSec ? Math.round((doneSec / totalSec) * 100) : 0;
@@ -693,9 +699,10 @@ interface VillageSheetProps {
   village: MapNode;
   zone: MapZone;
   onClose: () => void;
+  onOpenCourse?: (courseId: string) => void;
 }
 
-function VillageSheet({ village, zone, onClose }: VillageSheetProps) {
+function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProps) {
   const s = STATE_STYLES[village.state];
   const totalXp = (village.sections ?? 0) * 60;
   const earnedXp = (village.done ?? 0) * 60;
@@ -825,20 +832,31 @@ function VillageSheet({ village, zone, onClose }: VillageSheetProps) {
           </div>
         </div>
 
-        <button style={{
-          width: '100%', padding: 12,
-          background: village.state === 'locked'
-            ? 'oklch(0.18 0.02 250 / 0.6)'
-            : `linear-gradient(135deg, ${zone.accent}40, oklch(0.32 0.10 70 / 0.4))`,
-          border: `1px solid ${village.state === 'locked' ? 'oklch(0.30 0.04 240)' : zone.accent}`,
-          borderRadius: 9,
-          color: village.state === 'locked' ? 'oklch(0.55 0.04 250)' : 'oklch(0.95 0.05 88)',
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 11, fontWeight: 600, letterSpacing: '0.16em',
-          cursor: village.state === 'locked' ? 'not-allowed' : 'pointer',
-        }}>
+        <button
+          onClick={() => {
+            if (village.state === 'locked' || !onOpenCourse) return;
+            // Открываем первый незаблокированный курс
+            const firstActive = village.houses.find((h) => h.s !== 'locked' && h.course_id);
+            if (firstActive?.course_id) {
+              onOpenCourse(firstActive.course_id);
+            }
+          }}
+          disabled={village.state === 'locked'}
+          style={{
+            width: '100%', padding: 12,
+            background: village.state === 'locked'
+              ? 'oklch(0.18 0.02 250 / 0.6)'
+              : `linear-gradient(135deg, ${zone.accent}40, oklch(0.32 0.10 70 / 0.4))`,
+            border: `1px solid ${village.state === 'locked' ? 'oklch(0.30 0.04 240)' : zone.accent}`,
+            borderRadius: 9,
+            color: village.state === 'locked' ? 'oklch(0.55 0.04 250)' : 'oklch(0.95 0.05 88)',
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 11, fontWeight: 600, letterSpacing: '0.16em',
+            cursor: village.state === 'locked' ? 'not-allowed' : 'pointer',
+          }}
+        >
           {village.state === 'locked'
-            ? '🔒 ТРЕБУЕТСЯ ПР-06'
+            ? '🔒 ЗАБЛОКИРОВАНО'
             : village.state === 'active' ? 'ПРОДОЛЖИТЬ →'
               : village.state === 'done' || village.state === 'mastered' ? '✓ ПОВТОРИТЬ'
                 : 'НАЧАТЬ →'}
@@ -905,19 +923,52 @@ function MobileTabBar() {
 // =============================================================================
 interface TacticalMobileProps {
   operatorName: string;
+  /** Реальные узлы из learning API. Если пусто — показывается loading или fallback на mock. */
+  nodes?: MapNode[];
+  zones?: MapZone[];
+  edges?: MapEdge[];
+  totalCourses?: number;
+  doneCourses?: number;
+  loading?: boolean;
+  onOpenCourse?: (courseId: string) => void;
 }
 
-export function TacticalMobile({ operatorName }: TacticalMobileProps) {
-  const initialActive = NODES.find((n) => n.state === 'active') || NODES[0];
+export function TacticalMobile({
+  operatorName,
+  nodes,
+  zones,
+  edges,
+  totalCourses,
+  doneCourses,
+  loading,
+  onOpenCourse,
+}: TacticalMobileProps) {
+  const lang = useLangStore((s) => s.lang);
+
+  // Fallback на mock если nodes отсутствует или пуст и не идёт загрузка
+  const useMock = (!nodes || nodes.length === 0) && !loading;
+  const N = useMock ? DEFAULT_NODES : (nodes ?? []);
+  const Z = useMock ? DEFAULT_ZONES : (zones ?? []);
+  const E = useMock ? DEFAULT_EDGES : (edges ?? []);
+
+  const initialActive = N.find((n) => n.state === 'active') || N[0];
   const [selectedId, setSelectedId] = useState<string | null>(initialActive?.id ?? null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const totalSections = NODES.reduce((s, n) => s + (n.sections ?? 0), 0);
-  const doneSections = NODES.reduce((s, n) => s + (n.done ?? 0), 0);
-  const pct = totalSections ? Math.round((doneSections / totalSections) * 100) : 0;
+  // Sync selected when nodes change (after async load)
+  useEffect(() => {
+    if (!selectedId && N.length > 0) {
+      const ia = N.find((n) => n.state === 'active') || N[0];
+      setSelectedId(ia?.id ?? null);
+    }
+  }, [N, selectedId]);
 
-  const selected = NODES.find((n) => n.id === selectedId) || initialActive;
-  const selectedZone = ZONES[selected?.zone ?? 0];
+  const totalCount = totalCourses ?? N.reduce((s, n) => s + (n.sections ?? 0), 0);
+  const doneCount = doneCourses ?? N.reduce((s, n) => s + (n.done ?? 0), 0);
+  const pct = totalCount ? Math.round((doneCount / totalCount) * 100) : 0;
+
+  const selected = N.find((n) => n.id === selectedId) || initialActive;
+  const selectedZone = Z[selected?.zone ?? 0];
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
@@ -952,23 +1003,37 @@ export function TacticalMobile({ operatorName }: TacticalMobileProps) {
           rank={7}
         />
         <DailyQuestBanner />
-        <PinchMap
-          selectedId={selectedId}
-          setSelectedId={handleSelect}
-          focusNode={selected}
-        />
-        <TerritoryList
-          selectedId={selectedId}
-          setSelectedId={handleSelect}
-        />
+        {loading ? (
+          <div style={{ padding: 30, textAlign: 'center', color: 'oklch(0.55 0.04 250)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontSize: 11 }}>
+            {lang === 'uz' ? 'XARITA YUKLANMOQDA...' : 'ЗАГРУЗКА КАРТЫ...'}
+          </div>
+        ) : (
+          <>
+            <PinchMap
+              selectedId={selectedId}
+              setSelectedId={handleSelect}
+              focusNode={selected}
+              nodes={N}
+              zones={Z}
+              edges={E}
+            />
+            <TerritoryList
+              selectedId={selectedId}
+              setSelectedId={handleSelect}
+              nodes={N}
+              zones={Z}
+            />
+          </>
+        )}
         <FriendsStrip />
       </div>
       <MobileTabBar />
-      {sheetOpen && selected && (
+      {sheetOpen && selected && selectedZone && (
         <VillageSheet
           village={selected}
           zone={selectedZone}
           onClose={() => setSheetOpen(false)}
+          onOpenCourse={onOpenCourse}
         />
       )}
     </div>

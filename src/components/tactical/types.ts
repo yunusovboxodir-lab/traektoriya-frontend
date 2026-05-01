@@ -7,6 +7,10 @@ export type NodeState = 'done' | 'active' | 'new' | 'locked' | 'mastered';
 
 export interface MapHouse {
   s: NodeState;
+  /** ID реального курса (когда узлы построены из learning API) */
+  course_id?: string;
+  /** Название курса для tooltip */
+  course_title?: string;
 }
 
 export interface MapNode {

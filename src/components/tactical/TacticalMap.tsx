@@ -4,7 +4,7 @@
  */
 import { useMemo, type ReactNode } from 'react';
 import type { MapNode, MapEdge as MapEdgeType, MapZone, TerritoryMode } from './types';
-import { NODES, EDGES, ZONES, STATE_STYLES } from './data';
+import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES, STATE_STYLES } from './data';
 
 interface MapNodeProps {
   node: MapNode;
@@ -103,9 +103,10 @@ interface ZoneColumnProps {
   H: number;
   focusZone: number | null;
   mode?: TerritoryMode;
+  sourceZones: MapZone[];
 }
 
-function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome' }: ZoneColumnProps) {
+function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome', sourceZones }: ZoneColumnProps) {
   const x0 = zone.x * W;
   const w = zone.w * W;
   const cx = x0 + w / 2;
@@ -126,7 +127,7 @@ function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome' }: ZoneColumnPr
     </g>
   );
 
-  const isLast = idx === ZONES.length - 1;
+  const isLast = idx === sourceZones.length - 1;
   const barrierX = x0 + w;
   let modeContent: ReactNode = null;
 
@@ -225,15 +226,33 @@ interface TacticalMapProps {
   selectedId: string | null;
   onSelect: (node: MapNode) => void;
   territoryMode?: TerritoryMode;
+  /** Динамические узлы (из learning API). Если не переданы — mock из data.ts. */
+  nodes?: MapNode[];
+  /** Динамические рёбра. Если не переданы — mock. */
+  edges?: MapEdgeType[];
+  /** Динамические зоны (с обновлёнными count). Если не переданы — mock. */
+  zones?: MapZone[];
 }
 
-export function TacticalMap({ focusZone, selectedId, onSelect, territoryMode = 'biome' }: TacticalMapProps) {
+export function TacticalMap({
+  focusZone,
+  selectedId,
+  onSelect,
+  territoryMode = 'biome',
+  nodes,
+  edges,
+  zones,
+}: TacticalMapProps) {
   const W = 1100;
   const H = 580;
 
+  const sourceNodes = nodes ?? DEFAULT_NODES;
+  const sourceEdges = edges ?? DEFAULT_EDGES;
+  const sourceZones = zones ?? DEFAULT_ZONES;
+
   const placed = useMemo(
-    () => NODES.map((n) => ({ ...n, _px: n.x * W, _py: 80 + n.y * (H - 140) })),
-    []
+    () => sourceNodes.map((n) => ({ ...n, _px: n.x * W, _py: 80 + n.y * (H - 140) })),
+    [sourceNodes]
   );
   const byId = useMemo(
     () => Object.fromEntries(placed.map((n) => [n.id, n])),
@@ -253,12 +272,12 @@ export function TacticalMap({ focusZone, selectedId, onSelect, territoryMode = '
 
       <WorldMap W={W} H={H} />
 
-      {ZONES.map((z, i) => (
-        <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} />
+      {sourceZones.map((z, i) => (
+        <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} sourceZones={sourceZones} />
       ))}
 
       <g>
-        {EDGES.map(([a, b]: MapEdgeType) => {
+        {sourceEdges.map(([a, b]: MapEdgeType) => {
           const fa = byId[a];
           const fb = byId[b];
           if (!fa || !fb) return null;

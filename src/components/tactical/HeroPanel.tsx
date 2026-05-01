@@ -4,8 +4,9 @@
  */
 import type { CSSProperties } from 'react';
 import { Panel, Stat, ProgressBar, RingProgress } from './Panel';
-import { ZONES } from './data';
-import type { TeamMember } from './types';
+import { ZONES as DEFAULT_ZONES } from './data';
+import type { MapZone, TeamMember } from './types';
+import { useLangStore } from '../../stores/langStore';
 
 const TEAM: TeamMember[] = [
   { n: 'Gulnaza', r: 'СВ', p: 75, s: 'oklch(0.78 0.15 155)' },
@@ -28,11 +29,36 @@ interface HeroPanelProps {
   operatorName?: string;
   /** Роль (территория) */
   operatorRole?: string;
+  /** Динамические зоны (с обновлёнными count) */
+  zones?: MapZone[];
+  /** Реальное число курсов */
+  totalCourses?: number;
+  /** Пройдено курсов */
+  doneCourses?: number;
 }
 
-export function HeroPanel({ onZoneFocus, focusZone, operatorName = 'Оператор', operatorRole = 'ТЕРРИТОРИАЛЬНЫЙ ПРЕДСТАВИТЕЛЬ · ALMATY-04' }: HeroPanelProps) {
+export function HeroPanel({
+  onZoneFocus,
+  focusZone,
+  operatorName = 'Оператор',
+  operatorRole = 'ТЕРРИТОРИАЛЬНЫЙ ПРЕДСТАВИТЕЛЬ · ALMATY-04',
+  zones,
+  totalCourses,
+  doneCourses,
+}: HeroPanelProps) {
+  const lang = useLangStore((s) => s.lang);
+  const ZONES = zones && zones.length > 0 ? zones : DEFAULT_ZONES;
+  const total = totalCourses ?? 32;
+  const done = doneCourses ?? 12;
+  const inProgress = Math.max(0, Math.min(3, total - done));
+  const available = Math.max(0, Math.min(5, total - done - inProgress));
+  const locked = Math.max(0, total - done - inProgress - available);
+  const overallPct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
+
   return (
-    <Panel label="ОПЕРАТОР" code="UID-08842">
+    <Panel label={t('ОПЕРАТОР', 'OPERATOR')} code="UID-08842">
       {/* Identity */}
       <div className="hero-identity">
         <div className="avatar">
@@ -59,18 +85,18 @@ export function HeroPanel({ onZoneFocus, focusZone, operatorName = 'Операт
 
       {/* Rank + ring */}
       <div className="hero-rank">
-        <RingProgress value={26} label="ПРАКТИК" />
+        <RingProgress value={overallPct} label={t('ПРАКТИК', 'PRAKTIK')} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'oklch(0.55 0.02 250)' }}>ТЕКУЩИЙ ЭШЕЛОН</div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'oklch(0.82 0.15 75)' }}>Практик</div>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'oklch(0.55 0.02 250)' }}>{t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'oklch(0.82 0.15 75)' }}>{t('Практик', 'Praktik')}</div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'oklch(0.6 0.02 250)', marginTop: 2 }}>
-            след. рубеж: <span style={{ color: 'oklch(0.78 0.15 155)' }}>Эксперт</span>
+            {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'oklch(0.78 0.15 155)' }}>{t('Эксперт', 'Ekspert')}</span>
           </div>
         </div>
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <ProgressBar value={320} max={1200} />
+        <ProgressBar value={done * 50} max={total * 50} level={t('LVL 2', 'LVL 2')} />
       </div>
 
       <div className="divider" />
@@ -78,15 +104,15 @@ export function HeroPanel({ onZoneFocus, focusZone, operatorName = 'Операт
       {/* Streak */}
       <div className="streak-row">
         <div>
-          <div className="metric-label">СЕРИЯ</div>
-          <div className="metric-val"><span className="streak-icon">▲</span>5 <span className="metric-unit">дн.</span></div>
+          <div className="metric-label">{t('СЕРИЯ', 'SERIYA')}</div>
+          <div className="metric-val"><span className="streak-icon">▲</span>5 <span className="metric-unit">{t('дн.', 'kun')}</span></div>
         </div>
         <div>
-          <div className="metric-label">ВРЕМЯ СЕГОДНЯ</div>
-          <div className="metric-val">42<span className="metric-unit">мин</span></div>
+          <div className="metric-label">{t('ВРЕМЯ СЕГОДНЯ', 'BUGUNGI VAQT')}</div>
+          <div className="metric-val">42<span className="metric-unit">{t('мин', 'daq')}</span></div>
         </div>
         <div>
-          <div className="metric-label">РЕЙТИНГ</div>
+          <div className="metric-label">{t('РЕЙТИНГ', 'REYTING')}</div>
           <div className="metric-val">#7<span className="metric-unit">/142</span></div>
         </div>
       </div>
@@ -94,17 +120,17 @@ export function HeroPanel({ onZoneFocus, focusZone, operatorName = 'Операт
       <div className="divider" />
 
       {/* Stats */}
-      <div className="section-label">СТАТИСТИКА</div>
-      <Stat k="Всего разделов" v="32" />
-      <Stat k="Пройдено" v="12" accent="oklch(0.78 0.15 155)" />
-      <Stat k="В процессе" v="3" accent="oklch(0.82 0.15 75)" />
-      <Stat k="Доступно" v="5" accent="oklch(0.78 0.15 220)" />
-      <Stat k="Заблокировано" v="12" accent="oklch(0.50 0.02 250)" />
+      <div className="section-label">{t('СТАТИСТИКА', 'STATISTIKA')}</div>
+      <Stat k={t('Всего курсов', 'Jami kurslar')} v={total} />
+      <Stat k={t('Пройдено', "O'tildi")} v={done} accent="oklch(0.78 0.15 155)" />
+      <Stat k={t('В процессе', 'Jarayonda')} v={inProgress} accent="oklch(0.82 0.15 75)" />
+      <Stat k={t('Доступно', 'Mavjud')} v={available} accent="oklch(0.78 0.15 220)" />
+      <Stat k={t('Заблокировано', 'Bloklangan')} v={locked} accent="oklch(0.50 0.02 250)" />
 
       <div className="divider" />
 
       {/* Zone navigator */}
-      <div className="section-label">НАВИГАЦИЯ ПО ТЕРРИТОРИЯМ</div>
+      <div className="section-label">{t('НАВИГАЦИЯ ПО ТЕРРИТОРИЯМ', 'HUDUDLAR BOʻYLAB NAVIGATSIYA')}</div>
       <div className="zone-nav">
         {ZONES.map((z, i) => {
           const tint = ZONE_TINTS[i];
@@ -127,7 +153,7 @@ export function HeroPanel({ onZoneFocus, focusZone, operatorName = 'Операт
       <div className="divider" />
 
       {/* Team */}
-      <div className="section-label">КОМАНДНЫЙ ОБЗОР · JEKA-DIV</div>
+      <div className="section-label">{t('КОМАНДНЫЙ ОБЗОР · JEKA-DIV', 'JAMOA · JEKA-DIV')}</div>
       {TEAM.map((t) => (
         <div key={t.n} className="team-row">
           <div className="team-id">
