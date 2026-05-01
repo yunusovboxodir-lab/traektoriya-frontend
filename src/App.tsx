@@ -40,6 +40,8 @@ const OfflineMobileTestPage = lazyWithRetry(() => import('./pages/OfflineMobileT
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
 const TranslationReviewPage = lazyWithRetry(() => import('./pages/TranslationReviewPage').then(m => ({ default: m.TranslationReviewPage })));
+const TrainingPlanPage = lazyWithRetry(() => import('./pages/TrainingPlanPage').then(m => ({ default: m.TrainingPlanPage })));
+const TrainingRequestNewPage = lazyWithRetry(() => import('./pages/TrainingRequestNewPage').then(m => ({ default: m.TrainingRequestNewPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -311,6 +313,24 @@ function AppRoutes() {
       <Route
         path="/activities/m/:accessCode/:phase"
         element={<OfflineMobileTestPage />}
+      />
+
+      {/* Module 15: Smart Training Plan */}
+      <Route
+        path="/training-plan"
+        element={
+          <ProtectedRoute pageKey="training_plan">
+            <TrainingPlanPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/training-plan/requests/new"
+        element={
+          <ProtectedRoute pageKey="training_plan">
+            <TrainingRequestNewPage />
+          </ProtectedRoute>
+        }
       />
 
       {/* Аналитика = Overview + AI L&D + Effectiveness + Reports (tabs) */}
