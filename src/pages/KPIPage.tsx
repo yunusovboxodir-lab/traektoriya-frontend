@@ -425,6 +425,8 @@ export function KPIPage() {
   const [roleFilter, setRoleFilter] = useState<string | undefined>(user?.role);
   // Если в текущем месяце все нули — auto-fallback на предыдущий период
   const [fallbackPeriod, setFallbackPeriod] = useState<string | null>(null);
+  // Явный выбор периода пользователем (undefined = текущий месяц)
+  const [selectedPeriod, setSelectedPeriod] = useState<string | undefined>(undefined);
 
   // Set roleFilter when user loads (user may be null on first render)
   useEffect(() => {
@@ -453,7 +455,7 @@ export function KPIPage() {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [roleFilter]);
+  }, [roleFilter, selectedPeriod]);
 
   // IntersectionObserver for sticky card
   useEffect(() => {
@@ -474,9 +476,9 @@ export function KPIPage() {
       }
 
       const [kpiRes, leaderRes, teamRes] = await Promise.allSettled([
-        kpiApi.getMyKPI(),
-        kpiApi.getLeaderboard({ limit: 100, role: roleFilter }),
-        isAdmin ? kpiApi.getTeamRatings() : Promise.resolve({ data: { teams: [] } }),
+        kpiApi.getMyKPI(selectedPeriod),
+        kpiApi.getLeaderboard({ limit: 100, role: roleFilter, period: selectedPeriod }),
+        isAdmin ? kpiApi.getTeamRatings(selectedPeriod) : Promise.resolve({ data: { teams: [] } }),
       ]);
 
       if (kpiRes.status === 'fulfilled') setMyKPI(kpiRes.value.data);
@@ -486,7 +488,8 @@ export function KPIPage() {
         const result: LeaderEntry[] = leaderRes.value.data?.leaders ?? [];
         const allZero = result.length > 0 && result.every((l) => l.total_kpi === 0);
 
-        if (allZero) {
+        // Auto-fallback работает только если пользователь НЕ выбрал период явно
+        if (allZero && !selectedPeriod) {
           // Текущий период пуст — пробуем предыдущий
           const now = new Date();
           now.setMonth(now.getMonth() - 1);
@@ -660,6 +663,37 @@ export function KPIPage() {
               </span>
             </div>
           )}
+          {/* Period selector — выбор отчётного периода */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm text-gray-500">Период:</span>
+            <select
+              value={selectedPeriod ?? ''}
+              onChange={(e) => setSelectedPeriod(e.target.value || undefined)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Текущий месяц (с авто-фолбэком)</option>
+              {(() => {
+                const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+                const opts: React.ReactNode[] = [];
+                const now = new Date();
+                for (let i = 0; i < 12; i++) {
+                  const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                  const period = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                  const label = `${months[d.getMonth()]} ${d.getFullYear()}`;
+                  opts.push(<option key={period} value={period}>{label}</option>);
+                }
+                return opts;
+              })()}
+            </select>
+            {selectedPeriod && (
+              <button
+                onClick={() => setSelectedPeriod(undefined)}
+                className="text-xs text-blue-600 hover:underline"
+              >
+                ← к текущему
+              </button>
+            )}
+          </div>
           {/* Role filter for admins/directors */}
           {isAdmin && (
             <div className="flex items-center gap-2 flex-wrap">
