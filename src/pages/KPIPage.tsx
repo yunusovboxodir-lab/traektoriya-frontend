@@ -408,6 +408,44 @@ function RatingGuide({ t }: { t: (key: string) => string }) {
 }
 
 // ───────────────────────────────────────
+// Period range parser
+// ───────────────────────────────────────
+// Преобразует строку периода ("Q2-2026" / "H1-2026" / "Y-2026")
+// в диапазон месяцев { from: "2026-04", to: "2026-06" }.
+// Для обычных месячных значений ("2026-04") и пустых строк возвращает null.
+function parseRangePeriod(value: string | undefined): { from: string; to: string } | null {
+  if (!value) return null;
+  // Quarter: "Q1-2026", "Q2-2026", "Q3-2026", "Q4-2026"
+  const qMatch = value.match(/^Q([1-4])-(\d{4})$/);
+  if (qMatch) {
+    const q = parseInt(qMatch[1], 10);
+    const year = qMatch[2];
+    const startMonth = (q - 1) * 3 + 1;
+    const endMonth = q * 3;
+    return {
+      from: `${year}-${String(startMonth).padStart(2, '0')}`,
+      to: `${year}-${String(endMonth).padStart(2, '0')}`,
+    };
+  }
+  // Half-year: "H1-2026", "H2-2026"
+  const hMatch = value.match(/^H([12])-(\d{4})$/);
+  if (hMatch) {
+    const h = parseInt(hMatch[1], 10);
+    const year = hMatch[2];
+    return h === 1
+      ? { from: `${year}-01`, to: `${year}-06` }
+      : { from: `${year}-07`, to: `${year}-12` };
+  }
+  // Year: "Y-2026"
+  const yMatch = value.match(/^Y-(\d{4})$/);
+  if (yMatch) {
+    const year = yMatch[1];
+    return { from: `${year}-01`, to: `${year}-12` };
+  }
+  return null;
+}
+
+// ───────────────────────────────────────
 // Main component
 // ───────────────────────────────────────
 
@@ -475,10 +513,23 @@ export function KPIPage() {
         setError(null);
       }
 
+      // Если выбран диапазон (квартал/полугодие/год) — используем aggregate API
+      const range = parseRangePeriod(selectedPeriod);
+      const monthPeriod = range ? undefined : selectedPeriod;
+
+      const leaderboardPromise = range
+        ? kpiApi.getLeaderboardAggregate({
+            from_period: range.from,
+            to_period: range.to,
+            role: roleFilter,
+            limit: 100,
+          })
+        : kpiApi.getLeaderboard({ limit: 100, role: roleFilter, period: monthPeriod });
+
       const [kpiRes, leaderRes, teamRes] = await Promise.allSettled([
-        kpiApi.getMyKPI(selectedPeriod),
-        kpiApi.getLeaderboard({ limit: 100, role: roleFilter, period: selectedPeriod }),
-        isAdmin ? kpiApi.getTeamRatings(selectedPeriod) : Promise.resolve({ data: { teams: [] } }),
+        kpiApi.getMyKPI(monthPeriod),
+        leaderboardPromise,
+        isAdmin ? kpiApi.getTeamRatings(monthPeriod) : Promise.resolve({ data: { teams: [] } }),
       ]);
 
       if (kpiRes.status === 'fulfilled') setMyKPI(kpiRes.value.data);
@@ -663,35 +714,101 @@ export function KPIPage() {
               </span>
             </div>
           )}
-          {/* Period selector — выбор отчётного периода */}
+          {/* Range banner — выбран агрегат за квартал/полугодие/год */}
+          {(() => {
+            const r = parseRangePeriod(selectedPeriod);
+            if (!r) return null;
+            return (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2 text-sm text-blue-800">
+                <span className="text-base">📊</span>
+                <span>
+                  Сквозная аналитика за период <strong>{r.from} — {r.to}</strong>.
+                  Показан средний KPI по каждому сотруднику за месяцы диапазона.
+                </span>
+              </div>
+            );
+          })()}
+          {/* Period selector — месяц / квартал / полугодие / год */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-gray-500">Период:</span>
             <select
               value={selectedPeriod ?? ''}
               onChange={(e) => setSelectedPeriod(e.target.value || undefined)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 max-w-xs"
             >
               <option value="">Текущий месяц (с авто-фолбэком)</option>
-              {(() => {
-                const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-                const opts: React.ReactNode[] = [];
-                const now = new Date();
-                for (let i = 0; i < 12; i++) {
-                  const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                  const period = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                  const label = `${months[d.getMonth()]} ${d.getFullYear()}`;
-                  opts.push(<option key={period} value={period}>{label}</option>);
-                }
-                return opts;
-              })()}
+              <optgroup label="Месяц">
+                {(() => {
+                  const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+                  const opts: React.ReactNode[] = [];
+                  const now = new Date();
+                  for (let i = 0; i < 12; i++) {
+                    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    const period = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    const label = `${months[d.getMonth()]} ${d.getFullYear()}`;
+                    opts.push(<option key={period} value={period}>{label}</option>);
+                  }
+                  return opts;
+                })()}
+              </optgroup>
+              <optgroup label="Квартал">
+                {(() => {
+                  const opts: React.ReactNode[] = [];
+                  const year = new Date().getFullYear();
+                  const currentQ = Math.floor(new Date().getMonth() / 3) + 1;
+                  // Текущий и предыдущие кварталы текущего года
+                  for (let q = currentQ; q >= 1; q--) {
+                    opts.push(<option key={`Q${q}-${year}`} value={`Q${q}-${year}`}>Q{q} {year}</option>);
+                  }
+                  // 4 квартала прошлого года
+                  for (let q = 4; q >= 1; q--) {
+                    opts.push(<option key={`Q${q}-${year - 1}`} value={`Q${q}-${year - 1}`}>Q{q} {year - 1}</option>);
+                  }
+                  return opts;
+                })()}
+              </optgroup>
+              <optgroup label="Полугодие">
+                {(() => {
+                  const opts: React.ReactNode[] = [];
+                  const year = new Date().getFullYear();
+                  const month = new Date().getMonth() + 1;
+                  if (month >= 7) opts.push(<option key={`H2-${year}`} value={`H2-${year}`}>2-е полугодие {year}</option>);
+                  opts.push(<option key={`H1-${year}`} value={`H1-${year}`}>1-е полугодие {year}</option>);
+                  opts.push(<option key={`H2-${year - 1}`} value={`H2-${year - 1}`}>2-е полугодие {year - 1}</option>);
+                  opts.push(<option key={`H1-${year - 1}`} value={`H1-${year - 1}`}>1-е полугодие {year - 1}</option>);
+                  return opts;
+                })()}
+              </optgroup>
+              <optgroup label="Год">
+                {(() => {
+                  const opts: React.ReactNode[] = [];
+                  const year = new Date().getFullYear();
+                  opts.push(<option key={`Y-${year}`} value={`Y-${year}`}>{year} год</option>);
+                  opts.push(<option key={`Y-${year - 1}`} value={`Y-${year - 1}`}>{year - 1} год</option>);
+                  return opts;
+                })()}
+              </optgroup>
             </select>
             {selectedPeriod && (
-              <button
-                onClick={() => setSelectedPeriod(undefined)}
-                className="text-xs text-blue-600 hover:underline"
-              >
-                ← к текущему
-              </button>
+              <>
+                {(() => {
+                  const r = parseRangePeriod(selectedPeriod);
+                  if (r) {
+                    return (
+                      <span className="text-xs text-gray-500 italic">
+                        агрегат {r.from} — {r.to}
+                      </span>
+                    );
+                  }
+                  return null;
+                })()}
+                <button
+                  onClick={() => setSelectedPeriod(undefined)}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  ← к текущему
+                </button>
+              </>
             )}
           </div>
           {/* Role filter for admins/directors */}

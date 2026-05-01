@@ -10,6 +10,9 @@ export const kpiApi = {
   getLeaderboard: (params?: { period?: string; limit?: number; role?: string }) =>
     api.get('/api/v1/kpi/leaderboard/top', { params }),
 
+  getLeaderboardAggregate: (params: { from_period: string; to_period: string; limit?: number; role?: string }) =>
+    api.get('/api/v1/kpi/leaderboard/aggregate', { params }),
+
   getTeamRatings: (period?: string) =>
     api.get('/api/v1/kpi/team-rating/all', { params: period ? { period } : {} }),
 
