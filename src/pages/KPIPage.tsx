@@ -423,6 +423,8 @@ export function KPIPage() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<'leaderboard' | 'my' | 'teams'>('leaderboard');
   const [roleFilter, setRoleFilter] = useState<string | undefined>(user?.role);
+  // Если в текущем месяце все нули — auto-fallback на предыдущий период
+  const [fallbackPeriod, setFallbackPeriod] = useState<string | null>(null);
 
   // Set roleFilter when user loads (user may be null on first render)
   useEffect(() => {
@@ -478,8 +480,38 @@ export function KPIPage() {
       ]);
 
       if (kpiRes.status === 'fulfilled') setMyKPI(kpiRes.value.data);
-      if (leaderRes.status === 'fulfilled') setLeaders(leaderRes.value.data?.leaders ?? []);
       if (teamRes.status === 'fulfilled') setTeams(teamRes.value.data?.teams ?? []);
+
+      if (leaderRes.status === 'fulfilled') {
+        const result: LeaderEntry[] = leaderRes.value.data?.leaders ?? [];
+        const allZero = result.length > 0 && result.every((l) => l.total_kpi === 0);
+
+        if (allZero) {
+          // Текущий период пуст — пробуем предыдущий
+          const now = new Date();
+          now.setMonth(now.getMonth() - 1);
+          const prev = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+          try {
+            const fallback = await kpiApi.getLeaderboard({ limit: 100, role: roleFilter, period: prev });
+            const fallbackLeaders: LeaderEntry[] = fallback.data?.leaders ?? [];
+            // Если и в прошлом периоде нули — оставляем текущий результат без баннера
+            const fallbackHasData = fallbackLeaders.some((l) => l.total_kpi > 0);
+            if (fallbackHasData) {
+              setLeaders(fallbackLeaders);
+              setFallbackPeriod(prev);
+            } else {
+              setLeaders(result);
+              setFallbackPeriod(null);
+            }
+          } catch {
+            setLeaders(result);
+            setFallbackPeriod(null);
+          }
+        } else {
+          setLeaders(result);
+          setFallbackPeriod(null);
+        }
+      }
 
       if (!silent && kpiRes.status === 'rejected' && leaderRes.status === 'rejected') {
         setError(t('kpi.loadError'));
@@ -618,6 +650,16 @@ export function KPIPage() {
       {/* Tab: Leaderboard (default, first) */}
       {tab === 'leaderboard' && (
         <>
+          {/* Fallback banner — данных за текущий месяц нет */}
+          {fallbackPeriod && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2 text-sm text-amber-800">
+              <span className="text-base">📅</span>
+              <span>
+                Данных за текущий месяц пока нет — показаны результаты за <strong>{fallbackPeriod}</strong>.
+                Метрики обновятся когда сотрудники начнут работу в новом периоде.
+              </span>
+            </div>
+          )}
           {/* Role filter for admins/directors */}
           {isAdmin && (
             <div className="flex items-center gap-2 flex-wrap">
