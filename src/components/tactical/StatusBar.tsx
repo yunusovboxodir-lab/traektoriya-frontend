@@ -97,6 +97,33 @@ export function StatusBar() {
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + '/');
 
+  // Динамический заголовок модуля в StatusBar в зависимости от текущего route
+  const currentMod = (() => {
+    const ru = lang === 'ru';
+    const path = location.pathname;
+    const map: Array<{ test: (p: string) => boolean; num: string; name: string; sub: string }> = [
+      { test: (p) => p.startsWith('/learning'),     num: '02', name: ru ? 'СТРАТЕГИЧЕСКИЙ ШТАБ' : 'STRATEGIK SHTAB', sub: 'TACTICAL TABLE' },
+      { test: (p) => p === '/' || p.startsWith('/dashboard'), num: '01', name: ru ? 'КОМАНДНЫЙ ЦЕНТР' : 'QO\'MONDONLIK MARKAZI', sub: 'COMMAND' },
+      { test: (p) => p.startsWith('/products'),     num: '03', name: ru ? 'АРСЕНАЛ' : 'ARSENAL', sub: 'PRODUCTS' },
+      { test: (p) => p.startsWith('/tasks'),        num: '04', name: ru ? 'ЗАДАЧИ' : 'VAZIFALAR', sub: 'OPERATIONS' },
+      { test: (p) => p.startsWith('/team'),         num: '05', name: ru ? 'ОТРЯД' : 'OTRYAD', sub: 'TEAM' },
+      { test: (p) => p.startsWith('/competencies'), num: '06', name: ru ? 'НАВЫКИ' : 'KO\'NIKMALAR', sub: 'COMPETENCIES' },
+      { test: (p) => p.startsWith('/ai-studio'),    num: '07', name: ru ? 'AI ЛАБОРАТОРИЯ' : 'AI LABORATORIYA', sub: 'AI STUDIO' },
+      { test: (p) => p.startsWith('/goals'),        num: '08', name: ru ? 'ЦЕЛИ' : 'MAQSADLAR', sub: 'OBJECTIVES' },
+      { test: (p) => p.startsWith('/planogram'),    num: '09', name: ru ? 'РАЗВЕДКА ПОЛКИ' : 'JAVON SKANI', sub: 'PLANOGRAM' },
+      { test: (p) => p.startsWith('/activities'),   num: '10', name: ru ? 'ОФЛАЙН ОПЕРАЦИИ' : 'OFLAYN AMALIYOT', sub: 'OFFLINE OPS' },
+      { test: (p) => p.startsWith('/analytics'),    num: '11', name: ru ? 'АНАЛИТИКА' : 'TAHLIL', sub: 'INTEL' },
+      { test: (p) => p.startsWith('/training-plan'), num: '12', name: ru ? 'ПЛАН ОБУЧЕНИЯ' : 'O\'QITISH REJASI', sub: 'TRAINING' },
+      { test: (p) => p.startsWith('/admin/roles'),  num: 'A2', name: ru ? 'НАСТРОЙКИ' : 'SOZLAMALAR', sub: 'SETTINGS' },
+      { test: (p) => p.startsWith('/admin/pulse-pipeline'), num: 'A3', name: ru ? 'PULSE PIPELINE' : 'PULSE PIPELINE', sub: 'ADMIN' },
+      { test: (p) => p.startsWith('/dictionary-uz'), num: 'A1', name: ru ? 'СЛОВАРЬ UZ' : 'LUG\'AT UZ', sub: 'GLOSSARY' },
+      { test: (p) => p.startsWith('/translation-review'), num: 'A4', name: ru ? 'ПРОВЕРКА' : 'TEKSHIRUV', sub: 'TRANSLATION' },
+      { test: (p) => p.startsWith('/shelf-corrections'), num: 'A5', name: ru ? 'КОРРЕКЦИЯ' : 'TUZATISH', sub: 'SHELF FIX' },
+    ];
+    const found = map.find((m) => m.test(path));
+    return found || { num: '00', name: ru ? 'TRAEKTORIYA' : 'TRAEKTORIYA', sub: 'PLATFORM' };
+  })();
+
   const handleNav = (path: string, frozen: boolean) => {
     if (frozen) return;
     setMenuOpen(false);
@@ -214,9 +241,9 @@ export function StatusBar() {
 
       <div className="sb-divider" />
       <div className="sb-mod">
-        <span className="sb-mod-num">03</span>
-        <span className="sb-mod-name">{lang === 'uz' ? 'STRATEGIK SHTAB' : 'СТРАТЕГИЧЕСКИЙ ШТАБ'}</span>
-        <span className="sb-mod-sub">/ TACTICAL TABLE</span>
+        <span className="sb-mod-num">{currentMod.num}</span>
+        <span className="sb-mod-name">{currentMod.name}</span>
+        <span className="sb-mod-sub">/ {currentMod.sub}</span>
       </div>
       <div className="sb-divider" />
       <div className="sb-meta">

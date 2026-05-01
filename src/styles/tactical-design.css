@@ -1152,6 +1152,104 @@ body::after {
 }
 
 /* =====================================================================
+   PHASE 3 — анимации, hover-glow, переходы
+   ===================================================================== */
+
+/* --- Плавная смена темы --- */
+:root {
+  --transition-theme: background 0.4s ease, color 0.3s ease, border-color 0.3s ease;
+}
+body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn {
+  transition: var(--transition-theme);
+}
+
+/* --- Page enter (fade + slight rise) --- */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.tactical-page > * {
+  animation: pageEnter 0.32s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+/* --- Glow на «карточках» Tailwind при hover --- */
+.tactical-page .bg-white,
+.tactical-page [class*="rounded-2xl"],
+.tactical-page [class*="rounded-xl"] {
+  transition: transform 0.22s cubic-bezier(0.22, 0.61, 0.36, 1),
+              box-shadow 0.22s ease,
+              border-color 0.22s ease;
+}
+.tactical-page .bg-white:hover {
+  border-color: var(--brass);
+  box-shadow:
+    var(--shadow-deep),
+    0 0 24px oklch(from var(--brass) l c h / 0.18);
+}
+
+/* --- Кнопки с brass glow --- */
+.tactical-page button:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+.tactical-page button[class*="bg-blue"]:not(:disabled),
+.tactical-page button[class*="bg-indigo"]:not(:disabled),
+.tactical-page button[class*="bg-emerald"]:not(:disabled),
+.tactical-page button[class*="bg-green"]:not(:disabled) {
+  position: relative;
+  overflow: hidden;
+}
+.tactical-page button[class*="bg-blue"]:not(:disabled)::after,
+.tactical-page button[class*="bg-indigo"]:not(:disabled)::after,
+.tactical-page button[class*="bg-emerald"]:not(:disabled)::after,
+.tactical-page button[class*="bg-green"]:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg,
+    transparent 30%,
+    oklch(1 0 0 / 0.18) 50%,
+    transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+  pointer-events: none;
+}
+.tactical-page button[class*="bg-blue"]:not(:disabled):hover::after,
+.tactical-page button[class*="bg-indigo"]:not(:disabled):hover::after,
+.tactical-page button[class*="bg-emerald"]:not(:disabled):hover::after,
+.tactical-page button[class*="bg-green"]:not(:disabled):hover::after {
+  transform: translateX(100%);
+}
+
+/* --- Inputs focus в Tactical-стиле --- */
+.tactical-page input:focus,
+.tactical-page textarea:focus,
+.tactical-page select:focus {
+  outline: none;
+  border-color: var(--brass) !important;
+  box-shadow: 0 0 0 2px oklch(from var(--brass) l c h / 0.20),
+              0 0 16px oklch(from var(--brass) l c h / 0.25);
+}
+
+/* --- Pulsating dot для "live" индикаторов --- */
+@keyframes tactical-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.08); }
+}
+.tactical-page .animate-pulse {
+  animation: tactical-pulse 2s ease-in-out infinite;
+}
+
+/* --- Reduced motion: уважение системных настроек --- */
+@media (prefers-reduced-motion: reduce) {
+  .tactical-page > *,
+  .nav-menu,
+  .theme-toggle .theme-icon {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =====================================================================
    .tactical-page — обёртка для всех страниц приложения
    Переопределяет дефолтные Tailwind-цвета (bg-white, text-gray-XXX, и т.д.)
    на тактический дизайн. Сделано через CSS-каскад, не трогая разметку.
