@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLangStore, useT } from '../../stores/langStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
+import { useThemeStore } from '../../stores/themeStore';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -36,6 +37,7 @@ const NAV_ITEMS_DEF = [
   { code: '09', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
   { code: '10', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
   { code: '11', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
+  { code: '12', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training-plan' },
 ] as const;
 
 const ADMIN_NAV_ITEMS_DEF = [
@@ -51,6 +53,8 @@ export function StatusBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const lang = useLangStore((s) => s.lang);
   const setLang = useLangStore((s) => s.setLang);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,6 +111,17 @@ export function StatusBar() {
 
   return (
     <div className="statusbar">
+      {/* Переключатель темы (☾/☀) — крайний левый */}
+      <button
+        type="button"
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label={t('nav.theme')}
+        title={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
+      >
+        <span className="theme-icon">{theme === 'dark' ? '☾' : '☀'}</span>
+      </button>
+
       {/* Переключатель языка — теперь в левом углу */}
       <div className="lang-toggle" role="group" aria-label="Язык">
         <button

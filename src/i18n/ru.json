@@ -26,9 +26,13 @@
     "competencyProfiles": "Профили должностей",
     "supervisor": "Моя команда",
     "dictionaryUZ": "Словарь UZ",
+    "trainingPlan": "План обучения",
     "collapse": "Свернуть",
     "expand": "Развернуть",
-    "logout": "Выйти"
+    "logout": "Выйти",
+    "themeDark": "Тёмная",
+    "themeLight": "Светлая",
+    "theme": "Тема"
   },
   "roles": {
     "superadmin": "Суперадмин",

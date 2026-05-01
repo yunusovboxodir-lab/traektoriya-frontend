@@ -26,9 +26,13 @@
     "competencyProfiles": "Lavozim profillari",
     "supervisor": "Mening jamoam",
     "dictionaryUZ": "Lug'at UZ",
+    "trainingPlan": "O'qitish rejasi",
     "collapse": "Yig'ish",
     "expand": "Yoyish",
-    "logout": "Chiqish"
+    "logout": "Chiqish",
+    "themeDark": "Qorong'i",
+    "themeLight": "Yorug'",
+    "theme": "Rejim"
   },
   "roles": {
     "superadmin": "Superadmin",

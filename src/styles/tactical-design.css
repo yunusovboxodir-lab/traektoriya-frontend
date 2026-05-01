@@ -1,17 +1,37 @@
 /* Tactical Dashboard styles - from handoff Tactical Dashboard.html (2026-05-01) */
+/* Theme system: dark (default) + light via [data-theme="light"] на <html> */
 
-:root {
+:root, [data-theme="dark"] {
+  /* Базовый фон — глубокий «ночной HUD» */
   --bg-0: oklch(0.13 0.025 250);
   --bg-1: oklch(0.16 0.030 245);
   --bg-2: oklch(0.20 0.03 240);
+  --bg-statusbar: oklch(0.10 0.02 250 / 0.6);
+  --bg-panel-grad-from: oklch(0.18 0.025 240 / 0.6);
+  --bg-panel-grad-to: oklch(0.14 0.02 250 / 0.55);
+  --bg-elevated: oklch(0.20 0.03 240 / 0.4);
+  --bg-elevated-hover: oklch(0.25 0.04 240 / 0.6);
+  --bg-radial-1: oklch(0.25 0.08 220 / 0.35);
+  --bg-radial-2: oklch(0.22 0.06 280 / 0.30);
+  --bg-grid: oklch(0.6 0.04 220 / 0.04);
+  --bg-grid-dot: oklch(0.6 0.04 220 / 0.06);
+  --grid-blend-mode: screen;
+  --scrim: oklch(0.05 0.01 250 / 0.35);
+  --shadow-deep: 0 8px 32px oklch(0.05 0.02 250 / 0.4);
+
+  /* Линии и контуры */
   --line: oklch(0.55 0.08 80 / 0.32);
   --line-soft: oklch(0.55 0.08 80 / 0.18);
+  --line-strong: oklch(0.55 0.08 80 / 0.55);
+
+  /* Текст */
   --text-0: oklch(0.95 0.01 250);
   --text-1: oklch(0.82 0.025 250);
   --text-2: oklch(0.62 0.02 250);
   --text-3: oklch(0.45 0.02 250);
-  /* Brass/gold primary accent — locked to logo palette */
-  --cyan: oklch(0.80 0.12 82);          /* legacy name, now brass */
+
+  /* Акценты — латунь/золото — фиксированный логотип-палитра */
+  --cyan: oklch(0.80 0.12 82);          /* legacy alias, теперь это brass */
   --brass: oklch(0.80 0.12 82);
   --brass-deep: oklch(0.62 0.12 75);
   --brass-light: oklch(0.92 0.09 88);
@@ -20,6 +40,57 @@
   --gold: oklch(0.86 0.13 88);
   --teal: oklch(0.72 0.10 200);
   --gray: oklch(0.50 0.02 250);
+  --danger: oklch(0.70 0.18 28);
+
+  /* Glass effects */
+  --glow-soft: 0 0 60px oklch(0.4 0.08 220 / 0.06);
+  --panel-corner: oklch(0.65 0.10 220 / 0.5);
+  --panel-corner-line: oklch(0.65 0.10 220 / 0.45);
+  --top-shine: linear-gradient(90deg, transparent, oklch(0.65 0.10 220 / 0.45), transparent);
+}
+
+/* === СВЕТЛАЯ ТЕМА — кремовый «дневной HUD» с тёплой латунью === */
+[data-theme="light"] {
+  --bg-0: oklch(0.97 0.01 85);
+  --bg-1: oklch(0.94 0.015 85);
+  --bg-2: oklch(0.90 0.02 85);
+  --bg-statusbar: oklch(0.96 0.015 85 / 0.85);
+  --bg-panel-grad-from: oklch(0.99 0.01 85 / 0.85);
+  --bg-panel-grad-to: oklch(0.95 0.015 85 / 0.85);
+  --bg-elevated: oklch(0.98 0.012 85 / 0.7);
+  --bg-elevated-hover: oklch(0.94 0.02 85 / 0.85);
+  --bg-radial-1: oklch(0.85 0.08 80 / 0.35);
+  --bg-radial-2: oklch(0.82 0.06 200 / 0.25);
+  --bg-grid: oklch(0.45 0.06 80 / 0.06);
+  --bg-grid-dot: oklch(0.45 0.06 80 / 0.08);
+  --grid-blend-mode: multiply;
+  --scrim: oklch(0.20 0.02 85 / 0.18);
+  --shadow-deep: 0 8px 32px oklch(0.50 0.05 80 / 0.18);
+
+  --line: oklch(0.50 0.10 78 / 0.40);
+  --line-soft: oklch(0.50 0.10 78 / 0.22);
+  --line-strong: oklch(0.50 0.10 78 / 0.62);
+
+  --text-0: oklch(0.20 0.025 250);
+  --text-1: oklch(0.32 0.025 250);
+  --text-2: oklch(0.50 0.025 250);
+  --text-3: oklch(0.62 0.02 250);
+
+  --cyan: oklch(0.55 0.14 78);
+  --brass: oklch(0.55 0.14 78);
+  --brass-deep: oklch(0.42 0.13 70);
+  --brass-light: oklch(0.72 0.13 82);
+  --amber: oklch(0.60 0.16 65);
+  --green: oklch(0.55 0.14 155);
+  --gold: oklch(0.62 0.14 85);
+  --teal: oklch(0.55 0.12 200);
+  --gray: oklch(0.55 0.02 250);
+  --danger: oklch(0.55 0.18 28);
+
+  --glow-soft: 0 0 40px oklch(0.55 0.10 80 / 0.10);
+  --panel-corner: oklch(0.55 0.14 78 / 0.55);
+  --panel-corner-line: oklch(0.55 0.14 78 / 0.50);
+  --top-shine: linear-gradient(90deg, transparent, oklch(0.55 0.14 78 / 0.50), transparent);
 }
 
 * { box-sizing: border-box; }
@@ -37,8 +108,8 @@ html, body {
 
 body {
   background:
-    radial-gradient(ellipse at 20% 0%, oklch(0.25 0.08 220 / 0.35), transparent 60%),
-    radial-gradient(ellipse at 80% 100%, oklch(0.22 0.06 280 / 0.30), transparent 60%),
+    radial-gradient(ellipse at 20% 0%, var(--bg-radial-1), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, var(--bg-radial-2), transparent 60%),
     var(--bg-0);
   background-attachment: fixed;
   position: relative;
@@ -49,8 +120,8 @@ body::before {
   position: fixed;
   inset: 0;
   background-image:
-    linear-gradient(oklch(0.6 0.04 220 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.6 0.04 220 / 0.04) 1px, transparent 1px);
+    linear-gradient(var(--bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
   background-size: 64px 64px;
   pointer-events: none;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
@@ -60,11 +131,11 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(circle, oklch(0.6 0.04 220 / 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--bg-grid-dot) 1px, transparent 1px);
   background-size: 4px 4px;
   pointer-events: none;
   opacity: 0.5;
-  mix-blend-mode: screen;
+  mix-blend-mode: var(--grid-blend-mode);
 }
 
 /* ============ TOP STATUS BAR ============ */
@@ -74,7 +145,7 @@ body::after {
   gap: 32px;
   padding: 14px 32px;
   border-bottom: 1px solid var(--line);
-  background: oklch(0.10 0.02 250 / 0.6);
+  background: var(--bg-statusbar);
   backdrop-filter: blur(20px);
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
@@ -150,7 +221,7 @@ body::after {
   position: fixed;
   inset: 0;
   z-index: 90;
-  background: oklch(0.05 0.01 250 / 0.35);
+  background: var(--scrim);
   backdrop-filter: blur(2px);
 }
 .nav-menu {
@@ -160,14 +231,14 @@ body::after {
   width: 320px;
   z-index: 100;
   background: linear-gradient(180deg,
-    oklch(0.16 0.04 245 / 0.96),
-    oklch(0.11 0.03 250 / 0.96));
-  border: 1px solid oklch(0.55 0.08 80 / 0.45);
+    var(--bg-panel-grad-from),
+    var(--bg-panel-grad-to));
+  border: 1px solid var(--line-strong);
   border-radius: 4px;
   box-shadow:
-    0 24px 60px oklch(0.05 0.02 250 / 0.7),
-    0 0 0 1px oklch(0.55 0.08 80 / 0.10),
-    inset 0 1px 0 oklch(0.85 0.10 88 / 0.08);
+    var(--shadow-deep),
+    0 0 0 1px var(--line-soft),
+    inset 0 1px 0 var(--line-soft);
   backdrop-filter: blur(20px);
   padding: 10px 0 0;
   animation: navIn 0.18s cubic-bezier(.2,.7,.2,1);
@@ -296,7 +367,7 @@ body::after {
   font-size: 10px;
   letter-spacing: 0.18em;
   margin-right: 4px;
-  background: oklch(0.10 0.02 250 / 0.4);
+  background: var(--bg-elevated);
 }
 .lang-opt {
   background: transparent;
@@ -324,6 +395,37 @@ body::after {
   inset: 0;
   border: 1px solid oklch(0.78 0.18 215 / 0.45);
   pointer-events: none;
+}
+
+/* === ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ === */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  color: var(--brass);
+  cursor: pointer;
+  transition: 0.18s;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+.theme-toggle:hover {
+  background: var(--bg-elevated-hover);
+  border-color: var(--brass);
+  color: var(--brass-light);
+  box-shadow: 0 0 12px oklch(0.55 0.10 80 / 0.25);
+}
+.theme-toggle .theme-icon {
+  display: inline-block;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle:hover .theme-icon {
+  transform: rotate(20deg);
 }
 
 /* ============ TITLE ROW ============ */
@@ -380,7 +482,7 @@ body::after {
 
 /* ============ GLASS PANEL ============ */
 .glass-panel {
-  background: linear-gradient(180deg, oklch(0.18 0.025 240 / 0.6), oklch(0.14 0.02 250 / 0.55));
+  background: linear-gradient(180deg, var(--bg-panel-grad-from), var(--bg-panel-grad-to));
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--line);
@@ -388,16 +490,16 @@ body::after {
   padding: 18px;
   position: relative;
   box-shadow:
-    0 0 0 1px oklch(0.5 0.05 220 / 0.04) inset,
-    0 0 60px oklch(0.4 0.08 220 / 0.06) inset,
-    0 8px 32px oklch(0.05 0.02 250 / 0.4);
+    0 0 0 1px var(--line-soft) inset,
+    var(--glow-soft) inset,
+    var(--shadow-deep);
 }
 .glass-panel::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, oklch(0.65 0.10 220 / 0.45), transparent);
+  background: var(--top-shine);
 }
 .glass-panel::after {
   /* corner ticks */
@@ -407,14 +509,14 @@ body::after {
   border-radius: inherit;
   pointer-events: none;
   background:
-    linear-gradient(90deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) top left/16px 1px no-repeat,
-    linear-gradient(180deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) top left/1px 16px no-repeat,
-    linear-gradient(-90deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) top right/16px 1px no-repeat,
-    linear-gradient(180deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) top right/1px 16px no-repeat,
-    linear-gradient(90deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) bottom left/16px 1px no-repeat,
-    linear-gradient(0deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) bottom left/1px 16px no-repeat,
-    linear-gradient(-90deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) bottom right/16px 1px no-repeat,
-    linear-gradient(0deg, oklch(0.65 0.10 220 / 0.5), transparent 12px) bottom right/1px 16px no-repeat;
+    linear-gradient(90deg, var(--panel-corner), transparent 12px) top left/16px 1px no-repeat,
+    linear-gradient(180deg, var(--panel-corner), transparent 12px) top left/1px 16px no-repeat,
+    linear-gradient(-90deg, var(--panel-corner), transparent 12px) top right/16px 1px no-repeat,
+    linear-gradient(180deg, var(--panel-corner), transparent 12px) top right/1px 16px no-repeat,
+    linear-gradient(90deg, var(--panel-corner), transparent 12px) bottom left/16px 1px no-repeat,
+    linear-gradient(0deg, var(--panel-corner), transparent 12px) bottom left/1px 16px no-repeat,
+    linear-gradient(-90deg, var(--panel-corner), transparent 12px) bottom right/16px 1px no-repeat,
+    linear-gradient(0deg, var(--panel-corner), transparent 12px) bottom right/1px 16px no-repeat;
 }
 .panel-header {
   display: flex;
