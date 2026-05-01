@@ -22,6 +22,7 @@ const AIStudioPage = lazyWithRetry(() => import('./pages/AIStudioPage').then(m =
 
 // Standalone pages (unchanged)
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
+const TacticalLearningPage = lazyWithRetry(() => import('./pages/TacticalLearningPage').then(m => ({ default: m.TacticalLearningPage })));
 const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
@@ -153,6 +154,15 @@ function AppRoutes() {
           <ProtectedRoute pageKey="learning">
             <LearningPage />
           </ProtectedRoute>
+        }
+      />
+      {/* Tactical-карта обучения (preview, без Layout — fullscreen HUD) */}
+      <Route
+        path="/learning/tactical"
+        element={
+          <PresenterRoute>
+            <TacticalLearningPage />
+          </PresenterRoute>
         }
       />
 
