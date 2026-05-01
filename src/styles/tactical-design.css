@@ -1150,3 +1150,150 @@ body::after {
     max-height: none;
   }
 }
+
+/* =====================================================================
+   .tactical-page — обёртка для всех страниц приложения
+   Переопределяет дефолтные Tailwind-цвета (bg-white, text-gray-XXX, и т.д.)
+   на тактический дизайн. Сделано через CSS-каскад, не трогая разметку.
+   ===================================================================== */
+
+.tactical-page {
+  padding: 24px 32px 40px;
+  min-height: calc(100vh - 56px);
+  color: var(--text-0);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.tactical-fullscreen {
+  /* Без отступов — для Tactical-карты, у неё свои паддинги */
+}
+
+/* --- Переопределяем «белые» поверхности на стеклянные панели --- */
+.tactical-page .bg-white {
+  background: linear-gradient(180deg, var(--bg-panel-grad-from), var(--bg-panel-grad-to)) !important;
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line-soft);
+  color: var(--text-0);
+}
+.tactical-page .bg-gray-50 {
+  background: var(--bg-elevated) !important;
+}
+.tactical-page .bg-gray-100 {
+  background: var(--bg-elevated-hover) !important;
+}
+.tactical-page .bg-gray-900,
+.tactical-page .bg-slate-900,
+.tactical-page .bg-slate-800 {
+  background: var(--bg-1) !important;
+}
+
+/* --- Текст --- */
+.tactical-page .text-gray-900,
+.tactical-page .text-slate-900,
+.tactical-page .text-black { color: var(--text-0) !important; }
+.tactical-page .text-gray-800,
+.tactical-page .text-gray-700,
+.tactical-page .text-slate-800,
+.tactical-page .text-slate-700 { color: var(--text-1) !important; }
+.tactical-page .text-gray-600,
+.tactical-page .text-gray-500,
+.tactical-page .text-slate-600,
+.tactical-page .text-slate-500 { color: var(--text-2) !important; }
+.tactical-page .text-gray-400,
+.tactical-page .text-gray-300,
+.tactical-page .text-slate-400,
+.tactical-page .text-slate-300 { color: var(--text-3) !important; }
+
+/* --- Бордеры --- */
+.tactical-page .border-gray-100,
+.tactical-page .border-gray-200,
+.tactical-page .border-slate-200 { border-color: var(--line-soft) !important; }
+.tactical-page .border-gray-300,
+.tactical-page .border-slate-300 { border-color: var(--line) !important; }
+
+/* --- Акценты: blue/indigo → brass --- */
+.tactical-page .bg-blue-500,
+.tactical-page .bg-blue-600,
+.tactical-page .bg-indigo-500,
+.tactical-page .bg-indigo-600 {
+  background: var(--brass) !important;
+  color: var(--bg-0) !important;
+}
+.tactical-page .text-blue-500,
+.tactical-page .text-blue-600,
+.tactical-page .text-blue-700,
+.tactical-page .text-indigo-500,
+.tactical-page .text-indigo-600 { color: var(--brass) !important; }
+.tactical-page .border-blue-500,
+.tactical-page .border-blue-600,
+.tactical-page .border-indigo-500 { border-color: var(--brass) !important; }
+.tactical-page .ring-blue-500,
+.tactical-page .ring-blue-200 { --tw-ring-color: var(--brass) !important; }
+
+/* --- Лёгкие фоны (синие/индиго/violet hint backgrounds) --- */
+.tactical-page .bg-blue-50,
+.tactical-page .bg-indigo-50,
+.tactical-page .bg-violet-50 {
+  background: oklch(from var(--brass) l c h / 0.10) !important;
+}
+
+/* --- Акценты эмеральд/grin → green токен --- */
+.tactical-page .bg-emerald-500,
+.tactical-page .bg-emerald-600,
+.tactical-page .bg-green-500,
+.tactical-page .bg-green-600 {
+  background: var(--green) !important;
+  color: var(--bg-0) !important;
+}
+.tactical-page .text-emerald-500,
+.tactical-page .text-emerald-600,
+.tactical-page .text-green-500,
+.tactical-page .text-green-600 { color: var(--green) !important; }
+
+/* --- Янтарные/жёлтые → amber token --- */
+.tactical-page .bg-amber-500,
+.tactical-page .bg-yellow-500 {
+  background: var(--amber) !important;
+}
+.tactical-page .text-amber-500,
+.tactical-page .text-amber-600,
+.tactical-page .text-yellow-500,
+.tactical-page .text-yellow-600 { color: var(--amber) !important; }
+
+/* --- Красные → danger --- */
+.tactical-page .bg-red-500,
+.tactical-page .bg-red-600 {
+  background: var(--danger) !important;
+}
+.tactical-page .text-red-500,
+.tactical-page .text-red-600,
+.tactical-page .text-rose-500 { color: var(--danger) !important; }
+
+/* --- Тени, чтобы не было "плоского" вида --- */
+.tactical-page .shadow,
+.tactical-page .shadow-md,
+.tactical-page .shadow-lg,
+.tactical-page .shadow-xl,
+.tactical-page .shadow-sm { box-shadow: var(--shadow-deep); }
+
+/* --- Радиусы оставляем как есть, инпутам/полям лёгкая стилизация --- */
+.tactical-page input,
+.tactical-page textarea,
+.tactical-page select {
+  background: var(--bg-elevated) !important;
+  border-color: var(--line) !important;
+  color: var(--text-0) !important;
+}
+.tactical-page input::placeholder,
+.tactical-page textarea::placeholder { color: var(--text-3); }
+
+/* --- Hover-эффекты: hover:bg-gray-50 / hover:bg-gray-100 --- */
+.tactical-page .hover\:bg-gray-50:hover,
+.tactical-page .hover\:bg-gray-100:hover { background: var(--bg-elevated-hover) !important; }
+.tactical-page .hover\:bg-blue-50:hover,
+.tactical-page .hover\:bg-blue-100:hover { background: oklch(from var(--brass) l c h / 0.16) !important; }
+
+/* --- divide-* (полосы между строками) --- */
+.tactical-page .divide-gray-50 > * + *,
+.tactical-page .divide-gray-100 > * + *,
+.tactical-page .divide-gray-200 > * + * { border-color: var(--line-soft) !important; }
+

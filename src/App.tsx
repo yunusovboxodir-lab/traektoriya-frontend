@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useScopeStore } from './stores/scopeStore';
-import { Layout } from './components/layout';
+import { TacticalLayout } from './components/layout';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
@@ -62,7 +62,7 @@ function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; page
     return <Navigate to={getFirstAllowedPath()} replace />;
   }
 
-  return <Layout>{children}</Layout>;
+  return <TacticalLayout>{children}</TacticalLayout>;
 }
 
 // ===========================================
