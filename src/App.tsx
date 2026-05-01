@@ -75,6 +75,24 @@ function PresenterRoute({ children }: { children: React.ReactNode }) {
 }
 
 // ===========================================
+// FULLSCREEN PROTECTED — auth + scope-check, БЕЗ Layout-сайдбара
+// (для Tactical-карты, у которой собственный header/menu)
+// ===========================================
+function FullscreenProtectedRoute({ children, pageKey }: { children: React.ReactNode; pageKey?: string }) {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isPageAllowed = useScopeStore((state) => state.isPageAllowed);
+  const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (pageKey && !isPageAllowed(pageKey)) {
+    return <Navigate to={getFirstAllowedPath()} replace />;
+  }
+  return <>{children}</>;
+}
+
+// ===========================================
 // ПУБЛИЧНЫЙ РОУТ
 // Если уже авторизован → редирект на первую разрешённую страницу
 // ===========================================
@@ -147,13 +165,13 @@ function AppRoutes() {
         }
       />
 
-      {/* Обучение — главный экран = Tactical-карта */}
+      {/* Обучение — главный экран = Tactical-карта (fullscreen, без Layout-сайдбара) */}
       <Route
         path="/learning"
         element={
-          <ProtectedRoute pageKey="learning">
+          <FullscreenProtectedRoute pageKey="learning">
             <TacticalLearningPage />
-          </ProtectedRoute>
+          </FullscreenProtectedRoute>
         }
       />
       {/* Открытие конкретного курса по ID (из Tactical-карты) */}
