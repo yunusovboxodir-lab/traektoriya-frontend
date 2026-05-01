@@ -250,9 +250,10 @@ function SessionDetail({
     );
   }
 
-  // Определяем следующий статус для кнопки перехода
+  // Определяем соседние статусы для кнопок перехода
   const currentIdx = STATUS_FLOW.indexOf(session.status as typeof STATUS_FLOW[number]);
   const nextStatus = currentIdx >= 0 && currentIdx < STATUS_FLOW.length - 1 ? STATUS_FLOW[currentIdx + 1] : null;
+  const prevStatus = currentIdx > 0 ? STATUS_FLOW[currentIdx - 1] : null;
 
   // Сопоставляем PRE и POST результаты по user_id
   const userMap = new Map<string, { pre?: OfflineTestResult; post?: OfflineTestResult }>();
@@ -315,13 +316,26 @@ function SessionDetail({
             );
           })}
         </div>
-        {isAdmin && nextStatus && (
-          <button
-            onClick={() => handleStatusChange(nextStatus)}
-            className="mt-3 px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Перевести в: {STATUS_LABELS[nextStatus]}
-          </button>
+        {isAdmin && (nextStatus || prevStatus) && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {prevStatus && (
+              <button
+                onClick={() => handleStatusChange(prevStatus)}
+                className="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                title="Если случайно перешёл слишком далеко — можно вернуть на предыдущий статус"
+              >
+                ← Вернуть в: {STATUS_LABELS[prevStatus]}
+              </button>
+            )}
+            {nextStatus && (
+              <button
+                onClick={() => handleStatusChange(nextStatus)}
+                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                Перевести в: {STATUS_LABELS[nextStatus]} →
+              </button>
+            )}
+          </div>
         )}
       </div>
 
