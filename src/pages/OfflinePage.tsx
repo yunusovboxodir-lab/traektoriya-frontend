@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { toast } from '../stores/toastStore';
 import { offlineApi } from '../api/offline';
+import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { OfflineSession, OfflineTestResult, OfflineGameResult } from '../api/offline';
+import type { Program } from '../types/offlineProgram';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -52,6 +54,27 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
   const [date, setDate] = useState('');
   const [presentationUrl, setPresentationUrl] = useState('');
   const [saving, setSaving] = useState(false);
+  // Список программ-шаблонов из БД (loading on mount)
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [loadingPrograms, setLoadingPrograms] = useState(true);
+
+  // Маппинг "DSPM" → code "dspm" (как делает бэкенд для автопривязки)
+  const programNameToCode = (name: string) => name.toLowerCase().replace(/\s+/g, '');
+
+  // Загружаем доступные программы при открытии модалки
+  useEffect(() => {
+    offlineProgramsApi.list()
+      .then((res) => {
+        const items = (res.data?.programs as Program[] | undefined) ?? [];
+        setPrograms(items);
+        // Авто-выбор первой программы если есть
+        if (items.length > 0 && items[0].title) {
+          setProgram(items[0].title);
+        }
+      })
+      .catch(() => setPrograms([]))
+      .finally(() => setLoadingPrograms(false));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,6 +98,9 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
     }
   };
 
+  // Найдём выбранную программу для показа описания/деталей
+  const selectedProgram = programs.find((p) => p.title === program || programNameToCode(program) === p.code);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
@@ -92,16 +118,41 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Программа</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Программа
+              {!loadingPrograms && programs.length === 0 && (
+                <span className="ml-2 text-xs text-amber-600">(шаблоны не загрузились — fallback на список)</span>
+              )}
+            </label>
             <select
               value={program}
               onChange={(e) => setProgram(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              disabled={loadingPrograms}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50"
             >
-              <option value="DSPM">DSPM</option>
-              <option value="7 Qadam">7 Qadam</option>
-              <option value="Custom">Custom</option>
+              {loadingPrograms ? (
+                <option>Загрузка программ...</option>
+              ) : programs.length > 0 ? (
+                <>
+                  {programs.map((p) => (
+                    <option key={p.id} value={p.title}>
+                      {p.icon ? `${p.icon} ` : ''}{p.title} ({p.num_questions} вопр., {p.duration_minutes} мин)
+                    </option>
+                  ))}
+                  <option value="Custom">Custom (без шаблона)</option>
+                </>
+              ) : (
+                <>
+                  <option value="DSPM">DSPM</option>
+                  <option value="7 Qadam">7 Qadam</option>
+                  <option value="ADKAR">ADKAR</option>
+                  <option value="Custom">Custom</option>
+                </>
+              )}
             </select>
+            {selectedProgram?.description && (
+              <p className="mt-1 text-xs text-gray-500">{selectedProgram.description}</p>
+            )}
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Регион</label>
