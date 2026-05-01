@@ -7,11 +7,13 @@
  */
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
 import { HeroPanel } from '../components/tactical/HeroPanel';
 import { RecsPanel } from '../components/tactical/RecsPanel';
 import { AwardsPanel } from '../components/tactical/AwardsPanel';
 import { StatusBar } from '../components/tactical/StatusBar';
+import { TacticalMobile } from '../components/tactical/TacticalMobile';
 import type { MapNode, TerritoryMode } from '../components/tactical/types';
 import { STATE_STYLES, NODES, ZONES } from '../components/tactical/data';
 import '../styles/tactical-design.css';
@@ -30,6 +32,7 @@ function injectFonts() {
 
 export function TacticalLearningPage() {
   const user = useAuthStore((s) => s.user);
+  const isMobile = useMediaQuery('(max-width: 900px)');
   const [focusZone, setFocusZone] = useState<number | null>(null);
   const [selectedNode, setSelectedNode] = useState<MapNode | null>(null);
   const [territoryMode] = useState<TerritoryMode>('biome');
@@ -47,7 +50,13 @@ export function TacticalLearningPage() {
     ? `${roleLabel(user.role)} · TASHKENT`
     : 'ОПЕРАТОР';
 
-  // Подсчёт для title-meta
+  // На мобильном — отдельный UX (sticky top, hero strip, pinch map, territory list,
+  // friends strip, bottom tabs + sheet)
+  if (isMobile) {
+    return <TacticalMobile operatorName={operatorName} />;
+  }
+
+  // Подсчёт для title-meta (desktop)
   const totalSections = NODES.reduce((s, n) => s + (n.sections ?? 0), 0);
   const doneSections = NODES.reduce((s, n) => s + (n.done ?? 0), 0);
   const territoriesCount = ZONES.length;
