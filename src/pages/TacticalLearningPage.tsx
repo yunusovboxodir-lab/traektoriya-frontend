@@ -87,7 +87,7 @@ export function TacticalLearningPage() {
 
   // Открыть курс по ID (передаётся из bottom-sheet или нажатием на дом)
   const openCourse = (courseId: string) => {
-    navigate(`/learning?course=${courseId}`);
+    navigate(`/learning/course/${courseId}`);
   };
 
   const operatorName = user?.full_name || user?.employee_id || 'Оператор';

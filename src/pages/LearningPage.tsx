@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   learningApi,
   LEVEL_NAMES,
@@ -42,6 +43,10 @@ type View = 'modules' | 'map' | 'section' | 'village' | 'course';
 
 export function LearningPage() {
   const t = useT();
+  const navigate = useNavigate();
+  // Если пришли по /learning/course/:courseId — сразу открываем курс
+  // и возвращаемся на Tactical-карту по кнопке «назад».
+  const { courseId: routeCourseId } = useParams<{ courseId?: string }>();
   const [view, setView] = useState<View>('modules');
   const [modules, setModules] = useState<LearningModule[]>([]);
   const [selectedRole, setSelectedRole] = useState('sales_rep');
@@ -82,8 +87,10 @@ export function LearningPage() {
   }, []);
 
   useEffect(() => {
+    // В режиме direct-course (URL /learning/course/:id) — модули не нужны
+    if (routeCourseId) return;
     loadModules();
-  }, [loadModules]);
+  }, [loadModules, routeCourseId]);
 
   // Load map for a specific role
   const loadMap = useCallback(async (role?: string) => {
@@ -124,6 +131,36 @@ export function LearningPage() {
       setIsLoading(false);
     }
   };
+
+  // Авто-открытие курса по ID из URL (вход через /learning/course/:courseId)
+  useEffect(() => {
+    if (!routeCourseId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        setIsLoading(true);
+        const resp = await learningApi.getCourseDetail(routeCourseId);
+        if (cancelled) return;
+        setCourseData(resp.data);
+        setCurrentSlide(0);
+        setQuizAnswers({});
+        setInteractiveResults({});
+        setQuizSubmitted(false);
+        setCompletionResult(null);
+        setFlashcardsDone(false);
+        setFieldTaskDone(false);
+        setLessonDataDone(false);
+        setBlocksDone(false);
+        setView('course');
+        setError('');
+      } catch {
+        if (!cancelled) setError(t('learning.errors.course'));
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [routeCourseId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Open course
   const openCourse = async (courseId: string) => {
@@ -202,6 +239,11 @@ export function LearningPage() {
   // Go back
   const goBack = () => {
     if (view === 'course') {
+      // Прямой вход по /learning/course/:id — назад уходим на Tactical-карту
+      if (routeCourseId) {
+        navigate('/learning');
+        return;
+      }
       if (sectionData) {
         // Return to village or section depending on is_village flag
         const isVillageSection = sectionData.section.is_village;

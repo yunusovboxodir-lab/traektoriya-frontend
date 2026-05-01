@@ -147,22 +147,33 @@ function AppRoutes() {
         }
       />
 
-      {/* Обучение */}
+      {/* Обучение — главный экран = Tactical-карта */}
       <Route
         path="/learning"
+        element={
+          <ProtectedRoute pageKey="learning">
+            <TacticalLearningPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Открытие конкретного курса по ID (из Tactical-карты) */}
+      <Route
+        path="/learning/course/:courseId"
         element={
           <ProtectedRoute pageKey="learning">
             <LearningPage />
           </ProtectedRoute>
         }
       />
-      {/* Tactical-карта обучения (preview, без Layout — fullscreen HUD) */}
+      {/* Старый маршрут — редирект на новый главный */}
+      <Route path="/learning/tactical" element={<Navigate to="/learning" replace />} />
+      {/* Старый full-list-вид (модули → разделы → курсы) — оставлен как fallback */}
       <Route
-        path="/learning/tactical"
+        path="/learning/legacy"
         element={
-          <PresenterRoute>
-            <TacticalLearningPage />
-          </PresenterRoute>
+          <ProtectedRoute pageKey="learning">
+            <LearningPage />
+          </ProtectedRoute>
         }
       />
 

@@ -913,7 +913,7 @@ function MobileTabBar() {
   const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   const items: { l: string; i: string; active?: boolean; route?: string }[] = [
     { l: t('Карта', 'Xarita'), i: '◈', active: true },
-    { l: t('Курсы', 'Kurslar'), i: '▤', route: '/learning' },
+    { l: t('Курсы', 'Kurslar'), i: '▤', route: '/learning/legacy' },
     { l: t('Команда', 'Jamoa'), i: '☷', route: '/team' },
     { l: t('Профиль', 'Profil'), i: '◉', route: '/dashboard' },
   ];
