@@ -3,12 +3,20 @@
  */
 import { Panel } from './Panel';
 import type { Award } from './types';
+import { useLangStore } from '../../stores/langStore';
 
-const AWARDS: Award[] = [
-  { code: 'AWD-01', glyph: '◆', name: 'Стратег', sub: 'Пройди 20 курсов · 17/20', color: 'oklch(0.78 0.15 220)' },
-  { code: 'AWD-02', glyph: '▲', name: 'Тактик', sub: 'Серия 10 дней · 5/10', color: 'oklch(0.82 0.15 75)' },
-  { code: 'AWD-03', glyph: '★', name: 'Командир', sub: 'Помоги команде · ✓', color: 'oklch(0.82 0.15 90)' },
-  { code: 'AWD-04', glyph: '◇', name: 'Аналитик', sub: '20 ABCD-анализов', color: 'oklch(0.50 0.02 250)', locked: true },
+interface AwardData extends Omit<Award, 'name' | 'sub'> {
+  name_ru: string;
+  name_uz: string;
+  sub_ru: string;
+  sub_uz: string;
+}
+
+const AWARDS_DATA: AwardData[] = [
+  { code: 'AWD-01', glyph: '◆', name_ru: 'Стратег', name_uz: 'Strateg', sub_ru: 'Пройди 20 курсов · 17/20', sub_uz: '20 ta kurs · 17/20', color: 'oklch(0.78 0.15 220)' },
+  { code: 'AWD-02', glyph: '▲', name_ru: 'Тактик', name_uz: 'Taktik', sub_ru: 'Серия 10 дней · 5/10', sub_uz: '10 kun seriya · 5/10', color: 'oklch(0.82 0.15 75)' },
+  { code: 'AWD-03', glyph: '★', name_ru: 'Командир', name_uz: 'Qoʻmondon', sub_ru: 'Помоги команде · ✓', sub_uz: 'Jamoaga yordam · ✓', color: 'oklch(0.82 0.15 90)' },
+  { code: 'AWD-04', glyph: '◇', name_ru: 'Аналитик', name_uz: 'Tahlilchi', sub_ru: '20 ABCD-анализов', sub_uz: "20 ta ABCD-tahlil", color: 'oklch(0.50 0.02 250)', locked: true },
 ];
 
 function AwardBadge({ code, glyph, name, sub, color, locked }: Award) {
@@ -36,10 +44,22 @@ function AwardBadge({ code, glyph, name, sub, color, locked }: Award) {
 }
 
 export function AwardsPanel() {
+  const lang = useLangStore((s) => s.lang);
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   return (
-    <Panel label="МОИ НАГРАДЫ" code="3 / 18">
-      {AWARDS.map((a) => <AwardBadge key={a.code} {...a} />)}
-      <button className="full-btn">СМОТРЕТЬ ВСЕ →</button>
+    <Panel label={t('МОИ НАГРАДЫ', 'MENING MUKOFOTLARIM')} code="3 / 18">
+      {AWARDS_DATA.map((a) => (
+        <AwardBadge
+          key={a.code}
+          code={a.code}
+          glyph={a.glyph}
+          name={t(a.name_ru, a.name_uz)}
+          sub={t(a.sub_ru, a.sub_uz)}
+          color={a.color}
+          locked={a.locked}
+        />
+      ))}
+      <button className="full-btn">{t('СМОТРЕТЬ ВСЕ', 'BARCHASINI KOʻRISH')} →</button>
     </Panel>
   );
 }

@@ -14,6 +14,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as DEFAULT_EDGES } from './data';
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
 import { useLangStore } from '../../stores/langStore';
@@ -29,6 +30,8 @@ const TERRITORY_NUMERAL: Record<string, string> = {
 // Top bar
 // =============================================================================
 function MobileTopBar() {
+  const lang = useLangStore((s) => s.lang);
+  const setLang = useLangStore((s) => s.setLang);
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -58,7 +61,7 @@ function MobileTopBar() {
           <span style={{
             fontSize: 8, color: 'oklch(0.55 0.04 250)',
             letterSpacing: '0.1em', marginTop: 2,
-          }}>с нуля до эксперта</span>
+          }}>{lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта'}</span>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -68,11 +71,24 @@ function MobileTopBar() {
           fontSize: 9, fontWeight: 600, letterSpacing: '0.08em',
           fontFamily: "'JetBrains Mono', monospace",
         }}>
-          <span style={{
-            padding: '4px 7px', background: 'oklch(0.28 0.10 220 / 0.4)',
-            color: 'oklch(0.92 0.05 220)',
-          }}>РУ</span>
-          <span style={{ padding: '4px 7px', color: 'oklch(0.50 0.04 250)' }}>UZ</span>
+          <button
+            onClick={() => setLang('ru')}
+            style={{
+              padding: '4px 7px', border: 0, cursor: 'pointer',
+              background: lang === 'ru' ? 'oklch(0.28 0.10 220 / 0.4)' : 'transparent',
+              color: lang === 'ru' ? 'oklch(0.92 0.05 220)' : 'oklch(0.50 0.04 250)',
+              fontFamily: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit',
+            }}
+          >РУ</button>
+          <button
+            onClick={() => setLang('uz')}
+            style={{
+              padding: '4px 7px', border: 0, cursor: 'pointer',
+              background: lang === 'uz' ? 'oklch(0.28 0.10 220 / 0.4)' : 'transparent',
+              color: lang === 'uz' ? 'oklch(0.92 0.05 220)' : 'oklch(0.50 0.04 250)',
+              fontFamily: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit',
+            }}
+          >UZ</button>
         </div>
         <div style={{ position: 'relative' }}>
           <span style={{ fontSize: 15, color: 'oklch(0.85 0.13 88)' }}>◷</span>
@@ -182,6 +198,9 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
 // Daily quest banner
 // =============================================================================
 function DailyQuestBanner() {
+  const lang = useLangStore((s) => s.lang);
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
+  void t;
   const [time, setTime] = useState(() => {
     const d = new Date();
     return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
@@ -214,11 +233,11 @@ function DailyQuestBanner() {
         <div style={{
           fontSize: 8, color: 'oklch(0.65 0.10 88)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em',
-        }}>ЕЖЕДНЕВНЫЙ КВЕСТ</div>
+        }}>{lang === 'uz' ? 'KUNDALIK QUEST' : 'ЕЖЕДНЕВНЫЙ КВЕСТ'}</div>
         <div style={{
           fontSize: 11, color: 'oklch(0.95 0.03 88)', marginTop: 1, fontWeight: 500,
         }}>
-          Закрой 1 раздел сегодня
+          {lang === 'uz' ? 'Bugun 1 ta bo\'limni yoping' : 'Закрой 1 раздел сегодня'}
         </div>
       </div>
       <div style={{
@@ -641,10 +660,12 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
 // Friends activity strip
 // =============================================================================
 function FriendsStrip() {
+  const lang = useLangStore((s) => s.lang);
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   const items = [
-    { name: 'Аиша', action: 'взяла Эксперта', when: '2м', avatar: 'А', tint: 'oklch(0.74 0.13 200)' },
-    { name: 'Тимур', action: 'прошёл ПР-04', when: '12м', avatar: 'Т', tint: 'oklch(0.78 0.14 75)' },
-    { name: 'Лейла', action: '15-дневный streak', when: '1ч', avatar: 'Л', tint: 'oklch(0.78 0.15 30)' },
+    { name: t('Аиша', 'Oysha'), action: t('взяла Эксперта', 'Ekspert oldi'), when: t('2м', '2d'), avatar: 'А', tint: 'oklch(0.74 0.13 200)' },
+    { name: t('Тимур', 'Temur'), action: t('прошёл ПР-04', "PR-04 o'tdi"), when: t('12м', '12d'), avatar: 'Т', tint: 'oklch(0.78 0.14 75)' },
+    { name: t('Лейла', 'Layla'), action: t('15-дневный streak', '15-kunlik seriya'), when: t('1ч', '1s'), avatar: 'Л', tint: 'oklch(0.78 0.15 30)' },
   ];
   return (
     <div style={{
@@ -658,8 +679,8 @@ function FriendsStrip() {
         <span style={{
           fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
           color: 'oklch(0.55 0.04 250)', letterSpacing: '0.16em',
-        }}>АКТИВНОСТЬ КОМАНДЫ</span>
-        <span style={{ fontSize: 10, color: 'oklch(0.75 0.06 220)', fontWeight: 500 }}>Все →</span>
+        }}>{t('АКТИВНОСТЬ КОМАНДЫ', "JAMOA FAOLIYATI")}</span>
+        <span style={{ fontSize: 10, color: 'oklch(0.75 0.06 220)', fontWeight: 500 }}>{t('Все', 'Barchasi')} →</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {items.map((it, i) => (
@@ -703,6 +724,8 @@ interface VillageSheetProps {
 }
 
 function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProps) {
+  const lang = useLangStore((s) => s.lang);
+  const tt = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   const s = STATE_STYLES[village.state];
   const totalXp = (village.sections ?? 0) * 60;
   const earnedXp = (village.done ?? 0) * 60;
@@ -775,7 +798,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: '0.14em', marginBottom: 8,
           }}>
-            РАЗДЕЛЫ ПОСЁЛКА
+            {tt('КУРСЫ ПОСЁЛКА', 'POSYOLKA KURSLARI')}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {village.houses.map((h, i) => {
@@ -811,7 +834,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                     fontFamily: "'JetBrains Mono', monospace",
                     color: hs.stroke, fontWeight: 600, letterSpacing: '0.05em',
                   }}>
-                    Раздел {i + 1}
+                    {tt('Курс', 'Kurs')} {i + 1}
                   </span>
                 </div>
               );
@@ -821,11 +844,11 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
           <div style={statCardStyle}>
-            <div style={statLabelStyle}>ПРОГРЕСС</div>
+            <div style={statLabelStyle}>{tt('ПРОГРЕСС', 'JARAYON')}</div>
             <div style={statValueStyle}>{village.done}/{village.sections}</div>
           </div>
           <div style={statCardStyle}>
-            <div style={statLabelStyle}>НАГРАДА</div>
+            <div style={statLabelStyle}>{tt('НАГРАДА', 'MUKOFOT')}</div>
             <div style={{ ...statValueStyle, color: 'oklch(0.85 0.13 88)' }}>
               +{totalXp - earnedXp} XP
             </div>
@@ -856,10 +879,10 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
           }}
         >
           {village.state === 'locked'
-            ? '🔒 ЗАБЛОКИРОВАНО'
-            : village.state === 'active' ? 'ПРОДОЛЖИТЬ →'
-              : village.state === 'done' || village.state === 'mastered' ? '✓ ПОВТОРИТЬ'
-                : 'НАЧАТЬ →'}
+            ? tt('🔒 ЗАБЛОКИРОВАНО', '🔒 BLOKLANGAN')
+            : village.state === 'active' ? tt('ПРОДОЛЖИТЬ →', 'DAVOM ETISH →')
+              : village.state === 'done' || village.state === 'mastered' ? tt('✓ ПОВТОРИТЬ', '✓ TAKRORLASH')
+                : tt('НАЧАТЬ →', 'BOSHLASH →')}
         </button>
       </div>
     </>
@@ -885,11 +908,14 @@ const statValueStyle: CSSProperties = {
 // Bottom tab bar
 // =============================================================================
 function MobileTabBar() {
-  const items: { l: string; i: string; active?: boolean }[] = [
-    { l: 'Карта', i: '◈', active: true },
-    { l: 'Курсы', i: '▤' },
-    { l: 'Команда', i: '☷' },
-    { l: 'Профиль', i: '◉' },
+  const lang = useLangStore((s) => s.lang);
+  const navigate = useNavigate();
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
+  const items: { l: string; i: string; active?: boolean; route?: string }[] = [
+    { l: t('Карта', 'Xarita'), i: '◈', active: true },
+    { l: t('Курсы', 'Kurslar'), i: '▤', route: '/learning' },
+    { l: t('Команда', 'Jamoa'), i: '☷', route: '/team' },
+    { l: t('Профиль', 'Profil'), i: '◉', route: '/dashboard' },
   ];
   return (
     <div style={{
@@ -900,18 +926,22 @@ function MobileTabBar() {
       backdropFilter: 'blur(16px)',
       position: 'sticky', bottom: 0, zIndex: 10,
     }}>
-      {items.map((t, i) => (
-        <button key={i} style={{
-          background: 'transparent', border: 0,
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-          color: t.active ? 'oklch(0.85 0.13 88)' : 'oklch(0.50 0.04 250)',
-          fontSize: 9, fontFamily: "'Inter', sans-serif", cursor: 'pointer',
-          flex: 1, padding: 0,
-        }}>
-          <span style={{ fontSize: 18, lineHeight: 1 }}>{t.i}</span>
+      {items.map((it, i) => (
+        <button
+          key={i}
+          onClick={() => it.route && navigate(it.route)}
+          style={{
+            background: 'transparent', border: 0,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+            color: it.active ? 'oklch(0.85 0.13 88)' : 'oklch(0.50 0.04 250)',
+            fontSize: 9, fontFamily: "'Inter', sans-serif", cursor: 'pointer',
+            flex: 1, padding: 0,
+          }}
+        >
+          <span style={{ fontSize: 18, lineHeight: 1 }}>{it.i}</span>
           <span style={{
-            letterSpacing: '0.06em', fontWeight: t.active ? 600 : 400,
-          }}>{t.l}</span>
+            letterSpacing: '0.06em', fontWeight: it.active ? 600 : 400,
+          }}>{it.l}</span>
         </button>
       ))}
     </div>

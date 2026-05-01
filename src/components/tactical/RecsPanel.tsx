@@ -1,23 +1,40 @@
 /**
  * RecsPanel — рекомендации курсов на основе пробелов в KPI.
  */
+import { useNavigate } from 'react-router-dom';
 import { Panel } from './Panel';
-import type { Recommendation } from './types';
+import { useLangStore } from '../../stores/langStore';
 
-const RECOMMENDATIONS: Recommendation[] = [
-  { code: 'PR-02', title: 'ABCD-анализ', sub: 'дилерской базы', tag: 'НОВОЕ', tagC: 'oklch(0.78 0.15 220)', xp: 80 },
-  { code: 'PR-03', title: 'Pricing', sub: 'и маржинальность', tag: 'В ПРОЦЕССЕ', tagC: 'oklch(0.82 0.15 75)', xp: 120 },
-  { code: 'PR-05', title: 'Контроль ДЗ', sub: 'и мотивация', tag: 'НОВОЕ', tagC: 'oklch(0.78 0.15 220)', xp: 60 },
-  { code: 'EX-01', title: 'Стратегия', sub: 'крупных сделок', tag: 'ПРИОРИТЕТ', tagC: 'oklch(0.78 0.15 155)', xp: 200 },
+interface RecData {
+  code: string;
+  title_ru: string;
+  title_uz: string;
+  sub_ru: string;
+  sub_uz: string;
+  tag_ru: string;
+  tag_uz: string;
+  tagC: string;
+  xp: number;
+}
+
+const RECOMMENDATIONS: RecData[] = [
+  { code: 'PR-02', title_ru: 'ABCD-анализ', title_uz: 'ABCD-tahlil', sub_ru: 'дилерской базы', sub_uz: 'diler bazasi', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'oklch(0.78 0.15 220)', xp: 80 },
+  { code: 'PR-03', title_ru: 'Pricing', title_uz: 'Pricing', sub_ru: 'и маржинальность', sub_uz: 'va marjinallik', tag_ru: 'В ПРОЦЕССЕ', tag_uz: 'JARAYONDA', tagC: 'oklch(0.82 0.15 75)', xp: 120 },
+  { code: 'PR-05', title_ru: 'Контроль ДЗ', title_uz: 'DQ nazorati', sub_ru: 'и мотивация', sub_uz: 'va motivatsiya', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'oklch(0.78 0.15 220)', xp: 60 },
+  { code: 'EX-01', title_ru: 'Стратегия', title_uz: 'Strategiya', sub_ru: 'крупных сделок', sub_uz: "yirik bitimlar uchun", tag_ru: 'ПРИОРИТЕТ', tag_uz: 'PRIORITET', tagC: 'oklch(0.78 0.15 155)', xp: 200 },
 ];
 
 export function RecsPanel() {
+  const lang = useLangStore((s) => s.lang);
+  const navigate = useNavigate();
+  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
+
   return (
-    <Panel label="РЕКОМЕНДУЮ СЕГОДНЯ" code="ALG-V3">
+    <Panel label={t('РЕКОМЕНДУЮ СЕГОДНЯ', 'BUGUNGI TAVSIYA')} code="ALG-V3">
       <div className="recs-meta">
-        <span>Подобрано на основе: <strong>пробелы по KPI Q2</strong></span>
+        <span>{t('Подобрано на основе:', 'Asoslangan:')} <strong>{t('пробелы по KPI Q2', 'KPI Q2 boʻyicha kamchilik')}</strong></span>
         <span className="dot-divider">·</span>
-        <span>Обновлено 09:42</span>
+        <span>{t('Обновлено', 'Yangilandi')} 09:42</span>
       </div>
       <div className="recs-list">
         {RECOMMENDATIONS.map((r, i) => (
@@ -26,22 +43,28 @@ export function RecsPanel() {
             <div className="rec-body">
               <div className="rec-head">
                 <span className="rec-code">{r.code}</span>
-                <span className="rec-tag" style={{ color: r.tagC, borderColor: r.tagC }}>{r.tag}</span>
+                <span className="rec-tag" style={{ color: r.tagC, borderColor: r.tagC }}>{t(r.tag_ru, r.tag_uz)}</span>
               </div>
               <div className="rec-title">
-                {r.title} <span className="rec-sub">{r.sub}</span>
+                {t(r.title_ru, r.title_uz)} <span className="rec-sub">{t(r.sub_ru, r.sub_uz)}</span>
               </div>
               <div className="rec-foot">
                 <span>+{r.xp} XP</span>
                 <span className="dot-divider">·</span>
-                <span>≈ {Math.round(r.xp / 4)} мин</span>
+                <span>≈ {Math.round(r.xp / 4)} {t('мин', 'daq')}</span>
               </div>
             </div>
-            <button className="rec-launch">▶</button>
+            <button
+              className="rec-launch"
+              onClick={() => navigate('/learning')}
+              aria-label={t('Открыть курс', 'Kursni ochish')}
+            >▶</button>
           </div>
         ))}
       </div>
-      <button className="full-btn">СМОТРЕТЬ ВСЕ (12) →</button>
+      <button className="full-btn" onClick={() => navigate('/learning')}>
+        {t('СМОТРЕТЬ ВСЕ', 'BARCHASINI KOʻRISH')} →
+      </button>
     </Panel>
   );
 }
