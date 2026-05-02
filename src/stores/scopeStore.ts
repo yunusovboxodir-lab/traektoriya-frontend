@@ -14,6 +14,8 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
   goals: '/goals',
   planogram: '/planogram',
   analytics: '/analytics',
+  training_plan: '/training-plan',
+  case_studio: '/case-studio',
   'admin-roles': '/admin/roles',
 
   // Legacy pageKeys — map to new consolidated paths

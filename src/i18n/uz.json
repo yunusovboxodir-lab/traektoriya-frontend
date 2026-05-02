@@ -32,7 +32,8 @@
     "logout": "Chiqish",
     "themeDark": "Qorong'i",
     "themeLight": "Yorug'",
-    "theme": "Rejim"
+    "theme": "Rejim",
+    "caseStudio": "Keyslar bazasi"
   },
   "roles": {
     "superadmin": "Superadmin",
@@ -610,7 +611,12 @@
     "topicLabel": "Dars mavzusi *",
     "topicPlaceholder": "Masalan: SPIN sotuv texnikasi",
     "difficultyLabel": "Qiyinlik darajasi",
-    "difficulty": { "1": "Boshlang'ich", "2": "O'rta", "3": "Ilg'or", "4": "Ekspert" },
+    "difficulty": {
+      "1": "Boshlang'ich",
+      "2": "O'rta",
+      "3": "Ilg'or",
+      "4": "Ekspert"
+    },
     "includeQuiz": "Testni qo'shish",
     "generating": "Generatsiya... (~30 sek)",
     "generate": "Dars yaratish",
@@ -630,11 +636,29 @@
     "copied": "Nusxalandi!",
     "copyLesson": "Darsni nusxalash",
     "regenerate": "Qayta yaratish",
-    "ksa": { "knowledge": "Bilimlar", "skill": "Ko'nikmalar", "attitude": "Munosabatlar" },
-    "status": { "draft": "Qoralama", "review": "Tekshiruvda", "approved": "Tasdiqlangan" },
-    "fileSize": { "bytes": " B", "kb": " KB", "mb": " MB" },
+    "ksa": {
+      "knowledge": "Bilimlar",
+      "skill": "Ko'nikmalar",
+      "attitude": "Munosabatlar"
+    },
+    "status": {
+      "draft": "Qoralama",
+      "review": "Tekshiruvda",
+      "approved": "Tasdiqlangan"
+    },
+    "fileSize": {
+      "bytes": " B",
+      "kb": " KB",
+      "mb": " MB"
+    },
     "wizard": {
-      "steps": { "upload": "LYN yuklash", "competencies": "Kompetensiyalar", "sources": "Manbalar", "generation": "Generatsiya", "moderation": "Moderatsiya" },
+      "steps": {
+        "upload": "LYN yuklash",
+        "competencies": "Kompetensiyalar",
+        "sources": "Manbalar",
+        "generation": "Generatsiya",
+        "moderation": "Moderatsiya"
+      },
       "uploadTitle": "Lavozim yo'riqnomasini yuklash",
       "uploadDesc": "Kompetensiyalarni avtomatik ajratish va kurs yaratish uchun LYN faylini yuklang",
       "dragDrop": "Faylni shu yerga tashlang yoki tanlash uchun bosing",
@@ -691,15 +715,29 @@
     "subtitle": "Progressni kuzating va mukofotlar oling",
     "points": "ball",
     "achievements": "yutuq",
-    "tabs": { "all": "Barchasi", "active": "Faol", "completed": "Yakunlangan" },
+    "tabs": {
+      "all": "Barchasi",
+      "active": "Faol",
+      "completed": "Yakunlangan"
+    },
     "goalsTitle": "Maqsadlar",
     "goalsActive": "(faol)",
     "goalsCompleted": "(yakunlangan)",
     "noGoals": "Bu kategoriyada maqsadlar yo'q",
     "myAchievements": "Mening yutuqlarim",
     "catalog": "Yutuqlar katalogi",
-    "goalType": { "learning": "O'qitish", "shelf_quality": "Javon", "kpi": "KPI", "custom": "Boshqa" },
-    "goalStatus": { "active": "Faol", "completed": "Bajarildi", "failed": "Bajarilmadi", "paused": "Pauza" },
+    "goalType": {
+      "learning": "O'qitish",
+      "shelf_quality": "Javon",
+      "kpi": "KPI",
+      "custom": "Boshqa"
+    },
+    "goalStatus": {
+      "active": "Faol",
+      "completed": "Bajarildi",
+      "failed": "Bajarilmadi",
+      "paused": "Pauza"
+    },
     "pts": "ball"
   },
   "kb": {
@@ -720,10 +758,38 @@
     "selectedFiles": "{count} tanlangan",
     "upload": "Yuklash",
     "uploading": "Yuklanmoqda...",
-    "docTypes": { "job_description": "LYN", "standard": "Standart", "product": "Mahsulot", "policy": "Siyosat", "training": "O'quv", "other": "Boshqa" },
-    "filters": { "all": "Barchasi", "standard": "Standartlar", "product": "Mahsulotlar", "job_description": "LYN", "policy": "Siyosatlar", "training": "O'quv", "other": "Boshqa" },
-    "statuses": { "uploaded": "Yuklangan", "processing": "Indekslanmoqda...", "processed": "Tayyor", "failed": "Xatolik" },
-    "tableHeaders": { "document": "Hujjat", "type": "Tur", "position": "Lavozim", "size": "Hajm", "status": "Holat", "date": "Sana", "actions": "Amallar" },
+    "docTypes": {
+      "job_description": "LYN",
+      "standard": "Standart",
+      "product": "Mahsulot",
+      "policy": "Siyosat",
+      "training": "O'quv",
+      "other": "Boshqa"
+    },
+    "filters": {
+      "all": "Barchasi",
+      "standard": "Standartlar",
+      "product": "Mahsulotlar",
+      "job_description": "LYN",
+      "policy": "Siyosatlar",
+      "training": "O'quv",
+      "other": "Boshqa"
+    },
+    "statuses": {
+      "uploaded": "Yuklangan",
+      "processing": "Indekslanmoqda...",
+      "processed": "Tayyor",
+      "failed": "Xatolik"
+    },
+    "tableHeaders": {
+      "document": "Hujjat",
+      "type": "Tur",
+      "position": "Lavozim",
+      "size": "Hajm",
+      "status": "Holat",
+      "date": "Sana",
+      "actions": "Amallar"
+    },
     "selected": "Tanlangan: {count}",
     "changeTypePosition": "Tur / lavozimni o'zgartirish",
     "yesDelete": "Ha, o'chirish",
@@ -821,7 +887,11 @@
     "levelUp": "Daraja oshdi: {from} → {to}",
     "saveError": "Test natijasini serverga saqlash imkoni bo'lmadi",
     "logout": "Chiqish",
-    "difficulty": { "beginner": "Boshlang'ich", "intermediate": "O'rta", "advanced": "Ilg'or" }
+    "difficulty": {
+      "beginner": "Boshlang'ich",
+      "intermediate": "O'rta",
+      "advanced": "Ilg'or"
+    }
   },
   "productDetail": {
     "loadError": "Mahsulotni yuklash imkoni bo'lmadi",
@@ -830,7 +900,13 @@
     "backToProducts": "Mahsulotlarga qaytish",
     "active": "Faol",
     "inactive": "Nofaol",
-    "tabs": { "info": "Kartochka", "merch": "Merchandayzing", "sales": "Sotuv", "hpv": "XPV", "test": "Test" },
+    "tabs": {
+      "info": "Kartochka",
+      "merch": "Merchandayzing",
+      "sales": "Sotuv",
+      "hpv": "XPV",
+      "test": "Test"
+    },
     "identification": "Identifikatsiya",
     "brand": "Brend",
     "categoryLabel": "Kategoriya",

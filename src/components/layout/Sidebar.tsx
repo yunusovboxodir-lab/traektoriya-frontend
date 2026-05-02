@@ -240,6 +240,8 @@ const NAV_ITEMS_DEF = [
   { labelKey: 'nav.goals',        path: '/goals',         icon: <IconTarget />,         pageKey: 'goals' },
   { labelKey: 'nav.planogram',    path: '/planogram',     icon: <IconCamera />,         pageKey: 'planogram' },
   { labelKey: 'nav.offline',      path: '/activities',    icon: <IconOffline />,        pageKey: 'offline' },
+  { labelKey: 'nav.trainingPlan', path: '/training-plan', icon: <IconClipboard />,      pageKey: 'training_plan' },
+  { labelKey: 'nav.caseStudio',   path: '/case-studio',   icon: <IconBook />,           pageKey: 'case_studio' },
   { labelKey: 'nav.analytics',    path: '/analytics',     icon: <IconChart />,          pageKey: 'analytics' },
 ] as const;
 

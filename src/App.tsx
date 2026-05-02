@@ -42,6 +42,10 @@ const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').
 const TranslationReviewPage = lazyWithRetry(() => import('./pages/TranslationReviewPage').then(m => ({ default: m.TranslationReviewPage })));
 const TrainingPlanPage = lazyWithRetry(() => import('./pages/TrainingPlanPage').then(m => ({ default: m.TrainingPlanPage })));
 const TrainingRequestNewPage = lazyWithRetry(() => import('./pages/TrainingRequestNewPage').then(m => ({ default: m.TrainingRequestNewPage })));
+const CaseStudioPage = lazyWithRetry(() => import('./pages/CaseStudioPage').then(m => ({ default: m.CaseStudioPage })));
+const CaseStudioDetailPage = lazyWithRetry(() => import('./pages/CaseStudioDetailPage').then(m => ({ default: m.CaseStudioDetailPage })));
+const CaseStudioNewPage = lazyWithRetry(() => import('./pages/CaseStudioNewPage').then(m => ({ default: m.CaseStudioNewPage })));
+const CaseCategoryEditPage = lazyWithRetry(() => import('./pages/CaseCategoryEditPage').then(m => ({ default: m.CaseCategoryEditPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -329,6 +333,48 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="training_plan">
             <TrainingRequestNewPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Module 17: Case Studio (Кейсотека) */}
+      <Route
+        path="/case-studio"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseStudioPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/case-studio/new"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseStudioNewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/case-studio/categories/new"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseCategoryEditPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/case-studio/categories/:categoryId/edit"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseCategoryEditPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/case-studio/:scenarioId"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseStudioDetailPage />
           </ProtectedRoute>
         }
       />

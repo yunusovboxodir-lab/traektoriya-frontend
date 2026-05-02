@@ -32,7 +32,8 @@
     "logout": "Выйти",
     "themeDark": "Тёмная",
     "themeLight": "Светлая",
-    "theme": "Тема"
+    "theme": "Тема",
+    "caseStudio": "Кейсотека"
   },
   "roles": {
     "superadmin": "Суперадмин",
@@ -104,7 +105,7 @@
   },
   "dashboard": {
     "welcome": "Добро пожаловать",
-    "platformDesc": "Платформа обучения торговых представителей — управляйте курсами, задачами и аналитикой в\u00a0одном\u00a0месте.",
+    "platformDesc": "Платформа обучения торговых представителей — управляйте курсами, задачами и аналитикой в одном месте.",
     "sections": "Разделы платформы",
     "stats": {
       "products": "Товары",
@@ -610,7 +611,12 @@
     "topicLabel": "Тема урока *",
     "topicPlaceholder": "Например: Техника СПИН продаж",
     "difficultyLabel": "Уровень сложности",
-    "difficulty": { "1": "Начальный", "2": "Средний", "3": "Продвинутый", "4": "Экспертный" },
+    "difficulty": {
+      "1": "Начальный",
+      "2": "Средний",
+      "3": "Продвинутый",
+      "4": "Экспертный"
+    },
     "includeQuiz": "Включить тест",
     "generating": "Генерация... (~30 сек)",
     "generate": "Сгенерировать урок",
@@ -630,11 +636,29 @@
     "copied": "Скопировано!",
     "copyLesson": "Копировать урок",
     "regenerate": "Сгенерировать заново",
-    "ksa": { "knowledge": "Знания", "skill": "Навыки", "attitude": "Установки" },
-    "status": { "draft": "Черновик", "review": "На проверке", "approved": "Утверждён" },
-    "fileSize": { "bytes": " Б", "kb": " КБ", "mb": " МБ" },
+    "ksa": {
+      "knowledge": "Знания",
+      "skill": "Навыки",
+      "attitude": "Установки"
+    },
+    "status": {
+      "draft": "Черновик",
+      "review": "На проверке",
+      "approved": "Утверждён"
+    },
+    "fileSize": {
+      "bytes": " Б",
+      "kb": " КБ",
+      "mb": " МБ"
+    },
     "wizard": {
-      "steps": { "upload": "Загрузка ДИ", "competencies": "Компетенции", "sources": "Источники", "generation": "Генерация", "moderation": "Модерация" },
+      "steps": {
+        "upload": "Загрузка ДИ",
+        "competencies": "Компетенции",
+        "sources": "Источники",
+        "generation": "Генерация",
+        "moderation": "Модерация"
+      },
       "uploadTitle": "Загрузка должностной инструкции",
       "uploadDesc": "Загрузите файл ДИ для автоматического извлечения компетенций и генерации курса",
       "dragDrop": "Перетащите файл сюда или нажмите для выбора",
@@ -691,15 +715,29 @@
     "subtitle": "Отслеживайте прогресс и зарабатывайте награды",
     "points": "очков",
     "achievements": "достижений",
-    "tabs": { "all": "Все", "active": "Активные", "completed": "Завершённые" },
+    "tabs": {
+      "all": "Все",
+      "active": "Активные",
+      "completed": "Завершённые"
+    },
     "goalsTitle": "Цели",
     "goalsActive": "(активные)",
     "goalsCompleted": "(завершённые)",
     "noGoals": "Нет целей в этой категории",
     "myAchievements": "Мои достижения",
     "catalog": "Каталог достижений",
-    "goalType": { "learning": "Обучение", "shelf_quality": "Полка", "kpi": "KPI", "custom": "Другое" },
-    "goalStatus": { "active": "Активна", "completed": "Выполнена", "failed": "Не выполнена", "paused": "Пауза" },
+    "goalType": {
+      "learning": "Обучение",
+      "shelf_quality": "Полка",
+      "kpi": "KPI",
+      "custom": "Другое"
+    },
+    "goalStatus": {
+      "active": "Активна",
+      "completed": "Выполнена",
+      "failed": "Не выполнена",
+      "paused": "Пауза"
+    },
     "pts": "очк."
   },
   "kb": {
@@ -720,10 +758,38 @@
     "selectedFiles": "Выбрано {count}",
     "upload": "Загрузить",
     "uploading": "Загрузка...",
-    "docTypes": { "job_description": "ДИ", "standard": "Стандарт", "product": "Продукт", "policy": "Политика", "training": "Учебный", "other": "Прочее" },
-    "filters": { "all": "Все", "standard": "Стандарты", "product": "Продукты", "job_description": "ДИ", "policy": "Политики", "training": "Учебные", "other": "Прочее" },
-    "statuses": { "uploaded": "Загружен", "processing": "Индексируется...", "processed": "Готов", "failed": "Ошибка" },
-    "tableHeaders": { "document": "Документ", "type": "Тип", "position": "Должность", "size": "Размер", "status": "Статус", "date": "Дата", "actions": "Действия" },
+    "docTypes": {
+      "job_description": "ДИ",
+      "standard": "Стандарт",
+      "product": "Продукт",
+      "policy": "Политика",
+      "training": "Учебный",
+      "other": "Прочее"
+    },
+    "filters": {
+      "all": "Все",
+      "standard": "Стандарты",
+      "product": "Продукты",
+      "job_description": "ДИ",
+      "policy": "Политики",
+      "training": "Учебные",
+      "other": "Прочее"
+    },
+    "statuses": {
+      "uploaded": "Загружен",
+      "processing": "Индексируется...",
+      "processed": "Готов",
+      "failed": "Ошибка"
+    },
+    "tableHeaders": {
+      "document": "Документ",
+      "type": "Тип",
+      "position": "Должность",
+      "size": "Размер",
+      "status": "Статус",
+      "date": "Дата",
+      "actions": "Действия"
+    },
     "selected": "Выбрано: {count}",
     "changeTypePosition": "Изменить тип / должность",
     "yesDelete": "Да, удалить",
@@ -821,7 +887,11 @@
     "levelUp": "Уровень повышен: {from} → {to}",
     "saveError": "Не удалось сохранить результат теста на сервере",
     "logout": "Выйти",
-    "difficulty": { "beginner": "Начальный", "intermediate": "Средний", "advanced": "Продвинутый" }
+    "difficulty": {
+      "beginner": "Начальный",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый"
+    }
   },
   "productDetail": {
     "loadError": "Не удалось загрузить товар",
@@ -830,7 +900,13 @@
     "backToProducts": "Назад к товарам",
     "active": "Активен",
     "inactive": "Неактивен",
-    "tabs": { "info": "Карточка", "merch": "Мерчандайзинг", "sales": "Продажи", "hpv": "ХПВ", "test": "Тест" },
+    "tabs": {
+      "info": "Карточка",
+      "merch": "Мерчандайзинг",
+      "sales": "Продажи",
+      "hpv": "ХПВ",
+      "test": "Тест"
+    },
     "identification": "Идентификация",
     "brand": "Бренд",
     "categoryLabel": "Категория",
