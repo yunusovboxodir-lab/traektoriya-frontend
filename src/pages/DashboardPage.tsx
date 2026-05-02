@@ -243,7 +243,7 @@ export function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4 sm:space-y-6 md:space-y-8">
       {/* ── Welcome Banner ── */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-8 text-white shadow-lg">
         <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5" />
@@ -272,7 +272,7 @@ export function DashboardPage() {
       </div>
 
       {/* ── Quick Stats ── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5">
         {statCards.map((card) => (
           <div
             key={card.label}
@@ -294,7 +294,7 @@ export function DashboardPage() {
       {/* ── Navigation Cards ── */}
       <div>
         <h2 className="mb-4 text-lg font-semibold text-gray-800">{t('dashboard.sections')}</h2>
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {navCards.map((card) => (
             <Link
               key={card.path}

@@ -52,6 +52,45 @@ body {
   color: revert !important; /* tactical имеет свою тёмную палитру — не трогаем */
 }
 
+/* === UX-аудит 2026-05-02 — Спринт C: responsive-таблицы ===
+   Все <table> на мобильном получают горизонтальный скролл вместо
+   ломки сетки. Не идеально (карточный вид лучше), но safety-net для
+   15 страниц с таблицами без переписывания каждой.
+   На десктопе работает как обычно. */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+    max-width: 100vw;
+  }
+  /* Заголовки и строки сохраняют табличное поведение внутри scrollable wrapper */
+  table thead, table tbody, table tr {
+    display: table;
+    width: 100%;
+    table-layout: auto;
+  }
+  /* Тонкая полоска чтобы юзер видел "тут можно скроллить" */
+  table::-webkit-scrollbar {
+    height: 4px;
+  }
+  table::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
+  }
+}
+
+/* === Touch-targets: минимум 44×44px на мобильном (Apple HIG) ===
+   Применяется к кликабельным элементам. */
+@media (max-width: 768px) {
+  button:not(.no-touch-target),
+  a[role="button"]:not(.no-touch-target),
+  [role="button"]:not(.no-touch-target) {
+    min-height: 40px; /* минимум для гладкости, исключения через .no-touch-target */
+  }
+}
+
 /* Smooth momentum scrolling on iOS */
 * {
   -webkit-overflow-scrolling: touch;

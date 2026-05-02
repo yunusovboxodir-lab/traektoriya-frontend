@@ -275,14 +275,14 @@ export function ProductsPage() {
 
       {/* Grid View */}
       {viewMode === 'grid' && isAllTab && groupedByBrand && (
-        <div className="space-y-8">
+        <div className="space-y-4 sm:space-y-6 md:space-y-8">
           {Array.from(groupedByBrand.entries()).map(([brand, brandProducts]) => (
             <div key={brand}>
               <div className="flex items-center gap-3 mb-4">
                 <h2 className="text-lg font-bold text-gray-800">{brand}</h2>
                 <span className="text-sm text-gray-400">{brandProducts.length} SKU</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
                 {brandProducts.map((product) => (
                   <div
                     key={product.id}

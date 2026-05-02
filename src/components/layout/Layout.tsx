@@ -124,7 +124,7 @@ export function Layout({ children }: LayoutProps) {
           ${collapsed ? 'lg:ml-16' : 'lg:ml-64'}
         `}
       >
-        <div className="p-4 sm:p-6 lg:p-8">
+        <div className="p-3 sm:p-4 md:p-6 lg:p-8">
           {children}
         </div>
       </main>
