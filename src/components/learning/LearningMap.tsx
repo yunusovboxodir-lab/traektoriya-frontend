@@ -745,7 +745,7 @@ export function LearningMap({ data, onOpenSection }: Props) {
               transform: 'translate(-50%, -100%)',
             }}
           >
-            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xl min-w-[160px] sm:min-w-[200px]">
+            <div className="bg-gray-900/95 backdrop-blur border border-gray-600 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-xl min-w-[160px] max-w-[80vw] sm:min-w-[200px] sm:max-w-xs">
               <div className="flex items-center gap-2">
                 {tooltip.building.section.icon && (
                   <span className="text-base sm:text-lg">{tooltip.building.section.icon}</span>

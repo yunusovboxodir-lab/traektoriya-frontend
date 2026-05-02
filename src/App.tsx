@@ -46,6 +46,7 @@ const CaseStudioPage = lazyWithRetry(() => import('./pages/CaseStudioPage').then
 const CaseStudioDetailPage = lazyWithRetry(() => import('./pages/CaseStudioDetailPage').then(m => ({ default: m.CaseStudioDetailPage })));
 const CaseStudioNewPage = lazyWithRetry(() => import('./pages/CaseStudioNewPage').then(m => ({ default: m.CaseStudioNewPage })));
 const CaseCategoryEditPage = lazyWithRetry(() => import('./pages/CaseCategoryEditPage').then(m => ({ default: m.CaseCategoryEditPage })));
+const CaseStudioMyPage = lazyWithRetry(() => import('./pages/CaseStudioMyPage').then(m => ({ default: m.CaseStudioMyPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -343,6 +344,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="case_studio">
             <CaseStudioPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/case-studio/my"
+        element={
+          <ProtectedRoute pageKey="case_studio">
+            <CaseStudioMyPage />
           </ProtectedRoute>
         }
       />
