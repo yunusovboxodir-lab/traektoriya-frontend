@@ -5,16 +5,51 @@
 /* Prevent pull-to-refresh in standalone PWA mode */
 html {
   overscroll-behavior: none;
+  /* UX-аудит 2026-05-02: базовый размер шрифта 16px → 17px для лучшей читаемости.
+     Все relative size (rem, em) масштабируются автоматически. */
+  font-size: 17px;
+}
+
+@media (max-width: 640px) {
+  html {
+    /* На мобильном чуть крупнее, потому что часто полевые условия */
+    font-size: 16px;
+  }
 }
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f8fafc;
+  color: #1f2937; /* gray-800 — улучшенный контраст для дефолтного текста */
   /* iPhone safe area support (notch, home indicator) */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+}
+
+/* === UX-аудит 2026-05-02: глобальное усиление контраста ===
+   Заменяем самые бледные текстовые цвета на тёмные для WCAG AA (4.5:1).
+   Это работает поверх Tailwind utility-классов. */
+.text-gray-400 {
+  color: rgb(75 85 99) !important; /* gray-600 вместо gray-400 */
+}
+.text-gray-500 {
+  color: rgb(55 65 81) !important; /* gray-700 вместо gray-500 */
+}
+.text-stone-400 {
+  color: rgb(87 83 78) !important; /* stone-600 вместо stone-400 */
+}
+.text-stone-500 {
+  color: rgb(68 64 60) !important; /* stone-700 вместо stone-500 */
+}
+/* На тёмных фонах оставляем как есть — можно через .dark-bg обёртку
+   (ниже не накручиваем чтобы не сломать tactical-design.css) */
+.tactical-root .text-gray-400,
+.tactical-root .text-gray-500,
+.tactical-root .text-stone-400,
+.tactical-root .text-stone-500 {
+  color: revert !important; /* tactical имеет свою тёмную палитру — не трогаем */
 }
 
 /* Smooth momentum scrolling on iOS */
@@ -106,6 +141,20 @@ body {
 .building-positioner:hover .building-wrapper {
   transform: rotateX(55deg) rotateZ(-45deg) translateZ(8px);
   filter: brightness(1.2);
+}
+
+/* === Mobile fix (UX-аудит 2026-05-02): упрощённый 2D-вид без 3D-трансформаций ===
+   На экранах <640px rotateX/rotateZ выводит здания за края контейнера
+   (карта «убегает»). Плоский 2D вариант. */
+@media (max-width: 640px) {
+  .building-wrapper {
+    transform-style: flat;
+    transform: none;
+  }
+  .building-positioner:hover .building-wrapper {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+  }
 }
 
 /* === Three faces of the building === */

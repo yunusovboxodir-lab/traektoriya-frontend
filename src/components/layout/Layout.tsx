@@ -92,12 +92,18 @@ export function Layout({ children }: LayoutProps) {
         onCloseMobile={handleCloseMobile}
       />
 
-      {/* Mobile top header */}
-      <header className="fixed top-0 left-0 right-0 z-20 flex items-center h-14 px-4 bg-white border-b border-gray-200 lg:hidden">
+      {/* Mobile top header — скрыт когда мобильное меню открыто, чтобы не дублировать */}
+      <header
+        className={`
+          fixed top-0 left-0 right-0 z-20 flex items-center h-14 px-4
+          bg-white border-b border-gray-200 lg:hidden
+          ${mobileOpen ? 'hidden' : ''}
+        `}
+      >
         <button
           type="button"
           onClick={handleOpenMobile}
-          className="p-1.5 -ml-1.5 rounded-md text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors"
+          className="p-2 -ml-2 rounded-md text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
           aria-label="Открыть меню"
         >
           <IconMenu />

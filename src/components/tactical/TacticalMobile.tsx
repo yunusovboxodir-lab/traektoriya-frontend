@@ -27,9 +27,11 @@ const TERRITORY_NUMERAL: Record<string, string> = {
 };
 
 // =============================================================================
-// Top bar
-// =============================================================================
-function MobileTopBar() {
+// Top bar (УДАЛЁН в UX-аудите 2026-05-02 — Layout рендерит свой мобильный header
+// с рабочей кнопкой ☰. Этот дубль вводил юзеров в заблуждение фейковой кнопкой.)
+// @ts-expect-error preserved for reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _MobileTopBar_DEPRECATED() {
   const lang = useLangStore((s) => s.lang);
   const setLang = useLangStore((s) => s.setLang);
   return (
@@ -961,6 +963,8 @@ interface TacticalMobileProps {
   doneCourses?: number;
   loading?: boolean;
   onOpenCourse?: (courseId: string) => void;
+  /** Селектор «Смотрю как…» для admin/superadmin/cd/trainer (см. TacticalLearningPage). */
+  roleSelector?: React.ReactNode;
 }
 
 export function TacticalMobile({
@@ -972,6 +976,7 @@ export function TacticalMobile({
   doneCourses,
   loading,
   onOpenCourse,
+  roleSelector,
 }: TacticalMobileProps) {
   const lang = useLangStore((s) => s.lang);
 
@@ -1023,7 +1028,17 @@ export function TacticalMobile({
         display: 'flex', flexDirection: 'column',
       }}>
         <style>{`::-webkit-scrollbar { display: none; }`}</style>
-        <MobileTopBar />
+        {/* MobileTopBar убран: Layout уже рендерит мобильный header с рабочей ☰ кнопкой.
+            Двойной header путал юзеров (фейковая ☰ без onClick). */}
+        {roleSelector && (
+          <div style={{
+            padding: '10px 16px',
+            background: 'oklch(0.10 0.02 250 / 0.85)',
+            borderBottom: '1px solid oklch(0.20 0.03 240 / 0.5)',
+          }}>
+            {roleSelector}
+          </div>
+        )}
         <HeroStrip
           name={operatorName}
           pct={pct}

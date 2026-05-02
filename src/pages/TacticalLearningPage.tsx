@@ -33,6 +33,18 @@ function injectFonts() {
   document.head.appendChild(l);
 }
 
+// Роли, для которых есть курсы в БД (определяет селектор для admin/superadmin)
+const ROLES_WITH_COURSES = [
+  { value: 'sales_rep', label_ru: 'ТП — Торговый представитель', label_uz: 'TP — Savdo vakili' },
+  { value: 'supervisor', label_ru: 'СВ — Супервайзер', label_uz: 'SV — Supervayzer' },
+  { value: 'regional_manager', label_ru: 'РМ — Региональный менеджер', label_uz: 'RM — Mintaqaviy menejer' },
+];
+
+// Роли, у которых СВОЯ карта обучения (берётся напрямую user.role).
+// Для остальных (admin/superadmin/trainer/commercial_dir/dealer и т.д.) — нет своих курсов,
+// поэтому показываем селектор ролей и дефолтим на 'sales_rep'.
+const SELF_LEARNING_ROLES = new Set(['sales_rep', 'supervisor', 'regional_manager']);
+
 export function TacticalLearningPage() {
   const user = useAuthStore((s) => s.user);
   const lang = useLangStore((s) => s.lang);
@@ -41,6 +53,13 @@ export function TacticalLearningPage() {
   const [focusZone, setFocusZone] = useState<number | null>(null);
   const [selectedNode, setSelectedNode] = useState<MapNode | null>(null);
   const [territoryMode] = useState<TerritoryMode>('biome');
+
+  // Для admin/superadmin/КД — селектор ролей. Для обычных юзеров — их собственная роль.
+  const userRole = user?.role || 'sales_rep';
+  const showRoleSelector = !SELF_LEARNING_ROLES.has(userRole);
+  const [viewAsRole, setViewAsRole] = useState<string>(
+    showRoleSelector ? 'sales_rep' : userRole,
+  );
 
   // Реальные данные из learning API
   const [nodes, setNodes] = useState<MapNode[]>([]);
@@ -54,11 +73,11 @@ export function TacticalLearningPage() {
     injectFonts();
   }, []);
 
-  // Загружаем данные при монтировании / смене роли пользователя / языка
+  // Загружаем данные при монтировании / смене viewAsRole / языка
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    const role = user?.role || 'sales_rep';
+    const role = viewAsRole || 'sales_rep';
     loadLearningMapData(role, lang)
       .then((data) => {
         if (cancelled) return;
@@ -79,7 +98,7 @@ export function TacticalLearningPage() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [user?.role, lang]);
+  }, [viewAsRole, lang]);
 
   const handleSelect = (node: MapNode) => {
     setSelectedNode((prev) => (prev?.id === node.id ? null : node));
@@ -107,6 +126,11 @@ export function TacticalLearningPage() {
         doneCourses={doneCourses}
         loading={loading}
         onOpenCourse={openCourse}
+        roleSelector={
+          showRoleSelector ? (
+            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
+          ) : null
+        }
       />
     );
   }
@@ -121,6 +145,11 @@ export function TacticalLearningPage() {
       <div className="title-row">
         <h1>{lang === 'uz' ? "Mening o'qish xaritam" : 'Моя карта обучения'}</h1>
         <span className="tactical-tag" />
+        {showRoleSelector && (
+          <div style={{ marginLeft: 16 }}>
+            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
+          </div>
+        )}
         <div className="title-meta">
           <span><b>{totalCourses}</b> {lang === 'uz' ? 'KURSLAR' : 'КУРСОВ'}</span>
           <span><b>{territoriesCount}</b> {lang === 'uz' ? 'HUDUDLAR' : 'ТЕРРИТОРИИ'}</span>
@@ -149,7 +178,14 @@ export function TacticalLearningPage() {
               </div>
             ) : nodes.length === 0 ? (
               <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
-                {lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ'}
+                <div>{lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ'}</div>
+                {showRoleSelector && (
+                  <div style={{ marginTop: 16, fontSize: 13, letterSpacing: '0.05em', textTransform: 'none', opacity: 0.7 }}>
+                    {lang === 'uz'
+                      ? 'Yuqoridagi rol tanlovchi orqali boshqa rolni tanlang.'
+                      : 'Выберите другую роль через переключатель в шапке.'}
+                  </div>
+                )}
               </div>
             ) : (
               <TacticalMap
@@ -267,6 +303,63 @@ function roleLabel(role: string): string {
     regional_manager: 'РЕГ. МЕНЕДЖЕР',
     supervisor: 'СУПЕРВАЙЗЕР',
     sales_rep: 'ТП',
+    trainer: 'ТРЕНЕР',
   };
   return map[role] || role.toUpperCase();
+}
+
+/**
+ * Селектор «Просматриваю карту как…» для admin/superadmin/КД/тренера.
+ * Видим в шапке только когда у юзера нет своих курсов (admin/cd/trainer).
+ */
+function RoleSelector({
+  value,
+  onChange,
+  lang,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  lang: 'ru' | 'uz';
+}) {
+  return (
+    <label
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+        background: 'oklch(0.20 0.03 240 / 0.45)',
+        border: '1px solid var(--line)',
+        borderRadius: 6,
+        padding: '6px 10px',
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: 12,
+        letterSpacing: '0.08em',
+        color: 'var(--text-1)',
+      }}
+    >
+      <span style={{ color: 'var(--text-2)', textTransform: 'uppercase' }}>
+        {lang === 'uz' ? 'Koʻrish:' : 'Смотрю как:'}
+      </span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          background: 'transparent',
+          color: 'var(--text-0)',
+          border: 'none',
+          outline: 'none',
+          fontFamily: 'inherit',
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: 'pointer',
+        }}
+      >
+        {ROLES_WITH_COURSES.map((r) => (
+          <option key={r.value} value={r.value} style={{ background: '#0a0e14', color: '#fff' }}>
+            {lang === 'uz' ? r.label_uz : r.label_ru}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }
