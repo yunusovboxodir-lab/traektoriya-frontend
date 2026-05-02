@@ -259,8 +259,11 @@ function CalendarTab() {
 }
 
 function EventCard({ event }: { event: CalendarEvent }) {
+  const navigate = useNavigate();
   return (
-    <div className="border border-stone-200 rounded-lg p-4 bg-white hover:border-stone-300 transition-colors">
+    <button
+      onClick={() => navigate(`/training-plan/calendar/${event.id}`)}
+      className="text-left w-full border border-stone-200 rounded-lg p-4 bg-white hover:border-stone-400 hover:shadow-sm transition-all">
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
@@ -321,7 +324,7 @@ function EventCard({ event }: { event: CalendarEvent }) {
             </div>
           )}
       </div>
-    </div>
+    </button>
   );
 }
 
