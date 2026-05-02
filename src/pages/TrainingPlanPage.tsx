@@ -114,6 +114,14 @@ export function TrainingPlanPage() {
               Создать событие
             </button>
           )}
+          {canManage && tab === 'field-trips' && (
+            <button
+              onClick={() => navigate('/training-plan/field-trips/new')}
+              className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800"
+            >
+              + Отчёт о командировке
+            </button>
+          )}
         </div>
       </div>
 
@@ -478,6 +486,7 @@ function RequestCard({
 // ---------------------------------------------------------------------------
 
 function FieldTripsTab() {
+  const navigate = useNavigate();
   const [trips, setTrips] = useState<FieldTripReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -493,41 +502,119 @@ function FieldTripsTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="text-stone-500">Загрузка…</div>;
+  if (loading) return <div className="text-stone-600">Загрузка…</div>;
   if (error) return <div className="text-red-600">Ошибка: {error}</div>;
 
+  // Аналитика по всем поездкам (агрегаты сверху)
+  const totalParticipants = trips.reduce((sum, t) => {
+    const ps = Object.values(t.participants_summary || {});
+    return sum + ps.reduce((s, n) => s + (n || 0), 0);
+  }, 0);
+  const tripsWithGrowth = trips.filter(
+    (t) => t.pre_avg !== null && t.post_avg !== null,
+  );
+  const avgGrowth = tripsWithGrowth.length
+    ? tripsWithGrowth.reduce((s, t) => s + ((t.post_avg! - t.pre_avg!) * 100), 0) / tripsWithGrowth.length
+    : null;
+  const totalCost = trips.reduce((sum, t) => sum + (t.total_cost_uzs || 0), 0);
+
   return (
-    <div className="space-y-3">
-      {trips.map((t) => (
-        <div key={t.id} className="border border-stone-200 rounded-lg p-4 bg-white">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-medium text-stone-900">{t.cities.join(' · ')}</h3>
-              <div className="text-sm text-stone-600 mt-1">
-                {formatDate(t.start_date)} – {formatDate(t.end_date)}
-              </div>
-            </div>
-            {t.pre_avg !== null && t.post_avg !== null && (
-              <div className="text-right text-sm">
-                <div className="text-stone-500">PRE → POST</div>
-                <div className="font-medium">
-                  {formatPct(t.pre_avg)} → {formatPct(t.post_avg)}
-                </div>
-              </div>
-            )}
-          </div>
-          {t.narrative && <p className="text-sm text-stone-700 mt-2">{t.narrative}</p>}
-          {t.next_steps && (
-            <div className="mt-2 p-2 bg-stone-50 rounded text-sm text-stone-700">
-              <span className="font-medium">Следующие шаги: </span>
-              {t.next_steps}
-            </div>
-          )}
+    <div>
+      {/* Aggregate stats */}
+      {trips.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <AggregateStat label="Командировок" value={trips.length.toString()} />
+          <AggregateStat label="Всего участников" value={totalParticipants.toString()} />
+          <AggregateStat
+            label="Средний рост"
+            value={avgGrowth !== null ? `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(0)} п.п.` : '—'}
+            highlight
+          />
+          <AggregateStat
+            label="Расходы"
+            value={
+              totalCost > 0
+                ? new Intl.NumberFormat('ru-RU').format(totalCost) + ' сум'
+                : '—'
+            }
+          />
         </div>
-      ))}
-      {!trips.length && (
-        <div className="text-stone-500 text-center py-8">Командировок нет</div>
       )}
+
+      <div className="space-y-3">
+        {trips.map((t) => {
+          const totalP = Object.values(t.participants_summary || {})
+            .reduce((s, n) => s + (n || 0), 0);
+          const growthPp =
+            t.pre_avg !== null && t.post_avg !== null
+              ? (t.post_avg - t.pre_avg) * 100
+              : null;
+          return (
+            <button
+              key={t.id}
+              onClick={() => navigate(`/training-plan/field-trips/${t.id}`)}
+              className="w-full text-left border border-stone-200 rounded-lg p-4 bg-white hover:border-stone-400 hover:shadow-sm transition-all"
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <h3 className="font-medium text-stone-900">{t.cities.join(' · ')}</h3>
+                    <span className="text-xs font-mono text-stone-600">{t.trip_code}</span>
+                  </div>
+                  <div className="text-sm text-stone-600">
+                    {formatDate(t.start_date)} – {formatDate(t.end_date)}
+                    {totalP > 0 && <span className="ml-2">· {totalP} чел</span>}
+                  </div>
+                </div>
+                {t.pre_avg !== null && t.post_avg !== null && (
+                  <div className="text-right text-sm">
+                    <div className="text-stone-600 text-xs">PRE → POST</div>
+                    <div className="font-medium text-stone-800">
+                      {formatPct(t.pre_avg)} → {formatPct(t.post_avg)}
+                    </div>
+                    {growthPp !== null && (
+                      <div className={`text-xs font-medium mt-0.5 ${growthPp >= 0 ? 'text-emerald-700' : 'text-red-600'}`}>
+                        {growthPp >= 0 ? '+' : ''}{growthPp.toFixed(0)} п.п.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              {t.narrative && (
+                <p className="text-sm text-stone-700 mt-2 line-clamp-2">{t.narrative}</p>
+              )}
+            </button>
+          );
+        })}
+        {!trips.length && (
+          <div className="text-stone-600 text-center py-8 border border-dashed border-stone-300 rounded-lg">
+            Командировок ещё нет. Создай первый отчёт через кнопку «+ Отчёт о командировке».
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AggregateStat({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="bg-white border border-stone-200 rounded p-3">
+      <div className="text-xs text-stone-600 mb-1">{label}</div>
+      <div
+        className={`font-medium ${
+          highlight ? 'text-emerald-700 text-lg' : 'text-stone-800'
+        }`}
+      >
+        {value}
+      </div>
     </div>
   );
 }

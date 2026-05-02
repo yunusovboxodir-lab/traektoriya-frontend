@@ -47,6 +47,8 @@ const CaseStudioDetailPage = lazyWithRetry(() => import('./pages/CaseStudioDetai
 const CaseStudioNewPage = lazyWithRetry(() => import('./pages/CaseStudioNewPage').then(m => ({ default: m.CaseStudioNewPage })));
 const CaseCategoryEditPage = lazyWithRetry(() => import('./pages/CaseCategoryEditPage').then(m => ({ default: m.CaseCategoryEditPage })));
 const CaseStudioMyPage = lazyWithRetry(() => import('./pages/CaseStudioMyPage').then(m => ({ default: m.CaseStudioMyPage })));
+const FieldTripDetailPage = lazyWithRetry(() => import('./pages/FieldTripDetailPage').then(m => ({ default: m.FieldTripDetailPage })));
+const FieldTripNewPage = lazyWithRetry(() => import('./pages/FieldTripNewPage').then(m => ({ default: m.FieldTripNewPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -334,6 +336,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="training_plan">
             <TrainingRequestNewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/training-plan/field-trips/new"
+        element={
+          <ProtectedRoute pageKey="training_plan">
+            <FieldTripNewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/training-plan/field-trips/:tripId"
+        element={
+          <ProtectedRoute pageKey="training_plan">
+            <FieldTripDetailPage />
           </ProtectedRoute>
         }
       />
