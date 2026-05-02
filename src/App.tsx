@@ -49,6 +49,7 @@ const CaseCategoryEditPage = lazyWithRetry(() => import('./pages/CaseCategoryEdi
 const CaseStudioMyPage = lazyWithRetry(() => import('./pages/CaseStudioMyPage').then(m => ({ default: m.CaseStudioMyPage })));
 const FieldTripDetailPage = lazyWithRetry(() => import('./pages/FieldTripDetailPage').then(m => ({ default: m.FieldTripDetailPage })));
 const FieldTripNewPage = lazyWithRetry(() => import('./pages/FieldTripNewPage').then(m => ({ default: m.FieldTripNewPage })));
+const CalendarEventNewPage = lazyWithRetry(() => import('./pages/CalendarEventNewPage').then(m => ({ default: m.CalendarEventNewPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
 
 // ===========================================
@@ -336,6 +337,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="training_plan">
             <TrainingRequestNewPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/training-plan/calendar/new"
+        element={
+          <ProtectedRoute pageKey="training_plan">
+            <CalendarEventNewPage />
           </ProtectedRoute>
         }
       />
