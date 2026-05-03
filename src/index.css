@@ -2,6 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================================
+   === ДИЗАЙН-ТОКЕНЫ (TRAEKTORIYA_DESIGN_INSTRUCTIONS.md, май 2026) ===
+   Единая dark-палитра для всей платформы. Все компоненты должны использовать
+   эти переменные, не хардкодить hex. Поверх можно использовать существующие
+   токены из tactical-design.css (.tactical-root) — они независимы.
+   ============================================================================ */
+:root {
+  /* ── Фоны ── */
+  --bg-primary:    #0D0F14;
+  --bg-surface:    #141720;
+  --bg-card:       #1A1F2E;
+  --bg-elevated:   #20263A;
+  --bg-overlay:    rgba(255, 255, 255, 0.04);
+
+  /* ── Границы ── */
+  --border:        #252B3B;
+  --border-strong: #323A50;
+  --border-focus:  #C8A84B;
+
+  /* ── Текст ── */
+  --text-primary:   #E8EAF0;
+  --text-secondary: #9CA3AF;
+  --text-muted:     #6B7280;
+  --text-inverse:   #0D0F14;
+
+  /* ── Акцентные цвета ролей ── */
+  --color-rm:        #C8A84B;
+  --color-rm-bg:     rgba(200, 168, 75, 0.12);
+  --color-rm-border: rgba(200, 168, 75, 0.30);
+
+  --color-sv:        #2DD4BF;
+  --color-sv-bg:     rgba(45, 212, 191, 0.10);
+  --color-sv-border: rgba(45, 212, 191, 0.30);
+
+  --color-tp:        #A78BFA;
+  --color-tp-bg:     rgba(167, 139, 250, 0.10);
+  --color-tp-border: rgba(167, 139, 250, 0.30);
+
+  /* ── Уровни обучения ── */
+  --level-1:    #C8A84B; --level-1-bg: rgba(200, 168, 75, 0.10);  /* Стажёр */
+  --level-2:    #2DD4BF; --level-2-bg: rgba(45, 212, 191, 0.08);  /* Практик */
+  --level-3:    #A78BFA; --level-3-bg: rgba(167, 139, 250, 0.08); /* Эксперт */
+  --level-4:    #F87171; --level-4-bg: rgba(248, 113, 113, 0.08); /* Мастер */
+
+  /* ── Статусы ── */
+  --success:    #4ADE80; --success-bg: rgba(74, 222, 128, 0.10);
+  --warning:    #FBBF24; --warning-bg: rgba(251, 191, 36, 0.10);
+  --danger:     #F87171; --danger-bg:  rgba(248, 113, 113, 0.10);
+  --info:       #60A5FA; --info-bg:    rgba(96, 165, 250, 0.10);
+
+  /* ── Типографика ── */
+  --font-display: 'Unbounded', sans-serif;                            /* ТОЛЬКО h1, hero, stat-number */
+  --font-body:    'Golos Text', 'Manrope', system-ui, sans-serif;      /* ВСЁ остальное */
+  --font-mono:    'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Скругления ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   20px;
+  --radius-pill: 100px;
+
+  /* ── Тени ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  /* ── Анимации ── */
+  --transition-fast: 150ms ease;
+  --transition-mid:  250ms ease;
+}
+
 /* Prevent pull-to-refresh in standalone PWA mode */
 html {
   overscroll-behavior: none;
@@ -18,9 +89,10 @@ html {
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937; /* gray-800 — улучшенный контраст для дефолтного текста */
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
   /* iPhone safe area support (notch, home indicator) */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
@@ -28,28 +100,69 @@ body {
   padding-right: env(safe-area-inset-right);
 }
 
-/* === UX-аудит 2026-05-02: глобальное усиление контраста ===
-   Заменяем самые бледные текстовые цвета на тёмные для WCAG AA (4.5:1).
-   Это работает поверх Tailwind utility-классов. */
-.text-gray-400 {
-  color: rgb(75 85 99) !important; /* gray-600 вместо gray-400 */
+/* ============================================================================
+   === ШРИФТЫ — Unbounded только заголовки/цифры, Golos Text — body ===
+   (TRAEKTORIYA_DESIGN_INSTRUCTIONS.md §2)
+   Применяется ВНЕ .tactical-root (там собственная типографика Cinzel/Inter).
+   ============================================================================ */
+:root :not(.tactical-root, .tactical-root *) h1,
+:root :not(.tactical-root, .tactical-root *) .hero-title,
+:root :not(.tactical-root, .tactical-root *) .stat-number,
+:root :not(.tactical-root, .tactical-root *) .score-big,
+:root :not(.tactical-root, .tactical-root *) .level-headline {
+  font-family: var(--font-display);
+  font-weight: 700;
 }
-.text-gray-500 {
-  color: rgb(55 65 81) !important; /* gray-700 вместо gray-500 */
+
+:not(.tactical-root, .tactical-root *) p,
+:not(.tactical-root, .tactical-root *) span,
+:not(.tactical-root, .tactical-root *) td,
+:not(.tactical-root, .tactical-root *) th,
+:not(.tactical-root, .tactical-root *) label,
+:not(.tactical-root, .tactical-root *) input,
+:not(.tactical-root, .tactical-root *) select,
+:not(.tactical-root, .tactical-root *) textarea,
+:not(.tactical-root, .tactical-root *) button,
+:not(.tactical-root, .tactical-root *) h2,
+:not(.tactical-root, .tactical-root *) h3,
+:not(.tactical-root, .tactical-root *) h4,
+:not(.tactical-root, .tactical-root *) h5,
+:not(.tactical-root, .tactical-root *) h6 {
+  font-family: var(--font-body);
 }
-.text-stone-400 {
-  color: rgb(87 83 78) !important; /* stone-600 вместо stone-400 */
+
+/* Размерная сетка (мягко — не ломая Tailwind утилиты) */
+:not(.tactical-root, .tactical-root *) h1 { font-size: clamp(28px, 4vw, 48px); }
+:not(.tactical-root, .tactical-root *) h2 { font-size: clamp(20px, 2.5vw, 28px); font-weight: 600; }
+:not(.tactical-root, .tactical-root *) h3 { font-size: 18px; font-weight: 600; }
+
+.label-uppercase {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
-.text-stone-500 {
-  color: rgb(68 64 60) !important; /* stone-700 вместо stone-500 */
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
 }
-/* На тёмных фонах оставляем как есть — можно через .dark-bg обёртку
-   (ниже не накручиваем чтобы не сломать tactical-design.css) */
-.tactical-root .text-gray-400,
-.tactical-root .text-gray-500,
-.tactical-root .text-stone-400,
-.tactical-root .text-stone-500 {
-  color: revert !important; /* tactical имеет свою тёмную палитру — не трогаем */
+.caption {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* ============================================================================
+   === ТАБЛИЦЫ — hover-строк должен быть тёмным (НЕ белым) ===
+   (TRAEKTORIYA_DESIGN_INSTRUCTIONS.md §4 + §11)
+   Глобальное правило для всех <table> вне tactical-root.
+   ============================================================================ */
+:not(.tactical-root, .tactical-root *) tr {
+  transition: background var(--transition-fast);
+}
+:not(.tactical-root, .tactical-root *) tbody tr:hover,
+:not(.tactical-root, .tactical-root *) tr.table-row:hover {
+  background: var(--bg-elevated) !important;
 }
 
 /* === UX-аудит 2026-05-02 — Спринт C: responsive-таблицы ===
@@ -92,138 +205,142 @@ body {
 }
 
 /* ============================================================================
-   === DARK THEME GLOBAL OVERRIDE (UX-аудит 2026-05-03) ===
-   Tailwind не настроен с darkMode → все страницы кроме TacticalLearningPage
-   были залочены в светлую тему. Карточки bg-white на тёмном body создавали
-   «кашу». Переопределяем самые частые Tailwind-классы через [data-theme="dark"].
-   Tactical-страницы (.tactical-root) сохраняют свою CSS-палитру через :not(). */
+   === DARK THEME GLOBAL OVERRIDE (TRAEKTORIYA_DESIGN_INSTRUCTIONS, 2026-05-03) ===
+   Tailwind не настроен с darkMode и платформа полностью переходит на dark →
+   убираем гейтинг [data-theme="dark"]: dark теперь базовый стиль для всех
+   не-tactical страниц. Tactical-страницы (.tactical-root) держат собственную
+   палитру через свой [data-theme="light"] / [data-theme="dark"].
+   Значения подтянуты к новым токенам (--bg-card, --bg-elevated, --text-*).
+   ============================================================================ */
 
-[data-theme="dark"] body {
-  background-color: #0a0e14; /* почти чёрный, не чистый */
-  color: #e5e5e5;
-}
-
-/* Backgrounds — белые/светлые → тёмные */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+/* Backgrounds — Tailwind светлые → тёмные (--bg-card / --bg-elevated) */
+:not(.tactical-root, .tactical-root *):where(
   .bg-white, .bg-gray-50, .bg-stone-50, .bg-slate-50
 ) {
-  background-color: #1a1f2a !important; /* dark panel */
-  color: #e5e5e5;
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+:not(.tactical-root, .tactical-root *):where(
   .bg-gray-100, .bg-stone-100, .bg-slate-100
 ) {
-  background-color: #232936 !important;
-  color: #e5e5e5;
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-blue-50
-) {
-  background-color: #1a2332 !important;
-  color: #93c5fd;
+:not(.tactical-root, .tactical-root *):where(.bg-blue-50) {
+  background-color: var(--info-bg) !important;
+  color: var(--info);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-emerald-50, .bg-green-50
-) {
-  background-color: #1a2820 !important;
-  color: #6ee7b7;
+:not(.tactical-root, .tactical-root *):where(.bg-emerald-50, .bg-green-50) {
+  background-color: var(--success-bg) !important;
+  color: var(--success);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-amber-50, .bg-yellow-50
-) {
-  background-color: #2a2418 !important;
-  color: #fcd34d;
+:not(.tactical-root, .tactical-root *):where(.bg-amber-50, .bg-yellow-50) {
+  background-color: var(--warning-bg) !important;
+  color: var(--warning);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-red-50
-) {
-  background-color: #2a1818 !important;
-  color: #fca5a5;
+:not(.tactical-root, .tactical-root *):where(.bg-red-50) {
+  background-color: var(--danger-bg) !important;
+  color: var(--danger);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-orange-50
-) {
-  background-color: #2a1f14 !important;
+:not(.tactical-root, .tactical-root *):where(.bg-orange-50) {
+  background-color: rgba(251, 146, 60, 0.10) !important;
   color: #fdba74;
 }
 
-/* Borders — светлые → тёмные */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+/* Borders — светлые → тёмные (--border / --border-strong) */
+:not(.tactical-root, .tactical-root *):where(
   .border-gray-100, .border-gray-200, .border-stone-100, .border-stone-200,
   .border-slate-100, .border-slate-200
 ) {
-  border-color: #2a3142 !important;
+  border-color: var(--border) !important;
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+:not(.tactical-root, .tactical-root *):where(
   .border-gray-300, .border-stone-300, .border-slate-300
 ) {
-  border-color: #374151 !important;
+  border-color: var(--border-strong) !important;
 }
 
-/* Text — тёмные → светлые */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+/* Text — тёмные → светлые (--text-primary / --text-secondary) */
+:not(.tactical-root, .tactical-root *):where(
   .text-gray-800, .text-gray-900, .text-stone-800, .text-stone-900,
   .text-slate-800, .text-slate-900
 ) {
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+:not(.tactical-root, .tactical-root *):where(
   .text-gray-700, .text-stone-700, .text-slate-700
 ) {
-  color: #cbd5e1 !important;
+  color: var(--text-secondary) !important;
 }
-/* Контрасты text-gray-400/500 уже переопределены выше — на тёмной не нужны */
-[data-theme="dark"] .text-gray-400,
-[data-theme="dark"] .text-gray-500,
-[data-theme="dark"] .text-stone-400,
-[data-theme="dark"] .text-stone-500 {
-  color: #94a3b8 !important; /* slate-400 — сред. яркости на тёмном */
+/* text-gray-400/500 на dark — нейтральный muted */
+.text-gray-400,
+.text-gray-500,
+.text-stone-400,
+.text-stone-500 {
+  color: var(--text-muted) !important;
 }
 
-/* Inputs/selects — белые → тёмные */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+/* Inputs/selects — светлые → tones карточек (фокус — золотой акцент) */
+:not(.tactical-root, .tactical-root *):where(
   input[type="text"], input[type="number"], input[type="date"],
   input[type="email"], input[type="password"], input[type="search"],
   textarea, select
 ) {
-  background-color: #1a1f2a !important;
-  color: #f1f5f9 !important;
-  border-color: #374151 !important;
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+:not(.tactical-root, .tactical-root *):where(
   input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus,
   textarea:focus, select:focus
 ) {
-  border-color: #6b7280 !important;
-  outline-color: #6b7280;
+  border-color: var(--border-focus) !important;
+  outline-color: var(--border-focus);
 }
 
-/* Кнопки — bg-stone-800/gray-900 (тёмные) на тёмном фоне сливаются → подсветка */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .bg-stone-800, .bg-gray-900
-) {
-  background-color: #3b82f6 !important; /* blue-500 акцент */
-  color: white !important;
+/* Опции select — тёмный фон (раздел 6 инструкций) */
+:not(.tactical-root, .tactical-root *) select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+
+/* Тёмные кнопки на тёмном — подсветка золотым акцентом (роль РМ) */
+:not(.tactical-root, .tactical-root *):where(.bg-stone-800, .bg-gray-900) {
+  background-color: var(--color-rm) !important;
+  color: var(--text-inverse) !important;
+}
+:not(.tactical-root, .tactical-root *):where(
   .hover\\:bg-stone-700:hover, .hover\\:bg-gray-800:hover
 ) {
-  background-color: #2563eb !important; /* blue-600 hover */
+  background-color: #dbb84f !important;
 }
 
 /* Hover-фон карточек на тёмном */
-[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
-  .hover\\:bg-stone-50:hover, .hover\\:bg-gray-50:hover
+:not(.tactical-root, .tactical-root *):where(
+  .hover\\:bg-stone-50:hover, .hover\\:bg-gray-50:hover,
+  .hover\\:bg-gray-100:hover
 ) {
-  background-color: #232936 !important;
+  background-color: var(--bg-elevated) !important;
 }
 
-/* Scrollbar в тёмной теме */
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: #0a0e14;
+/* Scrollbar (TRAEKTORIYA_DESIGN_INSTRUCTIONS §13) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: #374151;
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) var(--bg-surface);
 }
 
 /* Smooth momentum scrolling on iOS */

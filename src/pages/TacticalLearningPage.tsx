@@ -157,7 +157,7 @@ export function TacticalLearningPage() {
         </div>
       </div>
 
-      <div className="grid">
+      <div className="tactical-grid">
         {/* Левая колонка: HeroPanel */}
         <HeroPanel
           onZoneFocus={setFocusZone}

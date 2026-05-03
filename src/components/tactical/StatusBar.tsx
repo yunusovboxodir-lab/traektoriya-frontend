@@ -13,7 +13,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLangStore, useT } from '../../stores/langStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
-import { useThemeStore } from '../../stores/themeStore';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -24,25 +23,25 @@ const ROLE_HIERARCHY: Record<string, number> = {
   sales_rep: 1,
 };
 
-// Список разделов с короткими "военными" кодами для Tactical-стиля
+// Иконки разделов вместо «военных» кодов (UX-аудит 2026-05-03)
 const NAV_ITEMS_DEF = [
-  { code: '01', labelKey: 'nav.home',         path: '/dashboard',     pageKey: 'dashboard' },
-  { code: '02', labelKey: 'nav.learning',     path: '/learning',      pageKey: 'learning' },
-  { code: '03', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
-  { code: '04', labelKey: 'nav.tasks',        path: '/tasks',         pageKey: 'tasks' },
-  { code: '05', labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
-  { code: '06', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
-  { code: '07', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
-  { code: '08', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
-  { code: '09', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
-  { code: '10', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
-  { code: '11', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
-  { code: '12', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training-plan' },
+  { icon: '🏠', labelKey: 'nav.home',         path: '/dashboard',     pageKey: 'dashboard' },
+  { icon: '📚', labelKey: 'nav.learning',     path: '/learning',      pageKey: 'learning' },
+  { icon: '📦', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
+  { icon: '📋', labelKey: 'nav.tasks',        path: '/tasks',         pageKey: 'tasks' },
+  { icon: '👥', labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
+  { icon: '🎯', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
+  { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
+  { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
+  { icon: '📐', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
+  { icon: '📅', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
+  { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
+  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training-plan' },
 ] as const;
 
 const ADMIN_NAV_ITEMS_DEF = [
-  { code: 'A1', labelKey: 'nav.dictionaryUZ', path: '/dictionary-uz', pageKey: 'dictionary-uz' },
-  { code: 'A2', labelKey: 'nav.settings',     path: '/admin/roles',   pageKey: 'admin-roles' },
+  { icon: '🔤', labelKey: 'nav.dictionaryUZ', path: '/dictionary-uz', pageKey: 'dictionary-uz' },
+  { icon: '⚙️', labelKey: 'nav.settings',     path: '/admin/roles',   pageKey: 'admin-roles' },
 ] as const;
 
 const FROZEN_PAGES = ['analytics', 'goals'];
@@ -53,8 +52,6 @@ export function StatusBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const lang = useLangStore((s) => s.lang);
   const setLang = useLangStore((s) => s.setLang);
-  const theme = useThemeStore((s) => s.theme);
-  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -160,7 +157,7 @@ export function StatusBar() {
                     onClick={() => handleNav(item.path, frozen)}
                     style={frozen ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
                   >
-                    <span className="nav-code">{item.code}</span>
+                    <span className="nav-code" aria-hidden="true">{item.icon}</span>
                     <span className="nav-label">
                       <span className="nav-label-main">
                         {t(item.labelKey)}
@@ -196,7 +193,7 @@ export function StatusBar() {
 
       <div className="sb-spacer" />
 
-      {/* СПРАВА: язык + тема (UX-аудит 2026-05-03) */}
+      {/* СПРАВА: переключатель языка (theme-toggle убран — full dark) */}
       <div className="lang-toggle" role="group" aria-label="Язык">
         <button
           className={'lang-opt' + (lang === 'ru' ? ' on' : '')}
@@ -207,15 +204,6 @@ export function StatusBar() {
           onClick={() => setLang('uz')}
         >UZ</button>
       </div>
-      <button
-        type="button"
-        className="theme-toggle"
-        onClick={toggleTheme}
-        aria-label={t('nav.theme')}
-        title={theme === 'dark' ? t('nav.themeLight') : t('nav.themeDark')}
-      >
-        <span className="theme-icon">{theme === 'dark' ? '☾' : '☀'}</span>
-      </button>
     </div>
   );
 }

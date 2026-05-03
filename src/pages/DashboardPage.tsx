@@ -16,7 +16,7 @@ import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
 import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
 import {
-  TacticalShell, TacticalPanel, TacticalStat, TacticalCard, TacticalGrid, TacticalBadge,
+  TacticalShell, TacticalPanel, TacticalStat, TacticalCard, TacticalGrid,
 } from '../components/tactical/shell';
 
 interface OverviewStatsRaw {
@@ -47,15 +47,15 @@ function normalizeOverview(raw: OverviewStatsRaw): OverviewStats {
 }
 
 const NAV_CARDS = [
-  { code: '02', titleKey: 'nav.learning', descKey: 'dashboard.cards.learningDesc', path: '/learning', icon: '📚' },
-  { code: '03', titleKey: 'nav.products', descKey: 'dashboard.cards.productsDesc', path: '/products', icon: '📦' },
-  { code: '04', titleKey: 'nav.tasks', descKey: 'dashboard.cards.tasksDesc', path: '/tasks', icon: '📋' },
-  { code: '05', titleKey: 'nav.team', descKey: 'dashboard.cards.teamDesc', path: '/team', icon: '👥' },
-  { code: '06', titleKey: 'nav.competencies', descKey: 'dashboard.cards.assessmentsDesc', path: '/competencies', icon: '🎯' },
-  { code: '07', titleKey: 'nav.aiStudio', descKey: 'dashboard.cards.generationDesc', path: '/ai-studio', icon: '✨' },
-  { code: '09', titleKey: 'nav.planogram', descKey: 'dashboard.cards.planogramDesc', path: '/planogram', icon: '📐' },
-  { code: '11', titleKey: 'nav.analytics', descKey: 'dashboard.cards.analyticsDesc', path: '/analytics', icon: '📊' },
-  { code: '12', titleKey: 'nav.trainingPlan', descKey: 'dashboard.cards.trainingPlanDesc', path: '/training-plan', icon: '🎓' },
+  { titleKey: 'nav.learning', descKey: 'dashboard.cards.learningDesc', path: '/learning', icon: '📚' },
+  { titleKey: 'nav.products', descKey: 'dashboard.cards.productsDesc', path: '/products', icon: '📦' },
+  { titleKey: 'nav.tasks', descKey: 'dashboard.cards.tasksDesc', path: '/tasks', icon: '📋' },
+  { titleKey: 'nav.team', descKey: 'dashboard.cards.teamDesc', path: '/team', icon: '👥' },
+  { titleKey: 'nav.competencies', descKey: 'dashboard.cards.assessmentsDesc', path: '/competencies', icon: '🎯' },
+  { titleKey: 'nav.aiStudio', descKey: 'dashboard.cards.generationDesc', path: '/ai-studio', icon: '✨' },
+  { titleKey: 'nav.planogram', descKey: 'dashboard.cards.planogramDesc', path: '/planogram', icon: '📐' },
+  { titleKey: 'nav.analytics', descKey: 'dashboard.cards.analyticsDesc', path: '/analytics', icon: '📊' },
+  { titleKey: 'nav.trainingPlan', descKey: 'dashboard.cards.trainingPlanDesc', path: '/training-plan', icon: '🎓' },
 ];
 
 export function DashboardPage() {
@@ -127,7 +127,6 @@ export function DashboardPage() {
                   display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
                 }}>
                   <span style={{ fontSize: 28 }}>{card.icon}</span>
-                  <TacticalBadge variant="brass" size="sm">{card.code}</TacticalBadge>
                 </div>
                 <div style={{
                   fontFamily: "'Cinzel', serif", fontSize: 16, fontWeight: 600,

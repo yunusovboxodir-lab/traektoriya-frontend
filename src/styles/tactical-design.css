@@ -483,8 +483,10 @@ body::after {
 
 /* ============ LAYOUT GRID ============ */
 /* UX-аудит 2026-05-03: убрана правая колонка (RecsPanel + AwardsPanel были mock).
-   2 колонки вместо 3 → больше места для карты обучения. */
-.grid {
+   2 колонки вместо 3 → больше места для карты обучения.
+   ВАЖНО: класс .tactical-grid (а не .grid) — иначе перебивает Tailwind-утилиту
+   `grid` на /products, /tasks и других страницах. */
+.tactical-grid {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 18px;

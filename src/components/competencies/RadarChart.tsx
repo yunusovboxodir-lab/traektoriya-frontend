@@ -76,10 +76,10 @@ export function RadarChart({
       style={{ overflow: 'visible' }}
       className="mx-auto"
     >
-      {/* Фон */}
-      <circle cx={cx} cy={cy} r={maxR + 2} fill="#f9fafb" stroke="none" />
+      {/* Фон — прозрачный, чтобы радар сидел на тёмной карточке (TRAEKTORIYA_DESIGN_INSTRUCTIONS §3) */}
+      <circle cx={cx} cy={cy} r={maxR + 2} fill="transparent" stroke="none" />
 
-      {/* Сетка — концентрические октагоны */}
+      {/* Сетка — концентрические октагоны (приглушённые линии для тёмного фона) */}
       {gridLevels.map((level) => {
         const r = level * maxR;
         const points = angles.map((a) => polarToXY(a, r));
@@ -89,7 +89,7 @@ export function RadarChart({
             key={level}
             d={path}
             fill="none"
-            stroke="#e5e7eb"
+            stroke="rgba(255,255,255,0.08)"
             strokeWidth={level === 1 ? 1.5 : 0.5}
             strokeDasharray={level < 1 ? '2,2' : undefined}
           />
@@ -106,7 +106,7 @@ export function RadarChart({
             y1={cy}
             x2={end.x}
             y2={end.y}
-            stroke="#d1d5db"
+            stroke="rgba(255,255,255,0.10)"
             strokeWidth={0.5}
           />
         );
@@ -125,7 +125,7 @@ export function RadarChart({
             cy={p.y}
             r={4}
             fill={levelColor}
-            stroke="white"
+            stroke="#1A1F2E"
             strokeWidth={2}
           />
         );
@@ -158,7 +158,7 @@ export function RadarChart({
               y={pos.y - (line2 ? 8 : 0) - (showValues ? 8 : 0)}
               textAnchor={anchor}
               dominantBaseline="central"
-              style={{ fontSize: '12px', fill: '#374151', fontWeight: 600, paintOrder: 'stroke', stroke: 'white', strokeWidth: 3 }}
+              style={{ fontSize: '12px', fill: '#9CA3AF', fontWeight: 500, fontFamily: "'Golos Text', sans-serif", paintOrder: 'stroke', stroke: '#0D0F14', strokeWidth: 3 }}
             >
               {line1}
             </text>
@@ -168,7 +168,7 @@ export function RadarChart({
                 y={pos.y + 6 - (showValues ? 8 : 0)}
                 textAnchor={anchor}
                 dominantBaseline="central"
-                style={{ fontSize: '12px', fill: '#374151', fontWeight: 600, paintOrder: 'stroke', stroke: 'white', strokeWidth: 3 }}
+                style={{ fontSize: '12px', fill: '#9CA3AF', fontWeight: 500, fontFamily: "'Golos Text', sans-serif", paintOrder: 'stroke', stroke: '#0D0F14', strokeWidth: 3 }}
               >
                 {line2}
               </text>
