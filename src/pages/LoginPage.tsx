@@ -5,6 +5,7 @@ import { useT } from '../stores/langStore';
 
 // ===========================================
 // СТРАНИЦА ВХОДА В СИСТЕМУ
+// Full-dark, единая палитра (--bg-primary / --color-rm / --text-primary).
 // ===========================================
 
 export function LoginPage() {
@@ -35,64 +36,155 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
       {/* ===== LEFT BRANDING PANEL ===== */}
-      <div className="relative lg:w-[480px] xl:w-[520px] shrink-0 bg-slate-900 overflow-hidden flex flex-col items-center justify-center px-8 py-6 lg:py-0">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-slate-900/80 to-slate-900" />
-
-        {/* Decorative dot pattern */}
+      <div
+        className="relative lg:w-[480px] xl:w-[520px] shrink-0 overflow-hidden flex flex-col items-center justify-center px-8 py-12 lg:py-0"
+        style={{ background: 'var(--bg-surface)' }}
+      >
+        {/* Радиальный gold-glow поверх */}
         <div
-          className="absolute inset-0 opacity-[0.07]"
+          className="absolute inset-0"
           style={{
-            backgroundImage:
-              'radial-gradient(circle, #fff 1px, transparent 1px)',
+            background: 'radial-gradient(ellipse at 30% 20%, rgba(200,168,75,0.10), transparent 60%), radial-gradient(ellipse at 70% 90%, rgba(167,139,250,0.06), transparent 60%)',
+          }}
+        />
+
+        {/* Точечная сетка (HUD) */}
+        <div
+          className="absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage: 'radial-gradient(circle, var(--color-rm) 1px, transparent 1px)',
             backgroundSize: '24px 24px',
           }}
         />
 
-        {/* Decorative lines */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-          <div className="absolute -top-20 -left-20 w-80 h-80 border border-white/30 rounded-full" />
-          <div className="absolute -bottom-32 -right-32 w-96 h-96 border border-white/20 rounded-full" />
-          <div className="absolute top-1/3 right-10 w-40 h-40 border border-white/20 rounded-full" />
+        {/* Декоративные кольца */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+          <div
+            className="absolute -top-20 -left-20 w-80 h-80 rounded-full"
+            style={{ border: '1px solid var(--color-rm-border)', opacity: 0.4 }}
+          />
+          <div
+            className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full"
+            style={{ border: '1px solid var(--border-strong)', opacity: 0.3 }}
+          />
+          <div
+            className="absolute top-1/3 right-10 w-40 h-40 rounded-full"
+            style={{ border: '1px solid var(--color-rm-border)', opacity: 0.25 }}
+          />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 text-center">
-          {/* Logo circle with T */}
-          <div className="mx-auto mb-6 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-            <span className="text-3xl font-bold text-white tracking-tight">T</span>
+        {/* Контент */}
+        <div className="relative z-10 text-center max-w-sm">
+          {/* Логотип — реальная картинка с золотой рамкой и glow */}
+          <div
+            className="mx-auto mb-8 w-28 h-28 rounded-2xl overflow-hidden flex items-center justify-center"
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--color-rm-border)',
+              boxShadow: '0 0 32px rgba(200,168,75,0.18), 0 0 0 1px rgba(200,168,75,0.20) inset',
+            }}
+          >
+            <img
+              src="/tactical/traektoriya-logo.jpg"
+              alt="Traektoriya"
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-widest mb-3">
+          <h1
+            className="mb-3"
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              fontSize: 'clamp(28px, 4vw, 36px)',
+              letterSpacing: '0.18em',
+              background: 'linear-gradient(180deg, #DBC074 0%, #C8A84B 100%)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
+          >
             TRAEKTORIYA
           </h1>
-          <p className="text-blue-200/80 text-sm lg:text-base max-w-xs mx-auto leading-relaxed">
+
+          <div
+            style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              letterSpacing: '0.3em',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase',
+              marginBottom: 20,
+            }}
+          >
+            С нуля до эксперта
+          </div>
+
+          <p
+            className="mx-auto leading-relaxed"
+            style={{
+              color: 'var(--text-secondary)',
+              fontSize: 14,
+              maxWidth: 320,
+            }}
+          >
             {t('login.subtitle')}
           </p>
+        </div>
+
+        {/* Footer-подпись по центру внизу — без N'Medov */}
+        <div
+          className="absolute bottom-6 left-0 right-0 text-center px-6 z-10"
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.2em',
+            color: 'var(--text-muted)',
+            textTransform: 'uppercase',
+            fontFamily: 'var(--font-mono)',
+          }}
+        >
+          AI · Микрообучение · Полевая практика
         </div>
       </div>
 
       {/* ===== RIGHT FORM PANEL ===== */}
-      <div className="flex-1 flex flex-col items-center justify-center bg-white px-6 py-10 lg:py-0">
+      <div
+        className="flex-1 flex flex-col items-center justify-center px-6 py-12 lg:py-0"
+        style={{ background: 'var(--bg-primary)' }}
+      >
         <div className="w-full max-w-sm">
           {/* Header */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">{t('login.heading')}</h2>
-            <p className="text-gray-500 mt-1 text-sm">{t('login.subheading')}</p>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 28,
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+              }}
+            >
+              {t('login.heading')}
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 6 }}>
+              {t('login.subheading')}
+            </p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Employee ID field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                className="block mb-1.5"
+                style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}
+              >
                 {t('login.employeeId')}
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   </svg>
                 </div>
@@ -101,7 +193,13 @@ export function LoginPage() {
                   value={employeeId}
                   onChange={(e) => setEmployeeId(e.target.value)}
                   placeholder={t('login.employeePlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-11 pr-4 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full py-2.5 pl-11 pr-4 text-sm outline-none transition-all"
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                  }}
                   required
                   autoFocus
                 />
@@ -110,12 +208,15 @@ export function LoginPage() {
 
             {/* Password field */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                className="block mb-1.5"
+                style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}
+              >
                 {t('login.password')}
               </label>
               <div className="relative">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <svg className="h-5 w-5" style={{ color: 'var(--text-muted)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                   </svg>
                 </div>
@@ -124,13 +225,20 @@ export function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('login.passwordPlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 py-2.5 pl-11 pr-11 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full py-2.5 pl-11 pr-11 text-sm outline-none transition-all"
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                  }}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 transition-colors"
+                  style={{ color: 'var(--text-muted)' }}
                   tabIndex={-1}
                   aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                 >
@@ -150,7 +258,15 @@ export function LoginPage() {
 
             {/* Error message */}
             {error && (
-              <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div
+                className="flex items-start gap-2.5 p-3 text-sm"
+                style={{
+                  background: 'var(--danger-bg)',
+                  border: '1px solid rgba(248,113,113,0.3)',
+                  borderRadius: 'var(--radius-md)',
+                  color: 'var(--danger)',
+                }}
+              >
                 <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                 </svg>
@@ -158,16 +274,21 @@ export function LoginPage() {
               </div>
             )}
 
-            {/* Submit button */}
+            {/* Submit button — gold (--color-rm) */}
             <button
               type="submit"
               disabled={isLoading}
-              className={
-                'w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all ' +
-                (isLoading
-                  ? 'cursor-not-allowed bg-gray-400'
-                  : 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-md hover:from-blue-600 hover:to-blue-700 hover:shadow-lg active:scale-[0.98]')
-              }
+              className="w-full py-2.5 text-sm font-semibold transition-all"
+              style={{
+                background: isLoading ? 'var(--text-muted)' : 'var(--color-rm)',
+                color: 'var(--text-inverse)',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                fontFamily: 'var(--font-body)',
+                fontWeight: 700,
+                letterSpacing: '0.04em',
+              }}
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -183,9 +304,18 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* ===== FOOTER ===== */}
-          <p className="mt-10 text-center text-xs text-gray-400">
-            &copy; 2026 N&#39;Medov Distribution &bull; Traektoriya Platform
+          {/* Нейтральный footer без брендов и юр-лиц */}
+          <p
+            className="mt-10 text-center"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              color: 'var(--text-muted)',
+              textTransform: 'uppercase',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            v3.1 · Корпоративная платформа развития
           </p>
         </div>
       </div>
