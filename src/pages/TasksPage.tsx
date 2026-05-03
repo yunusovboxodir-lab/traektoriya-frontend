@@ -568,7 +568,7 @@ export function TasksPage() {
       )}
 
       {/* Stats bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {[
           { label: t('tasks.stats.total'), value: stats.total, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', color: 'text-gray-700', bg: 'bg-gray-50' },
           { label: t('tasks.stats.todo'), value: stats.todo, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-slate-600', bg: 'bg-slate-50' },
@@ -669,7 +669,7 @@ export function TasksPage() {
 
       {/* Loading skeleton */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="bg-gray-50 rounded-xl p-4 space-y-3 animate-pulse">
               <div className="flex justify-between">
@@ -702,7 +702,7 @@ export function TasksPage() {
 
       {/* Kanban Board */}
       {!loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {COLUMNS.map((col) => {
             const tasks = board[col.key as keyof KanbanBoard] || [];
             return (
