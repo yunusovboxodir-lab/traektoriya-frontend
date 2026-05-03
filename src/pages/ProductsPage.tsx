@@ -155,7 +155,6 @@ export function ProductsPage() {
       subtitle={isAllTab
         ? `${products.length} SKU`
         : t('products.skuCount', { brand: currentBrand!.label, count: filtered.length, total: currentBrand!.expectedSKU })}
-      meta={<span className="px-2 py-0.5 text-xs font-bold bg-amber-100 text-amber-700 rounded-full uppercase">DEMO</span>}
     >
       {/* Page header — дубль title убран, остался только toolbar справа */}
       <div className="flex items-center justify-end gap-3 mb-5">

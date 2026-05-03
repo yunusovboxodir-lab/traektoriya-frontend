@@ -12,6 +12,7 @@ import { useLangStore, useT } from '../../stores/langStore';
 import { pulseApi, type UserPulse } from '../../api/competencies';
 import { RadarChart, type RadarDataPoint } from '../competencies/RadarChart';
 import { onPulseInvalidate } from '../../utils/pulseEvents';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const LEVEL_STYLES: Record<string, string> = {
   trainee: 'bg-red-100 text-red-700',
@@ -33,6 +34,7 @@ export function PulseWidget() {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
   const user = useAuthStore((s) => s.user);
+  const isMobile = useMediaQuery('(max-width: 640px)');
 
   const [pulse, setPulse] = useState<UserPulse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -124,15 +126,15 @@ export function PulseWidget() {
         )}
       </div>
 
-      {/* Радар + Общий Пульс */}
-      <div className="flex items-center gap-4">
-        {/* Мини-радар */}
+      {/* Радар + Общий Пульс — на mobile стек, на desktop рядом */}
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        {/* Мини-радар (на mobile меньше: 140 vs 180) */}
         <div className="flex-shrink-0">
-          <RadarChart data={radarData} size={180} showValues={false} />
+          <RadarChart data={radarData} size={isMobile ? 140 : 180} showValues={false} />
         </div>
 
         {/* Общий Пульс */}
-        <div className="flex-1 text-center">
+        <div className="flex-1 w-full text-center">
           <p className={`text-4xl font-bold ${
             pulse.overall_pulse >= 76 ? 'text-green-600' :
             pulse.overall_pulse >= 51 ? 'text-blue-600' :
@@ -147,14 +149,14 @@ export function PulseWidget() {
             {overallLevelName}
           </span>
 
-          {/* Топ-3 слабых компетенции */}
-          <div className="mt-3 space-y-1">
+          {/* Топ-3 слабых компетенции — на mobile полная ширина строк */}
+          <div className="mt-3 space-y-1.5">
             {pulse.competencies
               .filter(c => c.pulse_pct < 50)
               .slice(0, 3)
               .map((c) => (
-                <div key={c.competency_id} className="flex items-center gap-1.5 text-xs text-gray-500">
-                  <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                <div key={c.competency_id} className="flex items-center gap-2 text-xs text-gray-500">
+                  <div className="flex-1 sm:w-16 sm:flex-none bg-gray-200 rounded-full h-1.5 min-w-0">
                     <div
                       className={`h-1.5 rounded-full ${
                         c.pulse_pct < 25 ? 'bg-red-500' : 'bg-yellow-500'
@@ -162,7 +164,7 @@ export function PulseWidget() {
                       style={{ width: `${Math.max(c.pulse_pct, 3)}%` }}
                     />
                   </div>
-                  <span className="truncate max-w-[100px]">
+                  <span className="truncate flex-1 sm:flex-none sm:max-w-[100px] text-left">
                     {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
                   </span>
                 </div>

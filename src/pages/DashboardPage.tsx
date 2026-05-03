@@ -129,34 +129,36 @@ export function DashboardPage() {
           />
         </div>
 
-        {/* Navigation cards */}
-        <TacticalPanel label="DIVISIONS" title={t('dashboard.sections')}>
-          <TacticalGrid minColWidth={240} gap={12}>
-            {NAV_CARDS.map((card) => (
-              <TacticalCard
-                key={card.path}
-                onClick={() => navigate(card.path)}
-              >
-                <div style={{
-                  display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
-                }}>
-                  <span style={{ fontSize: 28 }}>{card.icon}</span>
-                </div>
-                <div style={{
-                  fontFamily: "'Cinzel', serif", fontSize: 16, fontWeight: 600,
-                  color: 'var(--text-0)', marginBottom: 4, letterSpacing: '0.02em',
-                }}>
-                  {t(card.titleKey)}
-                </div>
-                <div style={{
-                  fontSize: 12, color: 'var(--text-2)', lineHeight: 1.4,
-                }}>
-                  {t(card.descKey)}
-                </div>
-              </TacticalCard>
-            ))}
-          </TacticalGrid>
-        </TacticalPanel>
+        {/* Navigation cards — скрыты на mobile, дублируют dropdown-меню в шапке */}
+        <div className="hidden md:block">
+          <TacticalPanel label="DIVISIONS" title={t('dashboard.sections')}>
+            <TacticalGrid minColWidth={240} gap={12}>
+              {NAV_CARDS.map((card) => (
+                <TacticalCard
+                  key={card.path}
+                  onClick={() => navigate(card.path)}
+                >
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8,
+                  }}>
+                    <span style={{ fontSize: 28 }}>{card.icon}</span>
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 600,
+                    color: 'var(--text-0)', marginBottom: 4, letterSpacing: '0.02em',
+                  }}>
+                    {t(card.titleKey)}
+                  </div>
+                  <div style={{
+                    fontSize: 12, color: 'var(--text-2)', lineHeight: 1.4,
+                  }}>
+                    {t(card.descKey)}
+                  </div>
+                </TacticalCard>
+              ))}
+            </TacticalGrid>
+          </TacticalPanel>
+        </div>
 
         {/* Pulse — компетенции/уровень (compass §2.4 + §1.5: pulse-трекеры
             короткие, частые, мобильные. Виджет кликабелен → /competencies). */}
