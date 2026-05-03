@@ -1,0 +1,146 @@
+[
+  {
+    "key": "Hot Lunch",
+    "name": "Hot Lunch",
+    "tagline_ru": "Лапша быстрого приготовления N°1",
+    "color": "#E63946",
+    "order": 1,
+    "sku_count": 13
+  },
+  {
+    "key": "Cheff",
+    "name": "Cheff",
+    "tagline_ru": "Премиум-лапша от шефа",
+    "color": "#F77F00",
+    "order": 2,
+    "sku_count": 11
+  },
+  {
+    "key": "Chococream",
+    "name": "Chococream",
+    "tagline_ru": "Шоколадные пасты для всей семьи",
+    "color": "#6B4423",
+    "order": 3,
+    "sku_count": 13
+  },
+  {
+    "key": "Chocotella",
+    "name": "Chocotella",
+    "tagline_ru": "Сладкая жизнь по-узбекски",
+    "color": "#8B4513",
+    "order": 4,
+    "sku_count": 6
+  },
+  {
+    "key": "Crafers",
+    "name": "Crafers Wafers",
+    "tagline_ru": "Хрустящие вафли с начинкой",
+    "color": "#D4A574",
+    "order": 5,
+    "sku_count": 4
+  },
+  {
+    "key": "Velona",
+    "name": "Velona",
+    "tagline_ru": "Венские вафли — традиция вкуса",
+    "color": "#FFB627",
+    "order": 6,
+    "sku_count": 11
+  },
+  {
+    "key": "Sladok",
+    "name": "Sladok",
+    "tagline_ru": "Сладкое печенье на каждый день",
+    "color": "#E8B4B8",
+    "order": 7,
+    "sku_count": 26
+  },
+  {
+    "key": "Strobar",
+    "name": "Strobar",
+    "tagline_ru": "Шоколадные батончики с фруктами",
+    "color": "#9B5DE5",
+    "order": 8,
+    "sku_count": 15
+  },
+  {
+    "key": "Blitz",
+    "name": "Blitz",
+    "tagline_ru": "Карамельная революция",
+    "color": "#F15BB5",
+    "order": 9,
+    "sku_count": 2
+  },
+  {
+    "key": "Banoffy",
+    "name": "Banoffy",
+    "tagline_ru": "Бисквитные батончики с банановым ароматом",
+    "color": "#FFD23F",
+    "order": 10,
+    "sku_count": 4
+  },
+  {
+    "key": "ChocoChips",
+    "name": "ChocoChips",
+    "tagline_ru": "Шоколадная стружка для выпечки",
+    "color": "#3D348B",
+    "order": 11,
+    "sku_count": 3
+  },
+  {
+    "key": "Настенька",
+    "name": "Настенька",
+    "tagline_ru": "Домашнее печенье в каждый дом",
+    "color": "#FF6B6B",
+    "order": 12,
+    "sku_count": 2
+  },
+  {
+    "key": "Two Bite",
+    "name": "Two Bite",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 12
+  },
+  {
+    "key": "Крекер линия",
+    "name": "Крекер линия",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 8
+  },
+  {
+    "key": "DonKids",
+    "name": "DonKids",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 3
+  },
+  {
+    "key": "Отсадное Линия",
+    "name": "Отсадное Линия",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 2
+  },
+  {
+    "key": "Новогодний продукты",
+    "name": "Новогодний продукты",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 2
+  },
+  {
+    "key": "Strobar Весовые",
+    "name": "Strobar Весовые",
+    "tagline_ru": "",
+    "color": "#888888",
+    "order": 99,
+    "sku_count": 1
+  }
+]

@@ -1,4 +1,17 @@
 import { api } from './client';
+import { localGetProducts, localGetProduct } from '../data/products-source';
+
+/**
+ * PRE-LAUNCH MOCK (2026-05-04):
+ * Когда true — все методы getProducts / getProduct читают данные из
+ * src/data/products.json (138 SKU N'Medov), не дёргая backend.
+ * Создание/редактирование/удаление в этом режиме отключены — данные
+ * редактируются через push в src/data/products.json + Vercel-деплой.
+ *
+ * Чтобы вернуться на Postgres-API: поставить false. Backend-таблица
+ * products не трогалась — старые данные на месте.
+ */
+const USE_LOCAL_PRODUCTS = true;
 
 export interface Product {
   id: string;
@@ -92,17 +105,45 @@ export interface ProductListResponse {
   limit: number;
 }
 
+function fakeOk<T>(data: T) {
+  return Promise.resolve({
+    data,
+    status: 200,
+    statusText: 'OK',
+    headers: {},
+    config: {} as never,
+  });
+}
+
+function fakeError(msg: string) {
+  return Promise.reject(new Error(msg));
+}
+
 export const productsApi = {
-  getProducts: (skip = 0, limit = 50) =>
-    api.get<ProductListResponse>('/api/v1/products', { params: { skip, limit } }),
-  getProduct: (id: string) =>
-    api.get<ProductDetail>(`/api/v1/products/${id}`),
-  createProduct: (data: Partial<Product>) =>
-    api.post<Product>('/api/v1/products', data),
-  updateProduct: (id: string, data: Partial<Product>) =>
-    api.patch<Product>(`/api/v1/products/${id}`, data),
-  deleteProduct: (id: string) =>
-    api.delete(`/api/v1/products/${id}`),
+  getProducts: (skip = 0, limit = 50) => {
+    if (USE_LOCAL_PRODUCTS) return fakeOk<ProductListResponse>(localGetProducts(skip, limit));
+    return api.get<ProductListResponse>('/api/v1/products', { params: { skip, limit } });
+  },
+  getProduct: (id: string) => {
+    if (USE_LOCAL_PRODUCTS) {
+      const p = localGetProduct(id);
+      if (p) return fakeOk<ProductDetail>(p);
+      return fakeError(`Product not found: ${id}`);
+    }
+    return api.get<ProductDetail>(`/api/v1/products/${id}`);
+  },
+  createProduct: (data: Partial<Product>) => {
+    if (USE_LOCAL_PRODUCTS) return fakeError('Read-only: данные из JSON, редактирование через push в src/data/products.json');
+    return api.post<Product>('/api/v1/products', data);
+  },
+  updateProduct: (id: string, data: Partial<Product>) => {
+    if (USE_LOCAL_PRODUCTS) return fakeError('Read-only: данные из JSON, редактирование через push в src/data/products.json');
+    return api.patch<Product>(`/api/v1/products/${id}`, data);
+  },
+  deleteProduct: (id: string) => {
+    if (USE_LOCAL_PRODUCTS) return fakeError('Read-only: данные из JSON, редактирование через push в src/data/products.json');
+    return api.delete(`/api/v1/products/${id}`);
+  },
   submitTest: (productId: string, answers: Record<string, string>) =>
     api.post(`/api/v1/products/${productId}/test`, { answers }),
   getTestResults: (productId: string) =>

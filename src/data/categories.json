@@ -1,0 +1,65 @@
+[
+  {
+    "key": "noodles",
+    "name_ru": "Лапша быстрого приготовления",
+    "name_uz": "Tezkor noodle",
+    "icon": "🍜",
+    "order": 1
+  },
+  {
+    "key": "spreads",
+    "name_ru": "Шоколадные пасты",
+    "name_uz": "Shokolad pastalari",
+    "icon": "🍫",
+    "order": 2
+  },
+  {
+    "key": "chocolate_bars",
+    "name_ru": "Шоколадные батончики",
+    "name_uz": "Shokolad batonlari",
+    "icon": "🍫",
+    "order": 3
+  },
+  {
+    "key": "biscuit_bars",
+    "name_ru": "Бисквитные батончики",
+    "name_uz": "Biskvit batonlari",
+    "icon": "🍰",
+    "order": 4
+  },
+  {
+    "key": "wafers",
+    "name_ru": "Вафли",
+    "name_uz": "Vafli",
+    "icon": "🧇",
+    "order": 5
+  },
+  {
+    "key": "cookies",
+    "name_ru": "Печенье",
+    "name_uz": "Pechenye",
+    "icon": "🍪",
+    "order": 6
+  },
+  {
+    "key": "crackers",
+    "name_ru": "Крекеры",
+    "name_uz": "Krekerlar",
+    "icon": "🍘",
+    "order": 7
+  },
+  {
+    "key": "chips",
+    "name_ru": "Чипсы / Хрустящие",
+    "name_uz": "Chipslar",
+    "icon": "🥨",
+    "order": 8
+  },
+  {
+    "key": "seasonal",
+    "name_ru": "Сезонные / Новогодние",
+    "name_uz": "Mavsumiy",
+    "icon": "🎄",
+    "order": 9
+  }
+]

@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { productsApi, type Product } from '../api/products';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
-import { BRAND_TABS } from '../config/brands';
+// Используем BRAND_TABS_LOCAL из data/products-source — список из 18 брендов
+// shelfscan-каталога с правильным sku_count, вместо хардкод-config 12 брендов.
+import { BRAND_TABS_LOCAL as BRAND_TABS } from '../data/products-source';
 import { TacticalShell } from '../components/tactical/shell';
 import { ProductFormModal } from '../components/products/ProductFormModal';
 import { DeleteConfirmModal } from '../components/products/DeleteConfirmModal';
