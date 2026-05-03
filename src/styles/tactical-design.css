@@ -2,53 +2,56 @@
 /* Theme system: dark (default) + light via [data-theme="light"] на <html> */
 
 :root, [data-theme="dark"] {
-  /* Базовый фон — глубокий «ночной HUD» */
-  --bg-0: oklch(0.13 0.025 250);
-  --bg-1: oklch(0.16 0.030 245);
-  --bg-2: oklch(0.20 0.03 240);
-  --bg-statusbar: oklch(0.10 0.02 250 / 0.6);
-  --bg-panel-grad-from: oklch(0.18 0.025 240 / 0.6);
-  --bg-panel-grad-to: oklch(0.14 0.02 250 / 0.55);
-  --bg-elevated: oklch(0.20 0.03 240 / 0.4);
-  --bg-elevated-hover: oklch(0.25 0.04 240 / 0.6);
-  --bg-radial-1: oklch(0.25 0.08 220 / 0.35);
-  --bg-radial-2: oklch(0.22 0.06 280 / 0.30);
-  --bg-grid: oklch(0.6 0.04 220 / 0.04);
-  --bg-grid-dot: oklch(0.6 0.04 220 / 0.06);
+  /* === УНИФИКАЦИЯ С DESIGN_INSTRUCTIONS (2026-05-03) ===
+     Старые tactical-токены (--bg-0/1/2, --text-0/1/2/3, --brass, --green, --amber)
+     переведены на алиасы новых токенов из index.css:6 (--bg-primary/card/...,
+     --color-rm, --success, --warning, --danger). Платформа = одна палитра. */
+
+  /* Базовый фон — алиасы на новую палитру */
+  --bg-0: var(--bg-primary);
+  --bg-1: var(--bg-surface);
+  --bg-2: var(--bg-card);
+  --bg-statusbar: var(--bg-surface);
+  --bg-panel-grad-from: rgba(26, 31, 46, 0.85);   /* --bg-card with alpha */
+  --bg-panel-grad-to:   rgba(20, 23, 32, 0.85);   /* --bg-surface with alpha */
+  /* --bg-elevated уже определён в index.css → используется без переопределения */
+  --bg-elevated-hover: rgba(32, 38, 58, 0.8);     /* --bg-elevated +alpha */
+  --bg-radial-1: rgba(200, 168, 75, 0.06);        /* мягкий золотой блик */
+  --bg-radial-2: rgba(167, 139, 250, 0.05);       /* мягкий фиолетовый блик */
+  --bg-grid: rgba(200, 168, 75, 0.03);
+  --bg-grid-dot: rgba(200, 168, 75, 0.05);
   --grid-blend-mode: screen;
-  --scrim: oklch(0.05 0.01 250 / 0.35);
-  --shadow-deep: 0 8px 32px oklch(0.05 0.02 250 / 0.4);
+  --scrim: rgba(13, 15, 20, 0.6);
+  --shadow-deep: var(--shadow-md);
 
-  /* Линии и контуры */
-  --line: oklch(0.55 0.08 80 / 0.32);
-  --line-soft: oklch(0.55 0.08 80 / 0.18);
-  --line-strong: oklch(0.55 0.08 80 / 0.55);
+  /* Линии и контуры — алиасы на --border / --border-strong */
+  --line: var(--border);
+  --line-soft: rgba(37, 43, 59, 0.5);              /* --border with alpha */
+  --line-strong: var(--border-strong);
 
-  /* Текст */
-  --text-0: oklch(0.95 0.01 250);
-  --text-1: oklch(0.85 0.025 250);
-  /* UX-аудит 2026-05-03: text-2/3 подняты для WCAG AA контраста на тёмном фоне.
-     Было 0.62/0.45 (~3:1 / ~2.5:1), нужно ≥4.5:1. */
-  --text-2: oklch(0.75 0.02 250);
-  --text-3: oklch(0.62 0.02 250);
+  /* Текст — алиасы */
+  --text-0: var(--text-primary);
+  --text-1: var(--text-secondary);
+  --text-2: var(--text-secondary);                  /* было промежуточное — слили в secondary */
+  --text-3: var(--text-muted);
 
-  /* Акценты — латунь/золото — фиксированный логотип-палитра */
-  --cyan: oklch(0.80 0.12 82);          /* legacy alias, теперь это brass */
-  --brass: oklch(0.80 0.12 82);
-  --brass-deep: oklch(0.62 0.12 75);
-  --brass-light: oklch(0.92 0.09 88);
-  --amber: oklch(0.78 0.14 70);
-  --green: oklch(0.74 0.11 155);
-  --gold: oklch(0.86 0.13 88);
-  --teal: oklch(0.72 0.10 200);
-  --gray: oklch(0.50 0.02 250);
-  --danger: oklch(0.70 0.18 28);
+  /* Акценты — латунь/золото = единое --color-rm */
+  --cyan: var(--color-rm);                          /* legacy alias */
+  --brass: var(--color-rm);
+  --brass-deep: #A88836;                            /* затемнённое --color-rm */
+  --brass-light: #DBC074;                           /* осветлённое --color-rm */
+  --amber: var(--warning);
+  --green: var(--success);
+  --gold: var(--color-rm);
+  --teal: var(--color-sv);
+  --gray: var(--text-muted);
+  /* --danger уже определён в index.css */
 
   /* Glass effects */
-  --glow-soft: 0 0 60px oklch(0.4 0.08 220 / 0.06);
-  --panel-corner: oklch(0.65 0.10 220 / 0.5);
-  --panel-corner-line: oklch(0.65 0.10 220 / 0.45);
-  --top-shine: linear-gradient(90deg, transparent, oklch(0.65 0.10 220 / 0.45), transparent);
+  --glow-soft: 0 0 60px rgba(200, 168, 75, 0.06);
+  --panel-corner: rgba(200, 168, 75, 0.5);
+  --panel-corner-line: rgba(200, 168, 75, 0.45);
+  --top-shine: linear-gradient(90deg, transparent, rgba(200, 168, 75, 0.45), transparent);
 }
 
 /* === СВЕТЛАЯ ТЕМА — кремовый «дневной HUD» с тёплой латунью === */
@@ -103,7 +106,7 @@ html, body {
   margin: 0;
   background: var(--bg-0);
   color: var(--text-0);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   line-height: 1.4;
   min-height: 100vh;
@@ -172,7 +175,7 @@ body::after {
 }
 .brand-text { line-height: 1.1; }
 .brand-name {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: 16px; font-weight: 700;
   letter-spacing: 0.16em;
   background: linear-gradient(180deg, oklch(0.92 0.08 85), oklch(0.72 0.10 75));
@@ -307,7 +310,7 @@ body::after {
 }
 .nav-label { display: flex; flex-direction: column; gap: 2px; flex: 1; }
 .nav-label-main {
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -451,7 +454,7 @@ body::after {
 }
 .title-row h1 {
   margin: 0;
-  font-family: 'Cinzel', serif;
+  font-family: var(--font-display);
   font-size: 30px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1001,19 +1004,19 @@ body::after {
   background: oklch(0.10 0.02 250 / 0.92) !important;
   border: 1px solid var(--line) !important;
   color: var(--text-0) !important;
-  font-family: Inter, sans-serif !important;
+  font-family: var(--font-body) !important;
 }
 
 /* ============ Layout (page-specific, не из handoff) ============ */
 .tactical-root {
   min-height: 100vh;
   background:
-    radial-gradient(ellipse at 20% 0%, oklch(0.25 0.08 220 / 0.35), transparent 60%),
-    radial-gradient(ellipse at 80% 100%, oklch(0.22 0.06 280 / 0.30), transparent 60%),
+    radial-gradient(ellipse at 20% 0%, var(--bg-radial-1), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, var(--bg-radial-2), transparent 60%),
     var(--bg-0);
   background-attachment: fixed;
   color: var(--text-0);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
 }
 
@@ -1275,7 +1278,7 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   padding: 24px 32px 40px;
   min-height: calc(100vh - 56px);
   color: var(--text-0);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 .tactical-fullscreen {
   /* Без отступов — для Tactical-карты, у неё свои паддинги */
@@ -1399,6 +1402,55 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 }
 .tactical-page input::placeholder,
 .tactical-page textarea::placeholder { color: var(--text-3); }
+
+/* --- Gradient-killer (TRAEKTORIYA_DESIGN_INSTRUCTIONS, 2026-05-03) ---
+   Заглушаем все Tailwind bg-gradient-to-* (purple/orange/violet/blue gradient
+   headers, кнопки) — заменяем на плоский --bg-elevated с нейтральным текстом.
+   Покрытие: ShelfScan/Streak/QuizPage/KPIPage и пр. ярких "клякс". */
+.tactical-root [class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: var(--bg-elevated) !important;
+}
+/* Текст на бывших ярких градиентах (где был text-white) → token */
+.tactical-root [class*="bg-gradient-to-"].text-white,
+.tactical-root [class*="bg-gradient-to-"] .text-white {
+  color: var(--text-0) !important;
+}
+/* hover:shadow-* / hover:from-… на градиентных кнопках — тоже глушим */
+.tactical-root [class*="bg-gradient-to-"]:hover {
+  filter: brightness(1.1);
+}
+
+/* --- Акцентные кнопки c gradient (CTA) → brass-золото (--color-rm) --- */
+.tactical-root button[class*="bg-gradient-to-"][class*="from-blue"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-indigo"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-violet"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-purple"],
+.tactical-root a[class*="bg-gradient-to-"][class*="from-blue"],
+.tactical-root a[class*="bg-gradient-to-"][class*="from-indigo"] {
+  background-color: var(--brass) !important;
+  color: var(--bg-0) !important;
+}
+/* Emerald/teal/green gradient CTA → success token */
+.tactical-root button[class*="bg-gradient-to-"][class*="from-emerald"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-teal"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-green"] {
+  background-color: var(--green) !important;
+  color: var(--bg-0) !important;
+}
+/* Amber/orange gradient (warning CTA / field-task) → warning token */
+.tactical-root button[class*="bg-gradient-to-"][class*="from-amber"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-orange"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-yellow"] {
+  background-color: var(--amber) !important;
+  color: var(--bg-0) !important;
+}
+/* Red/rose gradient → danger */
+.tactical-root button[class*="bg-gradient-to-"][class*="from-red"],
+.tactical-root button[class*="bg-gradient-to-"][class*="from-rose"] {
+  background-color: var(--danger) !important;
+  color: var(--text-0) !important;
+}
 
 /* --- Hover-эффекты: hover:bg-gray-50 / hover:bg-gray-100 --- */
 .tactical-page .hover\:bg-gray-50:hover,
