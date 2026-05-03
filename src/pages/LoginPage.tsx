@@ -37,97 +37,39 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
-      {/* ===== LEFT BRANDING PANEL ===== */}
+      {/* ===== LEFT BRANDING PANEL — постер-стиль =====
+          Логотип = hero-картинка во всю ширину панели, без рамок и декораций.
+          Контент центрирован по вертикали; внизу — нейтральная подпись. */}
       <div
-        className="relative lg:w-[480px] xl:w-[520px] shrink-0 overflow-hidden flex flex-col items-center justify-center px-8 py-12 lg:py-0"
+        className="relative lg:w-[520px] xl:w-[600px] shrink-0 overflow-hidden flex flex-col"
         style={{ background: 'var(--bg-surface)' }}
       >
-        {/* Радиальный gold-glow поверх */}
+        {/* Мягкий gold-glow на фоне (без HUD-сетки и колец — они отвлекали) */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse at 30% 20%, rgba(200,168,75,0.10), transparent 60%), radial-gradient(ellipse at 70% 90%, rgba(167,139,250,0.06), transparent 60%)',
+            background:
+              'radial-gradient(ellipse at 50% 30%, rgba(200,168,75,0.08), transparent 65%), ' +
+              'radial-gradient(ellipse at 50% 95%, rgba(13,15,20,0.6), transparent 70%)',
           }}
         />
 
-        {/* Точечная сетка (HUD) */}
-        <div
-          className="absolute inset-0 opacity-[0.06]"
-          style={{
-            backgroundImage: 'radial-gradient(circle, var(--color-rm) 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-          }}
-        />
-
-        {/* Декоративные кольца */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div
-            className="absolute -top-20 -left-20 w-80 h-80 rounded-full"
-            style={{ border: '1px solid var(--color-rm-border)', opacity: 0.4 }}
-          />
-          <div
-            className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full"
-            style={{ border: '1px solid var(--border-strong)', opacity: 0.3 }}
-          />
-          <div
-            className="absolute top-1/3 right-10 w-40 h-40 rounded-full"
-            style={{ border: '1px solid var(--color-rm-border)', opacity: 0.25 }}
+        {/* HERO-картинка — занимает почти всю площадь, как постер */}
+        <div className="relative z-10 flex-1 flex items-center justify-center px-6 pt-10 pb-4 lg:pt-14 lg:pb-6">
+          <img
+            src="/tactical/traektoriya-logo.jpg"
+            alt="Traektoriya"
+            className="w-full h-full object-contain"
+            style={{ maxHeight: '78vh' }}
           />
         </div>
 
-        {/* Контент */}
-        <div className="relative z-10 text-center max-w-sm">
-          {/* Логотип — крупный план, золотая рамка с glow */}
-          <div
-            className="mx-auto mb-8 w-56 h-56 lg:w-64 lg:h-64 rounded-3xl overflow-hidden flex items-center justify-center"
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--color-rm-border)',
-              boxShadow: '0 0 48px rgba(200,168,75,0.25), 0 0 0 1px rgba(200,168,75,0.25) inset',
-            }}
-          >
-            <img
-              src="/tactical/traektoriya-logo.jpg"
-              alt="Traektoriya"
-              className="w-full h-full object-cover"
-            />
-          </div>
-
-          <h1
-            className="mb-3"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 700,
-              fontSize: 'clamp(28px, 4vw, 36px)',
-              letterSpacing: '0.18em',
-              background: 'linear-gradient(180deg, #DBC074 0%, #C8A84B 100%)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}
-          >
-            TRAEKTORIYA
-          </h1>
-
-          <div
-            style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 11,
-              letterSpacing: '0.3em',
-              color: 'var(--text-muted)',
-              textTransform: 'uppercase',
-            }}
-          >
-            С нуля до эксперта
-          </div>
-        </div>
-
-        {/* Footer-подпись по центру внизу — без N'Medov */}
+        {/* Подпись внизу — нейтральная, без брендов */}
         <div
-          className="absolute bottom-6 left-0 right-0 text-center px-6 z-10"
+          className="relative z-10 text-center px-6 pb-6"
           style={{
-            fontSize: 10,
-            letterSpacing: '0.2em',
+            fontSize: 11,
+            letterSpacing: '0.25em',
             color: 'var(--text-muted)',
             textTransform: 'uppercase',
             fontFamily: 'var(--font-mono)',
