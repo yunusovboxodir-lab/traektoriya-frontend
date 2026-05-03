@@ -15,7 +15,9 @@ const LandingPage = lazyWithRetry(() => import('./pages/LandingPage').then(m => 
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 
 // Consolidated wrapper pages (tabs inside)
-const HomePage = lazyWithRetry(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
+// HomePage заменён DashboardPage в Tactical-стиле (Module 18, 2026-05-03).
+// HomePage оставлен в коде на случай отката, но не импортируется.
+const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const TeamHubPage = lazyWithRetry(() => import('./pages/TeamHubPage').then(m => ({ default: m.TeamHubPage })));
 const CompetenciesPage = lazyWithRetry(() => import('./pages/CompetenciesPage').then(m => ({ default: m.CompetenciesPage })));
 const AIStudioPage = lazyWithRetry(() => import('./pages/AIStudioPage').then(m => ({ default: m.AIStudioPage })));
@@ -166,13 +168,15 @@ function AppRoutes() {
           ОСНОВНЫЕ СТРАНИЦЫ (10 разделов)
           ========================================== */}
 
-      {/* Главная = Dashboard + KPI (tabs) */}
+      {/* Главная — DashboardPage в Tactical-стиле (Module 18 Sprint 1, 2026-05-03).
+          Используем FullscreenProtectedRoute (без Layout-сайдбара), потому что
+          TacticalShell сам рендерит StatusBar с навигацией. */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute pageKey="dashboard">
-            <HomePage />
-          </ProtectedRoute>
+          <FullscreenProtectedRoute pageKey="dashboard">
+            <DashboardPage />
+          </FullscreenProtectedRoute>
         }
       />
 
@@ -206,13 +210,13 @@ function AppRoutes() {
         }
       />
 
-      {/* Товары */}
+      {/* Товары — Tactical UI (Module 18 Sprint 1, 2026-05-03) */}
       <Route
         path="/products"
         element={
-          <ProtectedRoute pageKey="products">
+          <FullscreenProtectedRoute pageKey="products">
             <ProductsPage />
-          </ProtectedRoute>
+          </FullscreenProtectedRoute>
         }
       />
       <Route
@@ -224,13 +228,13 @@ function AppRoutes() {
         }
       />
 
-      {/* Задачи / Kanban */}
+      {/* Задачи / Kanban — Tactical UI (Module 18 Sprint 1, 2026-05-03) */}
       <Route
         path="/tasks"
         element={
-          <ProtectedRoute pageKey="tasks">
+          <FullscreenProtectedRoute pageKey="tasks">
             <TasksPage />
-          </ProtectedRoute>
+          </FullscreenProtectedRoute>
         }
       />
 

@@ -4,6 +4,7 @@ import { productsApi, type Product } from '../api/products';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { BRAND_TABS } from '../config/brands';
+import { TacticalShell } from '../components/tactical/shell';
 import { ProductFormModal } from '../components/products/ProductFormModal';
 import { DeleteConfirmModal } from '../components/products/DeleteConfirmModal';
 
@@ -110,6 +111,7 @@ export function ProductsPage() {
   // -- Loading skeleton --
   if (loading) {
     return (
+      <TacticalShell title={t('products.title')}>
       <div className="space-y-6">
         <div className="h-8 w-56 bg-gray-200 rounded animate-pulse" />
         <div className="flex gap-2 overflow-hidden">
@@ -127,12 +129,14 @@ export function ProductsPage() {
           ))}
         </div>
       </div>
+      </TacticalShell>
     );
   }
 
   // -- Error --
   if (error) {
     return (
+      <TacticalShell title={t('products.title')}>
       <div className="max-w-xl mx-auto mt-12">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <p className="text-red-600 text-sm">{error}</p>
@@ -141,11 +145,12 @@ export function ProductsPage() {
           </button>
         </div>
       </div>
+      </TacticalShell>
     );
   }
 
   return (
-    <div>
+    <TacticalShell title={t('products.title')}>
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
@@ -565,6 +570,6 @@ export function ProductsPage() {
           onDeleted={() => { setDeletingProduct(null); loadProducts(); }}
         />
       )}
-    </div>
+    </TacticalShell>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormResponse } from '../api/tasks';
 import { useAuthStore } from '../stores/authStore';
+import { TacticalShell } from '../components/tactical/shell';
 import { useT, useLangStore } from '../stores/langStore';
 
 const MANAGER_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
@@ -444,13 +445,9 @@ export function TasksPage() {
   };
 
   return (
-    <div>
-      {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('tasks.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('tasks.subtitle')}</p>
-        </div>
+    <TacticalShell title={t('tasks.title')} subtitle={t('tasks.subtitle')}>
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 mb-6">
         <div className="flex items-center gap-3">
           {/* Scope toggle */}
           <div className="flex bg-gray-100 rounded-lg p-0.5">
@@ -746,6 +743,6 @@ export function TasksPage() {
           onStatusChange={handleStatusChange}
         />
       )}
-    </div>
+    </TacticalShell>
   );
 }
