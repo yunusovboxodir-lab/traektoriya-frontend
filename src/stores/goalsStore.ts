@@ -47,7 +47,16 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
   fetchNudges: async (unreadOnly = true, limit = 3) => {
     try {
       const res = await nudgesApi.list({ unread_only: unreadOnly, limit });
-      set({ nudges: res.data.items });
+      // PROD-фильтр (2026-05-03): backend ещё генерит nudges типа
+      // "Помоги с переводом!" / translation-review. До запуска это не нужно
+      // показывать пользователям — отфильтровываем по action_url и title.
+      const filtered = res.data.items.filter((n) => {
+        if (n.action_url?.includes('/translation-review')) return false;
+        const t = (n.title + ' ' + n.message).toLowerCase();
+        if (t.includes('помоги с переводом') || t.includes('translation') || t.includes('перевод')) return false;
+        return true;
+      });
+      set({ nudges: filtered });
     } catch {
       // keep existing
     }
