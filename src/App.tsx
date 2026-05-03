@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
 import { useScopeStore } from './stores/scopeStore';
 import { TacticalLayout } from './components/layout';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
+import { MobileAdminGate } from './components/layout/MobileAdminGate';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { lazyWithRetry } from './utils/lazyWithRetry';
@@ -73,7 +75,12 @@ function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; page
     return <Navigate to={getFirstAllowedPath()} replace />;
   }
 
-  return <TacticalLayout>{children}</TacticalLayout>;
+  return (
+    <MobileAdminGate>
+      <TacticalLayout>{children}</TacticalLayout>
+      <MobileBottomNav />
+    </MobileAdminGate>
+  );
 }
 
 // ===========================================
@@ -102,7 +109,12 @@ function FullscreenProtectedRoute({ children, pageKey }: { children: React.React
   if (pageKey && !isPageAllowed(pageKey)) {
     return <Navigate to={getFirstAllowedPath()} replace />;
   }
-  return <>{children}</>;
+  return (
+    <MobileAdminGate>
+      {children}
+      <MobileBottomNav />
+    </MobileAdminGate>
+  );
 }
 
 // ===========================================

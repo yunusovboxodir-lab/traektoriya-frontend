@@ -30,6 +30,8 @@
     "collapse": "Yig'ish",
     "expand": "Yoyish",
     "logout": "Chiqish",
+    "profile": "Profil",
+    "noSections": "Mavjud bo'limlar yo'q",
     "themeDark": "Qorong'i",
     "themeLight": "Yorug'",
     "theme": "Rejim",

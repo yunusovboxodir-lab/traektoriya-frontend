@@ -1284,6 +1284,23 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   /* Без отступов — для Tactical-карты, у неё свои паддинги */
 }
 
+/* === MOBILE BOTTOM-NAV ПОДДЕРЖКА === */
+/* На mobile (≤768) — оставляем место под фиксированную bottom-nav (~72px). */
+@media (max-width: 768px) {
+  .tactical-page {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important;
+  }
+  .tactical-fullscreen {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+  /* StatusBar — на mobile прячем dropdown-каретку и tagline,
+     навигация теперь через bottom-nav. Бренд остаётся видимым. */
+  .statusbar .brand-caret { display: none !important; }
+  .statusbar .brand { cursor: default !important; }
+  /* Дропдаун-меню всё равно прячем на ≤768 (если откроется) */
+  .nav-menu, .nav-scrim { display: none !important; }
+}
+
 /* --- Переопределяем «белые» поверхности на стеклянные панели --- */
 .tactical-root .bg-white {
   background: linear-gradient(180deg, var(--bg-panel-grad-from), var(--bg-panel-grad-to)) !important;

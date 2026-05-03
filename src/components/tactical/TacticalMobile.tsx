@@ -907,9 +907,11 @@ const statValueStyle: CSSProperties = {
 };
 
 // =============================================================================
-// Bottom tab bar
-// =============================================================================
-function MobileTabBar() {
+// Bottom tab bar (УДАЛЁН 2026-05-04 — заменён глобальным MobileBottomNav).
+// Сохранён в коде на случай отката.
+// @ts-expect-error preserved for reference
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _MobileTabBar_DEPRECATED() {
   const lang = useLangStore((s) => s.lang);
   const navigate = useNavigate();
   const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
@@ -1072,7 +1074,7 @@ export function TacticalMobile({
         )}
         <FriendsStrip />
       </div>
-      <MobileTabBar />
+      {/* MobileTabBar убран 2026-05-04 — теперь глобальный MobileBottomNav в App.tsx */}
       {sheetOpen && selected && selectedZone && (
         <VillageSheet
           village={selected}

@@ -30,6 +30,8 @@
     "collapse": "Свернуть",
     "expand": "Развернуть",
     "logout": "Выйти",
+    "profile": "Профиль",
+    "noSections": "Нет доступных разделов",
     "themeDark": "Тёмная",
     "themeLight": "Светлая",
     "theme": "Тема",
