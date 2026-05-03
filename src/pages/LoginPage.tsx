@@ -77,13 +77,13 @@ export function LoginPage() {
 
         {/* Контент */}
         <div className="relative z-10 text-center max-w-sm">
-          {/* Логотип — реальная картинка с золотой рамкой и glow */}
+          {/* Логотип — крупный план, золотая рамка с glow */}
           <div
-            className="mx-auto mb-8 w-28 h-28 rounded-2xl overflow-hidden flex items-center justify-center"
+            className="mx-auto mb-8 w-56 h-56 lg:w-64 lg:h-64 rounded-3xl overflow-hidden flex items-center justify-center"
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--color-rm-border)',
-              boxShadow: '0 0 32px rgba(200,168,75,0.18), 0 0 0 1px rgba(200,168,75,0.20) inset',
+              boxShadow: '0 0 48px rgba(200,168,75,0.25), 0 0 0 1px rgba(200,168,75,0.25) inset',
             }}
           >
             <img
@@ -116,22 +116,10 @@ export function LoginPage() {
               letterSpacing: '0.3em',
               color: 'var(--text-muted)',
               textTransform: 'uppercase',
-              marginBottom: 20,
             }}
           >
             С нуля до эксперта
           </div>
-
-          <p
-            className="mx-auto leading-relaxed"
-            style={{
-              color: 'var(--text-secondary)',
-              fontSize: 14,
-              maxWidth: 320,
-            }}
-          >
-            {t('login.subtitle')}
-          </p>
         </div>
 
         {/* Footer-подпись по центру внизу — без N'Medov */}
@@ -315,7 +303,7 @@ export function LoginPage() {
               fontFamily: 'var(--font-mono)',
             }}
           >
-            v3.1 · Корпоративная платформа развития
+            Корпоративная платформа развития
           </p>
         </div>
       </div>
