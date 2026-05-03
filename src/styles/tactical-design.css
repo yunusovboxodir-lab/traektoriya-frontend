@@ -1346,11 +1346,19 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .ring-blue-500,
 .tactical-root .ring-blue-200 { --tw-ring-color: var(--brass) !important; }
 
-/* --- Лёгкие фоны (синие/индиго/violet hint backgrounds) --- */
+/* --- Лёгкие фоны: синие/индиго/violet hint → brass-tinted --- */
 .tactical-root .bg-blue-50,
 .tactical-root .bg-indigo-50,
 .tactical-root .bg-violet-50 {
-  background: oklch(from var(--brass) l c h / 0.10) !important;
+  background: var(--info-bg) !important;
+}
+
+/* --- Slate/stone hint backgrounds → bg-elevated --- */
+.tactical-root .bg-slate-50,
+.tactical-root .bg-slate-100,
+.tactical-root .bg-stone-50,
+.tactical-root .bg-stone-100 {
+  background: var(--bg-elevated) !important;
 }
 
 /* --- Акценты эмеральд/grin → green токен --- */
@@ -1365,6 +1373,13 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .text-emerald-600,
 .tactical-root .text-green-500,
 .tactical-root .text-green-600 { color: var(--green) !important; }
+/* Hint-фоны эмеральд/green → success-bg (было светло-зелёное на dark теме) */
+.tactical-root .bg-emerald-50,
+.tactical-root .bg-emerald-100,
+.tactical-root .bg-green-50,
+.tactical-root .bg-green-100 {
+  background: var(--success-bg) !important;
+}
 
 /* --- Янтарные/жёлтые → amber token --- */
 .tactical-root .bg-amber-500,
@@ -1375,8 +1390,21 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .text-amber-600,
 .tactical-root .text-yellow-500,
 .tactical-root .text-yellow-600 { color: var(--amber) !important; }
+/* Hint-фоны янтарь/жёлтый → warning-bg (было светло-жёлтое на dark теме) */
+.tactical-root .bg-amber-50,
+.tactical-root .bg-amber-100,
+.tactical-root .bg-yellow-50,
+.tactical-root .bg-yellow-100 {
+  background: var(--warning-bg) !important;
+}
 
 /* --- Красные → danger --- */
+.tactical-root .bg-red-50,
+.tactical-root .bg-red-100,
+.tactical-root .bg-rose-50,
+.tactical-root .bg-rose-100 {
+  background: var(--danger-bg) !important;
+}
 .tactical-root .bg-red-500,
 .tactical-root .bg-red-600 {
   background: var(--danger) !important;
