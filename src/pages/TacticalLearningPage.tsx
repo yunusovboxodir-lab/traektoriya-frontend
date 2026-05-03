@@ -12,8 +12,8 @@ import { useLangStore } from '../stores/langStore';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
 import { HeroPanel } from '../components/tactical/HeroPanel';
-import { RecsPanel } from '../components/tactical/RecsPanel';
-import { AwardsPanel } from '../components/tactical/AwardsPanel';
+// RecsPanel + AwardsPanel убраны UX-аудит 2026-05-03 (mock-данные).
+// Вернуть когда будет реальная интеграция AI-рекомендаций и achievements.
 import { StatusBar } from '../components/tactical/StatusBar';
 import { TacticalMobile } from '../components/tactical/TacticalMobile';
 import type { MapNode, MapEdge, MapZone, TerritoryMode } from '../components/tactical/types';
@@ -285,11 +285,10 @@ export function TacticalLearningPage() {
           )}
         </div>
 
-        {/* Правая колонка: RecsPanel + AwardsPanel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <RecsPanel />
-          <AwardsPanel />
-        </div>
+        {/* Правая колонка скрыта (UX-аудит 2026-05-03):
+            RecsPanel и AwardsPanel были на mock-данных без реальной интеграции.
+            Вернуть когда будет: AI-рекомендации курсов по KPI gap + реальная
+            система achievements. Пока освобождаем место для карты. */}
       </div>
     </div>
   );

@@ -479,13 +479,15 @@ export function Sidebar({
       {mobileOpen && (
         <>
           {/* Backdrop */}
+          {/* UX-аудит 2026-05-03: backdrop затемняем сильнее (50% → 75%)
+              чтобы открытое меню не сливалось с контентом сзади. */}
           <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+            className="fixed inset-0 z-40 bg-black/75 lg:hidden"
             onClick={onCloseMobile}
             aria-hidden="true"
           />
-          {/* Sidebar panel */}
-          <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white lg:hidden">
+          {/* Sidebar panel — bg-gray-900 (100% непрозрачный) + явный shadow */}
+          <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white lg:hidden shadow-2xl">
             {sidebarContent}
           </aside>
         </>

@@ -470,9 +470,11 @@ body::after {
 .title-meta b { color: var(--text-1); font-weight: 500; }
 
 /* ============ LAYOUT GRID ============ */
+/* UX-аудит 2026-05-03: убрана правая колонка (RecsPanel + AwardsPanel были mock).
+   2 колонки вместо 3 → больше места для карты обучения. */
 .grid {
   display: grid;
-  grid-template-columns: 320px 1fr 320px;
+  grid-template-columns: 320px 1fr;
   gap: 18px;
   padding: 8px 32px 32px;
   align-items: start;
