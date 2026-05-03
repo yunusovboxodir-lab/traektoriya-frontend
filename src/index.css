@@ -91,6 +91,141 @@ body {
   }
 }
 
+/* ============================================================================
+   === DARK THEME GLOBAL OVERRIDE (UX-аудит 2026-05-03) ===
+   Tailwind не настроен с darkMode → все страницы кроме TacticalLearningPage
+   были залочены в светлую тему. Карточки bg-white на тёмном body создавали
+   «кашу». Переопределяем самые частые Tailwind-классы через [data-theme="dark"].
+   Tactical-страницы (.tactical-root) сохраняют свою CSS-палитру через :not(). */
+
+[data-theme="dark"] body {
+  background-color: #0a0e14; /* почти чёрный, не чистый */
+  color: #e5e5e5;
+}
+
+/* Backgrounds — белые/светлые → тёмные */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-white, .bg-gray-50, .bg-stone-50, .bg-slate-50
+) {
+  background-color: #1a1f2a !important; /* dark panel */
+  color: #e5e5e5;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-gray-100, .bg-stone-100, .bg-slate-100
+) {
+  background-color: #232936 !important;
+  color: #e5e5e5;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-blue-50
+) {
+  background-color: #1a2332 !important;
+  color: #93c5fd;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-emerald-50, .bg-green-50
+) {
+  background-color: #1a2820 !important;
+  color: #6ee7b7;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-amber-50, .bg-yellow-50
+) {
+  background-color: #2a2418 !important;
+  color: #fcd34d;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-red-50
+) {
+  background-color: #2a1818 !important;
+  color: #fca5a5;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-orange-50
+) {
+  background-color: #2a1f14 !important;
+  color: #fdba74;
+}
+
+/* Borders — светлые → тёмные */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .border-gray-100, .border-gray-200, .border-stone-100, .border-stone-200,
+  .border-slate-100, .border-slate-200
+) {
+  border-color: #2a3142 !important;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .border-gray-300, .border-stone-300, .border-slate-300
+) {
+  border-color: #374151 !important;
+}
+
+/* Text — тёмные → светлые */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .text-gray-800, .text-gray-900, .text-stone-800, .text-stone-900,
+  .text-slate-800, .text-slate-900
+) {
+  color: #f1f5f9 !important;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .text-gray-700, .text-stone-700, .text-slate-700
+) {
+  color: #cbd5e1 !important;
+}
+/* Контрасты text-gray-400/500 уже переопределены выше — на тёмной не нужны */
+[data-theme="dark"] .text-gray-400,
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-stone-400,
+[data-theme="dark"] .text-stone-500 {
+  color: #94a3b8 !important; /* slate-400 — сред. яркости на тёмном */
+}
+
+/* Inputs/selects — белые → тёмные */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  input[type="text"], input[type="number"], input[type="date"],
+  input[type="email"], input[type="password"], input[type="search"],
+  textarea, select
+) {
+  background-color: #1a1f2a !important;
+  color: #f1f5f9 !important;
+  border-color: #374151 !important;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus,
+  textarea:focus, select:focus
+) {
+  border-color: #6b7280 !important;
+  outline-color: #6b7280;
+}
+
+/* Кнопки — bg-stone-800/gray-900 (тёмные) на тёмном фоне сливаются → подсветка */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .bg-stone-800, .bg-gray-900
+) {
+  background-color: #3b82f6 !important; /* blue-500 акцент */
+  color: white !important;
+}
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .hover\\:bg-stone-700:hover, .hover\\:bg-gray-800:hover
+) {
+  background-color: #2563eb !important; /* blue-600 hover */
+}
+
+/* Hover-фон карточек на тёмном */
+[data-theme="dark"] :not(.tactical-root, .tactical-root *):where(
+  .hover\\:bg-stone-50:hover, .hover\\:bg-gray-50:hover
+) {
+  background-color: #232936 !important;
+}
+
+/* Scrollbar в тёмной теме */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: #0a0e14;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
 /* Smooth momentum scrolling on iOS */
 * {
   -webkit-overflow-scrolling: touch;
