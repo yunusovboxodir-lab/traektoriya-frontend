@@ -1458,6 +1458,78 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-page .hover\:bg-blue-50:hover,
 .tactical-page .hover\:bg-blue-100:hover { background: oklch(from var(--brass) l c h / 0.16) !important; }
 
+/* === BLOCK 3 — IMPROVEMENTS (TRAEKTORIYA_DESIGN_INSTRUCTIONS §10–§14) === */
+
+/* --- §11 Hover-эффекты: translateY на интерактивных карточках/CTA --- */
+.tactical-root .cursor-pointer[class*="rounded-xl"]:not(:disabled):hover,
+.tactical-root .cursor-pointer[class*="rounded-2xl"]:not(:disabled):hover,
+.tactical-root button[class*="rounded-xl"]:not(:disabled):not([aria-pressed]):hover,
+.tactical-root a[class*="rounded-xl"]:hover {
+  transform: translateY(-2px);
+}
+.tactical-root .cursor-pointer[class*="rounded-xl"]:not(:disabled):active,
+.tactical-root .cursor-pointer[class*="rounded-2xl"]:not(:disabled):active,
+.tactical-root button[class*="rounded-xl"]:not(:disabled):active,
+.tactical-root a[class*="rounded-xl"]:active {
+  transform: translateY(0);
+}
+
+/* --- §14 Progress-bars: гарантируем мягкую анимацию ширины --- */
+.tactical-root [class*="rounded-full"][style*="width"],
+.tactical-root [class*="rounded-pill"][style*="width"] {
+  transition: width 800ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* --- Скруглённые progress-track: высота 6px по дизайн-доку (вместо h-1.5/h-2) --- */
+.tactical-root .h-1\.5[class*="rounded-full"],
+.tactical-root .h-2[class*="rounded-full"] {
+  height: 6px !important;
+}
+
+/* === §10 MOBILE BREAKPOINTS === */
+@media (max-width: 768px) {
+  /* Header / top bar: поджать padding */
+  .tactical-root .statusbar { padding: 0 16px; }
+  /* Tactical-page padding */
+  .tactical-page { padding: 16px; }
+  /* Stat-grid: 2 колонки на планшете */
+  .tactical-root [style*="grid-template-columns"][style*="200px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  /* DIVISIONS / nav-cards: 2 колонки */
+  .tactical-root .tactical-grid {
+    grid-template-columns: 1fr !important;
+  }
+  /* title-row: чуть меньше */
+  .tactical-root .title-row h1 { font-size: 22px !important; }
+  /* Радар компетенций: ограничить высоту */
+  .tactical-root .radar-container { height: 280px; }
+  /* Filter-row column */
+  .tactical-root .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tactical-root select.filter-select { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  /* Stat-grid: 1 колонка на телефоне */
+  .tactical-root [style*="grid-template-columns"][style*="200px"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Pulse / hero values меньше */
+  .tactical-root .pulse-value { font-size: 32px !important; }
+  /* main-tabs: горизонтальный скролл */
+  .tactical-root .main-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tactical-root .main-tabs::-webkit-scrollbar { display: none; }
+  /* StatusBar: иконки только */
+  .tactical-root .lang-toggle .lang-opt { padding: 4px 8px; font-size: 11px; }
+  .tactical-root .brand-tag { display: none; }
+}
+
 /* --- divide-* (полосы между строками) --- */
 .tactical-page .divide-gray-50 > * + *,
 .tactical-page .divide-gray-100 > * + *,

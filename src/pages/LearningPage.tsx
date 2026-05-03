@@ -23,6 +23,7 @@ import { bl } from '../utils/bilingual';
 import { emitPulseInvalidate } from '../utils/pulseEvents';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
+import { KpiChipsFromTitle } from '../components/learning/KpiChip';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
 import { FieldTaskCard } from '../components/learning/FieldTaskCard';
@@ -473,6 +474,9 @@ function SectionView({
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
+  // Микрообучение-фильтр (compass_artifact §2.4 + §1.1): курсы ≤7 мин —
+  // единственный формат, который реально потребляют ТП в полях.
+  const [microOnly, setMicroOnly] = useState(false);
   // Если выбран конкретный уровень — считаем прогресс только по нему
   const filteredLevels = data.levels
     .filter((level) => (level.courses && level.courses.length > 0) || level.courses_preview_count)
@@ -527,10 +531,33 @@ function SectionView({
         </div>
       </div>
 
+      {/* Filter row — микрообучение ≤7 мин (compass_artifact L&D 2026) */}
+      <div className="mb-4 flex items-center gap-2 flex-wrap">
+        <button
+          type="button"
+          onClick={() => setMicroOnly((v) => !v)}
+          aria-pressed={microOnly}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+          style={{
+            background: microOnly ? 'var(--color-rm-bg)' : 'var(--bg-card)',
+            color: microOnly ? 'var(--color-rm)' : 'var(--text-secondary)',
+            border: `1px solid ${microOnly ? 'var(--color-rm-border)' : 'var(--border)'}`,
+          }}
+        >
+          <span aria-hidden="true">⚡</span>
+          {lang === 'uz' ? 'Mikro (≤7 daq)' : 'Микро (≤7 мин)'}
+        </button>
+        {microOnly && (
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            {lang === 'uz' ? 'tezkor formatda' : 'быстрый формат'}
+          </span>
+        )}
+      </div>
+
       {/* Levels with courses — если выбран конкретный уровень с карты, показываем только его */}
       <div className="space-y-5">
         {filteredLevels.map((level) => (
-            <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} />
+            <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} microOnly={microOnly} />
           ))}
       </div>
     </div>
@@ -541,9 +568,11 @@ function SectionView({
 function LevelBlock({
   level,
   onOpenCourse,
+  microOnly = false,
 }: {
   level: { level: string; level_name: { ru: string; uz?: string | null }; is_unlocked: boolean; is_completed: boolean; courses?: CourseItem[] | null; courses_preview_count?: number | null; unlock_message?: string | null };
   onOpenCourse: (id: string) => void;
+  microOnly?: boolean;
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
@@ -574,11 +603,27 @@ function LevelBlock({
 
       {/* Courses */}
       {level.is_unlocked && level.courses ? (
-        <div className="divide-y divide-gray-50">
-          {level.courses.map((course, idx) => (
-            <CourseRow key={course.id} course={course} index={idx} onClick={() => onOpenCourse(course.id)} />
-          ))}
-        </div>
+        (() => {
+          const visible = microOnly
+            ? level.courses.filter((c) => (c.duration_minutes ?? 0) <= 7)
+            : level.courses;
+          if (visible.length === 0) {
+            return (
+              <div className="px-5 py-6 text-center">
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                  {lang === 'uz' ? 'Bu darajada mikro-kurslar yoʻq' : 'Нет микро-курсов на этом уровне'}
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div className="divide-y divide-gray-50">
+              {visible.map((course, idx) => (
+                <CourseRow key={course.id} course={course} index={idx} onClick={() => onOpenCourse(course.id)} />
+              ))}
+            </div>
+          );
+        })()
       ) : !level.is_unlocked ? (
         <div className="px-5 py-6 text-center">
           <div className="text-2xl mb-2 opacity-30">🔒</div>
@@ -639,11 +684,13 @@ function CourseRow({
         <p className={`font-medium text-[15px] leading-tight ${isCompleted ? 'text-gray-400' : 'text-gray-800'}`}>
           {bl(course.title, lang)}
         </p>
-        <div className="flex items-center gap-2 mt-1">
+        <div className="flex items-center gap-2 mt-1 flex-wrap">
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             {course.duration_minutes} {t('learning.min')}
           </span>
+          {/* KPI-чипы (compass_artifact L&D 2026 §2.5): связь курса с бизнес-KPI */}
+          <KpiChipsFromTitle title={course.title} />
           {isCompleted && course.quiz_score != null && (
             <span className={`text-xs font-semibold px-1.5 py-0.5 rounded ${
               course.quiz_score >= 80 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'

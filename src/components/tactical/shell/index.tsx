@@ -292,13 +292,26 @@ export interface TacticalStatProps {
   /** Тренд: '+15%', '-3 п.п.' */
   trend?: { value: string; positive: boolean };
   highlight?: boolean;
+  /** Цветовой акцент value/icon (DESIGN_INSTRUCTIONS §7) */
+  accent?: 'rm' | 'success' | 'warning' | 'danger' | 'info' | 'tp' | 'sv';
   icon?: ReactNode;
   onClick?: () => void;
 }
 
+const ACCENT_COLOR: Record<NonNullable<TacticalStatProps['accent']>, string> = {
+  rm:      'var(--color-rm)',
+  success: 'var(--success)',
+  warning: 'var(--warning)',
+  danger:  'var(--danger)',
+  info:    'var(--info)',
+  tp:      'var(--color-tp)',
+  sv:      'var(--color-sv)',
+};
+
 export function TacticalStat({
-  label, value, hint, trend, highlight, icon, onClick,
+  label, value, hint, trend, highlight, accent, icon, onClick,
 }: TacticalStatProps) {
+  const accentColor = accent ? ACCENT_COLOR[accent] : null;
   return (
     <div
       onClick={onClick}
@@ -307,7 +320,7 @@ export function TacticalStat({
         padding: 16,
         cursor: onClick ? 'pointer' : 'default',
         transition: 'transform 0.15s, box-shadow 0.15s',
-        ...(highlight ? { borderColor: 'var(--brass)', boxShadow: '0 0 12px oklch(0.80 0.12 82 / 0.2)' } : {}),
+        ...(highlight ? { borderColor: 'var(--color-rm)', boxShadow: '0 0 12px rgba(200,168,75,0.2)' } : {}),
       }}
     >
       <div style={{
@@ -319,17 +332,17 @@ export function TacticalStat({
         <span style={{
           fontSize: 10,
           color: 'var(--text-2)',
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--font-mono)',
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
         }}>{label}</span>
-        {icon && <div style={{ color: 'var(--brass)' }}>{icon}</div>}
+        {icon && <div style={{ color: accentColor ?? 'var(--color-rm)' }}>{icon}</div>}
       </div>
       <div style={{
         fontSize: 28,
         fontWeight: 700,
-        color: highlight ? 'var(--brass)' : 'var(--text-0)',
-        fontFamily: "'Cinzel', serif",
+        color: accentColor ?? (highlight ? 'var(--color-rm)' : 'var(--text-0)'),
+        fontFamily: 'var(--font-display)',
         lineHeight: 1.1,
       }}>
         {value}
@@ -345,7 +358,7 @@ export function TacticalStat({
           {hint && <span style={{ color: 'var(--text-2)' }}>{hint}</span>}
           {trend && (
             <span style={{
-              color: trend.positive ? 'oklch(0.70 0.18 145)' : 'oklch(0.65 0.18 28)',
+              color: trend.positive ? 'var(--success)' : 'var(--danger)',
               fontWeight: 600,
             }}>
               {trend.value}

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useLangStore, type Lang } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { SectionCoursesResponse, CourseItem } from '../../api/learning';
+import { KpiChipsFromTitle } from './KpiChip';
 
 interface VillageViewProps {
   data: SectionCoursesResponse;
@@ -316,7 +317,10 @@ export function VillageView({ data, onBack, onOpenCourse }: VillageViewProps) {
                 <p className={`font-medium text-sm truncate ${course.status === 'completed' ? 'text-gray-500' : 'text-gray-800'}`}>
                   {bl(course.title, lang)}
                 </p>
-                <span className="text-xs text-gray-400">{course.duration_minutes} мин</span>
+                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                  <span className="text-xs text-gray-400">{course.duration_minutes} мин</span>
+                  <KpiChipsFromTitle title={course.title} />
+                </div>
               </div>
               {course.status === 'locked' && <span className="text-sm">🔒</span>}
               {course.quiz_score != null && (

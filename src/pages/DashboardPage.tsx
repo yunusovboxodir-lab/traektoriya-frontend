@@ -15,6 +15,7 @@ import { NudgesWidget } from '../components/dashboard/NudgesWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { ShelfScanHistoryWidget } from '../components/dashboard/ShelfScanHistoryWidget';
 import { StreakAchievementWidget } from '../components/dashboard/StreakAchievementWidget';
+import { PulseWidget } from '../components/dashboard/PulseWidget';
 import {
   TacticalShell, TacticalPanel, TacticalStat, TacticalCard, TacticalGrid,
 } from '../components/tactical/shell';
@@ -90,28 +91,41 @@ export function DashboardPage() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* Dynamic Enablement (compass_artifact L&D 2026 §1.1) — push-нудж дня
+           вверху, до Stat-карточек: «что тебе посмотреть прямо сейчас». */}
+        <TacticalPanel
+          label="DYNAMIC ENABLEMENT"
+          title={lang === 'uz' ? 'Bugun siz uchun' : 'Сегодня для вас'}
+        >
+          <NudgesWidget />
+        </TacticalPanel>
+
         {/* Quick stats — 4 карточки */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
           <TacticalStat
             label={t('dashboard.stats.products')}
             value={stats?.total_products ?? '—'}
             icon={<span style={{ fontSize: 18 }}>📦</span>}
+            accent="info"
           />
           <TacticalStat
             label={t('dashboard.stats.users')}
             value={stats?.total_users ?? '—'}
             icon={<span style={{ fontSize: 18 }}>👥</span>}
+            accent="sv"
           />
           <TacticalStat
             label={t('dashboard.stats.courses')}
             value={stats?.total_courses ?? '—'}
             icon={<span style={{ fontSize: 18 }}>📚</span>}
+            accent="rm"
             highlight
           />
           <TacticalStat
             label={t('dashboard.stats.tasks')}
             value={stats?.total_tasks ?? '—'}
             icon={<span style={{ fontSize: 18 }}>📋</span>}
+            accent="success"
           />
         </div>
 
@@ -144,8 +158,13 @@ export function DashboardPage() {
           </TacticalGrid>
         </TacticalPanel>
 
-        {/* Widgets — пока внутри TacticalPanel, со своим Tailwind-стилем
-            Будут мигрированы в Sprint 2-3 */}
+        {/* Pulse — компетенции/уровень (compass §2.4 + §1.5: pulse-трекеры
+            короткие, частые, мобильные. Виджет кликабелен → /competencies). */}
+        <TacticalPanel label="PULSE" title={lang === 'uz' ? 'Pulsi' : 'Пульс компетенций'}>
+          <PulseWidget />
+        </TacticalPanel>
+
+        {/* Widgets — токены подтянуты в Блоке 1.3 (gradient-killer). */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 14 }}>
           <TacticalPanel label="SHELF" title={lang === 'uz' ? "Yaqindagi tahlillar" : 'Недавние фотоанализы'}>
             <ShelfScanHistoryWidget />
@@ -157,10 +176,6 @@ export function DashboardPage() {
 
         <TacticalPanel label="RANK" title={lang === 'uz' ? "O'qish reytingi" : 'Рейтинг обучения'}>
           <LearningRankWidget />
-        </TacticalPanel>
-
-        <TacticalPanel label="NUDGES" title={lang === 'uz' ? 'Tavsiyalar' : 'Рекомендации'}>
-          <NudgesWidget />
         </TacticalPanel>
       </div>
     </TacticalShell>
