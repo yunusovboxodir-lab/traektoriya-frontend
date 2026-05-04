@@ -216,65 +216,124 @@ export function PulseWidget() {
         </div>
       )}
 
-      {/* Главный блок — большой % + gauge */}
-      <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-2'} gap-6 p-6`}>
-        {/* Левая часть: hero number + gauge + level badge */}
-        <div className="flex flex-col items-center justify-center">
-          {/* Большая цифра */}
+      {/* HERO BLOCK — огромный радар + центрированный % overlay + sidebar с метриками */}
+      <div className={`p-6 ${isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-[1fr_320px] gap-6'}`}>
+        {/* Левая часть — большой радар */}
+        <div className="flex items-center justify-center relative" style={{ minHeight: isMobile ? 320 : 540 }}>
+          <RadarChart
+            data={radarData}
+            size={isMobile ? 320 : 540}
+            showValues
+          />
+          {/* Overlay: огромная цифра + level в центре радара */}
           <div
+            className="absolute pointer-events-none"
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: 72,
-              fontWeight: 800,
-              lineHeight: 1,
-              color: overallColor,
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
             }}
           >
-            {overall}<span style={{ fontSize: 36, opacity: 0.6 }}>%</span>
-          </div>
-
-          {/* Уровень badge */}
-          <div
-            className="mt-3 px-4 py-1.5 rounded-full"
-            style={{
-              background: `${overallBg}1A`, // ~10% opacity
-              color: overallColor,
-              border: `1px solid ${overallBg}66`,
-              fontFamily: 'var(--font-body)',
-              fontWeight: 700,
-              fontSize: 12,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            {overallLevelName}
-          </div>
-
-          {/* Gauge-bar внизу */}
-          <div className="w-full max-w-[200px] mt-5">
             <div
-              className="relative h-2 rounded-full overflow-hidden"
-              style={{ background: 'var(--bg-elevated)' }}
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: isMobile ? 64 : 96,
+                fontWeight: 800,
+                lineHeight: 1,
+                color: overallColor,
+                textShadow: `0 0 32px ${overallBg}66`,
+              }}
+            >
+              {overall}<span style={{ fontSize: isMobile ? 32 : 48, opacity: 0.65 }}>%</span>
+            </div>
+            <div
+              className="mt-2 mx-auto inline-block px-3 py-1 rounded-full"
+              style={{
+                background: `${overallBg}1A`,
+                color: overallColor,
+                border: `1px solid ${overallBg}66`,
+                fontFamily: 'var(--font-body)',
+                fontWeight: 700,
+                fontSize: 11,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {overallLevelName}
+            </div>
+          </div>
+        </div>
+
+        {/* Правая часть — sidebar с разбивкой по 4 уровням + gauge */}
+        <div className="flex flex-col gap-4 justify-center">
+          {/* Gauge-bar */}
+          <div>
+            <div
+              className="text-xs mb-2"
+              style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
+            >
+              {lang === 'uz' ? 'Umumiy puls' : 'Общий пульс'}
+            </div>
+            <div
+              className="relative rounded-full overflow-hidden"
+              style={{ height: 12, background: 'var(--bg-elevated)' }}
             >
               <div
                 className="absolute left-0 top-0 h-full rounded-full transition-all duration-1000"
                 style={{
                   width: `${overall}%`,
                   background: `linear-gradient(90deg, ${overallBg}AA, ${overallBg})`,
+                  boxShadow: `0 0 12px ${overallBg}66`,
                 }}
               />
             </div>
-            <div className="flex justify-between mt-1.5" style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+            <div className="flex justify-between mt-1.5" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
               <span>0</span>
+              <span style={{ opacity: 0.5 }}>25</span>
               <span style={{ opacity: 0.5 }}>50</span>
+              <span style={{ opacity: 0.5 }}>75</span>
               <span>100</span>
             </div>
           </div>
-        </div>
 
-        {/* Правая часть: радар */}
-        <div className="flex items-center justify-center">
-          <RadarChart data={radarData} size={isMobile ? 180 : 220} showValues={false} />
+          {/* Уровни-маркеры */}
+          <div>
+            <div
+              className="text-xs mb-2"
+              style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
+            >
+              {lang === 'uz' ? 'Darajalar' : 'Уровни'}
+            </div>
+            {[
+              { level: 'master',       name: 'Мастер',   range: '76–100%', color: 'var(--success)' },
+              { level: 'expert',       name: 'Эксперт',  range: '51–75%',  color: 'var(--color-tp)' },
+              { level: 'practitioner', name: 'Практик',  range: '26–50%',  color: 'var(--warning)' },
+              { level: 'trainee',      name: 'Стажёр',   range: '0–25%',   color: 'var(--danger)' },
+            ].map((lvl) => {
+              const isActive = lvl.level === pulse.overall_level;
+              return (
+                <div
+                  key={lvl.level}
+                  className="flex items-center gap-2 py-1"
+                  style={{ opacity: isActive ? 1 : 0.45 }}
+                >
+                  <div
+                    style={{
+                      width: 8, height: 8, borderRadius: '50%', background: lvl.color,
+                      boxShadow: isActive ? `0 0 8px ${lvl.color}` : 'none',
+                    }}
+                  />
+                  <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: isActive ? 700 : 500 }}>
+                    {lvl.name}
+                  </span>
+                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>
+                    {lvl.range}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

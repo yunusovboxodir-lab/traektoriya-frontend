@@ -2,9 +2,10 @@
  * DashboardPage — главная страница (Командный центр).
  *
  * Tactical-стиль (Module 18 Sprint 1, 2026-05-03).
- * 2026-05-04 cleanup: убраны DIVISIONS (дубль dropdown-меню), SHELF/STREAK
- * (актуально только для тех, у кого ShelfScan активен), RANK (Рейтинг
- * обучения) — все они уезжают в EmployeeRanking widget (Кубок NMEDOV 2026).
+ * 2026-05-04 cleanup: убраны DIVISIONS, SHELF/STREAK, RANK.
+ * 2026-05-04 v2: Stat-cards теперь только для админов (мониторинг платформы);
+ * для РМ/СВ/ТП они малополезны (не их KPI) — место освобождается под
+ * EmployeeRanking widget (Кубок NMEDOV 2026).
  */
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
@@ -15,6 +16,8 @@ import { PulseWidget } from '../components/dashboard/PulseWidget';
 import {
   TacticalShell, TacticalPanel, TacticalStat,
 } from '../components/tactical/shell';
+
+const ADMIN_ROLES = new Set(['superadmin', 'admin', 'commercial_dir']);
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -48,12 +51,14 @@ export function DashboardPage() {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
   const [stats, setStats] = useState<OverviewStats | null>(null);
+  const isAdmin = !!user?.role && ADMIN_ROLES.has(user.role);
 
   useEffect(() => {
+    if (!isAdmin) return; // не-админу общая аналитика не нужна
     api.get<OverviewStatsRaw>('/api/v1/analytics/overview')
       .then((res) => setStats(normalizeOverview(res.data)))
       .catch(() => setStats({ total_products: 0, total_users: 0, total_courses: 0, total_tasks: 0 }));
-  }, []);
+  }, [isAdmin]);
 
   const today = new Date().toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', {
     day: 'numeric', month: 'long', year: 'numeric',
@@ -66,11 +71,13 @@ export function DashboardPage() {
       title={t('dashboard.welcome') + (user?.full_name ? `, ${user.full_name}` : '')}
       subtitle={`${today}${operatorRole ? ` · ${operatorRole}` : ''}`}
       meta={
-        <>
-          <span><b>{stats?.total_products ?? '—'}</b> {lang === 'uz' ? 'MAHSULOT' : 'ТОВАРОВ'}</span>
-          <span><b>{stats?.total_users ?? '—'}</b> {lang === 'uz' ? 'XODIM' : 'СОТРУДНИКОВ'}</span>
-          <span><b>{stats?.total_courses ?? '—'}</b> {lang === 'uz' ? 'KURS' : 'КУРСОВ'}</span>
-        </>
+        isAdmin ? (
+          <>
+            <span><b>{stats?.total_products ?? '—'}</b> {lang === 'uz' ? 'MAHSULOT' : 'ТОВАРОВ'}</span>
+            <span><b>{stats?.total_users ?? '—'}</b> {lang === 'uz' ? 'XODIM' : 'СОТРУДНИКОВ'}</span>
+            <span><b>{stats?.total_courses ?? '—'}</b> {lang === 'uz' ? 'KURS' : 'КУРСОВ'}</span>
+          </>
+        ) : undefined
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -83,34 +90,38 @@ export function DashboardPage() {
           <NudgesWidget />
         </TacticalPanel>
 
-        {/* Quick stats — 4 карточки */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-          <TacticalStat
-            label={t('dashboard.stats.products')}
-            value={stats?.total_products ?? '—'}
-            icon={<span style={{ fontSize: 18 }}>📦</span>}
-            accent="info"
-          />
-          <TacticalStat
-            label={t('dashboard.stats.users')}
-            value={stats?.total_users ?? '—'}
-            icon={<span style={{ fontSize: 18 }}>👥</span>}
-            accent="sv"
-          />
-          <TacticalStat
-            label={t('dashboard.stats.courses')}
-            value={stats?.total_courses ?? '—'}
-            icon={<span style={{ fontSize: 18 }}>📚</span>}
-            accent="rm"
-            highlight
-          />
-          <TacticalStat
-            label={t('dashboard.stats.tasks')}
-            value={stats?.total_tasks ?? '—'}
-            icon={<span style={{ fontSize: 18 }}>📋</span>}
-            accent="success"
-          />
-        </div>
+        {/* Quick stats — мониторинг платформы (только для admin/superadmin/commercial_dir).
+            Для РМ/СВ/ТП эти агрегаты не их KPI — место освобождается под
+            будущий EmployeeRanking widget (Кубок NMEDOV 2026). */}
+        {isAdmin && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
+            <TacticalStat
+              label={t('dashboard.stats.products')}
+              value={stats?.total_products ?? '—'}
+              icon={<span style={{ fontSize: 18 }}>📦</span>}
+              accent="info"
+            />
+            <TacticalStat
+              label={t('dashboard.stats.users')}
+              value={stats?.total_users ?? '—'}
+              icon={<span style={{ fontSize: 18 }}>👥</span>}
+              accent="sv"
+            />
+            <TacticalStat
+              label={t('dashboard.stats.courses')}
+              value={stats?.total_courses ?? '—'}
+              icon={<span style={{ fontSize: 18 }}>📚</span>}
+              accent="rm"
+              highlight
+            />
+            <TacticalStat
+              label={t('dashboard.stats.tasks')}
+              value={stats?.total_tasks ?? '—'}
+              icon={<span style={{ fontSize: 18 }}>📋</span>}
+              accent="success"
+            />
+          </div>
+        )}
 
         {/* Pulse — компетенции/уровень (compass §2.4 + §1.5).
             Кликабелен → /competencies для полного радара. */}
