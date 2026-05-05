@@ -91,6 +91,58 @@ export interface NumberedListBlock extends BaseBlock {
   items: NumberedListItem[];
 }
 
+/** Героический брендинговый блок для intro/closing — крупный заголовок с эмодзи, gold-акцентом и подзаголовком. */
+export interface HeroBlock extends BaseBlock {
+  type: 'hero';
+  /** Эмодзи или короткий текст в круглой иконке (например, '🔍'). */
+  icon?: string;
+  /** Главный заголовок — рендерится Unbounded, очень крупно. */
+  title: string;
+  title_uz?: string;
+  /** Подзаголовок (одна-две строки, font-serif). */
+  subtitle?: string;
+  subtitle_uz?: string;
+  /** Дополнительная подпись (мелкая, uppercase, label-style). */
+  caption?: string;
+  caption_uz?: string;
+  /** Цвет акцентов (по умолч. золотой --color-rm). */
+  accent?: string;
+}
+
+/** Крупная статистика: число/процент + подпись. Для дашбордов и сравнений. */
+export interface BigNumberBlock extends BaseBlock {
+  type: 'big_number';
+  value: string;
+  label: string;
+  label_uz?: string;
+  /** Опциональная подпись под лейблом (контекст). */
+  hint?: string;
+  hint_uz?: string;
+  /** Цвет числа (success/warning/danger/info или hex). */
+  variant?: 'neutral' | 'success' | 'warning' | 'danger' | 'info';
+}
+
+/** Сетка крупных чисел (для слайдов «дерево декомпозиции», статистика). */
+export interface StatGridBlock extends BaseBlock {
+  type: 'stat_grid';
+  columns: 2 | 3 | 4;
+  items: Array<{
+    value: string;
+    label: string;
+    label_uz?: string;
+    hint?: string;
+    hint_uz?: string;
+    variant?: 'neutral' | 'success' | 'warning' | 'danger' | 'info';
+  }>;
+}
+
+/** Декоративный разделитель (золотая линия с опциональным текстом). */
+export interface DividerBlock extends BaseBlock {
+  type: 'divider';
+  /** Опциональный текст по центру (например, «vs», «→»). */
+  label?: string;
+}
+
 export type Block =
   | HeadingH1Block
   | HeadingH2Block
@@ -100,7 +152,11 @@ export type Block =
   | ImageBlock
   | CalloutBlock
   | ComparisonBlock
-  | NumberedListBlock;
+  | NumberedListBlock
+  | HeroBlock
+  | BigNumberBlock
+  | StatGridBlock
+  | DividerBlock;
 
 // ---------------------------------------------------------------------------
 // Slides + slide types
@@ -289,6 +345,9 @@ export function emptyBlock(type: Block['type']): Block {
       };
     case 'numbered_list':
       return { type, items: [{ title: '', title_uz: '', body: '', body_uz: '' }] };
+    default:
+      // Для blocks которые ещё не имеют дефолтных полей в editor
+      return { type, text: '', text_uz: '' } as Block;
   }
 }
 

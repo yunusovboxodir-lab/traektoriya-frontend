@@ -223,6 +223,20 @@ export const pulseApi = {
   // Каскадный обзор: пульсы прямых подчинённых (СВ→ТП, РМ→СВ, Ком.Дир→РМ)
   getSubordinatesPulse: () =>
     api.get<SubordinatesPulseResponse>('/api/v1/pulse/subordinates'),
+
+  // Средний пульс по роли (для admin, когда переключает роль на дашборде)
+  getRoleAggregate: (role: 'regional_manager' | 'supervisor' | 'sales_rep') =>
+    api.get<{
+      role: string;
+      members_count: number;
+      avg_pulse: number;
+      overall_level: string;
+      overall_level_ru: string;
+      overall_level_uz: string;
+      total_earned: number;
+      total_max: number;
+      competencies: CompetencyPulse[];
+    }>('/api/v1/pulse/role-aggregate', { params: { role } }),
 };
 
 // ---------------------------------------------------------------------------

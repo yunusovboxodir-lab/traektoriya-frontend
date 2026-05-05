@@ -13,6 +13,7 @@ import { learningApi } from '../../api/learning';
 import type { LeaderboardResponse, LeaderboardEntry, LeaderboardPeriod, LeaderboardRole } from '../../api/learning';
 import { useAuthStore } from '../../stores/authStore';
 import { useT } from '../../stores/langStore';
+import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
 
 // Период-кнопки
 const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string; short: string }> = [
@@ -53,25 +54,37 @@ export function LearningRankWidget() {
   const user = useAuthStore((s) => s.user);
   const isAdmin = !!user?.role && ADMIN_ROLES.includes(user.role);
 
-  // Selectors state
-  const [period, setPeriod] = useState<LeaderboardPeriod>('month');
-  const [selectedRole, setSelectedRole] = useState<LeaderboardRole>(
-    (user?.role && (['regional_manager', 'supervisor', 'sales_rep'] as const).includes(user.role as LeaderboardRole))
-      ? (user.role as LeaderboardRole)
-      : 'regional_manager'
-  );
+  // Shared filters (синхронизировано с Activity и Pulse)
+  const role = useDashboardFilters((s) => s.role);
+  const period = useDashboardFilters((s) => s.period);
+  const setRole = useDashboardFilters((s) => s.setRole);
+  const setPeriod = useDashboardFilters((s) => s.setPeriod);
+
+  // Инициализация role: если не админ — синхронизируем со своей ролью при первом рендере
+  useEffect(() => {
+    if (!isAdmin && user?.role) {
+      const userRole = user.role as LeaderboardRole;
+      if (['regional_manager', 'supervisor', 'sales_rep'].includes(userRole)) {
+        if (role !== userRole) setRole(userRole);
+      }
+    }
+  }, [isAdmin, user?.role]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setLoading(true);
     setError(false);
     const opts: { period: LeaderboardPeriod; role?: LeaderboardRole } = { period };
-    if (isAdmin) opts.role = selectedRole;
+    if (isAdmin) opts.role = role;
     learningApi
       .getLeaderboard(10, opts)
       .then((res) => setData(res.data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [period, selectedRole, isAdmin]);
+  }, [period, role, isAdmin]);
+
+  // Алиасы для совместимости с UI (был selectedRole/setSelectedRole)
+  const selectedRole = role;
+  const setSelectedRole = setRole;
 
   const levelName = (level: string) => t(`dashboard.leaderboard.levels.${level}`);
 

@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import { learningApi } from '../../api/learning';
 import type { LeaderboardPeriod } from '../../api/learning';
 import { useT, useLangStore } from '../../stores/langStore';
+import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
 
 const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string }> = [
   { value: 'month',     label: 'Месяц' },
@@ -59,7 +60,10 @@ export function ActivityWidget() {
   const [data, setData] = useState<ActivityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [period, setPeriod] = useState<LeaderboardPeriod>('month');
+
+  // Shared period (синхр. с Rank и Pulse)
+  const period = useDashboardFilters((s) => s.period);
+  const setPeriod = useDashboardFilters((s) => s.setPeriod);
 
   useEffect(() => {
     setLoading(true);
@@ -69,6 +73,7 @@ export function ActivityWidget() {
       .then((res) => {
         const me = res.data.leaderboard.find((e) => e.is_current_user);
         if (!me) {
+          // Если меня нет в leaderboard выбранной роли — показываем что не накоплена
           setError(true);
           return;
         }

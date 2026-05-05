@@ -17,14 +17,15 @@ import { useLangStore, useT } from '../../stores/langStore';
 import { pulseApi, type UserPulse } from '../../api/competencies';
 import { onPulseInvalidate } from '../../utils/pulseEvents';
 import { RadarChart, type RadarDataPoint } from '../competencies/RadarChart';
-
-const PULSE_ROLES = [
-  { value: 'regional_manager', label: { ru: 'РМ', uz: 'RM' } },
-  { value: 'supervisor', label: { ru: 'СВ', uz: 'SV' } },
-  { value: 'sales_rep', label: { ru: 'ТП', uz: 'TP' } },
-];
+import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
+
+const ROLE_LABEL_RU: Record<string, string> = {
+  regional_manager: 'РМ',
+  supervisor: 'СВ',
+  sales_rep: 'ТП',
+};
 
 const LEVEL_META = {
   master: { label: 'Мастер', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)', glow: 'rgba(74,222,128,0.5)' },
@@ -52,21 +53,45 @@ export function PulseWidget() {
   const [loading, setLoading] = useState(true);
   const [retryCount, setRetryCount] = useState(0);
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isAggregateView, setIsAggregateView] = useState(false);
+  const [aggregateMembers, setAggregateMembers] = useState(0);
 
   const isAdmin = ADMIN_ROLES.includes(user?.role || '');
-  const [selectedRole, setSelectedRole] = useState<string>(
-    isAdmin ? 'regional_manager' : (user?.role || 'sales_rep'),
-  );
+  // Shared role из dashboardFilters (синхр. с Rank/Activity)
+  const selectedRole = useDashboardFilters((s) => s.role);
 
   const userId = user?.id ? String(user.id) : null;
+
+  // Aggregate-режим: admin переключил на чужую роль → загружаем средний pulse роли
+  const useAggregate = isAdmin && selectedRole !== user?.role;
 
   const loadPulse = useCallback(
     async (signal?: AbortSignal): Promise<boolean> => {
       if (!userId) return false;
       setLoading(true);
       try {
-        const roleParam = isAdmin ? selectedRole : undefined;
-        const res = await pulseApi.getUserPulse(userId, roleParam, { signal });
+        if (useAggregate) {
+          // Средний pulse выбранной роли (для admin-обзора)
+          const res = await pulseApi.getRoleAggregate(selectedRole);
+          if (signal?.aborted) return false;
+          const agg = res.data;
+          setIsAggregateView(true);
+          setAggregateMembers(agg.members_count);
+          setPulse({
+            user_id: 'aggregate',
+            overall_pulse: agg.avg_pulse,
+            overall_level: agg.overall_level,
+            overall_level_ru: agg.overall_level_ru,
+            overall_level_uz: agg.overall_level_uz,
+            total_earned: agg.total_earned,
+            total_max: agg.total_max,
+            competencies: agg.competencies,
+          });
+          return agg.competencies.length > 0;
+        }
+        // Обычный режим: свой pulse
+        setIsAggregateView(false);
+        const res = await pulseApi.getUserPulse(userId, undefined, { signal });
         if (signal?.aborted) return false;
         const data = res.data;
         setPulse(data);
@@ -78,7 +103,7 @@ export function PulseWidget() {
         if (!signal?.aborted) setLoading(false);
       }
     },
-    [userId, isAdmin, selectedRole]
+    [userId, useAggregate, selectedRole]
   );
 
   useEffect(() => {
@@ -100,7 +125,7 @@ export function PulseWidget() {
     };
   }, [loadPulse, retryCount]);
 
-  useEffect(() => { setRetryCount(0); }, [userId, selectedRole]);
+  useEffect(() => { setRetryCount(0); }, [userId, selectedRole, useAggregate]);
 
   if (loading && !pulse) {
     return (
@@ -189,22 +214,18 @@ export function PulseWidget() {
             className="text-[11px] uppercase tracking-widest font-bold"
             style={{ fontFamily: "'Unbounded',sans-serif", color: meta.color }}
           >
-            Live · обновлено сейчас
+            {isAggregateView ? `Средний пульс ${ROLE_LABEL_RU[selectedRole]}` : 'Live · обновлено сейчас'}
           </span>
         </div>
-        {isAdmin && (
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-3 py-1 rounded text-xs font-semibold bg-white/5 border border-white/15 text-white"
-            style={{ colorScheme: 'dark' }}
-          >
-            {PULSE_ROLES.map((rl) => (
-              <option key={rl.value} value={rl.value} style={{ color: '#000' }}>
-                {lang === 'uz' ? rl.label.uz : rl.label.ru}
-              </option>
-            ))}
-          </select>
+        {isAggregateView && (
+          <div className="flex items-center gap-2 text-[11px] text-white/55">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest"
+              style={{ background: 'rgba(96,165,250,0.15)', color: '#60A5FA', fontFamily: "'Unbounded',sans-serif" }}
+            >
+              👁 admin view
+            </span>
+            <span>На основе <strong className="text-white/80">{aggregateMembers}</strong> сотрудников</span>
+          </div>
         )}
       </div>
 

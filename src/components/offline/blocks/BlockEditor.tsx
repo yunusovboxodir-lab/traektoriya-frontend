@@ -245,7 +245,7 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
 }
 
 function blockTypeLabel(type: Block['type']): string {
-  const labels: Record<Block['type'], string> = {
+  const labels: Partial<Record<Block['type'], string>> = {
     heading_h1: 'Заголовок H1',
     heading_h2: 'Заголовок H2',
     paragraph: 'Параграф',
@@ -255,6 +255,10 @@ function blockTypeLabel(type: Block['type']): string {
     callout: 'Выноска',
     comparison: 'Сравнение',
     numbered_list: 'Нумерованный список',
+    divider: 'Разделитель',
+    hero: 'Hero',
+    big_number: 'Большое число',
+    stat_grid: 'Сетка статистики',
   };
   return labels[type] || type;
 }
