@@ -10,8 +10,26 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { learningApi } from '../../api/learning';
-import type { LeaderboardResponse, LeaderboardEntry } from '../../api/learning';
+import type { LeaderboardResponse, LeaderboardEntry, LeaderboardPeriod, LeaderboardRole } from '../../api/learning';
+import { useAuthStore } from '../../stores/authStore';
 import { useT } from '../../stores/langStore';
+
+// Период-кнопки
+const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string; short: string }> = [
+  { value: 'month',     label: 'Месяц',     short: '30 дн' },
+  { value: 'quarter',   label: 'Квартал',   short: '90 дн' },
+  { value: 'half_year', label: 'Полгода',   short: '180 дн' },
+  { value: 'year',      label: 'Год',       short: '365 дн' },
+];
+
+// Роли для админ-селектора
+const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
+  { value: 'regional_manager', label: 'РМ',  icon: '👔' },
+  { value: 'supervisor',       label: 'СВ',  icon: '🤝' },
+  { value: 'sales_rep',        label: 'ТП',  icon: '🛒' },
+];
+
+const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
 const LEVEL_COLOR: Record<string, { color: string; bg: string }> = {
   trainee: { color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
@@ -32,20 +50,33 @@ export function LearningRankWidget() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const t = useT();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = !!user?.role && ADMIN_ROLES.includes(user.role);
+
+  // Selectors state
+  const [period, setPeriod] = useState<LeaderboardPeriod>('month');
+  const [selectedRole, setSelectedRole] = useState<LeaderboardRole>(
+    (user?.role && (['regional_manager', 'supervisor', 'sales_rep'] as const).includes(user.role as LeaderboardRole))
+      ? (user.role as LeaderboardRole)
+      : 'regional_manager'
+  );
 
   useEffect(() => {
     setLoading(true);
     setError(false);
+    const opts: { period: LeaderboardPeriod; role?: LeaderboardRole } = { period };
+    if (isAdmin) opts.role = selectedRole;
     learningApi
-      .getLeaderboard(10)
+      .getLeaderboard(10, opts)
       .then((res) => setData(res.data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, []);
+  }, [period, selectedRole, isAdmin]);
 
   const levelName = (level: string) => t(`dashboard.leaderboard.levels.${level}`);
 
-  if (loading) {
+  // Показываем skeleton только при первой загрузке (когда data ещё нет)
+  if (loading && !data) {
     return (
       <div
         className="rounded-2xl border p-6"
@@ -87,10 +118,14 @@ export function LearningRankWidget() {
 
   return (
     <div
-      className="rounded-2xl border overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+      className="rounded-2xl border overflow-hidden transition-opacity"
+      style={{
+        background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        opacity: loading ? 0.6 : 1,
+      }}
     >
-      {/* HERO — Лига Чемпионов баннер */}
+      {/* HERO — Лига Чемпионов баннер + контролы */}
       <div
         className="relative px-5 py-4 sm:px-6"
         style={{
@@ -98,7 +133,7 @@ export function LearningRankWidget() {
           borderBottom: '1px solid rgba(200,168,75,0.2)',
         }}
       >
-        <div className="flex items-start justify-between flex-wrap gap-2">
+        <div className="flex items-start justify-between flex-wrap gap-3 mb-3">
           <div>
             <h2
               className="text-lg font-bold text-white flex items-center gap-2.5"
@@ -122,6 +157,59 @@ export function LearningRankWidget() {
           >
             {t('dashboard.leaderboard.goToLearning') || 'К обучению'} →
           </Link>
+        </div>
+
+        {/* Контролы: роль (admin) + период */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Role selector — только admin */}
+          {isAdmin && (
+            <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+              {ROLE_OPTIONS.map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => setSelectedRole(r.value)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                    selectedRole === r.value
+                      ? 'bg-amber-400 text-[#0a1929]'
+                      : 'text-white/65 hover:text-white'
+                  }`}
+                  title={`Рейтинг ${r.label}`}
+                  style={{ fontFamily: "'Unbounded',sans-serif" }}
+                >
+                  <span className="mr-1">{r.icon}</span>
+                  {r.label}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Period selector */}
+          <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+            {PERIOD_OPTIONS.map((p) => (
+              <button
+                key={p.value}
+                type="button"
+                onClick={() => setPeriod(p.value)}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  period === p.value
+                    ? 'bg-amber-400 text-[#0a1929]'
+                    : 'text-white/65 hover:text-white'
+                }`}
+                title={p.short}
+                style={{ fontFamily: "'Unbounded',sans-serif" }}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Контекст текущего выбора */}
+          <div className="text-[11px] text-white/45 ml-auto">
+            {data.formula?.period_days && (
+              <>За последние <strong className="text-white/70">{data.formula.period_days}</strong> дней</>
+            )}
+          </div>
         </div>
       </div>
 

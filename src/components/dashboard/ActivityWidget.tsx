@@ -13,7 +13,22 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { learningApi } from '../../api/learning';
+import type { LeaderboardPeriod } from '../../api/learning';
 import { useT, useLangStore } from '../../stores/langStore';
+
+const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string }> = [
+  { value: 'month',     label: 'Месяц' },
+  { value: 'quarter',   label: 'Квартал' },
+  { value: 'half_year', label: 'Полгода' },
+  { value: 'year',      label: 'Год' },
+];
+
+const PERIOD_DAYS: Record<LeaderboardPeriod, number> = {
+  month: 30,
+  quarter: 90,
+  half_year: 180,
+  year: 365,
+};
 
 interface ActivityData {
   shelfscan: number;
@@ -44,12 +59,13 @@ export function ActivityWidget() {
   const [data, setData] = useState<ActivityData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [period, setPeriod] = useState<LeaderboardPeriod>('month');
 
   useEffect(() => {
     setLoading(true);
     setError(false);
-    // Берём leaderboard и достаём СВОЮ запись (там уже есть activity_breakdown)
-    learningApi.getLeaderboard(100)
+    // Берём leaderboard для выбранного периода и достаём СВОЮ запись
+    learningApi.getLeaderboard(100, { period })
       .then((res) => {
         const me = res.data.leaderboard.find((e) => e.is_current_user);
         if (!me) {
@@ -67,9 +83,10 @@ export function ActivityWidget() {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, []);
+  }, [period]);
 
-  if (loading) {
+  // Skeleton только при первой загрузке (data === null)
+  if (loading && !data) {
     return (
       <div
         className="rounded-2xl border p-6"
@@ -98,40 +115,65 @@ export function ActivityWidget() {
 
   return (
     <div
-      className="rounded-2xl border overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+      className="rounded-2xl border overflow-hidden transition-opacity"
+      style={{
+        background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        opacity: loading ? 0.6 : 1,
+      }}
     >
-      {/* Hero — общий итоговый балл */}
+      {/* Hero — общий итоговый балл + period selector */}
       <div
-        className="px-5 py-4 sm:px-6 flex items-center justify-between flex-wrap gap-3 border-b"
+        className="px-5 py-4 sm:px-6 border-b"
         style={{
           borderColor: 'rgba(255,255,255,0.06)',
           background: `linear-gradient(135deg, ${totalMeta.bg}, rgba(17,36,61,0.4))`,
         }}
       >
-        <div>
-          <div className="text-[10px] uppercase tracking-widest text-white/55 mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-            🔥 {lang === 'uz' ? 'Mening faolligim 30 kun' : 'Моя активность · 30 дней'}
+        <div className="flex items-start justify-between flex-wrap gap-3 mb-3">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-white/55 mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+              🔥 {lang === 'uz' ? 'Mening faolligim' : 'Моя активность'} · {PERIOD_DAYS[period]} дней
+            </div>
+            <div className="text-xs text-white/55">
+              Формула: <span className="text-emerald-300">50% обучение</span>
+              {' + '}
+              <span className="text-amber-300">30% активность</span>
+              {' + '}
+              <span className="text-blue-300">20% streak</span>
+              <span className="text-white/30 ml-1.5">(KPI 30% — после CRM)</span>
+            </div>
           </div>
-          <div className="text-xs text-white/55">
-            Формула: <span className="text-emerald-300">50% обучение</span>
-            {' + '}
-            <span className="text-amber-300">30% активность</span>
-            {' + '}
-            <span className="text-blue-300">20% streak</span>
-            <span className="text-white/30 ml-1.5">(KPI 30% — после CRM)</span>
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-widest text-white/55" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+              Итоговый балл
+            </div>
+            <div
+              className="text-3xl font-bold leading-none"
+              style={{ fontFamily: "'Unbounded',sans-serif", color: totalMeta.color }}
+            >
+              {Math.round(data.total_score)}<span className="text-lg opacity-60">/100</span>
+            </div>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] uppercase tracking-widest text-white/55" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-            Итоговый балл
-          </div>
-          <div
-            className="text-3xl font-bold leading-none"
-            style={{ fontFamily: "'Unbounded',sans-serif", color: totalMeta.color }}
-          >
-            {Math.round(data.total_score)}<span className="text-lg opacity-60">/100</span>
-          </div>
+
+        {/* Period selector */}
+        <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+          {PERIOD_OPTIONS.map((p) => (
+            <button
+              key={p.value}
+              type="button"
+              onClick={() => setPeriod(p.value)}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                period === p.value
+                  ? 'bg-amber-400 text-[#0a1929]'
+                  : 'text-white/65 hover:text-white'
+              }`}
+              style={{ fontFamily: "'Unbounded',sans-serif" }}
+            >
+              {p.label}
+            </button>
+          ))}
         </div>
       </div>
 

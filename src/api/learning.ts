@@ -510,6 +510,9 @@ export interface LeaderboardEntry {
   };
 }
 
+export type LeaderboardPeriod = 'month' | 'quarter' | 'half_year' | 'year';
+export type LeaderboardRole = 'regional_manager' | 'supervisor' | 'sales_rep';
+
 export interface LeaderboardResponse {
   my_rank: number;
   total_in_group: number;
@@ -518,6 +521,10 @@ export interface LeaderboardResponse {
   formula?: {
     weights: { learning: number; activity: number; streak: number };
     components: { learning: string; activity: string; streak: string };
+    period?: LeaderboardPeriod;
+    period_days?: number;
+    role?: LeaderboardRole;
+    is_admin_view?: boolean;
     kpi_pending_crm: boolean;
     version: string;
   };
@@ -591,10 +598,15 @@ export const learningApi = {
   getProgress: () =>
     api.get<ProgressResponse>('/api/v1/learning/progress'),
 
-  getLeaderboard: (limit = 20) =>
-    api.get<LeaderboardResponse>('/api/v1/learning/leaderboard', {
-      params: { limit },
-    }),
+  getLeaderboard: (
+    limit = 20,
+    options?: { role?: LeaderboardRole; period?: LeaderboardPeriod },
+  ) => {
+    const params: Record<string, string | number> = { limit };
+    if (options?.role) params.role = options.role;
+    if (options?.period) params.period = options.period;
+    return api.get<LeaderboardResponse>('/api/v1/learning/leaderboard', { params });
+  },
 
   // Admin: update lesson_data
   updateLessonData: (courseId: string, lessonData: BlockLessonData | LessonData) =>
