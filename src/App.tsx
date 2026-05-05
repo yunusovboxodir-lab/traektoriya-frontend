@@ -40,6 +40,7 @@ const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => 
 const OfflineProgramsPage = lazyWithRetry(() => import('./pages/OfflineProgramsPage').then(m => ({ default: m.OfflineProgramsPage })));
 const OfflineProgramEditPage = lazyWithRetry(() => import('./pages/OfflineProgramEditPage').then(m => ({ default: m.OfflineProgramEditPage })));
 const OfflineSessionPresenterPage = lazyWithRetry(() => import('./pages/OfflineSessionPresenterPage').then(m => ({ default: m.OfflineSessionPresenterPage })));
+const BlockPreviewPage = lazyWithRetry(() => import('./pages/BlockPreviewPage').then(m => ({ default: m.BlockPreviewPage })));
 const OfflineMobileTestPage = lazyWithRetry(() => import('./pages/OfflineMobileTestPage').then(m => ({ default: m.OfflineMobileTestPage })));
 const ShelfCorrectionPage = lazyWithRetry(() => import('./pages/ShelfCorrectionPage').then(m => ({ default: m.ShelfCorrectionPage })));
 const DictionaryUZPage = lazyWithRetry(() => import('./pages/DictionaryUZPage').then(m => ({ default: m.DictionaryUZPage })));
@@ -339,6 +340,10 @@ function AppRoutes() {
         path="/activities/m/:accessCode/:phase"
         element={<OfflineMobileTestPage />}
       />
+      {/* Dev-only: изолированная превью блоков офлайн-программ */}
+      {import.meta.env.DEV && (
+        <Route path="/__block_preview" element={<BlockPreviewPage />} />
+      )}
 
       {/* Module 15: Smart Training Plan */}
       <Route

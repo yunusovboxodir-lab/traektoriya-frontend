@@ -117,37 +117,63 @@ export function OfflineSessionPresenterPage() {
 
   const exitPresenter = () => navigate('/activities');
 
-  if (error) return <div className="p-8 text-red-700 bg-stone-50 min-h-screen">{error}</div>;
-  if (!session) return <div className="p-8 text-stone-400 bg-stone-50 min-h-screen">Загрузка...</div>;
+  if (error) return <div className="p-8 min-h-screen" style={{ color: '#FCA5A5', background: '#0D0F14' }}>{error}</div>;
+  if (!session) return <div className="p-8 min-h-screen" style={{ color: '#9CA3AF', background: '#0D0F14' }}>Загрузка...</div>;
+
+  // Дефолтный фон проектора — dark с лёгким градиентом, в стиле платформы.
+  // Отдельные слайды могут переопределить через slide.bg_style.
+  const defaultBg = 'radial-gradient(ellipse at top, rgba(200,168,75,0.08) 0%, #0D0F14 50%, #0D0F14 100%)';
 
   return (
     <div ref={containerRef}
       className="min-h-screen w-full"
       style={{
-        background: currentSlide?.bg_style ||
-          'linear-gradient(180deg,#f5f1e8 0%,#ede6d3 100%)',
+        background: currentSlide?.bg_style || defaultBg,
+        color: '#E8EAF0',
       }}>
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 flex justify-between items-center px-6 py-3 z-10">
-        <div className="text-xs font-semibold text-stone-500 tracking-widest uppercase">
-          N'MEDOV ACADEMY • {program?.code.toUpperCase() || session.program}
+        <div
+          style={{ color: '#9CA3AF', letterSpacing: '0.2em' }}
+          className="text-xs font-semibold uppercase"
+        >
+          N'MEDOV ACADEMY • <span style={{ color: '#C8A84B' }}>{program?.code.toUpperCase() || session.program}</span>
           {qrPayload && (
-            <span className="ml-3 px-2 py-0.5 rounded bg-stone-800 text-white">КОД: {qrPayload.access_code}</span>
+            <span
+              style={{ background: '#C8A84B', color: '#0D0F14' }}
+              className="ml-3 px-2 py-0.5 rounded font-bold"
+            >
+              КОД: {qrPayload.access_code}
+            </span>
           )}
         </div>
         <div className="flex gap-2 items-center">
-          <div className="flex gap-1 bg-white/70 rounded-lg p-0.5 border border-stone-200">
+          <div
+            style={{ background: 'rgba(26,31,46,0.7)', border: '1px solid #252B3B' }}
+            className="flex gap-1 rounded-lg p-0.5"
+          >
             {(['ru', 'uz'] as const).map((l) => (
               <button key={l} onClick={() => setLang(l)}
-                className={`text-xs px-2 py-1 rounded font-bold ${lang === l ? 'bg-stone-800 text-white' : 'text-stone-600'}`}>
+                style={lang === l
+                  ? { background: '#C8A84B', color: '#0D0F14' }
+                  : { color: '#9CA3AF' }}
+                className="text-xs px-2 py-1 rounded font-bold">
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
-          <button onClick={toggleFullscreen} className="text-xs px-3 py-1.5 bg-white/70 border border-stone-200 rounded-lg text-stone-700 hover:bg-white">
+          <button
+            onClick={toggleFullscreen}
+            style={{ background: 'rgba(26,31,46,0.7)', border: '1px solid #252B3B', color: '#E8EAF0' }}
+            className="text-xs px-3 py-1.5 rounded-lg"
+          >
             ⛶ Fullscreen
           </button>
-          <button onClick={exitPresenter} className="text-xs px-3 py-1.5 bg-white/70 border border-stone-200 rounded-lg text-stone-700 hover:bg-white">
+          <button
+            onClick={exitPresenter}
+            style={{ background: 'rgba(26,31,46,0.7)', border: '1px solid #252B3B', color: '#E8EAF0' }}
+            className="text-xs px-3 py-1.5 rounded-lg"
+          >
             ✕ Выход
           </button>
         </div>
@@ -156,7 +182,7 @@ export function OfflineSessionPresenterPage() {
       {/* Slide content */}
       <div className="px-12 pt-20 pb-24 min-h-screen flex flex-col justify-center">
         {!currentSlide ? (
-          <div className="text-center text-stone-400 text-2xl">
+          <div style={{ color: '#9CA3AF' }} className="text-center text-2xl">
             Нет слайдов в программе. Зайдите в редактор и добавьте.
           </div>
         ) : (
@@ -172,20 +198,25 @@ export function OfflineSessionPresenterPage() {
       </div>
 
       {/* Bottom bar */}
-      <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-3 z-10 bg-white/40">
-        <div className="text-xs text-stone-500">
+      <div
+        style={{ background: 'rgba(13,15,20,0.85)', borderTop: '1px solid #252B3B' }}
+        className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-3 z-10"
+      >
+        <div style={{ color: '#6B7280' }} className="text-xs">
           Стрелки ← → для навигации • Esc для выхода • F для Fullscreen
         </div>
         <div className="flex items-center gap-4">
           <button onClick={goPrev} disabled={slideIdx === 0}
-            className="px-4 py-1.5 bg-white border border-stone-300 rounded text-sm disabled:opacity-30">
+            style={{ background: '#1A1F2E', border: '1px solid #323A50', color: '#E8EAF0' }}
+            className="px-4 py-1.5 rounded text-sm disabled:opacity-30">
             ←
           </button>
-          <span className="text-sm font-bold text-stone-700">
+          <span style={{ color: '#E8EAF0' }} className="text-sm font-bold">
             {slideIdx + 1} / {slides.length}
           </span>
           <button onClick={goNext} disabled={slideIdx >= slides.length - 1}
-            className="px-4 py-1.5 bg-white border border-stone-300 rounded text-sm disabled:opacity-30">
+            style={{ background: '#1A1F2E', border: '1px solid #323A50', color: '#E8EAF0' }}
+            className="px-4 py-1.5 rounded text-sm disabled:opacity-30">
             →
           </button>
         </div>
