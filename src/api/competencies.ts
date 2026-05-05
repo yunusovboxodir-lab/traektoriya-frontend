@@ -163,6 +163,39 @@ export interface PulseCourse {
   completed_at: string | null;
 }
 
+// ─── Subordinates Pulse (каскадный обзор) ────────────────────────────────────
+
+export interface SubordinatePulseEntry {
+  user_id: string;
+  employee_id: string;
+  full_name: string | null;
+  role: string;
+  overall_pulse: number;
+  overall_level: string;
+  overall_level_ru: string;
+  competencies: Array<{
+    id: string;
+    name: string;
+    pct: number;
+    level: string;
+  }>;
+}
+
+export interface SubordinatesPulseResponse {
+  parent_user_id: string;
+  parent_role: string;
+  subordinate_role: string | null;
+  members_count: number;
+  avg_pulse: number;
+  members: SubordinatePulseEntry[];
+  competency_averages: Array<{
+    id: string;
+    name: string;
+    avg_pct: number;
+    level: string;
+  }>;
+}
+
 // ---------------------------------------------------------------------------
 // API — Pulse
 // ---------------------------------------------------------------------------
@@ -186,6 +219,10 @@ export const pulseApi = {
       `/api/v1/pulse/competency/${competencyId}/courses`,
       { params: userId ? { user_id: userId } : undefined },
     ),
+
+  // Каскадный обзор: пульсы прямых подчинённых (СВ→ТП, РМ→СВ, Ком.Дир→РМ)
+  getSubordinatesPulse: () =>
+    api.get<SubordinatesPulseResponse>('/api/v1/pulse/subordinates'),
 };
 
 // ---------------------------------------------------------------------------

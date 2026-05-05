@@ -47,15 +47,15 @@ export function CompetenciesPage() {
   return (
     <div>
       {visibleTabs.length > 1 && (
-        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-6 w-fit">
+        <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 mb-6 w-fit">
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
                 activeTab === tab.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-amber-400 text-[#0a1929] font-semibold shadow-sm'
+                  : 'text-white/65 hover:text-white'
               }`}
             >
               {t(tab.labelKey)}
