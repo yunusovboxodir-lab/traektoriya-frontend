@@ -1,21 +1,22 @@
 /**
- * PulseWidget v2 (2026-05-05)
+ * PulseWidget v3 (2026-05-05) — эффектный + информативный.
  *
- * Компактный виджет «Пульс» для главной страницы.
- * Layout: 2 колонки внутри карточки.
- *  - Левая: gauge + бейдж уровня + дельта
- *  - Правая: Главные точки роста + Уведомления (встроенные nudges)
- * Кликабелен → /competencies (полный радар).
+ * По запросу PO: Pulse должен быть «максимально эффектным и информативным».
+ * Структура:
+ *  - Hero: огромный gauge (220px) с glow + level badge + delta
+ *  - Center: компактный radar (260px) с benchmark target
+ *  - Right: 4 KPI-плитки (компетенций / средний / точек роста / streak)
+ *  - Bottom: топ-3 точки роста с прогресс-барами
  *
- * Темный navy + gold (унифицировано со страницей /competencies).
+ * Уведомления (nudges) вынесены в отдельный TasksNotificationsWidget.
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useLangStore, useT } from '../../stores/langStore';
-import { useGoalsStore } from '../../stores/goalsStore';
 import { pulseApi, type UserPulse } from '../../api/competencies';
 import { onPulseInvalidate } from '../../utils/pulseEvents';
+import { RadarChart, type RadarDataPoint } from '../competencies/RadarChart';
 
 const PULSE_ROLES = [
   { value: 'regional_manager', label: { ru: 'РМ', uz: 'RM' } },
@@ -26,10 +27,10 @@ const PULSE_ROLES = [
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
 const LEVEL_META = {
-  master: { label: 'Мастер', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
-  expert: { label: 'Эксперт', range: '51–75%', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
-  practitioner: { label: 'Практик', range: '26–50%', color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
-  trainee: { label: 'Стажёр', range: '0–25%', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+  master: { label: 'Мастер', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)', glow: 'rgba(74,222,128,0.5)' },
+  expert: { label: 'Эксперт', range: '51–75%', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)', glow: 'rgba(96,165,250,0.5)' },
+  practitioner: { label: 'Практик', range: '26–50%', color: '#FBBF24', bg: 'rgba(251,191,36,0.15)', glow: 'rgba(251,191,36,0.5)' },
+  trainee: { label: 'Стажёр', range: '0–25%', color: '#EF4444', bg: 'rgba(239,68,68,0.15)', glow: 'rgba(239,68,68,0.5)' },
 } as const;
 
 type LevelKey = keyof typeof LEVEL_META;
@@ -40,20 +41,6 @@ function levelByPct(pct: number): LevelKey {
   if (pct >= 26) return 'practitioner';
   return 'trainee';
 }
-
-const NUDGE_TYPE_ICON: Record<string, string> = {
-  reminder: '🔔',
-  suggestion: '💡',
-  alert: '⚠️',
-  celebration: '🎉',
-};
-
-const NUDGE_PRIORITY_COLOR: Record<string, string> = {
-  urgent: '#EF4444',
-  high: '#FB923C',
-  medium: '#60A5FA',
-  low: 'rgba(255,255,255,0.3)',
-};
 
 export function PulseWidget() {
   const navigate = useNavigate();
@@ -70,15 +57,6 @@ export function PulseWidget() {
   const [selectedRole, setSelectedRole] = useState<string>(
     isAdmin ? 'regional_manager' : (user?.role || 'sales_rep'),
   );
-
-  // Уведомления (nudges)
-  const nudges = useGoalsStore((s) => s.nudges);
-  const fetchNudges = useGoalsStore((s) => s.fetchNudges);
-  const markNudgeRead = useGoalsStore((s) => s.markNudgeRead);
-
-  useEffect(() => {
-    fetchNudges(true, 3);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const userId = user?.id ? String(user.id) : null;
 
@@ -103,7 +81,6 @@ export function PulseWidget() {
     [userId, isAdmin, selectedRole]
   );
 
-  // Auto-retry для пустого пульса (бэк лениво считает)
   useEffect(() => {
     const controller = new AbortController();
     (async () => {
@@ -125,10 +102,9 @@ export function PulseWidget() {
 
   useEffect(() => { setRetryCount(0); }, [userId, selectedRole]);
 
-  // === LOADING ===
   if (loading && !pulse) {
     return (
-      <div className="rounded-xl p-8 border" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="rounded-2xl p-12 border" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="animate-spin h-8 w-8 rounded-full border-2 border-amber-400 border-t-transparent" />
           <div className="text-xs uppercase tracking-widest text-white/50">
@@ -141,13 +117,15 @@ export function PulseWidget() {
     );
   }
 
-  // === EMPTY ===
   if (!pulse || !pulse.competencies || pulse.competencies.length === 0) {
     return (
-      <div className="rounded-xl p-6 border text-center" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
-        <div className="text-3xl mb-2">📊</div>
-        <div className="text-sm text-white/60 mb-3">
+      <div className="rounded-2xl p-8 border text-center" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
+        <div className="text-4xl mb-3">📊</div>
+        <div className="text-base text-white/65 mb-1 font-semibold">
           {lang === 'uz' ? 'Pulsi hali tayyor emas' : 'Пульс ещё не рассчитан'}
+        </div>
+        <div className="text-xs text-white/40 mb-4">
+          {lang === 'uz' ? 'Birinchi kursni tugating, statistik to\'planadi' : 'Пройди первый курс — статистика накопится'}
         </div>
         <button
           type="button"
@@ -161,20 +139,34 @@ export function PulseWidget() {
     );
   }
 
-  // === MAIN ===
+  // === Подготовка данных ===
   const overall = Math.round(pulse.overall_pulse);
   const lvl = levelByPct(pulse.overall_pulse);
   const meta = LEVEL_META[lvl];
   const overallLevelName = lang === 'uz' ? pulse.overall_level_uz : pulse.overall_level_ru;
 
-  // Топ-3 слабых компетенции (для «точек роста»)
+  // Радар данные
+  const radarData: RadarDataPoint[] = pulse.competencies.map((c) => ({
+    label: lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name,
+    value: c.pulse_pct,
+    level: c.pulse_level,
+    id: c.competency_id,
+  }));
+
+  // Топ-3 точки роста
   const top3Weak = pulse.competencies
     .filter((c) => c.pulse_pct < 60)
     .sort((a, b) => a.pulse_pct - b.pulse_pct)
     .slice(0, 3);
 
-  // Gauge (compact 140px)
-  const r = 60;
+  // KPI-метрики
+  const totalCourses = pulse.competencies.reduce((s, c) => s + c.courses_total, 0);
+  const completedCourses = pulse.competencies.reduce((s, c) => s + c.courses_completed, 0);
+  const masterCount = pulse.competencies.filter((c) => c.pulse_pct >= 76).length;
+  const weakCount = pulse.competencies.filter((c) => c.pulse_pct < 50).length;
+
+  // Gauge геометрия
+  const r = 90;
   const C = 2 * Math.PI * r;
   const dash = (overall / 100) * C;
 
@@ -183,15 +175,24 @@ export function PulseWidget() {
       className="rounded-2xl border overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
     >
-      {/* Селектор роли (только админ) */}
-      {isAdmin && (
-        <div
-          className="px-5 py-2 flex items-center justify-between border-b"
-          style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}
-        >
-          <span className="text-[11px] uppercase tracking-widest text-white/45">
-            {lang === 'uz' ? 'Rol' : 'Роль'}
+      {/* Hero header (gradient) */}
+      <div
+        className="px-5 py-3 sm:px-6 flex items-center justify-between flex-wrap gap-2"
+        style={{
+          background: `linear-gradient(135deg, ${meta.bg}, rgba(17,36,61,0.4))`,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: meta.color, boxShadow: `0 0 12px ${meta.color}` }} />
+          <span
+            className="text-[11px] uppercase tracking-widest font-bold"
+            style={{ fontFamily: "'Unbounded',sans-serif", color: meta.color }}
+          >
+            Live · обновлено сейчас
           </span>
+        </div>
+        {isAdmin && (
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -204,160 +205,213 @@ export function PulseWidget() {
               </option>
             ))}
           </select>
-        </div>
-      )}
+        )}
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-5 p-5">
+      {/* MAIN: 3 секции */}
+      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_240px] gap-5 p-5">
 
-        {/* ─── ЛЕВАЯ КОЛОНКА: Gauge ─── */}
+        {/* ─── ЛЕВО: Большой gauge ─── */}
         <div className="flex flex-col items-center gap-3 py-2">
-          <div className="relative w-[160px] h-[160px]">
-            <svg viewBox="0 0 160 160" className="w-full h-full">
-              <circle cx="80" cy="80" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="12" />
+          <div className="relative w-[220px] h-[220px]">
+            {/* Glow эффект сзади */}
+            <div
+              className="absolute inset-4 rounded-full opacity-30"
+              style={{ background: `radial-gradient(circle, ${meta.color}, transparent 70%)`, filter: 'blur(20px)' }}
+            />
+            <svg viewBox="0 0 220 220" className="relative w-full h-full">
+              <circle cx="110" cy="110" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+              {/* Сегменты уровней — деления */}
+              {[25, 50, 75].map((p) => {
+                const angle = (p / 100) * 360 - 90;
+                const rad = (angle * Math.PI) / 180;
+                const x1 = 110 + Math.cos(rad) * (r - 7);
+                const y1 = 110 + Math.sin(rad) * (r - 7);
+                const x2 = 110 + Math.cos(rad) * (r + 7);
+                const y2 = 110 + Math.sin(rad) * (r + 7);
+                return <line key={p} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.2)" strokeWidth="1" />;
+              })}
               <circle
-                cx="80" cy="80" r={r}
+                cx="110" cy="110" r={r}
                 fill="none"
                 stroke={meta.color}
-                strokeWidth="12"
+                strokeWidth="14"
                 strokeLinecap="round"
                 strokeDasharray={`${dash} ${C}`}
-                transform="rotate(-90 80 80)"
-                style={{ transition: 'stroke-dasharray 0.8s ease' }}
+                transform="rotate(-90 110 110)"
+                style={{ transition: 'stroke-dasharray 1s ease', filter: `drop-shadow(0 0 8px ${meta.glow})` }}
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
-                {overall}<span className="text-base opacity-60">%</span>
+              <div className="text-[10px] uppercase tracking-widest text-white/45 mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+                Общий пульс
+              </div>
+              <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 56, fontWeight: 800, color: '#fff', lineHeight: 1, textShadow: `0 0 20px ${meta.glow}` }}>
+                {overall}<span className="text-2xl opacity-60">%</span>
               </span>
             </div>
           </div>
           <span
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold"
-            style={{ background: meta.bg, borderColor: meta.color + '66', color: meta.color }}
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border text-sm font-bold"
+            style={{ background: meta.bg, borderColor: meta.color + '66', color: meta.color, fontFamily: "'Unbounded',sans-serif" }}
           >
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
-            {overallLevelName} · {meta.range}
+            <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
+            {overallLevelName}
           </span>
-          <div className="text-[11px] text-white/50">
-            {pulse.competencies.length} {lang === 'uz' ? 'kompetensiya' : 'компетенций'}
+          <div className="text-xs text-white/55 text-center">
+            {meta.range} · {pulse.competencies.length} {lang === 'uz' ? 'kompetensiya' : 'компетенций'}
           </div>
+        </div>
+
+        {/* ─── ЦЕНТР: компактный радар ─── */}
+        <div
+          className="flex flex-col items-center justify-center py-2 cursor-pointer hover:bg-white/[0.02] rounded-xl transition-colors"
+          onClick={() => navigate('/competencies')}
+          title={lang === 'uz' ? 'Kengaytirish' : 'Открыть полный пульс'}
+        >
+          <div className="relative w-full" style={{ minHeight: 280 }}>
+            <RadarChart
+              data={radarData}
+              size={280}
+              targetValues={70}
+              fillColor={meta.color + '30'}
+              strokeColor={meta.color}
+            />
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-2 text-[10px] text-white/55">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-0.5" style={{ background: meta.color }} />
+              Твой пульс
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 border-t-2 border-dashed border-amber-400" />
+              Цель 70%
+            </span>
+          </div>
+        </div>
+
+        {/* ─── ПРАВО: 4 KPI-плитки + ссылка ─── */}
+        <div className="flex flex-col gap-2.5">
+          <KpiTile
+            label="Курсов закрыто"
+            value={`${completedCourses}/${totalCourses}`}
+            color="#60A5FA"
+            icon="📚"
+          />
+          <KpiTile
+            label="Уровень Мастер"
+            value={`${masterCount} ${masterCount === 1 ? 'компетенция' : 'компетенций'}`}
+            color="#4ADE80"
+            icon="🏆"
+          />
+          <KpiTile
+            label="Слабые зоны"
+            value={`${weakCount} ${weakCount === 1 ? 'зона' : 'зон'}`}
+            color={weakCount > 3 ? '#EF4444' : '#FBBF24'}
+            icon="⚡"
+          />
+          <KpiTile
+            label="До Эксперта"
+            value={overall >= 51 ? '✓ достигнут' : `+${51 - overall} п.п.`}
+            color={overall >= 51 ? '#4ADE80' : '#60A5FA'}
+            icon="🎯"
+          />
           <Link
             to="/competencies"
-            className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors mt-1"
+            className="mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all"
+            style={{
+              background: 'linear-gradient(135deg, #C8A84B, #E5C76B)',
+              color: '#0a1929',
+              fontFamily: "'Unbounded',sans-serif",
+              fontSize: 12,
+              boxShadow: '0 4px 12px rgba(200,168,75,0.3)',
+            }}
           >
-            {t('pulse.viewDetails') || 'Открыть полный пульс →'}
+            {t('pulse.viewDetails') || 'Открыть полный пульс'} →
           </Link>
         </div>
+      </div>
 
-        {/* ─── ПРАВАЯ КОЛОНКА: Точки роста + Уведомления ─── */}
-        <div className="flex flex-col gap-4">
-
-          {/* Главные точки роста */}
-          {top3Weak.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <div className="text-[10px] uppercase tracking-widest font-bold text-amber-400" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-                  ⚡ {lang === 'uz' ? 'O\'sish nuqtalari' : 'Главные точки роста'}
-                </div>
+      {/* BOTTOM: топ-3 точки роста с прогресс-барами */}
+      {top3Weak.length > 0 && (
+        <div
+          className="px-5 py-4 sm:px-6 border-t"
+          style={{ background: 'rgba(255,255,255,0.02)', borderTopColor: 'rgba(255,255,255,0.06)' }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[10px] uppercase tracking-widest font-bold text-amber-400 flex items-center gap-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+              ⚡ Главные точки роста
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/competencies')}
+              className="text-[11px] text-amber-400/70 hover:text-amber-300 transition-colors"
+            >
+              все компетенции →
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {top3Weak.map((c) => {
+              const cPct = Math.round(c.pulse_pct);
+              const cLvl = levelByPct(c.pulse_pct);
+              const cColor = LEVEL_META[cLvl].color;
+              return (
                 <button
+                  key={c.competency_id}
                   type="button"
                   onClick={() => navigate('/competencies')}
-                  className="text-[11px] text-amber-400/70 hover:text-amber-300 transition-colors"
+                  className="text-left rounded-lg border p-3 hover:bg-white/[0.03] hover:border-amber-400/30 transition-all"
+                  style={{ borderColor: 'rgba(255,255,255,0.06)' }}
                 >
-                  все →
-                </button>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {top3Weak.map((c) => {
-                  const cPct = Math.round(c.pulse_pct);
-                  const cLvl = levelByPct(c.pulse_pct);
-                  const cColor = LEVEL_META[cLvl].color;
-                  return (
-                    <button
-                      key={c.competency_id}
-                      type="button"
-                      onClick={() => navigate('/competencies')}
-                      className="grid items-center gap-3 px-3 py-2 rounded-lg border bg-white/[0.02] hover:bg-amber-500/5 hover:border-amber-400/30 transition-all text-left"
-                      style={{ gridTemplateColumns: '1fr 80px auto', borderColor: 'rgba(255,255,255,0.06)' }}
-                    >
-                      <span className="text-sm text-white/85 truncate">
-                        {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
-                      </span>
-                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${Math.max(cPct, 3)}%`, background: cColor }}
-                        />
-                      </div>
-                      <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 12, fontWeight: 700, color: cColor, minWidth: 36, textAlign: 'right' }}>
-                        {cPct}%
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Уведомления */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-widest font-bold text-blue-400" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-                🔔 {lang === 'uz' ? 'Bildirishnomalar' : 'Уведомления'}
-                {nudges.length > 0 && (
-                  <span className="ml-1.5 px-1.5 py-0.5 bg-blue-400/20 text-blue-300 rounded text-[10px]">
-                    {nudges.length}
-                  </span>
-                )}
-              </div>
-              <Link to="/goals" className="text-[11px] text-blue-400/70 hover:text-blue-300 transition-colors">
-                все →
-              </Link>
-            </div>
-
-            {nudges.length === 0 ? (
-              <div className="text-center py-4 text-xs text-white/35 bg-white/[0.02] rounded-lg border border-white/5">
-                {lang === 'uz' ? 'Yangi bildirishnomalar yo\'q' : 'Нет новых уведомлений · всё под контролем 👌'}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1.5">
-                {nudges.slice(0, 3).map((nudge) => {
-                  const borderColor = NUDGE_PRIORITY_COLOR[nudge.priority] || NUDGE_PRIORITY_COLOR.medium;
-                  return (
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-sm text-white/85 truncate font-medium">
+                      {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
+                    </span>
+                    <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 800, color: cColor }}>
+                      {cPct}%
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
                     <div
-                      key={nudge.id}
-                      className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg border-l-4 bg-white/[0.02]"
-                      style={{ borderLeftColor: borderColor }}
-                    >
-                      <span className="text-base flex-shrink-0 mt-0.5">{NUDGE_TYPE_ICON[nudge.type] || '🔔'}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white/90 leading-tight">{nudge.title}</p>
-                        <p className="text-xs text-white/50 mt-0.5 line-clamp-1">{nudge.message}</p>
-                        {nudge.action_url && (
-                          <Link
-                            to={nudge.action_url}
-                            className="inline-block mt-1 text-xs text-amber-400 hover:text-amber-300 font-medium"
-                          >
-                            {nudge.action_text || (lang === 'uz' ? 'O\'tish →' : 'Перейти →')}
-                          </Link>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => markNudgeRead(nudge.id)}
-                        className="flex-shrink-0 p-0.5 text-white/30 hover:text-white/70 transition-colors"
-                        title={lang === 'uz' ? 'O\'qilgan deb belgilash' : 'Отметить прочитанным'}
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                      className="h-full rounded-full transition-all duration-700"
+                      style={{ width: `${Math.max(cPct, 3)}%`, background: cColor, boxShadow: `0 0 6px ${cColor}80` }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-white/40">
+                    {c.courses_completed}/{c.courses_total} курсов · {LEVEL_META[cLvl].label}
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ─── KPI Tile ────────────────────────────────────────────────────────────────
+
+function KpiTile({ label, value, color, icon }: { label: string; value: string; color: string; icon: string }) {
+  return (
+    <div
+      className="rounded-lg border p-3 transition-all hover:scale-[1.02]"
+      style={{
+        background: `linear-gradient(135deg, ${color}10, transparent)`,
+        borderColor: color + '20',
+      }}
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <span className="text-base">{icon}</span>
+        <span className="text-[10px] uppercase tracking-widest text-white/45" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          {label}
+        </span>
+      </div>
+      <div
+        className="text-base font-bold"
+        style={{ color, fontFamily: "'Unbounded',sans-serif" }}
+      >
+        {value}
       </div>
     </div>
   );
