@@ -1,28 +1,35 @@
+/**
+ * LearningRankWidget v2 (2026-05-05)
+ *
+ * Рейтинг сотрудников по обучению — dark navy + gold для главной страницы.
+ * Унифицирован со стилем PulseWidget v2 и страницы /competencies.
+ */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { learningApi } from '../../api/learning';
 import type { LeaderboardResponse, LeaderboardEntry } from '../../api/learning';
 import { useT } from '../../stores/langStore';
 
-const LEVEL_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
-  trainee: { color: 'text-gray-700', bg: 'bg-gray-100', border: 'border-gray-300' },
-  practitioner: { color: 'text-blue-700', bg: 'bg-blue-100', border: 'border-blue-300' },
-  expert: { color: 'text-purple-700', bg: 'bg-purple-100', border: 'border-purple-300' },
-  master: { color: 'text-amber-700', bg: 'bg-amber-100', border: 'border-amber-300' },
+// Цвета уровней (синхронизированы с Pulse v2)
+const LEVEL_COLOR: Record<string, { color: string; bg: string }> = {
+  trainee: { color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+  practitioner: { color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
+  expert: { color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
+  master: { color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
 };
 
 function getRankEmoji(rank: number): string {
-  if (rank === 1) return '\u{1F947}';
-  if (rank === 2) return '\u{1F948}';
-  if (rank === 3) return '\u{1F949}';
+  if (rank === 1) return '🥇';
+  if (rank === 2) return '🥈';
+  if (rank === 3) return '🥉';
   return `#${rank}`;
 }
 
-function getRankStyle(rank: number): string {
-  if (rank === 1) return 'bg-gradient-to-r from-yellow-400 to-amber-500 text-white';
-  if (rank === 2) return 'bg-gradient-to-r from-gray-300 to-gray-400 text-white';
-  if (rank === 3) return 'bg-gradient-to-r from-orange-300 to-orange-400 text-white';
-  return 'bg-gray-100 text-gray-600';
+function getRankBadgeStyle(rank: number): React.CSSProperties {
+  if (rank === 1) return { background: 'linear-gradient(135deg, #FBBF24, #C8A84B)', color: '#0a1929' };
+  if (rank === 2) return { background: 'linear-gradient(135deg, #D1D5DB, #9CA3AF)', color: '#0a1929' };
+  if (rank === 3) return { background: 'linear-gradient(135deg, #FB923C, #C2410C)', color: '#fff' };
+  return { background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.7)' };
 }
 
 export function LearningRankWidget() {
@@ -44,15 +51,19 @@ export function LearningRankWidget() {
   const levelName = (level: string) =>
     t(`dashboard.leaderboard.levels.${level}`);
 
+  // Loading skeleton
   if (loading) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
+      <div
+        className="rounded-2xl border p-6"
+        style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+      >
         <div className="animate-pulse space-y-4">
-          <div className="h-6 w-48 rounded bg-gray-200" />
-          <div className="h-20 rounded-xl bg-gray-100" />
+          <div className="h-6 w-48 rounded bg-white/10" />
+          <div className="h-20 rounded-xl bg-white/5" />
           <div className="space-y-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 rounded-lg bg-gray-100" />
+              <div key={i} className="h-12 rounded-lg bg-white/5" />
             ))}
           </div>
         </div>
@@ -62,69 +73,88 @@ export function LearningRankWidget() {
 
   if (error || !data) {
     return (
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
-        <p className="text-sm text-gray-500">{t('dashboard.leaderboard.loadError')}</p>
+      <div
+        className="rounded-2xl border p-6"
+        style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}
+      >
+        <p className="text-sm text-white/55">{t('dashboard.leaderboard.loadError')}</p>
       </div>
     );
   }
 
   const { my_rank, total_in_group, my_progress, leaderboard } = data;
   const myLevel = my_progress?.current_level || 'trainee';
-  const myLevelCfg = LEVEL_CONFIG[myLevel] || LEVEL_CONFIG.trainee;
+  const myLvlCfg = LEVEL_COLOR[myLevel] || LEVEL_COLOR.trainee;
 
   return (
-    <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-4 sm:px-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.438 60.438 0 00-.491 6.347A48.62 48.62 0 0112 20.904a48.62 48.62 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.636 50.636 0 00-2.658-.813A59.906 59.906 0 0112 3.493a59.903 59.903 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-            </svg>
-            {t('dashboard.leaderboard.title')}
-          </h2>
-          <Link
-            to="/learning"
-            className="text-xs font-medium text-blue-200 hover:text-white transition-colors"
-          >
-            {t('dashboard.leaderboard.goToLearning')} &rarr;
-          </Link>
-        </div>
+    <div
+      className="rounded-2xl border overflow-hidden"
+      style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+    >
+      {/* Header — gold accent */}
+      <div
+        className="px-5 py-4 sm:px-6 flex items-center justify-between"
+        style={{ background: 'linear-gradient(90deg, rgba(200,168,75,0.12), rgba(200,168,75,0.04))', borderBottom: '1px solid rgba(200,168,75,0.2)' }}
+      >
+        <h2 className="text-base font-bold text-white flex items-center gap-2.5" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <span className="text-amber-400 text-lg">🏆</span>
+          {t('dashboard.leaderboard.title')}
+        </h2>
+        <Link
+          to="/learning"
+          className="text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
+        >
+          {t('dashboard.leaderboard.goToLearning')} →
+        </Link>
       </div>
 
       {/* My Rank Card */}
       <div className="px-5 py-4 sm:px-6">
-        <div className={`relative rounded-xl border-2 ${myLevelCfg.border} ${myLevelCfg.bg} p-4`}>
-          <div className="flex items-center justify-between">
+        <div
+          className="relative rounded-xl border-2 p-4"
+          style={{ borderColor: myLvlCfg.color + '66', background: myLvlCfg.bg }}
+        >
+          <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold ${getRankStyle(my_rank)}`}>
+              <div
+                className="flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold"
+                style={{ ...getRankBadgeStyle(my_rank), fontFamily: "'Unbounded',sans-serif" }}
+              >
                 {getRankEmoji(my_rank)}
               </div>
               <div>
-                <p className="text-sm text-gray-500">{t('dashboard.leaderboard.yourRank')}</p>
-                <p className="text-xl font-bold text-gray-900">
-                  {my_rank} <span className="text-sm font-normal text-gray-500">{t('dashboard.leaderboard.of')} {total_in_group}</span>
+                <p className="text-xs uppercase tracking-widest text-white/55">
+                  {t('dashboard.leaderboard.yourRank')}
+                </p>
+                <p className="text-xl font-bold text-white" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+                  {my_rank}
+                  <span className="text-sm font-normal text-white/50 ml-1">
+                    {t('dashboard.leaderboard.of')} {total_in_group}
+                  </span>
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${myLevelCfg.bg} ${myLevelCfg.color}`}>
+              <span
+                className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold border"
+                style={{ background: myLvlCfg.bg, color: myLvlCfg.color, borderColor: myLvlCfg.color + '40' }}
+              >
                 {levelName(myLevel)}
               </span>
               {my_progress && (
-                <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
-                  <span>{t('dashboard.leaderboard.courses')}: {my_progress.total_courses_completed}</span>
-                  <span>{t('dashboard.leaderboard.score')}: {my_progress.avg_quiz_score}%</span>
+                <div className="mt-1.5 flex items-center gap-3 text-xs text-white/55">
+                  <span>{t('dashboard.leaderboard.courses')}: <strong className="text-white/80">{my_progress.total_courses_completed}</strong></span>
+                  <span>{t('dashboard.leaderboard.score')}: <strong className="text-white/80">{my_progress.avg_quiz_score}%</strong></span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Progress bar — streak */}
+          {/* Streak */}
           {my_progress && my_progress.current_streak_days > 0 && (
-            <div className="mt-3 flex items-center gap-2 text-xs text-gray-600">
-              <span className="text-orange-500">&#x1F525;</span>
-              {t('dashboard.leaderboard.streak')}: {my_progress.current_streak_days} {t('dashboard.leaderboard.days')}
+            <div className="mt-3 flex items-center gap-2 text-xs text-white/65">
+              <span className="text-orange-400">🔥</span>
+              {t('dashboard.leaderboard.streak')}: <strong className="text-white">{my_progress.current_streak_days}</strong> {t('dashboard.leaderboard.days')}
             </div>
           )}
         </div>
@@ -133,7 +163,10 @@ export function LearningRankWidget() {
       {/* Leaderboard Table */}
       {leaderboard.length > 0 && (
         <div className="px-5 pb-4 sm:px-6">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <p
+            className="mb-2 text-[10px] font-bold uppercase tracking-widest text-white/45"
+            style={{ fontFamily: "'Unbounded',sans-serif" }}
+          >
             {t('dashboard.leaderboard.tableTitle')}
           </p>
           <div className="space-y-1.5">
@@ -156,35 +189,48 @@ function LeaderboardRow({
   t: (key: string, params?: Record<string, string | number>) => string;
   levelName: (level: string) => string;
 }) {
-  const cfg = LEVEL_CONFIG[entry.current_level] || LEVEL_CONFIG.trainee;
+  const cfg = LEVEL_COLOR[entry.current_level] || LEVEL_COLOR.trainee;
   const isMe = entry.is_current_user;
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
-        isMe ? 'bg-indigo-50 ring-1 ring-indigo-200' : 'hover:bg-gray-50'
-      }`}
+      className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors"
+      style={{
+        background: isMe ? 'rgba(200,168,75,0.10)' : 'rgba(255,255,255,0.02)',
+        border: isMe ? '1px solid rgba(200,168,75,0.4)' : '1px solid rgba(255,255,255,0.04)',
+      }}
     >
-      {/* Rank */}
-      <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${getRankStyle(entry.rank)}`}>
+      {/* Rank badge */}
+      <div
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+        style={{ ...getRankBadgeStyle(entry.rank), fontFamily: "'Unbounded',sans-serif" }}
+      >
         {entry.rank <= 3 ? getRankEmoji(entry.rank) : entry.rank}
       </div>
 
       {/* Name + level */}
       <div className="min-w-0 flex-1">
-        <p className={`truncate text-sm ${isMe ? 'font-bold text-indigo-700' : 'font-medium text-gray-800'}`}>
+        <p className={`truncate text-sm ${isMe ? 'font-bold text-amber-300' : 'font-medium text-white/85'}`}>
           {entry.full_name}
-          {isMe && <span className="ml-1 text-xs text-indigo-500">({t('dashboard.leaderboard.you')})</span>}
+          {isMe && <span className="ml-1 text-xs text-amber-400/70">({t('dashboard.leaderboard.you')})</span>}
         </p>
-        <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium ${cfg.bg} ${cfg.color}`}>
+        <span
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium border"
+          style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.color + '40' }}
+        >
           {levelName(entry.current_level)}
         </span>
       </div>
 
       {/* Stats */}
       <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold text-gray-700">{entry.courses_completed}</p>
-        <p className="text-[10px] text-gray-400">{entry.avg_quiz_score}%</p>
+        <p
+          className="text-sm font-semibold text-white/85"
+          style={{ fontFamily: "'Unbounded',sans-serif" }}
+        >
+          {entry.courses_completed}
+        </p>
+        <p className="text-[10px] text-white/40">{entry.avg_quiz_score}%</p>
       </div>
     </div>
   );

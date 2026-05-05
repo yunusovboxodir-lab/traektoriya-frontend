@@ -1,20 +1,21 @@
 /**
- * PulseWidget — мини-радар Пульса компетенций для Главной.
+ * PulseWidget v2 (2026-05-05)
  *
- * 2026-05-04 переделка:
- * - Auto-retry если первый запрос вернул пустой пульс (бэк лениво считает)
- * - Демонстративный UI: большой overall %, цветной gauge-bar, явные топ-3 GAP
- * - Tactical-токены (--bg-card / --color-rm), не bg-white
- * - Кликабельный → /competencies (полный радар)
+ * Компактный виджет «Пульс» для главной страницы.
+ * Layout: 2 колонки внутри карточки.
+ *  - Левая: gauge + бейдж уровня + дельта
+ *  - Правая: Главные точки роста + Уведомления (встроенные nudges)
+ * Кликабелен → /competencies (полный радар).
+ *
+ * Темный navy + gold (унифицировано со страницей /competencies).
  */
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useLangStore, useT } from '../../stores/langStore';
+import { useGoalsStore } from '../../stores/goalsStore';
 import { pulseApi, type UserPulse } from '../../api/competencies';
-import { RadarChart, type RadarDataPoint } from '../competencies/RadarChart';
 import { onPulseInvalidate } from '../../utils/pulseEvents';
-import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const PULSE_ROLES = [
   { value: 'regional_manager', label: { ru: 'РМ', uz: 'RM' } },
@@ -24,27 +25,41 @@ const PULSE_ROLES = [
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
-// Цветовая шкала по уровню (token-based)
-function levelColor(pct: number): string {
-  if (pct >= 76) return 'var(--success)';        // Мастер
-  if (pct >= 51) return 'var(--color-tp)';       // Эксперт
-  if (pct >= 26) return 'var(--warning)';        // Практик
-  return 'var(--danger)';                        // Стажёр
+const LEVEL_META = {
+  master: { label: 'Мастер', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
+  expert: { label: 'Эксперт', range: '51–75%', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
+  practitioner: { label: 'Практик', range: '26–50%', color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
+  trainee: { label: 'Стажёр', range: '0–25%', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+} as const;
+
+type LevelKey = keyof typeof LEVEL_META;
+
+function levelByPct(pct: number): LevelKey {
+  if (pct >= 76) return 'master';
+  if (pct >= 51) return 'expert';
+  if (pct >= 26) return 'practitioner';
+  return 'trainee';
 }
 
-function levelTextColor(pct: number): string {
-  if (pct >= 76) return 'var(--success)';
-  if (pct >= 51) return 'var(--color-tp)';
-  if (pct >= 26) return 'var(--warning)';
-  return 'var(--danger)';
-}
+const NUDGE_TYPE_ICON: Record<string, string> = {
+  reminder: '🔔',
+  suggestion: '💡',
+  alert: '⚠️',
+  celebration: '🎉',
+};
+
+const NUDGE_PRIORITY_COLOR: Record<string, string> = {
+  urgent: '#EF4444',
+  high: '#FB923C',
+  medium: '#60A5FA',
+  low: 'rgba(255,255,255,0.3)',
+};
 
 export function PulseWidget() {
   const navigate = useNavigate();
   const t = useT();
   const lang = useLangStore((s) => s.lang);
   const user = useAuthStore((s) => s.user);
-  const isMobile = useMediaQuery('(max-width: 640px)');
 
   const [pulse, setPulse] = useState<UserPulse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,8 +68,17 @@ export function PulseWidget() {
 
   const isAdmin = ADMIN_ROLES.includes(user?.role || '');
   const [selectedRole, setSelectedRole] = useState<string>(
-    isAdmin ? 'regional_manager' : (user?.role || 'sales_rep')
+    isAdmin ? 'regional_manager' : (user?.role || 'sales_rep'),
   );
+
+  // Уведомления (nudges)
+  const nudges = useGoalsStore((s) => s.nudges);
+  const fetchNudges = useGoalsStore((s) => s.fetchNudges);
+  const markNudgeRead = useGoalsStore((s) => s.markNudgeRead);
+
+  useEffect(() => {
+    fetchNudges(true, 3);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const userId = user?.id ? String(user.id) : null;
 
@@ -68,7 +92,6 @@ export function PulseWidget() {
         if (signal?.aborted) return false;
         const data = res.data;
         setPulse(data);
-        // Возвращаем true если данные нормальные (компетенции есть)
         return !!(data && data.competencies && data.competencies.length > 0);
       } catch {
         if (!signal?.aborted) setPulse(null);
@@ -80,24 +103,19 @@ export function PulseWidget() {
     [userId, isAdmin, selectedRole]
   );
 
-  // Initial load с auto-retry: если первый запрос вернул пустой пульс
-  // (бэк только что начал считать), пробуем ещё 2 раза с задержкой 1.5/3 сек
+  // Auto-retry для пустого пульса (бэк лениво считает)
   useEffect(() => {
     const controller = new AbortController();
-
     (async () => {
       const ok = await loadPulse(controller.signal);
       if (!ok && !controller.signal.aborted && retryCount < 2) {
-        // Ставим retry с экспоненциальной паузой
         const delay = (retryCount + 1) * 1500;
         retryTimer.current = setTimeout(() => {
           if (!controller.signal.aborted) setRetryCount((c) => c + 1);
         }, delay);
       }
     })();
-
     const off = onPulseInvalidate(() => loadPulse());
-
     return () => {
       controller.abort();
       off();
@@ -105,37 +123,15 @@ export function PulseWidget() {
     };
   }, [loadPulse, retryCount]);
 
-  // Сброс счётчика retry при смене роли/юзера
-  useEffect(() => {
-    setRetryCount(0);
-  }, [userId, selectedRole]);
-
-  const radarData: RadarDataPoint[] = pulse?.competencies.map((c) => ({
-    label: lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name,
-    value: c.pulse_pct,
-    level: c.pulse_level,
-  })) || [];
-
-  const overallLevelName = pulse
-    ? lang === 'uz' ? pulse.overall_level_uz : pulse.overall_level_ru
-    : '';
+  useEffect(() => { setRetryCount(0); }, [userId, selectedRole]);
 
   // === LOADING ===
-  if (loading) {
+  if (loading && !pulse) {
     return (
-      <div
-        className="rounded-xl p-8"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
+      <div className="rounded-xl p-8 border" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="flex flex-col items-center justify-center gap-3">
-          <div
-            className="animate-spin h-8 w-8 rounded-full"
-            style={{
-              border: '3px solid var(--border)',
-              borderTopColor: 'var(--color-rm)',
-            }}
-          />
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <div className="animate-spin h-8 w-8 rounded-full border-2 border-amber-400 border-t-transparent" />
+          <div className="text-xs uppercase tracking-widest text-white/50">
             {retryCount > 0
               ? (lang === 'uz' ? `Pulsi hisoblanmoqda… (${retryCount + 1}/3)` : `Считаем пульс… (${retryCount + 1}/3)`)
               : (lang === 'uz' ? 'Yuklanmoqda' : 'Загрузка')}
@@ -145,26 +141,19 @@ export function PulseWidget() {
     );
   }
 
-  // === EMPTY (после всех retry — данных нет) ===
+  // === EMPTY ===
   if (!pulse || !pulse.competencies || pulse.competencies.length === 0) {
     return (
-      <div
-        className="rounded-xl p-6 text-center"
-        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      >
-        <div style={{ fontSize: 28, marginBottom: 8 }}>📊</div>
-        <div style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 12 }}>
+      <div className="rounded-xl p-6 border text-center" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
+        <div className="text-3xl mb-2">📊</div>
+        <div className="text-sm text-white/60 mb-3">
           {lang === 'uz' ? 'Pulsi hali tayyor emas' : 'Пульс ещё не рассчитан'}
         </div>
         <button
           type="button"
           onClick={() => { setRetryCount(0); loadPulse(); }}
-          className="px-4 py-2 rounded-lg text-sm font-medium"
-          style={{
-            background: 'var(--color-rm-bg)',
-            color: 'var(--color-rm)',
-            border: '1px solid var(--color-rm-border)',
-          }}
+          className="px-4 py-2 rounded-lg text-sm font-medium border"
+          style={{ background: 'rgba(200,168,75,0.1)', color: '#C8A84B', borderColor: 'rgba(200,168,75,0.4)' }}
         >
           {lang === 'uz' ? '🔄 Qayta yuklash' : '🔄 Обновить'}
         </button>
@@ -172,237 +161,204 @@ export function PulseWidget() {
     );
   }
 
-  // === MAIN VIEW ===
+  // === MAIN ===
   const overall = Math.round(pulse.overall_pulse);
-  const overallColor = levelTextColor(pulse.overall_pulse);
-  const overallBg = levelColor(pulse.overall_pulse);
+  const lvl = levelByPct(pulse.overall_pulse);
+  const meta = LEVEL_META[lvl];
+  const overallLevelName = lang === 'uz' ? pulse.overall_level_uz : pulse.overall_level_ru;
+
+  // Топ-3 слабых компетенции (для «точек роста»)
   const top3Weak = pulse.competencies
     .filter((c) => c.pulse_pct < 60)
     .sort((a, b) => a.pulse_pct - b.pulse_pct)
     .slice(0, 3);
 
+  // Gauge (compact 140px)
+  const r = 60;
+  const C = 2 * Math.PI * r;
+  const dash = (overall / 100) * C;
+
   return (
     <div
-      className="rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-lg"
-      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
-      onClick={() => navigate('/competencies')}
+      className="rounded-2xl border overflow-hidden"
+      style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
     >
       {/* Селектор роли (только админ) */}
       {isAdmin && (
         <div
-          className="px-5 py-2 flex items-center justify-between"
-          style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-surface)' }}
+          className="px-5 py-2 flex items-center justify-between border-b"
+          style={{ borderColor: 'rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)' }}
         >
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+          <span className="text-[11px] uppercase tracking-widest text-white/45">
             {lang === 'uz' ? 'Rol' : 'Роль'}
           </span>
           <select
             value={selectedRole}
-            onChange={(e) => { e.stopPropagation(); setSelectedRole(e.target.value); }}
-            onClick={(e) => e.stopPropagation()}
-            className="px-3 py-1 rounded text-xs font-semibold"
-            style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              color: 'var(--text-primary)',
-            }}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="px-3 py-1 rounded text-xs font-semibold bg-white/5 border border-white/15 text-white"
+            style={{ colorScheme: 'dark' }}
           >
-            {PULSE_ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {lang === 'uz' ? r.label.uz : r.label.ru}
+            {PULSE_ROLES.map((rl) => (
+              <option key={rl.value} value={rl.value} style={{ color: '#000' }}>
+                {lang === 'uz' ? rl.label.uz : rl.label.ru}
               </option>
             ))}
           </select>
         </div>
       )}
 
-      {/* HERO BLOCK — огромный радар + центрированный % overlay + sidebar с метриками */}
-      <div className={`p-6 ${isMobile ? 'flex flex-col gap-4' : 'grid grid-cols-[1fr_320px] gap-6'}`}>
-        {/* Левая часть — большой радар */}
-        <div className="flex items-center justify-center relative" style={{ minHeight: isMobile ? 320 : 540 }}>
-          <RadarChart
-            data={radarData}
-            size={isMobile ? 320 : 540}
-            showValues
-          />
-          {/* Overlay: огромная цифра + level в центре радара */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-            }}
-          >
-            <div
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: isMobile ? 64 : 96,
-                fontWeight: 800,
-                lineHeight: 1,
-                color: overallColor,
-                textShadow: `0 0 32px ${overallBg}66`,
-              }}
-            >
-              {overall}<span style={{ fontSize: isMobile ? 32 : 48, opacity: 0.65 }}>%</span>
-            </div>
-            <div
-              className="mt-2 mx-auto inline-block px-3 py-1 rounded-full"
-              style={{
-                background: `${overallBg}1A`,
-                color: overallColor,
-                border: `1px solid ${overallBg}66`,
-                fontFamily: 'var(--font-body)',
-                fontWeight: 700,
-                fontSize: 11,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {overallLevelName}
+      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-5 p-5">
+
+        {/* ─── ЛЕВАЯ КОЛОНКА: Gauge ─── */}
+        <div className="flex flex-col items-center gap-3 py-2">
+          <div className="relative w-[160px] h-[160px]">
+            <svg viewBox="0 0 160 160" className="w-full h-full">
+              <circle cx="80" cy="80" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="12" />
+              <circle
+                cx="80" cy="80" r={r}
+                fill="none"
+                stroke={meta.color}
+                strokeWidth="12"
+                strokeLinecap="round"
+                strokeDasharray={`${dash} ${C}`}
+                transform="rotate(-90 80 80)"
+                style={{ transition: 'stroke-dasharray 0.8s ease' }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 36, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
+                {overall}<span className="text-base opacity-60">%</span>
+              </span>
             </div>
           </div>
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold"
+            style={{ background: meta.bg, borderColor: meta.color + '66', color: meta.color }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
+            {overallLevelName} · {meta.range}
+          </span>
+          <div className="text-[11px] text-white/50">
+            {pulse.competencies.length} {lang === 'uz' ? 'kompetensiya' : 'компетенций'}
+          </div>
+          <Link
+            to="/competencies"
+            className="text-xs font-semibold text-amber-400 hover:text-amber-300 transition-colors mt-1"
+          >
+            {t('pulse.viewDetails') || 'Открыть полный пульс →'}
+          </Link>
         </div>
 
-        {/* Правая часть — sidebar с разбивкой по 4 уровням + gauge */}
-        <div className="flex flex-col gap-4 justify-center">
-          {/* Gauge-bar */}
-          <div>
-            <div
-              className="text-xs mb-2"
-              style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
-            >
-              {lang === 'uz' ? 'Umumiy puls' : 'Общий пульс'}
-            </div>
-            <div
-              className="relative rounded-full overflow-hidden"
-              style={{ height: 12, background: 'var(--bg-elevated)' }}
-            >
-              <div
-                className="absolute left-0 top-0 h-full rounded-full transition-all duration-1000"
-                style={{
-                  width: `${overall}%`,
-                  background: `linear-gradient(90deg, ${overallBg}AA, ${overallBg})`,
-                  boxShadow: `0 0 12px ${overallBg}66`,
-                }}
-              />
-            </div>
-            <div className="flex justify-between mt-1.5" style={{ fontSize: 10, color: 'var(--text-muted)' }}>
-              <span>0</span>
-              <span style={{ opacity: 0.5 }}>25</span>
-              <span style={{ opacity: 0.5 }}>50</span>
-              <span style={{ opacity: 0.5 }}>75</span>
-              <span>100</span>
-            </div>
-          </div>
+        {/* ─── ПРАВАЯ КОЛОНКА: Точки роста + Уведомления ─── */}
+        <div className="flex flex-col gap-4">
 
-          {/* Уровни-маркеры */}
-          <div>
-            <div
-              className="text-xs mb-2"
-              style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}
-            >
-              {lang === 'uz' ? 'Darajalar' : 'Уровни'}
-            </div>
-            {[
-              { level: 'master',       name: 'Мастер',   range: '76–100%', color: 'var(--success)' },
-              { level: 'expert',       name: 'Эксперт',  range: '51–75%',  color: 'var(--color-tp)' },
-              { level: 'practitioner', name: 'Практик',  range: '26–50%',  color: 'var(--warning)' },
-              { level: 'trainee',      name: 'Стажёр',   range: '0–25%',   color: 'var(--danger)' },
-            ].map((lvl) => {
-              const isActive = lvl.level === pulse.overall_level;
-              return (
-                <div
-                  key={lvl.level}
-                  className="flex items-center gap-2 py-1"
-                  style={{ opacity: isActive ? 1 : 0.45 }}
-                >
-                  <div
-                    style={{
-                      width: 8, height: 8, borderRadius: '50%', background: lvl.color,
-                      boxShadow: isActive ? `0 0 8px ${lvl.color}` : 'none',
-                    }}
-                  />
-                  <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: isActive ? 700 : 500 }}>
-                    {lvl.name}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>
-                    {lvl.range}
-                  </span>
+          {/* Главные точки роста */}
+          {top3Weak.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-amber-400" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+                  ⚡ {lang === 'uz' ? 'O\'sish nuqtalari' : 'Главные точки роста'}
                 </div>
-              );
-            })}
+                <button
+                  type="button"
+                  onClick={() => navigate('/competencies')}
+                  className="text-[11px] text-amber-400/70 hover:text-amber-300 transition-colors"
+                >
+                  все →
+                </button>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {top3Weak.map((c) => {
+                  const cPct = Math.round(c.pulse_pct);
+                  const cLvl = levelByPct(c.pulse_pct);
+                  const cColor = LEVEL_META[cLvl].color;
+                  return (
+                    <button
+                      key={c.competency_id}
+                      type="button"
+                      onClick={() => navigate('/competencies')}
+                      className="grid items-center gap-3 px-3 py-2 rounded-lg border bg-white/[0.02] hover:bg-amber-500/5 hover:border-amber-400/30 transition-all text-left"
+                      style={{ gridTemplateColumns: '1fr 80px auto', borderColor: 'rgba(255,255,255,0.06)' }}
+                    >
+                      <span className="text-sm text-white/85 truncate">
+                        {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
+                      </span>
+                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${Math.max(cPct, 3)}%`, background: cColor }}
+                        />
+                      </div>
+                      <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 12, fontWeight: 700, color: cColor, minWidth: 36, textAlign: 'right' }}>
+                        {cPct}%
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Уведомления */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[10px] uppercase tracking-widest font-bold text-blue-400" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+                🔔 {lang === 'uz' ? 'Bildirishnomalar' : 'Уведомления'}
+                {nudges.length > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.5 bg-blue-400/20 text-blue-300 rounded text-[10px]">
+                    {nudges.length}
+                  </span>
+                )}
+              </div>
+              <Link to="/goals" className="text-[11px] text-blue-400/70 hover:text-blue-300 transition-colors">
+                все →
+              </Link>
+            </div>
+
+            {nudges.length === 0 ? (
+              <div className="text-center py-4 text-xs text-white/35 bg-white/[0.02] rounded-lg border border-white/5">
+                {lang === 'uz' ? 'Yangi bildirishnomalar yo\'q' : 'Нет новых уведомлений · всё под контролем 👌'}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                {nudges.slice(0, 3).map((nudge) => {
+                  const borderColor = NUDGE_PRIORITY_COLOR[nudge.priority] || NUDGE_PRIORITY_COLOR.medium;
+                  return (
+                    <div
+                      key={nudge.id}
+                      className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg border-l-4 bg-white/[0.02]"
+                      style={{ borderLeftColor: borderColor }}
+                    >
+                      <span className="text-base flex-shrink-0 mt-0.5">{NUDGE_TYPE_ICON[nudge.type] || '🔔'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white/90 leading-tight">{nudge.title}</p>
+                        <p className="text-xs text-white/50 mt-0.5 line-clamp-1">{nudge.message}</p>
+                        {nudge.action_url && (
+                          <Link
+                            to={nudge.action_url}
+                            className="inline-block mt-1 text-xs text-amber-400 hover:text-amber-300 font-medium"
+                          >
+                            {nudge.action_text || (lang === 'uz' ? 'O\'tish →' : 'Перейти →')}
+                          </Link>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => markNudgeRead(nudge.id)}
+                        className="flex-shrink-0 p-0.5 text-white/30 hover:text-white/70 transition-colors"
+                        title={lang === 'uz' ? 'O\'qilgan deb belgilash' : 'Отметить прочитанным'}
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>
-
-      {/* Топ-3 слабых компетенции — внизу */}
-      {top3Weak.length > 0 && (
-        <div
-          className="px-6 py-4"
-          style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}
-        >
-          <div
-            className="mb-3"
-            style={{
-              fontSize: 10,
-              color: 'var(--text-muted)',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              fontFamily: 'var(--font-mono)',
-              fontWeight: 600,
-            }}
-          >
-            {lang === 'uz' ? 'Asosiy o\'sish nuqtalari' : 'Главные точки роста'}
-          </div>
-          <div className="space-y-2.5">
-            {top3Weak.map((c) => {
-              const cPct = Math.round(c.pulse_pct);
-              const cColor = levelColor(c.pulse_pct);
-              return (
-                <div key={c.competency_id} className="flex items-center gap-3">
-                  <div
-                    className="flex-1 min-w-0 truncate"
-                    style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}
-                  >
-                    {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <div
-                      className="relative rounded-full overflow-hidden"
-                      style={{ width: 80, height: 6, background: 'var(--bg-elevated)' }}
-                    >
-                      <div
-                        className="absolute left-0 top-0 h-full rounded-full transition-all duration-700"
-                        style={{ width: `${Math.max(cPct, 3)}%`, background: cColor }}
-                      />
-                    </div>
-                    <div
-                      style={{
-                        width: 36,
-                        textAlign: 'right',
-                        fontFamily: 'var(--font-mono)',
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: cColor,
-                      }}
-                    >
-                      {cPct}%
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div
-            className="mt-3 text-right"
-            style={{ fontSize: 11, color: 'var(--color-rm)', fontWeight: 600 }}
-          >
-            {t('pulse.viewDetails') || 'Подробнее →'}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

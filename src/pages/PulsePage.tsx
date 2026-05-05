@@ -337,8 +337,6 @@ export function PulsePage() {
         <Card title="Карта компетенций · 8 направлений">
           <RadarBlock
             data={radarData}
-            overallPulse={pulse.overall_pulse}
-            overallLevelLabel={lang === 'uz' ? pulse.overall_level_uz : pulse.overall_level_ru}
             onPointClick={(_, datum) => datum.id && drillCompetency(datum.id)}
             tooltipExtra={(d) => {
               const comp = pulse.competencies.find((c) => c.competency_id === d.id);
@@ -630,13 +628,11 @@ function Benchmark({ pulse }: { pulse: UserPulse }) {
 
 interface RadarBlockProps {
   data: RadarDataPoint[];
-  overallPulse: number;
-  overallLevelLabel: string;
   onPointClick?: (idx: number, d: RadarDataPoint) => void;
   tooltipExtra?: (d: RadarDataPoint, idx: number) => React.ReactNode;
 }
 
-function RadarBlock({ data, overallPulse, overallLevelLabel, onPointClick, tooltipExtra }: RadarBlockProps) {
+function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
   return (
     <div>
       <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
@@ -647,15 +643,7 @@ function RadarBlock({ data, overallPulse, overallLevelLabel, onPointClick, toolt
           onPointClick={onPointClick}
           tooltipExtra={tooltipExtra}
         />
-        {/* Центральный overlay */}
-        <div className="absolute pointer-events-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-          <div style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 38, fontWeight: 800, color: '#C8A84B', lineHeight: 1 }}>
-            {Math.round(overallPulse)}%
-          </div>
-          <div className="text-[10px] uppercase tracking-widest text-white/45 mt-1">
-            {overallLevelLabel}
-          </div>
-        </div>
+        {/* Центральный overlay убран по запросу PO — дубль с левой карточкой «Общий пульс» */}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs text-white/65">
         <span className="inline-flex items-center gap-1.5">
@@ -1124,14 +1112,6 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
               fillColor="rgba(200, 168, 75, 0.15)"
               strokeColor="#C8A84B"
             />
-            <div className="absolute pointer-events-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              <div style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 38, fontWeight: 800, color: '#C8A84B', lineHeight: 1 }}>
-                {Math.round(data.avg_pulse)}%
-              </div>
-              <div className="text-[10px] uppercase tracking-widest text-white/45 mt-1">
-                {LEVEL_META[teamLevel].label}
-              </div>
-            </div>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs text-white/65">
             <span className="inline-flex items-center gap-1.5">

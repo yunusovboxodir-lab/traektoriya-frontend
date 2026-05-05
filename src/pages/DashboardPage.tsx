@@ -3,21 +3,28 @@
  *
  * Tactical-стиль (Module 18 Sprint 1, 2026-05-03).
  * 2026-05-04 cleanup: убраны DIVISIONS, SHELF/STREAK, RANK.
- * 2026-05-04 v2: Stat-cards теперь только для админов (мониторинг платформы);
- * для РМ/СВ/ТП они малополезны (не их KPI) — место освобождается под
- * EmployeeRanking widget (Кубок NMEDOV 2026).
+ * 2026-05-04 v2: Stat-cards только для админов; место освобождается
+ * под виджеты сотруднику.
+ * 2026-05-05 v3: Новый порядок по запросу PO:
+ *   1) Stat-cards (admin)
+ *   2) Рейтинг сотрудников (LearningRank — топ-10)
+ *   3) Пульс v2 со встроенными уведомлениями (раньше nudges были отдельным блоком)
+ *   4) CUP (для верификаторов)
  */
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { api } from '../api/client';
 import { useT, useLangStore } from '../stores/langStore';
-import { NudgesWidget } from '../components/dashboard/NudgesWidget';
+import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
+import { CupVerifyLeaderboardWidget } from '../components/dashboard/CupVerifyLeaderboardWidget';
 import {
   TacticalShell, TacticalPanel, TacticalStat,
 } from '../components/tactical/shell';
 
 const ADMIN_ROLES = new Set(['superadmin', 'admin', 'commercial_dir']);
+// Кубок NMEDOV 2026 — кому показываем CupVerifyLeaderboardWidget
+const CUP_VERIFY_ROLES = new Set(['superadmin', 'admin', 'commercial_dir', 'regional_manager']);
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -52,6 +59,7 @@ export function DashboardPage() {
   const lang = useLangStore((s) => s.lang);
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const isAdmin = !!user?.role && ADMIN_ROLES.has(user.role);
+  const canVerifyCup = !!user?.role && CUP_VERIFY_ROLES.has(user.role);
 
   useEffect(() => {
     if (!isAdmin) return; // не-админу общая аналитика не нужна
@@ -81,18 +89,7 @@ export function DashboardPage() {
       }
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* Dynamic Enablement (compass_artifact L&D 2026 §1.1) — push-нудж дня
-           вверху, до Stat-карточек: «что тебе посмотреть прямо сейчас». */}
-        <TacticalPanel
-          label="DYNAMIC ENABLEMENT"
-          title={lang === 'uz' ? 'Bugun siz uchun' : 'Сегодня для вас'}
-        >
-          <NudgesWidget />
-        </TacticalPanel>
-
-        {/* Quick stats — мониторинг платформы (только для admin/superadmin/commercial_dir).
-            Для РМ/СВ/ТП эти агрегаты не их KPI — место освобождается под
-            будущий EmployeeRanking widget (Кубок NMEDOV 2026). */}
+        {/* Quick stats — мониторинг платформы (только для admin/superadmin/commercial_dir). */}
         {isAdmin && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
             <TacticalStat
@@ -123,15 +120,33 @@ export function DashboardPage() {
           </div>
         )}
 
-        {/* Pulse — компетенции/уровень (compass §2.4 + §1.5).
+        {/* Рейтинг сотрудников — топ-10 по обучению (LMS leaderboard).
+            По запросу PO (2026-05-05) — выводим первым после статов: сотрудник
+            видит «где я в рейтинге» прежде чем смотреть свой пульс. */}
+        <TacticalPanel
+          label="RANK"
+          title={lang === 'uz' ? 'Xodimlar reytingi' : 'Рейтинг сотрудников'}
+        >
+          <LearningRankWidget />
+        </TacticalPanel>
+
+        {/* Пульс v2 — компетенции/уровень + встроенные уведомления (nudges).
+            По запросу PO (2026-05-05) — отдельный блок NudgesWidget убран,
+            уведомления теперь в правой колонке внутри карточки Pulse.
             Кликабелен → /competencies для полного радара. */}
         <TacticalPanel label="PULSE" title={lang === 'uz' ? 'Kompetensiyalar pulsi' : 'Пульс компетенций'}>
           <PulseWidget />
         </TacticalPanel>
 
-        {/* TODO 2026-05-04: EmployeeRankingWidget (Кубок NMEDOV 2026)
-            KPI = AI tasks (40%) + Learning online+offline (30%) + CRM sales (30%).
-            Готовится после получения шаблона CRM Sales Doc от PO. */}
+        {/* Кубок NMEDOV 2026 — лидерборд верификации продуктов.
+            Виден только admin/superadmin/commercial_dir/regional_manager. */}
+        {canVerifyCup && (
+          <TacticalPanel label="CUP" title="Кубок NMEDOV 2026">
+            <CupVerifyLeaderboardWidget />
+          </TacticalPanel>
+        )}
+
+        {/* TODO: полный EmployeeRankingWidget (40/30/30) — после получения CRM Sales Doc. */}
       </div>
     </TacticalShell>
   );
