@@ -17,14 +17,11 @@ import { api } from '../api/client';
 import { useT, useLangStore } from '../stores/langStore';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
-import { CupVerifyLeaderboardWidget } from '../components/dashboard/CupVerifyLeaderboardWidget';
 import {
   TacticalShell, TacticalPanel, TacticalStat,
 } from '../components/tactical/shell';
 
 const ADMIN_ROLES = new Set(['superadmin', 'admin', 'commercial_dir']);
-// Кубок NMEDOV 2026 — кому показываем CupVerifyLeaderboardWidget
-const CUP_VERIFY_ROLES = new Set(['superadmin', 'admin', 'commercial_dir', 'regional_manager']);
 
 interface OverviewStatsRaw {
   users?: { total?: number };
@@ -59,7 +56,6 @@ export function DashboardPage() {
   const lang = useLangStore((s) => s.lang);
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const isAdmin = !!user?.role && ADMIN_ROLES.has(user.role);
-  const canVerifyCup = !!user?.role && CUP_VERIFY_ROLES.has(user.role);
 
   useEffect(() => {
     if (!isAdmin) return; // не-админу общая аналитика не нужна
@@ -138,14 +134,8 @@ export function DashboardPage() {
           <PulseWidget />
         </TacticalPanel>
 
-        {/* Кубок NMEDOV 2026 — лидерборд верификации продуктов.
-            Виден только admin/superadmin/commercial_dir/regional_manager. */}
-        {canVerifyCup && (
-          <TacticalPanel label="CUP" title="Кубок NMEDOV 2026">
-            <CupVerifyLeaderboardWidget />
-          </TacticalPanel>
-        )}
-
+        {/* TODO: Кубок v2 (Tournament) widget — после согласования формата с Ком.Дир + РМ.
+            Старая Cup-verification версия заморожена PO 2026-05-05. */}
         {/* TODO: полный EmployeeRankingWidget (40/30/30) — после получения CRM Sales Doc. */}
       </div>
     </TacticalShell>
