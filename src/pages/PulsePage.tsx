@@ -865,16 +865,18 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
 function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId: string) => void }) {
   // Top-3 «дешёвых» переходов: компетенция, у которой ближе всего до следующего уровня
   const wins = useMemo(() => {
-    return pulse.competencies
-      .map((c) => {
-        const thr = nextLevelThreshold(c.pulse_pct);
-        if (thr === null) return null;
-        const gap = thr - c.pulse_pct;
-        return { comp: c, gap, nextLevel: LEVEL_META[levelByPct(thr)].label };
-      })
-      .filter((x): x is { comp: CompetencyPulse; gap: number; nextLevel: string } => !!x)
-      .sort((a, b) => a.gap - b.gap)
-      .slice(0, 3);
+    type Win = { comp: CompetencyPulse; gap: number; nextLevel: string };
+    const items: Win[] = [];
+    for (const c of pulse.competencies) {
+      const thr = nextLevelThreshold(c.pulse_pct);
+      if (thr === null) continue;
+      items.push({
+        comp: c,
+        gap: thr - c.pulse_pct,
+        nextLevel: LEVEL_META[levelByPct(thr)].label,
+      });
+    }
+    return items.sort((a, b) => a.gap - b.gap).slice(0, 3);
   }, [pulse]);
 
   return (
