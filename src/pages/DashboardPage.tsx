@@ -10,6 +10,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
+import { ActivityWidget } from '../components/dashboard/ActivityWidget';
 import { TasksNotificationsWidget } from '../components/dashboard/TasksNotificationsWidget';
 import { TacticalShell, TacticalPanel } from '../components/tactical/shell';
 
@@ -30,8 +31,7 @@ export function DashboardPage() {
       subtitle={`${today}${operatorRole ? ` · ${operatorRole}` : ''}`}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* 1. Рейтинг сотрудников — Лига Чемпионов: ТОП-3 пьедестал + список 4-10.
-            Формула рейтинга = Обучение (сейчас) + Активность + KPI (CRM, скоро). */}
+        {/* 1. Рейтинг сотрудников — Лига Чемпионов с total_score 50/30/20. */}
         <TacticalPanel
           label="RANK"
           title={lang === 'uz' ? 'Xodimlar reytingi' : 'Рейтинг сотрудников'}
@@ -39,7 +39,15 @@ export function DashboardPage() {
           <LearningRankWidget />
         </TacticalPanel>
 
-        {/* 2. Пульс v3 — эффектный + информативный (gauge + мини-радар + статы). */}
+        {/* 2. Моя активность за 30 дней — ShelfScan + Tasks + Achievements + Streak. */}
+        <TacticalPanel
+          label="ACTIVITY"
+          title={lang === 'uz' ? 'Mening faolligim' : 'Моя активность'}
+        >
+          <ActivityWidget />
+        </TacticalPanel>
+
+        {/* 3. Пульс компетенций — эффектный + информативный. */}
         <TacticalPanel
           label="PULSE"
           title={lang === 'uz' ? 'Kompetensiyalar pulsi' : 'Пульс компетенций'}
@@ -47,7 +55,7 @@ export function DashboardPage() {
           <PulseWidget />
         </TacticalPanel>
 
-        {/* 3. Уведомления о висящих задачах — отдельным блоком. */}
+        {/* 4. Уведомления о висящих задачах — отдельным блоком. */}
         <TacticalPanel
           label="TASKS"
           title={lang === 'uz' ? 'Vazifalar bo\'yicha bildirishnomalar' : 'Уведомления о висящих задачах'}

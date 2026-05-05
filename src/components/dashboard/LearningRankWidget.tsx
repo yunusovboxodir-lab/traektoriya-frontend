@@ -108,9 +108,12 @@ export function LearningRankWidget() {
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
             <p className="text-[11px] text-white/55 mt-1">
-              <span className="text-emerald-400 font-semibold">Сейчас:</span> Обучение
-              <span className="mx-2 opacity-40">·</span>
-              <span className="text-amber-300/70 font-semibold">Скоро:</span> + Активность + KPI с CRM
+              Формула: <span className="text-emerald-300 font-semibold">50% обучение</span>
+              {' + '}
+              <span className="text-amber-300 font-semibold">30% активность</span>
+              {' + '}
+              <span className="text-blue-300 font-semibold">20% streak</span>
+              <span className="text-white/35 ml-1.5">· KPI 30% после CRM</span>
             </p>
           </div>
           <Link
@@ -327,9 +330,30 @@ function PodiumPlayer({
       >
         {levelName(entry.current_level)}
       </span>
-      {/* Курсы / балл */}
-      <div className="text-[10px] text-white/55 mt-1">
-        {entry.courses_completed} курс · {entry.avg_quiz_score}%
+      {/* Total score / breakdown */}
+      <div className="text-center mt-1">
+        {entry.total_score !== undefined ? (
+          <>
+            <div
+              className="text-base font-bold leading-none"
+              style={{ fontFamily: "'Unbounded',sans-serif", color: meta.text === '#fff' ? '#fff' : '#0a1929' }}
+            >
+              <span style={{ color: '#FBBF24' }}>{Math.round(entry.total_score)}</span>
+              <span className="text-white/40 text-xs"> /100</span>
+            </div>
+            <div className="text-[9px] text-white/45 mt-0.5">
+              📚 {Math.round(entry.learning_score ?? 0)}
+              <span className="mx-1">·</span>
+              🔥 {Math.round(entry.activity_score ?? 0)}
+              <span className="mx-1">·</span>
+              ⏱ {Math.round(entry.streak_score ?? 0)}
+            </div>
+          </>
+        ) : (
+          <div className="text-[10px] text-white/55">
+            {entry.courses_completed} курс · {entry.avg_quiz_score}%
+          </div>
+        )}
       </div>
     </div>
   );
@@ -374,10 +398,27 @@ function LeaderboardRow({
       </div>
 
       <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold text-white/85" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-          {entry.courses_completed}
-        </p>
-        <p className="text-[10px] text-white/40">{entry.avg_quiz_score}%</p>
+        {entry.total_score !== undefined ? (
+          <>
+            <p
+              className="text-base font-bold text-amber-300"
+              style={{ fontFamily: "'Unbounded',sans-serif" }}
+              title={`Обучение ${Math.round(entry.learning_score ?? 0)} · Активность ${Math.round(entry.activity_score ?? 0)} · Streak ${Math.round(entry.streak_score ?? 0)}`}
+            >
+              {Math.round(entry.total_score)}
+            </p>
+            <p className="text-[9px] text-white/40">
+              📚{Math.round(entry.learning_score ?? 0)} · 🔥{Math.round(entry.activity_score ?? 0)} · ⏱{Math.round(entry.streak_score ?? 0)}
+            </p>
+          </>
+        ) : (
+          <>
+            <p className="text-sm font-semibold text-white/85" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+              {entry.courses_completed}
+            </p>
+            <p className="text-[10px] text-white/40">{entry.avg_quiz_score}%</p>
+          </>
+        )}
       </div>
     </div>
   );

@@ -498,6 +498,16 @@ export interface LeaderboardEntry {
   avg_quiz_score: number;
   current_streak_days: number;
   is_current_user: boolean;
+  // Activity-aware ranking (added 2026-05-05)
+  learning_score?: number;
+  activity_score?: number;
+  streak_score?: number;
+  total_score?: number;
+  activity_breakdown?: {
+    shelfscan: number;
+    tasks_rate: number;
+    achievements: number;
+  };
 }
 
 export interface LeaderboardResponse {
@@ -505,6 +515,12 @@ export interface LeaderboardResponse {
   total_in_group: number;
   my_progress: ProgressResponse | null;
   leaderboard: LeaderboardEntry[];
+  formula?: {
+    weights: { learning: number; activity: number; streak: number };
+    components: { learning: string; activity: string; streak: string };
+    kpi_pending_crm: boolean;
+    version: string;
+  };
 }
 
 // Learning modules
