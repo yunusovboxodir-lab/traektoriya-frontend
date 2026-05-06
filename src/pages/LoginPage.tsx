@@ -37,46 +37,24 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: 'var(--bg-primary)' }}>
-      {/* ===== LEFT BRANDING PANEL — hero-poster =====
-          Фон панели подтянут к navy-палитре картинки — визуально едино.
-          Маска поверх Gemini-✦ в правом нижнем углу логотипа. */}
+      {/* ===== LEFT BRANDING PANEL =====
+          Фон — единая dark+gold палитра платформы (var(--bg-primary) +
+          gold-radial сверху, как в презентере и лендинге).
+          Логотип PNG без фона — естественно сливается с фоном. */}
       <div
-        className="relative lg:w-[520px] xl:w-[600px] shrink-0 overflow-hidden flex flex-col"
+        className="relative lg:w-[600px] xl:w-[720px] 2xl:w-[820px] shrink-0 overflow-hidden flex flex-col"
         style={{
-          // Цветовая палитра подобрана под фон самой картинки (navy с лёгким
-          // gold-бликом сверху, более тёмный navy снизу). Картинка вливается
-          // в панель без видимых границ.
           background:
-            'radial-gradient(ellipse at 35% 25%, rgba(200,168,75,0.05), transparent 55%), ' +
-            'linear-gradient(180deg, #0C1730 0%, #0A1428 50%, #060D1A 100%)',
+            'radial-gradient(ellipse at top, rgba(200,168,75,0.10) 0%, var(--bg-primary) 55%, var(--bg-primary) 100%)',
         }}
       >
-        {/* HERO-картинка с маской на Gemini-✦ в правом нижнем углу */}
-        <div className="relative z-10 flex-1 flex items-center justify-center px-6 pt-10 pb-4 lg:pt-14 lg:pb-6">
-          <div
-            className="relative aspect-square w-full"
-            style={{ maxHeight: '78vh', maxWidth: '78vh' }}
-          >
-            <img
-              src="/tactical/traektoriya-logo.jpg"
-              alt="Traektoriya"
-              className="w-full h-full object-contain"
-            />
-            {/* Маска поверх ✦ Gemini-знака (правый нижний угол) */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                bottom: '3%',
-                right: '3%',
-                width: '8%',
-                height: '8%',
-                background:
-                  'radial-gradient(circle, #0A1428 40%, transparent 80%)',
-                pointerEvents: 'none',
-              }}
-            />
-          </div>
+        <div className="relative z-10 flex-1 flex items-center justify-center p-2">
+          <img
+            src="/tactical/traektoriya-logo.png"
+            alt="Traektoriya"
+            className="object-contain"
+            style={{ maxWidth: '100%', maxHeight: '94vh', width: '100%', height: 'auto' }}
+          />
         </div>
 
         {/* Подпись внизу — нейтральная, без брендов */}
