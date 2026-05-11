@@ -179,6 +179,20 @@ export function CaseStudioDetailPage() {
             </button>
           </div>
         )}
+        {(isAuthor || canManage) && (
+          <div className="mt-3">
+            <button
+              onClick={async () => {
+                if (!confirm('Удалить кейс? Восстановить сможет только админ через БД.')) return;
+                await caseStudioApi.deleteScenario(scenario.id);
+                navigate('/case-studio');
+              }}
+              className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
+            >
+              🗑 Удалить кейс
+            </button>
+          </div>
+        )}
 
         {/* Rating for scenario */}
         {scenario.status === 'published' && (

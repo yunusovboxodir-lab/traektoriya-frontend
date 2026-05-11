@@ -59,6 +59,9 @@ export const caseStudioApi = {
   archiveScenario: (id: string) =>
     api.post<CaseScenario>(`${PREFIX}/scenarios/${id}/archive`),
 
+  deleteScenario: (id: string) =>
+    api.delete<void>(`${PREFIX}/scenarios/${id}`),
+
   // -------------------------- Solutions --------------------------
   addSolution: (scenarioId: string, data: SolutionCreateIn) =>
     api.post<CaseSolution>(`${PREFIX}/scenarios/${scenarioId}/solutions`, data),
