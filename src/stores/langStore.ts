@@ -50,6 +50,20 @@ export const useLangStore = create<LangState>((set) => ({
   },
 }));
 
+/**
+ * Применяет язык из user.telegram_lang при логине/восстановлении сессии.
+ * Не дёргает backend (мы получили язык от backend и так).
+ * Не перезаписывает ручной выбор пользователя (если localStorage уже стоит).
+ */
+export function applyUserLang(userLang: string | null | undefined): void {
+  const lang = userLang === 'uz' ? 'uz' : userLang === 'ru' ? 'ru' : null;
+  if (!lang) return;
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === 'ru' || stored === 'uz') return; // уважаем ручной выбор
+  localStorage.setItem(STORAGE_KEY, lang);
+  useLangStore.setState({ lang, strings: LANGS[lang] });
+}
+
 // ---------------------------------------------------------------------------
 // Translation helper — use in components: const t = useT();
 // ---------------------------------------------------------------------------

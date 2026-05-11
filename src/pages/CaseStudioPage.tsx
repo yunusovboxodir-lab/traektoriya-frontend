@@ -77,7 +77,13 @@ export function CaseStudioPage() {
     <div className="max-w-7xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-serif text-stone-800">Кейсотека</h1>
+          <div
+            role="heading"
+            aria-level={1}
+            className="text-3xl font-semibold text-yellow-100"
+          >
+            {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+          </div>
           <p className="text-stone-500 mt-1">
             База реальных сценариев + peer-review. Топ-3 решения становятся эталонами.
           </p>
@@ -93,7 +99,7 @@ export function CaseStudioPage() {
           )}
           <button
             onClick={() => navigate('/case-studio/my')}
-            className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
+            className="px-4 py-2 border border-zinc-600 text-zinc-200 rounded-lg hover:bg-zinc-800"
           >
             Мой XP
           </button>
@@ -101,7 +107,7 @@ export function CaseStudioPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-stone-200 mb-6 flex gap-6">
+      <div className="border-b border-zinc-700 mb-6 flex gap-6">
         {(
           [
             { key: 'scenarios' as Tab, label: 'Кейсы' },
@@ -114,8 +120,8 @@ export function CaseStudioPage() {
             onClick={() => setTab(t.key)}
             className={`pb-3 -mb-px text-sm font-medium border-b-2 transition-colors ${
               tab === t.key
-                ? 'border-stone-800 text-stone-900'
-                : 'border-transparent text-stone-500 hover:text-stone-800'
+                ? 'border-yellow-500 text-yellow-100'
+                : 'border-transparent text-zinc-400 hover:text-zinc-200'
             }`}
           >
             {t.label}
@@ -248,7 +254,7 @@ function ScenariosTab() {
             <button
               key={s.id}
               onClick={() => navigate(`/case-studio/${s.id}`)}
-              className="text-left bg-white border border-stone-200 rounded-lg p-4 hover:border-stone-400 hover:shadow-sm transition-all"
+              className="text-left bg-zinc-950/60 border border-zinc-800 rounded-lg p-4 hover:border-yellow-600/50 hover:bg-zinc-900/80 transition-all"
             >
               <div className="flex justify-between items-start gap-4 mb-2">
                 <div className="flex-1">
@@ -273,8 +279,8 @@ function ScenariosTab() {
                       {STATUS_LABELS[s.status]}
                     </span>
                   </div>
-                  <h3 className="font-medium text-stone-900 mb-1">{pickLang(s, lang, 'title')}</h3>
-                  <p className="text-sm text-stone-600 line-clamp-2">
+                  <h3 className="font-semibold text-zinc-100 mb-1">{pickLang(s, lang, 'title')}</h3>
+                  <p className="text-sm text-zinc-400 line-clamp-2">
                     {pickLang(s, lang, 'situation')}
                   </p>
                 </div>

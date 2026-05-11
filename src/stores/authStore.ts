@@ -51,6 +51,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
 
+      // Авто-выбор языка из user.telegram_lang (если пользователь раньше
+      // не выбирал язык вручную — синхронизируем с серверной настройкой)
+      const { applyUserLang } = await import('./langStore');
+      applyUserLang((user as { telegram_lang?: string | null }).telegram_lang);
+
       // Load role scopes after login
       useScopeStore.getState().fetchMyScopes();
     } catch (error: any) {
@@ -90,6 +95,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await authApi.me();
       set({ user: response.data });
+      // Авто-выбор языка при восстановлении сессии
+      const { applyUserLang } = await import('./langStore');
+      applyUserLang((response.data as { telegram_lang?: string | null }).telegram_lang);
     } catch {
       // Token expired or invalid — clear auth
       localStorage.removeItem('accessToken');

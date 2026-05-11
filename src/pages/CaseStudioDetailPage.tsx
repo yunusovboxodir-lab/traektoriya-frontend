@@ -133,7 +133,7 @@ export function CaseStudioDetailPage() {
         ← К списку кейсов
       </button>
 
-      <div className="bg-white border border-stone-200 rounded-lg p-6 mb-6">
+      <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-6 mb-6">
         <div className="flex items-center gap-2 flex-wrap mb-3">
           {scenario.category && (
             <span
@@ -167,22 +167,28 @@ export function CaseStudioDetailPage() {
           )}
         </div>
 
-        <h1 className="text-2xl font-serif text-stone-800 mb-3">{pickLang(scenario, lang, 'title')}</h1>
-        <div className="text-sm text-stone-500 mb-4">
+        <div
+          role="heading"
+          aria-level={1}
+          className="text-2xl font-semibold mb-3 text-yellow-100"
+        >
+          {pickLang(scenario, lang, 'title')}
+        </div>
+        <div className="text-sm text-zinc-400 mb-4">
           {formatDate(scenario.created_at)} ·{' '}
           {scenario.ratings_count > 0 && <>★ {scenario.ratings_count} оценок · </>}
           {scenario.views_count} просмотров
         </div>
 
-        <div className="prose prose-stone max-w-none mb-4">
-          <h3 className="text-stone-800 font-medium mb-2">{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</h3>
-          <p className="text-stone-700 whitespace-pre-wrap">{pickLang(scenario, lang, 'situation')}</p>
+        <div className="prose prose-invert max-w-none mb-4">
+          <h3 className="text-zinc-100 font-semibold text-base mb-2">{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</h3>
+          <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed">{pickLang(scenario, lang, 'situation')}</p>
         </div>
 
         {scenario.original_dialogue && scenario.original_dialogue.length > 0 && (
           <div className="mt-4">
-            <h3 className="text-stone-800 font-medium mb-2">Диалог</h3>
-            <div className="bg-stone-50 border border-stone-200 rounded-lg p-4">
+            <h3 className="text-zinc-100 font-semibold text-base mb-2">{lang === 'uz' ? 'Dialog' : 'Диалог'}</h3>
+            <div className="bg-zinc-900/60 border border-zinc-700 rounded-lg p-4">
               {scenario.original_dialogue.map((line, idx) => (
                 <DialogueLineView key={idx} line={line} />
               ))}
@@ -212,9 +218,9 @@ export function CaseStudioDetailPage() {
                 await caseStudioApi.archiveScenario(scenario.id);
                 reload();
               }}
-              className="px-3 py-1.5 text-sm border border-stone-300 text-stone-700 rounded hover:bg-stone-50"
+              className="px-3 py-1.5 text-sm border border-zinc-600 text-zinc-200 rounded hover:bg-zinc-800"
             >
-              Архивировать
+              {lang === 'uz' ? 'Arxivlash' : 'Архивировать'}
             </button>
           </div>
         )}
@@ -228,7 +234,7 @@ export function CaseStudioDetailPage() {
               }}
               className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
             >
-              🗑 Удалить кейс
+              🗑 {lang === 'uz' ? 'Keysni o\'chirish' : 'Удалить кейс'}
             </button>
           </div>
         )}
@@ -239,7 +245,7 @@ export function CaseStudioDetailPage() {
               onClick={() => setShowAssignModal(true)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
             >
-              📌 Поставить задачу команде
+              📌 {lang === 'uz' ? 'Komandaga vazifa qo\'yish' : 'Поставить задачу команде'}
             </button>
           </div>
         )}
@@ -346,7 +352,10 @@ export function CaseStudioDetailPage() {
       {/* Solutions */}
       {scenario.status === 'published' && (
         <>
-          <h2 className="text-xl font-serif text-stone-800 mb-4">
+          <h2
+            className="text-xl font-semibold mb-4"
+            style={{ color: '#fef9c3', WebkitTextFillColor: '#fef9c3', background: 'none' }}
+          >
             Решения ({scenario.solutions.length})
           </h2>
 
@@ -355,8 +364,8 @@ export function CaseStudioDetailPage() {
               <SolutionCard key={sol.id} solution={sol} onRated={reload} />
             ))}
             {scenario.solutions.length === 0 && (
-              <div className="bg-stone-50 border border-stone-200 rounded-lg p-6 text-center">
-                <p className="text-stone-600">
+              <div className="bg-zinc-900/60 border border-zinc-700 rounded-lg p-6 text-center">
+                <p className="text-zinc-300">
                   Пока нет решений. Будь первым — предложи свой подход ниже.
                 </p>
               </div>
@@ -406,12 +415,13 @@ function SolutionCard({
   solution: CaseSolution;
   onRated: () => void;
 }) {
+  const lang = useLangStore((s) => s.lang);
   return (
     <div
-      className={`bg-white border rounded-lg p-5 ${
+      className={`bg-zinc-950/60 border rounded-lg p-5 ${
         solution.is_etalon
           ? 'border-amber-300 shadow-sm'
-          : 'border-stone-200'
+          : 'border-zinc-700'
       }`}
     >
       <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -434,7 +444,7 @@ function SolutionCard({
       </div>
 
       <div className="prose prose-stone max-w-none mb-3">
-        <p className="text-stone-700 whitespace-pre-wrap">{solution.text_ru}</p>
+        <p className="text-zinc-300 whitespace-pre-wrap">{pickLang(solution, lang, 'text')}</p>
       </div>
 
       {solution.solution_dialogue && solution.solution_dialogue.length > 0 && (
@@ -560,6 +570,7 @@ function SolutionForm({
   scenarioId: string;
   onAdded: () => void;
 }) {
+  const lang = useLangStore((s) => s.lang);
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -584,8 +595,8 @@ function SolutionForm({
   };
 
   return (
-    <div className="bg-white border border-stone-200 rounded-lg p-5">
-      <h3 className="text-stone-800 font-medium mb-3">Предложить своё решение</h3>
+    <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-5">
+      <h3 className="text-yellow-50 font-semibold mb-3">{lang === 'uz' ? 'O\'z yechimingni taklif et' : 'Предложить своё решение'}</h3>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
