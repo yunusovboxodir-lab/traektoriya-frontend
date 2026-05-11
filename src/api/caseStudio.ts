@@ -72,7 +72,7 @@ export const caseStudioApi = {
       due_in_days: number;
     },
   ) =>
-    api.post<{ created: number; assignee_count: number }>(
+    api.post<{ created: number; assignee_count: number; skipped_quota: number }>(
       `${PREFIX}/scenarios/${scenarioId}/assign-tasks`,
       payload,
     ),

@@ -17,6 +17,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
+import { useLangStore } from '../stores/langStore';
+import { pickLang } from '../utils/pickLang';
 import type {
   CaseScenarioDetail,
   CaseSolution,
@@ -61,6 +63,7 @@ export function CaseStudioDetailPage() {
   const { scenarioId } = useParams<{ scenarioId: string }>();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const lang = useLangStore((s) => s.lang);
   const [scenario, setScenario] = useState<CaseScenarioDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -104,9 +107,13 @@ export function CaseStudioDetailPage() {
         priority,
         due_in_days: dueInDays,
       });
+      const { created, assignee_count, skipped_quota } = res.data;
+      const skipMsg = skipped_quota > 0
+        ? `\nПропущено ${skipped_quota} сотрудников — у них уже ≥3 активных задач.`
+        : '';
       alert(
-        `Создано задач: ${res.data.created} (для ${res.data.assignee_count} сотрудников).\n` +
-        `TG-уведомления отправлены автоматически.`,
+        `Создано задач: ${created} (для ${assignee_count} сотрудников).\n` +
+        `TG-уведомления отправлены автоматически.${skipMsg}`,
       );
       setShowAssignModal(false);
     } catch (e: unknown) {
@@ -160,7 +167,7 @@ export function CaseStudioDetailPage() {
           )}
         </div>
 
-        <h1 className="text-2xl font-serif text-stone-800 mb-3">{scenario.title_ru}</h1>
+        <h1 className="text-2xl font-serif text-stone-800 mb-3">{pickLang(scenario, lang, 'title')}</h1>
         <div className="text-sm text-stone-500 mb-4">
           {formatDate(scenario.created_at)} ·{' '}
           {scenario.ratings_count > 0 && <>★ {scenario.ratings_count} оценок · </>}
@@ -168,8 +175,8 @@ export function CaseStudioDetailPage() {
         </div>
 
         <div className="prose prose-stone max-w-none mb-4">
-          <h3 className="text-stone-800 font-medium mb-2">Ситуация</h3>
-          <p className="text-stone-700 whitespace-pre-wrap">{scenario.situation_ru}</p>
+          <h3 className="text-stone-800 font-medium mb-2">{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</h3>
+          <p className="text-stone-700 whitespace-pre-wrap">{pickLang(scenario, lang, 'situation')}</p>
         </div>
 
         {scenario.original_dialogue && scenario.original_dialogue.length > 0 && (

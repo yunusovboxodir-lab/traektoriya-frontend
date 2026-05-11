@@ -15,6 +15,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
+import { useLangStore } from '../stores/langStore';
+import { pickLang } from '../utils/pickLang';
 import type {
   CaseCategory,
   CaseScenario,
@@ -63,6 +65,7 @@ function formatDate(iso: string | null): string {
 export function CaseStudioPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const lang = useLangStore((s) => s.lang);
   const [tab, setTab] = useState<Tab>('scenarios');
 
   const canCreateScenario =
@@ -270,9 +273,9 @@ function ScenariosTab() {
                       {STATUS_LABELS[s.status]}
                     </span>
                   </div>
-                  <h3 className="font-medium text-stone-900 mb-1">{s.title_ru}</h3>
+                  <h3 className="font-medium text-stone-900 mb-1">{pickLang(s, lang, 'title')}</h3>
                   <p className="text-sm text-stone-600 line-clamp-2">
-                    {s.situation_ru}
+                    {pickLang(s, lang, 'situation')}
                   </p>
                 </div>
               </div>

@@ -3,6 +3,7 @@ import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormRe
 import { useAuthStore } from '../stores/authStore';
 import { TacticalShell } from '../components/tactical/shell';
 import { useT, useLangStore } from '../stores/langStore';
+import { pickTaskI18n } from '../utils/pickLang';
 
 const MANAGER_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
@@ -48,7 +49,7 @@ function TaskCard({ task, onStatusChange, onCardClick }: { task: Task; onStatusC
           {t(PRIORITY_LABEL_KEYS[task.priority]) || task.priority}
         </span>
         <h4 className="font-medium text-sm text-gray-900 leading-snug flex-1 group-hover:text-blue-700 transition-colors">
-          {task.title}
+          {pickTaskI18n(task, lang, 'title')}
         </h4>
       </div>
 
@@ -85,7 +86,7 @@ function TaskCard({ task, onStatusChange, onCardClick }: { task: Task; onStatusC
 
       {/* Description */}
       {task.description && (
-        <p className="text-xs text-gray-400 mb-3 line-clamp-2 pl-0.5">{task.description}</p>
+        <p className="text-xs text-gray-400 mb-3 line-clamp-2 pl-0.5">{pickTaskI18n(task, lang, 'description')}</p>
       )}
 
       {/* Meta row */}
@@ -196,7 +197,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
                 </span>
               )}
             </div>
-            <h2 className="text-lg font-bold text-gray-900">{task.title}</h2>
+            <h2 className="text-lg font-bold text-gray-900">{pickTaskI18n(task, lang, 'title')}</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors mt-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -225,7 +226,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {task.description && (
             <div>
               <div className="text-[10px] text-gray-400 uppercase font-medium mb-1">Описание</div>
-              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{task.description}</p>
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{pickTaskI18n(task, lang, 'description')}</p>
             </div>
           )}
 
