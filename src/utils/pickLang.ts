@@ -10,21 +10,19 @@ type Lang = 'ru' | 'uz';
 /**
  * Берёт `<key>_uz` если lang='uz' и поле непустое, иначе fallback на `<key>_ru`.
  * Используется для CaseScenario, CaseCategory и других прямых bilingual-полей.
+ *
+ * Тип obj — unknown, чтобы не конфликтовать с строгими типами моделей.
  */
-export function pickLang<T extends Record<string, unknown>>(
-  obj: T | null | undefined,
-  lang: Lang,
-  key: string,
-): string {
-  if (!obj) return '';
+export function pickLang(obj: unknown, lang: Lang, key: string): string {
+  if (!obj || typeof obj !== 'object') return '';
+  const record = obj as Record<string, unknown>;
   if (lang === 'uz') {
-    const uzVal = obj[`${key}_uz`];
+    const uzVal = record[`${key}_uz`];
     if (typeof uzVal === 'string' && uzVal.trim()) return uzVal;
   }
-  const ruVal = obj[`${key}_ru`];
+  const ruVal = record[`${key}_ru`];
   if (typeof ruVal === 'string') return ruVal;
-  // Fallback на raw-поле без суффикса
-  const raw = obj[key];
+  const raw = record[key];
   return typeof raw === 'string' ? raw : '';
 }
 
@@ -33,15 +31,14 @@ export function pickLang<T extends Record<string, unknown>>(
  * иначе fallback на `task[key]`. У задач основное хранение — без суффикса,
  * UZ-копия — в extra_data.
  */
-export function pickTaskI18n(
-  task: { [k: string]: unknown; extra_data?: Record<string, unknown> | null },
-  lang: Lang,
-  key: 'title' | 'description',
-): string {
-  if (lang === 'uz' && task.extra_data) {
-    const uzVal = task.extra_data[`${key}_uz`];
+export function pickTaskI18n(task: unknown, lang: Lang, key: 'title' | 'description'): string {
+  if (!task || typeof task !== 'object') return '';
+  const t = task as { [k: string]: unknown; extra_data?: unknown };
+  if (lang === 'uz' && t.extra_data && typeof t.extra_data === 'object') {
+    const ed = t.extra_data as Record<string, unknown>;
+    const uzVal = ed[`${key}_uz`];
     if (typeof uzVal === 'string' && uzVal.trim()) return uzVal;
   }
-  const raw = task[key];
+  const raw = t[key];
   return typeof raw === 'string' ? raw : '';
 }

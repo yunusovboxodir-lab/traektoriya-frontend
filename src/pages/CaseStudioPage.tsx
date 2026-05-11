@@ -142,6 +142,7 @@ export function CaseStudioPage() {
 
 function ScenariosTab() {
   const navigate = useNavigate();
+  const lang = useLangStore((s) => s.lang);
   const [scenarios, setScenarios] = useState<CaseScenario[]>([]);
   const [categories, setCategories] = useState<CaseCategory[]>([]);
   const [loading, setLoading] = useState(true);
