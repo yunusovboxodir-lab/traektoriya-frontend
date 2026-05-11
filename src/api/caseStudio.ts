@@ -62,6 +62,21 @@ export const caseStudioApi = {
   deleteScenario: (id: string) =>
     api.delete<void>(`${PREFIX}/scenarios/${id}`),
 
+  assignTasks: (
+    scenarioId: string,
+    payload: {
+      mode: 'by_users' | 'by_roles';
+      user_ids?: string[];
+      roles?: string[];
+      priority: 'low' | 'medium' | 'high';
+      due_in_days: number;
+    },
+  ) =>
+    api.post<{ created: number; assignee_count: number }>(
+      `${PREFIX}/scenarios/${scenarioId}/assign-tasks`,
+      payload,
+    ),
+
   // -------------------------- Solutions --------------------------
   addSolution: (scenarioId: string, data: SolutionCreateIn) =>
     api.post<CaseSolution>(`${PREFIX}/scenarios/${scenarioId}/solutions`, data),

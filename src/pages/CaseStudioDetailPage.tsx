@@ -66,6 +66,13 @@ export function CaseStudioDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
+  // Assign-tasks modal state
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>(['regional_manager', 'commercial_dir']);
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [dueInDays, setDueInDays] = useState(7);
+  const [assigning, setAssigning] = useState(false);
+
   useEffect(() => {
     if (!scenarioId) return;
     setLoading(true);
@@ -84,6 +91,31 @@ export function CaseStudioDetailPage() {
 
   const isAuthor = user && scenario.author_id === user.id;
   const canManage = user && ['admin', 'superadmin', 'trainer'].includes(user.role);
+  const canAssignTasks =
+    user && ['supervisor', 'regional_manager', 'commercial_dir', 'admin', 'superadmin', 'trainer'].includes(user.role);
+
+  const handleAssignTasks = async () => {
+    if (selectedRoles.length === 0 || !scenario) return;
+    setAssigning(true);
+    try {
+      const res = await caseStudioApi.assignTasks(scenario.id, {
+        mode: 'by_roles',
+        roles: selectedRoles,
+        priority,
+        due_in_days: dueInDays,
+      });
+      alert(
+        `Создано задач: ${res.data.created} (для ${res.data.assignee_count} сотрудников).\n` +
+        `TG-уведомления отправлены автоматически.`,
+      );
+      setShowAssignModal(false);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'не удалось создать задачи';
+      alert(`Ошибка: ${msg}`);
+    } finally {
+      setAssigning(false);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -191,6 +223,104 @@ export function CaseStudioDetailPage() {
             >
               🗑 Удалить кейс
             </button>
+          </div>
+        )}
+
+        {canAssignTasks && scenario.status === 'published' && (
+          <div className="mt-3">
+            <button
+              onClick={() => setShowAssignModal(true)}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
+            >
+              📌 Поставить задачу команде
+            </button>
+          </div>
+        )}
+
+        {showAssignModal && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => !assigning && setShowAssignModal(false)}
+          >
+            <div
+              className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-semibold mb-1">Поставить задачу команде</h3>
+              <p className="text-xs text-stone-500 mb-4">
+                Каждый получит задачу «Изучи кейс» в Kanban + TG-уведомление.
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Кому?</label>
+                  <div className="space-y-1.5">
+                    {[
+                      { role: 'sales_rep', label: 'Торговые представители (ТП)' },
+                      { role: 'supervisor', label: 'Супервайзеры (СВ)' },
+                      { role: 'regional_manager', label: 'Региональные менеджеры (РМ)' },
+                      { role: 'commercial_dir', label: 'Коммерческие директора (КД)' },
+                    ].map((r) => (
+                      <label key={r.role} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedRoles.includes(r.role)}
+                          onChange={() =>
+                            setSelectedRoles((prev) =>
+                              prev.includes(r.role) ? prev.filter((x) => x !== r.role) : [...prev, r.role],
+                            )
+                          }
+                        />
+                        <span>{r.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-1">Срок (дней)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={90}
+                      value={dueInDays}
+                      onChange={(e) => setDueInDays(Math.max(1, Math.min(90, +e.target.value || 7)))}
+                      className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-1">Приоритет</label>
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
+                      className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm"
+                    >
+                      <option value="low">Низкий</option>
+                      <option value="medium">Средний</option>
+                      <option value="high">Высокий</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-2">
+                <button
+                  onClick={() => setShowAssignModal(false)}
+                  disabled={assigning}
+                  className="px-4 py-2 text-sm border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50 disabled:opacity-50"
+                >
+                  Отмена
+                </button>
+                <button
+                  onClick={handleAssignTasks}
+                  disabled={assigning || selectedRoles.length === 0}
+                  className="px-4 py-2 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {assigning ? 'Создаю…' : 'Создать задачи'}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
