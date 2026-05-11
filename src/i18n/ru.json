@@ -103,7 +103,8 @@
   "ai": {
     "tabGeneration": "Генерация",
     "tabKnowledge": "База знаний",
-    "tabChat": "AI Чат"
+    "tabChat": "AI Чат",
+    "tabCaseStudio": "Кейсотека"
   },
   "dashboard": {
     "welcome": "Добро пожаловать",

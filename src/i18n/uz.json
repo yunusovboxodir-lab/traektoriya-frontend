@@ -103,7 +103,8 @@
   "ai": {
     "tabGeneration": "Generatsiya",
     "tabKnowledge": "Bilimlar bazasi",
-    "tabChat": "AI Chat"
+    "tabChat": "AI Chat",
+    "tabCaseStudio": "Keyslar bazasi"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz",

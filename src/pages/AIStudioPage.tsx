@@ -5,12 +5,13 @@ import { useAuthStore } from '../stores/authStore';
 import { GenerationPage } from './GenerationPage';
 import { KnowledgeBasePage } from './KnowledgeBasePage';
 import { ChatPage } from './ChatPage';
+import { CaseStudioPage } from './CaseStudioPage';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type AITab = 'generation' | 'knowledge' | 'chat';
+type AITab = 'generation' | 'knowledge' | 'chat' | 'case-studio';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -43,6 +44,7 @@ export function AIStudioPage() {
     }
     tabs.push({ id: 'knowledge', labelKey: 'ai.tabKnowledge' });
     tabs.push({ id: 'chat', labelKey: 'ai.tabChat' });
+    tabs.push({ id: 'case-studio', labelKey: 'ai.tabCaseStudio' });
     return tabs;
   }, [isAdminPlus]);
 
@@ -94,6 +96,7 @@ export function AIStudioPage() {
       {activeTab === 'generation' && isAdminPlus && <GenerationPage />}
       {activeTab === 'knowledge' && <KnowledgeBasePage />}
       {activeTab === 'chat' && <ChatPage />}
+      {activeTab === 'case-studio' && <CaseStudioPage />}
     </div>
   );
 }
