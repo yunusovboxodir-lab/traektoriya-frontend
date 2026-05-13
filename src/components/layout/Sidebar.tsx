@@ -241,7 +241,8 @@ const NAV_ITEMS_DEF = [
   { labelKey: 'nav.planogram',    path: '/planogram',     icon: <IconCamera />,         pageKey: 'planogram' },
   { labelKey: 'nav.offline',      path: '/activities',    icon: <IconOffline />,        pageKey: 'offline' },
   { labelKey: 'nav.trainingPlan', path: '/training-plan', icon: <IconClipboard />,      pageKey: 'training_plan' },
-  { labelKey: 'nav.caseStudio',   path: '/case-studio',   icon: <IconBook />,           pageKey: 'case_studio' },
+  // nav.caseStudio переехал в раздел «Обучение» (2026-05-13).
+  // Доступ через кнопку «🎯 Кейсотека» в шапке TacticalLearningPage.
   { labelKey: 'nav.analytics',    path: '/analytics',     icon: <IconChart />,          pageKey: 'analytics' },
 ] as const;
 

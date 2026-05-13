@@ -150,6 +150,36 @@ export function TacticalLearningPage() {
             <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
           </div>
         )}
+        <button
+          type="button"
+          onClick={() => navigate('/case-studio')}
+          style={{
+            marginLeft: 16,
+            background: 'oklch(0.20 0.03 240 / 0.45)',
+            border: '1px solid var(--line)',
+            borderRadius: 6,
+            padding: '6px 12px',
+            color: 'var(--brass)',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--brass)';
+            e.currentTarget.style.background = 'oklch(0.25 0.05 240 / 0.6)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--line)';
+            e.currentTarget.style.background = 'oklch(0.20 0.03 240 / 0.45)';
+          }}
+          title={lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+        >
+          🎯 {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+        </button>
         <div className="title-meta">
           <span><b>{totalCourses}</b> {lang === 'uz' ? 'KURSLAR' : 'КУРСОВ'}</span>
           <span><b>{territoriesCount}</b> {lang === 'uz' ? 'HUDUDLAR' : 'ТЕРРИТОРИИ'}</span>
