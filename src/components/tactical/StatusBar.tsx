@@ -36,7 +36,7 @@ const NAV_ITEMS_DEF = [
   { icon: '📐', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
   { icon: '📅', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
   { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
-  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training-plan' },
+  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
 ] as const;
 
 const ADMIN_NAV_ITEMS_DEF = [
