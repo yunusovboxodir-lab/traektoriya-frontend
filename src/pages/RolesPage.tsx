@@ -45,6 +45,10 @@ const ROLES_ORDER = ['superadmin', 'commercial_dir', 'regional_manager', 'admin'
 export function RolesPage() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  // QW-3 (Sprint 0, 2026-05-16): при прямой загрузке URL / F5 `user` сначала null
+  // (fetchUser() ещё в процессе), и проверка роли ниже падала в 'sales_rep' → редирект
+  // даже валидного admin/superadmin. См. внутренний UI/UX-аудит, баг C5.
   const userRole = user?.role || 'sales_rep';
   const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
 
@@ -116,6 +120,17 @@ export function RolesPage() {
       setSaving(false);
     }
   }, [scopes, t]);
+
+  // QW-3 (Sprint 0, 2026-05-16): дождаться загрузки user, прежде чем проверять роль.
+  // Иначе F5/прямая загрузка URL даёт user=null → userRole='sales_rep' → редирект
+  // на /dashboard даже валидного admin/superadmin.
+  if (isAuthenticated && !user) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
 
   // Non-admin users get redirected
   if (!isAdmin) {

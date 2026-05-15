@@ -25,8 +25,10 @@
     "competencyMatrix": "Kompetensiya matritsasi",
     "competencyProfiles": "Lavozim profillari",
     "supervisor": "Mening jamoam",
-    "dictionaryUZ": "Lug'at UZ",
-    "trainingPlan": "O'qitish rejasi",
+    "dictionaryUZ": "Lugʻat UZ",
+    "shelfCorrections": "ShelfScan tahriri",
+    "translationReview": "Tarjimalar moderatsiyasi",
+    "trainingPlan": "Oʻqitish rejasi",
     "collapse": "Yig'ish",
     "expand": "Yoyish",
     "logout": "Chiqish",
@@ -600,10 +602,15 @@
       "emptyDesc": "Samaradorlik ko'rsatkichlari modullar nashr etilgandan va 30 kundan keyin delta o'lchangandan so'ng paydo bo'ladi. Minimal auditoriya — 30 TP."
     }
   },
+  "dictionary": {
+    "title": "Oʻzbek lugʻati",
+    "subtitle": "FMCG atamalarini oʻzbek tiliga (lotin) tarjima qilish — jamoaviy"
+  },
   "generation": {
     "title": "AI Generatsiya",
     "subtitle": "Sun'iy intellekt yordamida o'quv materiallarini yaratish",
     "loading": "Yuklanmoqda...",
+    "languageLabel": "Kontent tili",
     "tabs": {
       "simple": "Tezkor generatsiya",
       "wizard": "Lavozim yo'riqnomasidan",

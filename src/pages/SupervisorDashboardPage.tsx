@@ -108,6 +108,7 @@ export function SupervisorDashboardPage() {
   const [learningData, setLearningData] = useState<TeamLearningData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [noTeam, setNoTeam] = useState(false);
 
   // Assign course modal
   const [showAssign, setShowAssign] = useState(false);
@@ -123,6 +124,7 @@ export function SupervisorDashboardPage() {
   const loadData = async () => {
     setLoading(true);
     setError(null);
+    setNoTeam(false);
     try {
       const [teamRes, learningRes] = await Promise.all([
         api.get('/api/v1/supervisor/my-team'),
@@ -131,8 +133,19 @@ export function SupervisorDashboardPage() {
       setTeamData(teamRes.data);
       setLearningData(learningRes.data);
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { detail?: string } }; message?: string };
-      setError(axiosErr?.response?.data?.detail || axiosErr?.message || 'Ошибка загрузки данных');
+      const axiosErr = err as {
+        response?: { status?: number; data?: { detail?: string } };
+        message?: string;
+      };
+      // QW-4 (Sprint 0, 2026-05-16): backend возвращает 404 если у пользователя нет
+      // команды (admin/superadmin/commercial_dir заходят в этот таб без supervisor-команды).
+      // Это не баг — это валидное состояние. Показываем понятный empty state вместо
+      // красной плашки «Request failed with status code 404». См. UI/UX-аудит, баг C6.
+      if (axiosErr?.response?.status === 404) {
+        setNoTeam(true);
+      } else {
+        setError(axiosErr?.response?.data?.detail || axiosErr?.message || 'Ошибка загрузки данных');
+      }
     } finally {
       setLoading(false);
     }
@@ -174,6 +187,23 @@ export function SupervisorDashboardPage() {
           ))}
         </div>
         <div className="bg-white rounded-xl p-6 shadow-sm animate-pulse h-64" />
+      </div>
+    );
+  }
+
+  // QW-4 (Sprint 0, 2026-05-16): валидный empty state для admin/superadmin без команды.
+  // Этот таб создан для supervisor, у других ролей backend честно отдаёт 404 «команда не найдена».
+  if (noTeam) {
+    return (
+      <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 text-center">
+        <div className="text-4xl mb-3">👥</div>
+        <p className="text-yellow-100 font-medium text-lg mb-2">
+          Раздел для супервайзеров
+        </p>
+        <p className="text-zinc-400 text-sm max-w-md mx-auto">
+          В этом табе супервайзер видит свою команду. Под вашей ролью команды нет — используйте таб
+          {' '}<b className="text-yellow-100">«Администрирование»</b> для работы с сотрудниками.
+        </p>
       </div>
     );
   }

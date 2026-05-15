@@ -131,10 +131,16 @@ body {
   font-family: var(--font-body);
 }
 
-/* Размерная сетка (мягко — не ломая Tailwind утилиты) */
-:not(.tactical-root, .tactical-root *) h1 { font-size: clamp(28px, 4vw, 48px); }
-:not(.tactical-root, .tactical-root *) h2 { font-size: clamp(20px, 2.5vw, 28px); font-weight: 600; }
-:not(.tactical-root, .tactical-root *) h3 { font-size: 18px; font-weight: 600; }
+/* Размерная сетка — h1/h2/h3 размеры задаются через утилиты Tailwind
+   или компонент <PageHeader>, не глобально на теге.
+   См. _docs/codex/01_foundations.md §7 (типошкала) и 02_components.md (PageHeader).
+   Глобальный clamp на h1 ломал формы Module 15 (наезд заголовка на подзаголовок)
+   и непропорционально раздувал заголовки на Team / AI-Консультант / Офлайн
+   (внутренний UI/UX-аудит 2026-05-14, баг C1). Удалён 2026-05-16 (Sprint 0, QW-1).
+
+   На дефолтный размер h1/h2/h3 остаётся браузерный (2em / 1.5em / 1.17em) — если
+   страница использует <h1> без явного className, текст будет читаемым, но без
+   дизайнерской унификации. Все рабочие страницы переходят на <PageHeader>. */
 
 .label-uppercase {
   font-size: 11px;

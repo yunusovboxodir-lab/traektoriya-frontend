@@ -39,9 +39,14 @@ const NAV_ITEMS_DEF = [
   { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
 ] as const;
 
+// QW-6 (Sprint 0, 2026-05-16): добавлены ShelfCorrections и TranslationReview —
+// раньше доступны только по прямому URL (висячие маршруты, см. UI/UX-аудит S7).
+// Привязаны к admin-секции, т.к. это инструменты для admin/superadmin.
 const ADMIN_NAV_ITEMS_DEF = [
-  { icon: '🔤', labelKey: 'nav.dictionaryUZ', path: '/dictionary-uz', pageKey: 'dictionary-uz' },
-  { icon: '⚙️', labelKey: 'nav.settings',     path: '/admin/roles',   pageKey: 'admin-roles' },
+  { icon: '🔤', labelKey: 'nav.dictionaryUZ',      path: '/dictionary-uz',      pageKey: 'dictionary-uz' },
+  { icon: '🛒', labelKey: 'nav.shelfCorrections',  path: '/shelf-corrections',  pageKey: 'admin-roles' },
+  { icon: '🌐', labelKey: 'nav.translationReview', path: '/translation-review', pageKey: 'admin-roles' },
+  { icon: '⚙️', labelKey: 'nav.settings',          path: '/admin/roles',        pageKey: 'admin-roles' },
 ] as const;
 
 const FROZEN_PAGES = ['analytics', 'goals'];

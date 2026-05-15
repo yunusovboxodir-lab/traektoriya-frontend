@@ -377,7 +377,11 @@ function CalendarTab({ lang }: { lang: Lang }) {
           <span className="text-xs text-zinc-500 uppercase tracking-wider font-mono mr-1">
             {lang === 'uz' ? 'Rol' : 'Роль'}:
           </span>
-          {(['', 'sales_rep', 'supervisor', 'regional_manager', 'commercial_dir', 'all'] as const).map((r) => {
+          {/* QW-5 (Sprint 0, 2026-05-16): убран literal 'all' — это была вторая
+              кнопка «Все» подряд, путала пользователей. Пустая строка '' = «не
+              фильтровать» (бэкенд сам матчит target_role IN [role, 'all']). См.
+              внутренний UI/UX-аудит, баг S2. */}
+          {(['', 'sales_rep', 'supervisor', 'regional_manager', 'commercial_dir'] as const).map((r) => {
             const active = filterRole === r;
             const label =
               r === '' ? (lang === 'uz' ? 'Hammasi' : 'Все') : roleLabel(r, lang);
