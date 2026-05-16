@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usersApi, type UserListItem, type CreateUserPayload } from '../api/users';
+import { useT } from '../stores/langStore';
 import { PageHeader, EmptyState, Button, RowActions } from '@/components/ui';
 import { Users, Plus, X as XIcon, Eye, Pencil, UserX } from 'lucide-react';
 
@@ -274,6 +275,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
 // ---------------------------------------------------------------------------
 
 export function AdminUsersPage() {
+  const t = useT();
   const [users, setUsers] = useState<UserListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -328,7 +330,7 @@ export function AdminUsersPage() {
             leftIcon={<Plus size={16} />}
             onClick={() => setShowModal(true)}
           >
-            Добавить сотрудника
+            {t('adminUsers.empty.ctaAdd')}
           </Button>
         }
       />
@@ -383,21 +385,21 @@ export function AdminUsersPage() {
               <div className="p-4">
                 <EmptyState
                   icon={<Users size={48} />}
-                  title={hasFilter ? 'Сотрудники не найдены' : 'Пока нет сотрудников'}
+                  title={hasFilter ? t('adminUsers.empty.titleFiltered') : t('adminUsers.empty.titleEmpty')}
                   description={hasFilter
-                    ? 'Под текущий поиск или фильтр роли никто не подходит. Сбросьте фильтры, чтобы увидеть всю команду.'
-                    : 'Добавьте первого сотрудника — он получит онбординг и попадёт в команду.'}
+                    ? t('adminUsers.empty.descFiltered')
+                    : t('adminUsers.empty.descEmpty')}
                   cta={hasFilter ? (
                     <Button
                       variant="secondary"
                       leftIcon={<XIcon size={16} />}
                       onClick={() => { setSearch(''); setRoleFilter(''); }}
                     >
-                      Сбросить фильтры
+                      {t('common.actions.resetFilters')}
                     </Button>
                   ) : (
                     <Button leftIcon={<Plus size={16} />} onClick={() => setShowModal(true)}>
-                      Добавить сотрудника
+                      {t('adminUsers.empty.ctaAdd')}
                     </Button>
                   )}
                 />
@@ -478,17 +480,17 @@ export function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <RowActions
-                        label="Действия с сотрудником"
+                        label={t('adminUsers.rowActions.label')}
                         items={[
                           {
-                            label: 'Открыть профиль',
+                            label: t('common.actions.openProfile'),
                             icon: <Eye size={14} />,
                             // TODO: implement user profile page navigation
                             onSelect: () =>
                               console.log('[TODO] open user profile', user.id),
                           },
                           {
-                            label: 'Редактировать роль',
+                            label: t('common.actions.editRole'),
                             icon: <Pencil size={14} />,
                             // TODO: implement edit-role modal (нет UI для смены роли в AdminUsersPage)
                             onSelect: () =>
@@ -496,7 +498,7 @@ export function AdminUsersPage() {
                           },
                           { separator: true },
                           {
-                            label: 'Деактивировать',
+                            label: t('common.actions.deactivate'),
                             icon: <UserX size={14} />,
                             destructive: true,
                             disabled: !user.is_active,

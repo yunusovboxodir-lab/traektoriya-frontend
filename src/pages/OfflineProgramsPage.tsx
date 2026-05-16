@@ -4,11 +4,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
+import { useT } from '../stores/langStore';
 import type { Program } from '../types/offlineProgram';
 import { PageHeader, SkeletonCard, EmptyState, Button } from '@/components/ui';
 import { FileText, Plus } from 'lucide-react';
 
 export function OfflineProgramsPage() {
+  const t = useT();
   const navigate = useNavigate();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,15 +37,15 @@ export function OfflineProgramsPage() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <PageHeader
-        title="Программы тренингов"
-        subtitle="Шаблоны для офлайн-сессий — слайды, тесты, дашборды"
+        title={t('offlinePrograms.title')}
+        subtitle={t('offlinePrograms.subtitle')}
         breadcrumbs={
           <a
             href="/activities"
             onClick={(e) => { e.preventDefault(); navigate('/activities'); }}
             className="hover:underline"
           >
-            ← К сессиям
+            {t('offlinePrograms.backToSessions')}
           </a>
         }
         actions={
@@ -52,7 +54,7 @@ export function OfflineProgramsPage() {
             leftIcon={<Plus size={16} />}
             onClick={() => setShowCreate(true)}
           >
-            Создать программу
+            {t('offlinePrograms.createProgram')}
           </Button>
         }
       />
@@ -75,11 +77,11 @@ export function OfflineProgramsPage() {
             <div className="col-span-full">
               <EmptyState
                 icon={<FileText size={48} />}
-                title="Пока нет программ тренингов"
-                description="Создайте первый шаблон — задайте слайды, вопросы и дашборд. Программу можно будет использовать для офлайн-сессий."
+                title={t('offlinePrograms.empty.title')}
+                description={t('offlinePrograms.empty.desc')}
                 cta={
                   <Button leftIcon={<Plus size={16} />} onClick={() => setShowCreate(true)}>
-                    Создать программу
+                    {t('offlinePrograms.empty.ctaCreate')}
                   </Button>
                 }
               />

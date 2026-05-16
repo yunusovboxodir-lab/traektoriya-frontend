@@ -276,8 +276,8 @@ export function ReportsPage() {
       ) : reports.length === 0 ? (
         <EmptyState
           icon={<FileText size={48} />}
-          title="Пока нет скриншот-репортов"
-          description="Они появятся, когда команда начнёт присылать обратную связь со страниц платформы — приём пассивный."
+          title={t('reports.empty.title')}
+          description={t('reports.empty.desc')}
         />
       ) : (
         <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
@@ -320,17 +320,17 @@ export function ReportsPage() {
                   <td className="px-4 py-3"><StatusBadge status={r.status} t={t} /></td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <RowActions
-                      label="Действия с репортом"
+                      label={t('reports.rowActions.label')}
                       items={[
                         {
-                          label: 'Открыть',
+                          label: t('common.actions.open'),
                           icon: <Eye size={14} />,
                           onSelect: () => setSelectedReport(r),
                         },
                         ...(r.status !== 'reviewed' && r.status !== 'resolved'
                           ? [
                               {
-                                label: 'Отметить как просмотренный',
+                                label: t('common.actions.markReviewed'),
                                 icon: <Check size={14} />,
                                 onSelect: () => handleUpdate(r.id, { status: 'reviewed' }),
                               },
@@ -338,7 +338,7 @@ export function ReportsPage() {
                           : []),
                         { separator: true },
                         {
-                          label: 'Удалить',
+                          label: t('common.actions.delete'),
                           icon: <Trash2 size={14} />,
                           destructive: true,
                           // TODO: implement reports delete endpoint — отсутствует в reportsApi

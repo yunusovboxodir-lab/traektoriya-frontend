@@ -156,7 +156,7 @@ export function RolesPage() {
           <>
             {hasChanges && (
               <span className="text-sm text-amber-600 font-medium">
-                Есть несохранённые изменения
+                {t('rolesPage.unsavedChanges')}
               </span>
             )}
             <Button

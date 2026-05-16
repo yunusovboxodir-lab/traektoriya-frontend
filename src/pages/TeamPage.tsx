@@ -240,17 +240,17 @@ export function TeamPage() {
               return (
                 <EmptyState
                   icon={<Users size={48} />}
-                  title={hasFilter ? 'Не нашли членов команды' : 'Команда пока пуста'}
+                  title={hasFilter ? t('team.emptyState.titleFiltered') : t('team.emptyState.titleEmpty')}
                   description={hasFilter
-                    ? 'Под текущий поиск или фильтр роли никто не подходит. Сбросьте фильтры, чтобы увидеть всех коллег.'
-                    : 'Когда сотрудников добавит администратор — они появятся здесь.'}
+                    ? t('team.emptyState.descFiltered')
+                    : t('team.emptyState.descEmpty')}
                   cta={hasFilter ? (
                     <Button
                       variant="secondary"
                       leftIcon={<XIcon size={16} />}
                       onClick={() => { setSearch(''); setRoleFilter('all'); }}
                     >
-                      Сбросить фильтры
+                      {t('common.actions.resetFilters')}
                     </Button>
                   ) : undefined}
                 />
@@ -305,22 +305,22 @@ export function TeamPage() {
                       </div>
                       <div onClick={(e) => e.stopPropagation()}>
                         <RowActions
-                          label="Действия с участником команды"
+                          label={t('team.rowActions.label')}
                           items={[
                             {
-                              label: 'Открыть профиль',
+                              label: t('common.actions.openProfile'),
                               icon: <Eye size={14} />,
                               onSelect: () => setExpandedId(m.id),
                             },
                             {
-                              label: 'Связаться',
+                              label: t('common.actions.contact'),
                               icon: <Mail size={14} />,
                               // TODO: implement member contact action (email/telegram)
                               onSelect: () =>
                                 console.log('[TODO] contact team member', m.id),
                             },
                             {
-                              label: 'Назначить курс',
+                              label: t('common.actions.assignCourse'),
                               icon: <BookOpen size={14} />,
                               // TODO: implement course assignment from TeamPage card
                               onSelect: () =>

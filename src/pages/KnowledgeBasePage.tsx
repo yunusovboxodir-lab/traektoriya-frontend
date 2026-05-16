@@ -1241,10 +1241,10 @@ export function KnowledgeBasePage() {
                             </div>
                           ) : (
                             <RowActions
-                              label="Действия с документом"
+                              label={t('kb.rowActions.label')}
                               items={[
                                 {
-                                  label: 'Переиндексировать',
+                                  label: t('common.actions.reindex'),
                                   icon: (
                                     <RefreshCw
                                       size={14}
@@ -1255,7 +1255,7 @@ export function KnowledgeBasePage() {
                                   onSelect: () => handleReindex(doc.id),
                                 },
                                 {
-                                  label: 'Изменить тип',
+                                  label: t('common.actions.changeType'),
                                   icon: <Pencil size={14} />,
                                   onSelect: () => {
                                     // Используем существующий bulk-edit для одиночного документа:
@@ -1269,7 +1269,7 @@ export function KnowledgeBasePage() {
                                 },
                                 { separator: true },
                                 {
-                                  label: 'Удалить',
+                                  label: t('common.actions.delete'),
                                   icon: <Trash2 size={14} />,
                                   destructive: true,
                                   onSelect: () => setDeleteConfirmId(doc.id),

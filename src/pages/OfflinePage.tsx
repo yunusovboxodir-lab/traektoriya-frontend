@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 import { toast } from '../stores/toastStore';
 import { offlineApi } from '../api/offline';
 import { offlineProgramsApi } from '../api/offlinePrograms';
@@ -485,6 +486,7 @@ function SessionDetail({
 // ---------------------------------------------------------------------------
 
 export function OfflinePage() {
+  const t = useT();
   const user = useAuthStore((s) => s.user);
   const userRole = user?.role || 'sales_rep';
   const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
@@ -547,9 +549,9 @@ export function OfflinePage() {
     return (
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <PageHeader
-          title="Офлайн активности"
+          title={t('offline.title')}
           subtitle={`${sessions.length} ${sessions.length === 1 ? 'сессия' : sessions.length < 5 ? 'сессии' : 'сессий'}${
-            isAdmin ? ' · управление программами и шаблонами' : ''
+            isAdmin ? ' · ' + t('offline.subtitleAdmin') : ''
           }`}
           actions={
             isAdmin ? (
@@ -559,14 +561,14 @@ export function OfflinePage() {
                   leftIcon={<FileText size={16} />}
                   onClick={() => { window.location.href = '/activities/programs'; }}
                 >
-                  Программы
+                  {t('offline.actions.programs')}
                 </Button>
                 <Button
                   variant="primary"
                   leftIcon={<Plus size={16} />}
                   onClick={() => setShowCreateModal(true)}
                 >
-                  Создать сессию
+                  {t('offline.actions.createSession')}
                 </Button>
               </>
             ) : (
@@ -575,7 +577,7 @@ export function OfflinePage() {
                 leftIcon={<KeyRound size={16} />}
                 onClick={() => setView('join')}
               >
-                Ввести код
+                {t('offline.actions.enterCode')}
               </Button>
             )
           }
@@ -606,17 +608,17 @@ export function OfflinePage() {
         ) : sessions.length === 0 ? (
           <EmptyState
             icon={<Users size={48} />}
-            title="Пока нет офлайн-сессий"
+            title={t('offline.empty.title')}
             description={isAdmin
-              ? 'Запустите тренинг или семинар — создайте первую сессию, пригласите участников по коду доступа.'
-              : 'Чтобы присоединиться к тренингу, введите код доступа, который выдаст тренер в начале занятия.'}
+              ? t('offline.empty.descAdmin')
+              : t('offline.empty.descUser')}
             cta={isAdmin ? (
               <Button leftIcon={<Plus size={16} />} onClick={() => setShowCreateModal(true)}>
-                Создать сессию
+                {t('offline.empty.ctaCreate')}
               </Button>
             ) : (
               <Button leftIcon={<KeyRound size={16} />} onClick={() => setView('join')}>
-                Ввести код доступа
+                {t('offline.empty.ctaJoin')}
               </Button>
             )}
           />

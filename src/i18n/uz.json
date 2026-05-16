@@ -259,6 +259,15 @@
     },
     "empty": "Xodimlar topilmadi",
     "emptyHint": "So'rovni o'zgartirib ko'ring",
+    "emptyState": {
+      "titleFiltered": "Jamoa a'zolari topilmadi",
+      "titleEmpty": "Jamoa hozircha bo'sh",
+      "descFiltered": "Joriy qidiruv yoki rol filtriga hech kim mos kelmadi. Barcha hamkasblarni ko'rish uchun filtrlarni tozalang.",
+      "descEmpty": "Administrator xodimlarni qo'shganda — ular shu yerda paydo bo'ladi."
+    },
+    "rowActions": {
+      "label": "Jamoa a'zosi bilan amallar"
+    },
     "shown": "Ko'rsatildi: {filtered} / {total} xodim",
     "loadError": "Xodimlar ro'yxatini yuklash imkoni bo'lmadi",
     "retry": "Qayta urinish",
@@ -380,6 +389,12 @@
       "course": "Kursni yuklash imkoni bo'lmadi",
       "submit": "Natijani yuborishda xatolik",
       "alreadyCompleted": "Bu kurs allaqachon o'tilgan"
+    },
+    "empty": {
+      "title": "Bu darajada hozircha kurslar yo'q",
+      "descMicro": "Tanlangan «Mikro (≤7 daq)» filtrida kurslar yo'q. Darajadagi barcha mavjud kurslarni ko'rish uchun filtrni tozalang.",
+      "descDefault": "Trener tayinlaganda bu darajadagi kurslar paydo bo'ladi.",
+      "ctaResetFilter": "Filtrni tozalash"
     }
   },
   "kpi": {
@@ -455,7 +470,12 @@
       "formulaText": "KPI = AI × 0.4 + LMS × 0.3 + CRM × 0.3"
     },
     "loadError": "Reyting ma'lumotlarini yuklash imkoni bo'lmadi",
-    "tryAgain": "Qayta urinish"
+    "tryAgain": "Qayta urinish",
+    "empty": {
+      "title": "Hozircha reyting ma'lumotlari yo'q",
+      "desc": "Tanlangan davr va rol filtrida natijalar yo'q. Ma'lumotlarni yangilang yoki boshqa davrni tanlab ko'ring.",
+      "ctaRefresh": "Yangilash"
+    }
   },
   "chat": {
     "title": "AI-Maslahatchi",
@@ -748,7 +768,12 @@
       "failed": "Bajarilmadi",
       "paused": "Pauza"
     },
-    "pts": "ball"
+    "pts": "ball",
+    "empty": {
+      "title": "Hozircha maqsadlar yo'q",
+      "desc": "Trener sizga kurs yoki KPI-vazifa tayinlaganda maqsadlar paydo bo'ladi. O'qishdan boshlang — kurslarni o'tgandan keyin tizim maqsadlarni taklif qiladi.",
+      "ctaToCourses": "Kurslarga o'tish"
+    }
   },
   "kb": {
     "title": "Bilimlar bazasi",
@@ -820,7 +845,10 @@
     "all": "Barchasi",
     "reindex": "Qayta indekslash",
     "removeFile": "Faylni o'chirish",
-    "deselectAll": "Tanlovni bekor qilish"
+    "deselectAll": "Tanlovni bekor qilish",
+    "rowActions": {
+      "label": "Hujjat bilan amallar"
+    }
   },
   "planogram": {
     "title": "ShelfScan AI",
@@ -976,7 +1004,20 @@
     "scopesSaved": "Rol sozlamalari saqlandi",
     "loadError": "Sozlamalarni yuklash xatosi",
     "saveError": "Saqlash xatosi",
-    "note": "Superadmin har doim barcha bo'limlarga to'liq kirish huquqiga ega. O'zgarishlar saqlash va foydalanuvchi sahifani qayta yuklagandan keyin kuchga kiradi. Agar rol uchun sozlamalar o'rnatilmagan bo'lsa, barcha bo'limlar sukut bo'yicha mavjud."
+    "note": "Superadmin har doim barcha bo'limlarga to'liq kirish huquqiga ega. O'zgarishlar saqlash va foydalanuvchi sahifani qayta yuklagandan keyin kuchga kiradi. Agar rol uchun sozlamalar o'rnatilmagan bo'lsa, barcha bo'limlar sukut bo'yicha mavjud.",
+    "unsavedChanges": "Saqlanmagan o'zgarishlar mavjud"
+  },
+  "adminUsers": {
+    "rowActions": {
+      "label": "Xodim bilan amallar"
+    },
+    "empty": {
+      "titleEmpty": "Hozircha xodimlar yo'q",
+      "titleFiltered": "Xodimlar topilmadi",
+      "descEmpty": "Birinchi xodimni qo'shing — u onboardingni o'tib jamoaga qo'shiladi.",
+      "descFiltered": "Joriy qidiruv yoki rol filtriga hech kim mos kelmadi. Butun jamoani ko'rish uchun filtrlarni tozalang.",
+      "ctaAdd": "Xodim qo'shish"
+    }
   },
   "reports": {
     "title": "Hisobotlar",
@@ -1000,7 +1041,14 @@
     "adminCommentPlaceholder": "Javob yozing...",
     "markReviewed": "Ko'rib chiqildi",
     "markResolved": "Hal qilindi",
-    "saveComment": "Izohni saqlash"
+    "saveComment": "Izohni saqlash",
+    "empty": {
+      "title": "Hozircha skrinshot-hisobotlar yo'q",
+      "desc": "Jamoa platforma sahifalaridan qayta aloqa yuborishni boshlaganda ular paydo bo'ladi — qabul passiv."
+    },
+    "rowActions": {
+      "label": "Hisobot bilan amallar"
+    }
   },
   "common": {
     "retry": "Qayta urinish",
@@ -1012,7 +1060,23 @@
     "language": "Til",
     "back": "Orqaga",
     "yes": "Ha",
-    "no": "Yo'q"
+    "no": "Yo'q",
+    "actions": {
+      "open": "Ochish",
+      "openProfile": "Profilni ochish",
+      "edit": "Tahrirlash",
+      "editRole": "Rolni tahrirlash",
+      "delete": "O'chirish",
+      "deactivate": "Faolsizlantirish",
+      "contact": "Bog'lanish",
+      "assignCourse": "Kurs tayinlash",
+      "resetFilters": "Filtrlarni tozalash",
+      "resetFilter": "Filtrni tozalash",
+      "refresh": "Yangilash",
+      "reindex": "Qayta indekslash",
+      "changeType": "Turini o'zgartirish",
+      "markReviewed": "Ko'rib chiqilgan deb belgilash"
+    }
   },
   "screenshot": {
     "button": "Skrinshot",
@@ -1024,6 +1088,39 @@
     "sending": "Yuborilmoqda...",
     "sent": "Yuborildi!",
     "error": "Yuborishda xatolik"
+  },
+  "offline": {
+    "title": "Oflayn faoliyat",
+    "subtitleAdmin": "dasturlar va shablonlarni boshqarish",
+    "actions": {
+      "programs": "Dasturlar",
+      "createSession": "Sessiya yaratish",
+      "enterCode": "Kodni kiritish"
+    },
+    "empty": {
+      "title": "Hozircha oflayn sessiyalar yo'q",
+      "descAdmin": "Trening yoki seminarni boshlang — birinchi sessiyani yarating, ishtirokchilarni kirish kodi orqali taklif qiling.",
+      "descUser": "Treningga qo'shilish uchun trener mashg'ulot boshida bergan kirish kodini kiriting.",
+      "ctaCreate": "Sessiya yaratish",
+      "ctaJoin": "Kirish kodini kiritish"
+    }
+  },
+  "offlinePrograms": {
+    "title": "Trening dasturlari",
+    "subtitle": "Oflayn sessiyalar uchun shablonlar — slaydlar, testlar, dashbordlar",
+    "backToSessions": "← Sessiyalarga",
+    "createProgram": "Dastur yaratish",
+    "empty": {
+      "title": "Hozircha trening dasturlari yo'q",
+      "desc": "Birinchi shablonni yarating — slaydlar, savollar va dashbordni belgilang. Dasturni oflayn sessiyalar uchun ishlatish mumkin bo'ladi.",
+      "ctaCreate": "Dastur yaratish"
+    }
+  },
+  "supervisor": {
+    "title": "Mening jamoam",
+    "rowActions": {
+      "label": "Xodim bilan amallar"
+    }
   },
   "shelfCorrections": {
     "title": "ShelfScan Korreksiyasi",

@@ -205,11 +205,11 @@ export function GoalsPage() {
         {filteredGoals.length === 0 ? (
           <EmptyState
             icon={<Target size={48} />}
-            title="Пока нет целей"
-            description="Цели появятся, когда тренер назначит вам курс или KPI-задачу. Начните с обучения — после прохождения курсов система предложит цели."
+            title={t('goals.empty.title')}
+            description={t('goals.empty.desc')}
             cta={
               <Button leftIcon={<BookOpen size={16} />} onClick={() => navigate('/learning')}>
-                Перейти к курсам
+                {t('goals.empty.ctaToCourses')}
               </Button>
             }
           />

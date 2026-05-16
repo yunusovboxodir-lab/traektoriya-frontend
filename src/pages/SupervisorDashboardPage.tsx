@@ -408,6 +408,7 @@ function TeamTab({
   bonuses: TeamBonuses;
   onAssignCourse: (agentId: string) => void;
 }) {
+  const t = useT();
   void _bonuses; // Used in parent component for bonuses banner
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -479,22 +480,22 @@ function TeamTab({
                   </td>
                   <td className="px-3 py-3 text-right">
                     <RowActions
-                      label="Действия с сотрудником"
+                      label={t('supervisor.rowActions.label')}
                       items={[
                         {
-                          label: 'Назначить курс',
+                          label: t('common.actions.assignCourse'),
                           icon: <BookOpen size={14} />,
                           onSelect: () => onAssignCourse(agent.id),
                         },
                         {
-                          label: 'Открыть профиль',
+                          label: t('common.actions.openProfile'),
                           icon: <Eye size={14} />,
                           // TODO: implement agent profile navigation
                           onSelect: () =>
                             console.log('[TODO] open agent profile', agent.id),
                         },
                         {
-                          label: 'Связаться',
+                          label: t('common.actions.contact'),
                           icon: <Mail size={14} />,
                           // TODO: implement agent contact action (email/telegram)
                           onSelect: () =>

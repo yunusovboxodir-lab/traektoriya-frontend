@@ -613,12 +613,12 @@ function LevelBlock({
               <div className="px-5 py-6">
                 <EmptyState
                   icon={<BookOpen size={48} />}
-                  title="Пока нет курсов на этом уровне"
+                  title={t('learning.empty.title')}
                   description={microOnly
-                    ? 'В выбранном фильтре «Микро (≤7 мин)» нет курсов. Сбросьте фильтр, чтобы увидеть все доступные курсы уровня.'
-                    : 'Курсы на этом уровне появятся, когда тренер их назначит.'}
+                    ? t('learning.empty.descMicro')
+                    : t('learning.empty.descDefault')}
                   cta={microOnly && onResetMicro ? (
-                    <Button variant="secondary" onClick={onResetMicro}>Сбросить фильтр</Button>
+                    <Button variant="secondary" onClick={onResetMicro}>{t('learning.empty.ctaResetFilter')}</Button>
                   ) : undefined}
                 />
               </div>

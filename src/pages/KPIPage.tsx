@@ -860,11 +860,11 @@ export function KPIPage() {
                     <td colSpan={6} className="px-4 py-6">
                       <EmptyState
                         icon={<BarChart3 size={48} />}
-                        title="Пока нет данных для рейтинга"
-                        description="В выбранном периоде и фильтре роли нет результатов. Попробуйте обновить данные или выбрать другой период."
+                        title={t('kpi.empty.title')}
+                        description={t('kpi.empty.desc')}
                         cta={
                           <Button variant="secondary" leftIcon={<RefreshCw size={16} />} onClick={() => loadData()}>
-                            Обновить
+                            {t('kpi.empty.ctaRefresh')}
                           </Button>
                         }
                       />
