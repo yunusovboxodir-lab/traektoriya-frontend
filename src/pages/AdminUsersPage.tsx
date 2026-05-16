@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usersApi, type UserListItem, type CreateUserPayload } from '../api/users';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button, RowActions } from '@/components/ui';
+import { Users, Plus, X as XIcon, Eye, Pencil, UserX } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -322,16 +323,13 @@ export function AdminUsersPage() {
         title="Сотрудники"
         subtitle="Управление аккаунтами и онбординг"
         actions={
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            leftIcon={<Plus size={16} />}
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
             Добавить сотрудника
-          </button>
+          </Button>
         }
       />
 
@@ -379,14 +377,33 @@ export function AdminUsersPage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-            <svg viewBox="0 0 24 24" className="w-10 h-10 mb-2" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            <p className="text-sm">Сотрудники не найдены</p>
-          </div>
+          (() => {
+            const hasFilter = Boolean(search) || Boolean(roleFilter);
+            return (
+              <div className="p-4">
+                <EmptyState
+                  icon={<Users size={48} />}
+                  title={hasFilter ? 'Сотрудники не найдены' : 'Пока нет сотрудников'}
+                  description={hasFilter
+                    ? 'Под текущий поиск или фильтр роли никто не подходит. Сбросьте фильтры, чтобы увидеть всю команду.'
+                    : 'Добавьте первого сотрудника — он получит онбординг и попадёт в команду.'}
+                  cta={hasFilter ? (
+                    <Button
+                      variant="secondary"
+                      leftIcon={<XIcon size={16} />}
+                      onClick={() => { setSearch(''); setRoleFilter(''); }}
+                    >
+                      Сбросить фильтры
+                    </Button>
+                  ) : (
+                    <Button leftIcon={<Plus size={16} />} onClick={() => setShowModal(true)}>
+                      Добавить сотрудника
+                    </Button>
+                  )}
+                />
+              </div>
+            );
+          })()
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -398,6 +415,7 @@ export function AdminUsersPage() {
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Регион</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Последний вход</th>
                   <th className="text-left px-4 py-3 font-medium text-gray-500">Статус</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500 w-12"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -457,6 +475,37 @@ export function AdminUsersPage() {
                         />
                         {user.is_active ? 'Активен' : 'Неактивен'}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <RowActions
+                        label="Действия с сотрудником"
+                        items={[
+                          {
+                            label: 'Открыть профиль',
+                            icon: <Eye size={14} />,
+                            // TODO: implement user profile page navigation
+                            onSelect: () =>
+                              console.log('[TODO] open user profile', user.id),
+                          },
+                          {
+                            label: 'Редактировать роль',
+                            icon: <Pencil size={14} />,
+                            // TODO: implement edit-role modal (нет UI для смены роли в AdminUsersPage)
+                            onSelect: () =>
+                              console.log('[TODO] edit user role', user.id, user.role),
+                          },
+                          { separator: true },
+                          {
+                            label: 'Деактивировать',
+                            icon: <UserX size={14} />,
+                            destructive: true,
+                            disabled: !user.is_active,
+                            // TODO: implement user deactivation endpoint
+                            onSelect: () =>
+                              console.log('[TODO] deactivate user', user.id),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                 ))}

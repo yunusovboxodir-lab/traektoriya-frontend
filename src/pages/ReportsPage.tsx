@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsApi, type ScreenshotReport } from '../api/reports';
 import { api } from '../api/client';
 import { useT } from '../stores/langStore';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, RowActions } from '@/components/ui';
+import { FileText, Eye, Check, Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Status badge
@@ -273,7 +274,11 @@ export function ReportsPage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
       ) : reports.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">{t('reports.noReports')}</div>
+        <EmptyState
+          icon={<FileText size={48} />}
+          title="Пока нет скриншот-репортов"
+          description="Они появятся, когда команда начнёт присылать обратную связь со страниц платформы — приём пассивный."
+        />
       ) : (
         <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
           <table className="w-full text-sm">
@@ -285,6 +290,7 @@ export function ReportsPage() {
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.comment')}</th>
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.context')}</th>
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.status')}</th>
+                <th className="px-4 py-3 font-medium text-gray-500 w-12"></th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -312,6 +318,36 @@ export function ReportsPage() {
                   <td className="px-4 py-3 max-w-xs truncate">{r.comment}</td>
                   <td className="px-4 py-3 text-xs text-gray-500">{r.screen_name || r.current_route || '—'}</td>
                   <td className="px-4 py-3"><StatusBadge status={r.status} t={t} /></td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <RowActions
+                      label="Действия с репортом"
+                      items={[
+                        {
+                          label: 'Открыть',
+                          icon: <Eye size={14} />,
+                          onSelect: () => setSelectedReport(r),
+                        },
+                        ...(r.status !== 'reviewed' && r.status !== 'resolved'
+                          ? [
+                              {
+                                label: 'Отметить как просмотренный',
+                                icon: <Check size={14} />,
+                                onSelect: () => handleUpdate(r.id, { status: 'reviewed' }),
+                              },
+                            ]
+                          : []),
+                        { separator: true },
+                        {
+                          label: 'Удалить',
+                          icon: <Trash2 size={14} />,
+                          destructive: true,
+                          // TODO: implement reports delete endpoint — отсутствует в reportsApi
+                          onSelect: () =>
+                            console.log('[TODO] delete report', r.id),
+                        },
+                      ]}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>

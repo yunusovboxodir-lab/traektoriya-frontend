@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGoalsStore } from '../stores/goalsStore';
 import { useT } from '../stores/langStore';
 import type { Goal, UserAchievement, AchievementCatalogItem } from '../api/goals';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { Target, BookOpen } from 'lucide-react';
 
 // ───────────────────────────────────────
 // Helpers
@@ -121,6 +123,7 @@ type Tab = 'all' | 'active' | 'completed';
 
 export function GoalsPage() {
   const t = useT();
+  const navigate = useNavigate();
   const { goals, achievements, catalog, totalPoints, loading, fetchGoals, fetchAchievements, fetchCatalog } =
     useGoalsStore();
 
@@ -200,12 +203,16 @@ export function GoalsPage() {
           {t('goals.goalsTitle')} {tab === 'active' ? t('goals.goalsActive') : tab === 'completed' ? t('goals.goalsCompleted') : ''}
         </h2>
         {filteredGoals.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
-            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
-            </svg>
-            <p className="text-gray-400 text-sm">{t('goals.noGoals')}</p>
-          </div>
+          <EmptyState
+            icon={<Target size={48} />}
+            title="Пока нет целей"
+            description="Цели появятся, когда тренер назначит вам курс или KPI-задачу. Начните с обучения — после прохождения курсов система предложит цели."
+            cta={
+              <Button leftIcon={<BookOpen size={16} />} onClick={() => navigate('/learning')}>
+                Перейти к курсам
+              </Button>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredGoals.map((goal) => (

@@ -4,7 +4,8 @@ import { useAuthStore } from '../stores/authStore';
 import { roleScopesApi, type PageInfo } from '../api/roleScopes';
 import { toast } from '../stores/toastStore';
 import { useT } from '../stores/langStore';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, Button } from '@/components/ui';
+import { Save } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -152,17 +153,22 @@ export function RolesPage() {
         title={t('rolesPage.title')}
         subtitle={t('rolesPage.subtitle')}
         actions={
-          <button
-            onClick={handleSave}
-            disabled={!hasChanges || saving}
-            className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors
-              ${hasChanges && !saving
-                ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-                : 'bg-gray-400 cursor-not-allowed'
-              }`}
-          >
-            {saving ? t('rolesPage.saving') : t('rolesPage.save')}
-          </button>
+          <>
+            {hasChanges && (
+              <span className="text-sm text-amber-600 font-medium">
+                Есть несохранённые изменения
+              </span>
+            )}
+            <Button
+              variant="primary"
+              leftIcon={<Save size={16} />}
+              disabled={!hasChanges}
+              loading={saving}
+              onClick={handleSave}
+            >
+              {t('rolesPage.save')}
+            </Button>
+          </>
         }
       />
 

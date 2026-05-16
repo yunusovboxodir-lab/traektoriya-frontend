@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { kpiApi } from '../api/kpi';
 import { useAuthStore } from '../stores/authStore';
 import { useT } from '../stores/langStore';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { BarChart3, RefreshCw } from 'lucide-react';
 
 // ───────────────────────────────────────
 // Types
@@ -619,25 +620,26 @@ export function KPIPage() {
         title={t('kpi.title')}
         subtitle={t('kpi.subtitle')}
         actions={
-          <div className="flex items-center gap-2">
+          <>
             <span className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
               {t('kpi.leaderboard.liveUpdate')}
             </span>
             {isAdmin && (
-              <button
+              <Button
+                variant="primary"
+                leftIcon={<RefreshCw size={16} />}
                 onClick={async () => {
                   try {
                     await kpiApi.calculate();
                     loadData();
                   } catch { /* ignore */ }
                 }}
-                className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
               >
                 {t('kpi.recalculate')}
-              </button>
+              </Button>
             )}
-          </div>
+          </>
         }
       />
 
@@ -855,8 +857,17 @@ export function KPIPage() {
               <tbody>
                 {leaders.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-gray-400">
-                      {t('kpi.leaderboard.noData')}
+                    <td colSpan={6} className="px-4 py-6">
+                      <EmptyState
+                        icon={<BarChart3 size={48} />}
+                        title="Пока нет данных для рейтинга"
+                        description="В выбранном периоде и фильтре роли нет результатов. Попробуйте обновить данные или выбрать другой период."
+                        cta={
+                          <Button variant="secondary" leftIcon={<RefreshCw size={16} />} onClick={() => loadData()}>
+                            Обновить
+                          </Button>
+                        }
+                      />
                     </td>
                   </tr>
                 )}

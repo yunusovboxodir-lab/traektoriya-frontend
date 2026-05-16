@@ -5,7 +5,8 @@ import { offlineApi } from '../api/offline';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { OfflineSession, OfflineTestResult, OfflineGameResult } from '../api/offline';
 import type { Program } from '../types/offlineProgram';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { Users, Plus, KeyRound, FileText } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -551,30 +552,32 @@ export function OfflinePage() {
             isAdmin ? ' · управление программами и шаблонами' : ''
           }`}
           actions={
-            <div className="flex gap-2">
-              <button
+            isAdmin ? (
+              <>
+                <Button
+                  variant="secondary"
+                  leftIcon={<FileText size={16} />}
+                  onClick={() => { window.location.href = '/activities/programs'; }}
+                >
+                  Программы
+                </Button>
+                <Button
+                  variant="primary"
+                  leftIcon={<Plus size={16} />}
+                  onClick={() => setShowCreateModal(true)}
+                >
+                  Создать сессию
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="primary"
+                leftIcon={<KeyRound size={16} />}
                 onClick={() => setView('join')}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Ввести код
-              </button>
-              {isAdmin && (
-                <>
-                  <a
-                    href="/activities/programs"
-                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    Программы
-                  </a>
-                  <button
-                    onClick={() => setShowCreateModal(true)}
-                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Создать сессию
-                  </button>
-                </>
-              )}
-            </div>
+              </Button>
+            )
           }
         />
 
@@ -601,12 +604,22 @@ export function OfflinePage() {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : sessions.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            <p className="text-lg mb-2">Нет сессий</p>
-            <p className="text-sm">
-              {isAdmin ? 'Создайте первую сессию' : 'Введите код доступа от тренера'}
-            </p>
-          </div>
+          <EmptyState
+            icon={<Users size={48} />}
+            title="Пока нет офлайн-сессий"
+            description={isAdmin
+              ? 'Запустите тренинг или семинар — создайте первую сессию, пригласите участников по коду доступа.'
+              : 'Чтобы присоединиться к тренингу, введите код доступа, который выдаст тренер в начале занятия.'}
+            cta={isAdmin ? (
+              <Button leftIcon={<Plus size={16} />} onClick={() => setShowCreateModal(true)}>
+                Создать сессию
+              </Button>
+            ) : (
+              <Button leftIcon={<KeyRound size={16} />} onClick={() => setView('join')}>
+                Ввести код доступа
+              </Button>
+            )}
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {sessions.map((s) => (

@@ -21,7 +21,8 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
 import { emitPulseInvalidate } from '../utils/pulseEvents';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { BookOpen } from 'lucide-react';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
 import { KpiChipsFromTitle } from '../components/learning/KpiChip';
@@ -555,7 +556,7 @@ function SectionView({
       {/* Levels with courses — если выбран конкретный уровень с карты, показываем только его */}
       <div className="space-y-5">
         {filteredLevels.map((level) => (
-            <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} microOnly={microOnly} />
+            <LevelBlock key={level.level} level={level} onOpenCourse={onOpenCourse} microOnly={microOnly} onResetMicro={() => setMicroOnly(false)} />
           ))}
       </div>
     </div>
@@ -567,10 +568,12 @@ function LevelBlock({
   level,
   onOpenCourse,
   microOnly = false,
+  onResetMicro,
 }: {
   level: { level: string; level_name: { ru: string; uz?: string | null }; is_unlocked: boolean; is_completed: boolean; courses?: CourseItem[] | null; courses_preview_count?: number | null; unlock_message?: string | null };
   onOpenCourse: (id: string) => void;
   microOnly?: boolean;
+  onResetMicro?: () => void;
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
@@ -607,10 +610,17 @@ function LevelBlock({
             : level.courses;
           if (visible.length === 0) {
             return (
-              <div className="px-5 py-6 text-center">
-                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                  {lang === 'uz' ? 'Bu darajada mikro-kurslar yoʻq' : 'Нет микро-курсов на этом уровне'}
-                </p>
+              <div className="px-5 py-6">
+                <EmptyState
+                  icon={<BookOpen size={48} />}
+                  title="Пока нет курсов на этом уровне"
+                  description={microOnly
+                    ? 'В выбранном фильтре «Микро (≤7 мин)» нет курсов. Сбросьте фильтр, чтобы увидеть все доступные курсы уровня.'
+                    : 'Курсы на этом уровне появятся, когда тренер их назначит.'}
+                  cta={microOnly && onResetMicro ? (
+                    <Button variant="secondary" onClick={onResetMicro}>Сбросить фильтр</Button>
+                  ) : undefined}
+                />
               </div>
             );
           }

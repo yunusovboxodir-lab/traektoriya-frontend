@@ -3,7 +3,8 @@ import { teamApi, type TeamMember } from '../api/team';
 import { useT, useLangStore } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { TeamLearningTab } from '../components/team/TeamLearningTab';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, EmptyState, Button, RowActions } from '@/components/ui';
+import { Users, X as XIcon, Eye, Mail, BookOpen } from 'lucide-react';
 
 const SUPERVISOR_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
@@ -234,13 +235,27 @@ export function TeamPage() {
       {!isLoading && !error && (
         <div className="space-y-2">
           {filtered.length === 0 ? (
-            <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-              <svg className="mx-auto w-12 h-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
-              </svg>
-              <p className="text-gray-500 font-medium">{t('team.empty')}</p>
-              {search && <p className="text-gray-400 text-sm mt-1">{t('team.emptyHint')}</p>}
-            </div>
+            (() => {
+              const hasFilter = Boolean(search) || roleFilter !== 'all';
+              return (
+                <EmptyState
+                  icon={<Users size={48} />}
+                  title={hasFilter ? 'Не нашли членов команды' : 'Команда пока пуста'}
+                  description={hasFilter
+                    ? 'Под текущий поиск или фильтр роли никто не подходит. Сбросьте фильтры, чтобы увидеть всех коллег.'
+                    : 'Когда сотрудников добавит администратор — они появятся здесь.'}
+                  cta={hasFilter ? (
+                    <Button
+                      variant="secondary"
+                      leftIcon={<XIcon size={16} />}
+                      onClick={() => { setSearch(''); setRoleFilter('all'); }}
+                    >
+                      Сбросить фильтры
+                    </Button>
+                  ) : undefined}
+                />
+              );
+            })()
           ) : (
             filtered.map((m, idx) => {
               const roleStyle = ROLE_STYLES[m.role] || ROLE_STYLES.user;
@@ -280,13 +295,39 @@ export function TeamPage() {
                       </div>
                     </div>
 
-                    {/* Status + chevron */}
+                    {/* Status + actions + chevron */}
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${m.is_active ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                         <span className="text-xs text-gray-400 hidden sm:inline">
                           {m.is_active ? t('team.status.active') : t('team.status.inactive')}
                         </span>
+                      </div>
+                      <div onClick={(e) => e.stopPropagation()}>
+                        <RowActions
+                          label="Действия с участником команды"
+                          items={[
+                            {
+                              label: 'Открыть профиль',
+                              icon: <Eye size={14} />,
+                              onSelect: () => setExpandedId(m.id),
+                            },
+                            {
+                              label: 'Связаться',
+                              icon: <Mail size={14} />,
+                              // TODO: implement member contact action (email/telegram)
+                              onSelect: () =>
+                                console.log('[TODO] contact team member', m.id),
+                            },
+                            {
+                              label: 'Назначить курс',
+                              icon: <BookOpen size={14} />,
+                              // TODO: implement course assignment from TeamPage card
+                              onSelect: () =>
+                                console.log('[TODO] assign course to', m.id),
+                            },
+                          ]}
+                        />
                       </div>
                       <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path d="M19 9l-7 7-7-7" />

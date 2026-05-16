@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { Program } from '../types/offlineProgram';
-import { PageHeader, SkeletonCard } from '@/components/ui';
+import { PageHeader, SkeletonCard, EmptyState, Button } from '@/components/ui';
+import { FileText, Plus } from 'lucide-react';
 
 export function OfflineProgramsPage() {
   const navigate = useNavigate();
@@ -36,21 +37,23 @@ export function OfflineProgramsPage() {
       <PageHeader
         title="Программы тренингов"
         subtitle="Шаблоны для офлайн-сессий — слайды, тесты, дашборды"
+        breadcrumbs={
+          <a
+            href="/activities"
+            onClick={(e) => { e.preventDefault(); navigate('/activities'); }}
+            className="hover:underline"
+          >
+            ← К сессиям
+          </a>
+        }
         actions={
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate('/activities')}
-              className="px-4 py-2 text-stone-700 border border-stone-300 rounded-lg hover:bg-stone-50"
-            >
-              ← К сессиям
-            </button>
-            <button
-              onClick={() => setShowCreate(true)}
-              className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
-            >
-              + Создать программу
-            </button>
-          </div>
+          <Button
+            variant="primary"
+            leftIcon={<Plus size={16} />}
+            onClick={() => setShowCreate(true)}
+          >
+            Создать программу
+          </Button>
         }
       />
 
@@ -69,10 +72,17 @@ export function OfflineProgramsPage() {
             <ProgramCard key={p.id} program={p} onClick={() => navigate(`/activities/programs/${p.id}/edit`)} />
           ))}
           {programs.length === 0 && (
-            <div className="col-span-full text-center py-16 text-stone-400">
-              Программ пока нет. Запустите{' '}
-              <code className="bg-stone-100 px-2 py-1 rounded text-sm">scripts/seed_offline_programs.py</code>{' '}
-              чтобы засеять ADKAR/DSPM/7 Qadam.
+            <div className="col-span-full">
+              <EmptyState
+                icon={<FileText size={48} />}
+                title="Пока нет программ тренингов"
+                description="Создайте первый шаблон — задайте слайды, вопросы и дашборд. Программу можно будет использовать для офлайн-сессий."
+                cta={
+                  <Button leftIcon={<Plus size={16} />} onClick={() => setShowCreate(true)}>
+                    Создать программу
+                  </Button>
+                }
+              />
             </div>
           )}
         </div>

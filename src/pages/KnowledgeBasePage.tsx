@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { documentsApi, type DocumentResponse, type DocumentStats } from '../api/documents';
 import { ragApi } from '../api/rag';
 import { useT } from '../stores/langStore';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, Button, RowActions } from '@/components/ui';
+import { Upload, X as XLucide, RefreshCw, Pencil, Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants & Helpers
@@ -780,7 +781,19 @@ export function KnowledgeBasePage() {
   return (
     <div>
       {/* ---- Page Header ---- */}
-      <PageHeader title={t('kb.title')} subtitle={t('kb.subtitle')} />
+      <PageHeader
+        title={t('kb.title')}
+        subtitle={t('kb.subtitle')}
+        actions={
+          <Button
+            variant="primary"
+            leftIcon={showUpload ? <XLucide size={16} /> : <Upload size={16} />}
+            onClick={() => setShowUpload((v) => !v)}
+          >
+            {showUpload ? t('kb.cancel') : t('kb.upload')}
+          </Button>
+        }
+      />
 
       {/* ---- Stats Row ---- */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
@@ -1209,17 +1222,6 @@ export function KnowledgeBasePage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => handleReindex(doc.id)}
-                            disabled={reindexingIds.has(doc.id)}
-                            className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-                            title="Переиндексировать"
-                          >
-                            <IconRefresh
-                              className={`w-4 h-4 ${reindexingIds.has(doc.id) ? 'animate-spin' : ''}`}
-                            />
-                          </button>
                           {deleteConfirmId === doc.id ? (
                             <div className="flex items-center gap-1">
                               <button
@@ -1238,14 +1240,42 @@ export function KnowledgeBasePage() {
                               </button>
                             </div>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => setDeleteConfirmId(doc.id)}
-                              className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                              title="Удалить"
-                            >
-                              <IconTrash className="w-4 h-4" />
-                            </button>
+                            <RowActions
+                              label="Действия с документом"
+                              items={[
+                                {
+                                  label: 'Переиндексировать',
+                                  icon: (
+                                    <RefreshCw
+                                      size={14}
+                                      className={reindexingIds.has(doc.id) ? 'animate-spin' : ''}
+                                    />
+                                  ),
+                                  disabled: reindexingIds.has(doc.id),
+                                  onSelect: () => handleReindex(doc.id),
+                                },
+                                {
+                                  label: 'Изменить тип',
+                                  icon: <Pencil size={14} />,
+                                  onSelect: () => {
+                                    // Используем существующий bulk-edit для одиночного документа:
+                                    // выделяем только этот doc и открываем модалку с пустыми полями
+                                    setSelectedIds(new Set([doc.id]));
+                                    setBulkDocType('');
+                                    setBulkCategory('');
+                                    setBulkCategoryClear(false);
+                                    setShowBulkEdit(true);
+                                  },
+                                },
+                                { separator: true },
+                                {
+                                  label: 'Удалить',
+                                  icon: <Trash2 size={14} />,
+                                  destructive: true,
+                                  onSelect: () => setDeleteConfirmId(doc.id),
+                                },
+                              ]}
+                            />
                           )}
                         </div>
                       </td>

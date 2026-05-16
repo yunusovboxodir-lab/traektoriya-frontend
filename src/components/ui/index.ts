@@ -107,3 +107,6 @@ export {
   TableCell,
   TableCaption,
 } from './Table';
+
+export { RowActions } from './RowActions';
+export type { RowActionItem } from './RowActions';

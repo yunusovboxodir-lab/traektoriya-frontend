@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useT } from '../stores/langStore';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, RowActions } from '@/components/ui';
+import { BookOpen, Eye, Mail } from 'lucide-react';
 
 // =============================================================================
 // Types — match backend supervisor API response schemas
@@ -293,7 +294,14 @@ export function SupervisorDashboardPage() {
 
       {/* Tab Content */}
       {tab === 'team' ? (
-        <TeamTab agents={teamData.agents} bonuses={teamData.bonuses} />
+        <TeamTab
+          agents={teamData.agents}
+          bonuses={teamData.bonuses}
+          onAssignCourse={(agentId) => {
+            setAssignAgentId(agentId);
+            setShowAssign(true);
+          }}
+        />
       ) : (
         <LearningTab data={learningData} />
       )}
@@ -391,7 +399,15 @@ function SummaryCard({ icon, label, value, color, bg }: {
   );
 }
 
-function TeamTab({ agents, bonuses: _bonuses }: { agents: TeamAgent[]; bonuses: TeamBonuses }) {
+function TeamTab({
+  agents,
+  bonuses: _bonuses,
+  onAssignCourse,
+}: {
+  agents: TeamAgent[];
+  bonuses: TeamBonuses;
+  onAssignCourse: (agentId: string) => void;
+}) {
   void _bonuses; // Used in parent component for bonuses banner
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -405,6 +421,7 @@ function TeamTab({ agents, bonuses: _bonuses }: { agents: TeamAgent[]; bonuses: 
               <th className="text-center px-3 py-3 font-semibold text-gray-600">Уровень</th>
               <th className="text-center px-3 py-3 font-semibold text-gray-600">Обучение</th>
               <th className="text-left px-3 py-3 font-semibold text-gray-600">Слабые зоны</th>
+              <th className="text-right px-3 py-3 font-semibold text-gray-600 w-12"></th>
             </tr>
           </thead>
           <tbody>
@@ -459,6 +476,32 @@ function TeamTab({ agents, bonuses: _bonuses }: { agents: TeamAgent[]; bonuses: 
                         ))
                       )}
                     </div>
+                  </td>
+                  <td className="px-3 py-3 text-right">
+                    <RowActions
+                      label="Действия с сотрудником"
+                      items={[
+                        {
+                          label: 'Назначить курс',
+                          icon: <BookOpen size={14} />,
+                          onSelect: () => onAssignCourse(agent.id),
+                        },
+                        {
+                          label: 'Открыть профиль',
+                          icon: <Eye size={14} />,
+                          // TODO: implement agent profile navigation
+                          onSelect: () =>
+                            console.log('[TODO] open agent profile', agent.id),
+                        },
+                        {
+                          label: 'Связаться',
+                          icon: <Mail size={14} />,
+                          // TODO: implement agent contact action (email/telegram)
+                          onSelect: () =>
+                            console.log('[TODO] contact agent', agent.id),
+                        },
+                      ]}
+                    />
                   </td>
                 </tr>
               );
