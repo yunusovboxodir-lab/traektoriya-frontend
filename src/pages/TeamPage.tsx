@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { teamApi, type TeamMember } from '../api/team';
 import { useT, useLangStore } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
@@ -32,9 +33,15 @@ const AVATAR_COLORS = [
 
 export function TeamPage() {
   const t = useT();
+  const navigate = useNavigate();
   const lang = useLangStore((s) => s.lang);
   const userRole = useAuthStore((s) => s.user?.role || 'sales_rep');
   const showLearningTab = SUPERVISOR_ROLES.includes(userRole);
+
+  // Переход к модалке «Назначить курс» в SupervisorDashboard (модалка inline, не вынесена в компонент)
+  const goToAssignCourse = useCallback(() => {
+    navigate('/team?tab=management');
+  }, [navigate]);
 
   const [activeTab, setActiveTab] = useState<'members' | 'learning'>('members');
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -103,7 +110,19 @@ export function TeamPage() {
 
   return (
     <div>
-      <PageHeader title={t('team.title')} subtitle={t('team.subtitle')} />
+      <PageHeader
+        title={t('team.title')}
+        subtitle={t('team.subtitle')}
+        actions={showLearningTab ? (
+          <Button
+            variant="primary"
+            leftIcon={<BookOpen size={16} />}
+            onClick={goToAssignCourse}
+          >
+            {t('common.actions.assignCourse')}
+          </Button>
+        ) : undefined}
+      />
 
       {/* Tabs (only for supervisor+ roles) */}
       {showLearningTab && (
@@ -322,9 +341,9 @@ export function TeamPage() {
                             {
                               label: t('common.actions.assignCourse'),
                               icon: <BookOpen size={14} />,
-                              // TODO: implement course assignment from TeamPage card
-                              onSelect: () =>
-                                console.log('[TODO] assign course to', m.id),
+                              // Переход к management-табу с модалкой «Назначить курс»
+                              // (модалка inline в SupervisorDashboardPage, передать agentId напрямую нельзя без рефакторинга)
+                              onSelect: () => navigate(`/team?tab=management&agentId=${m.id}`),
                             },
                           ]}
                         />
