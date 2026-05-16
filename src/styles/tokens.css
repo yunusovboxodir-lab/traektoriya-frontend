@@ -1,0 +1,194 @@
+/* ============================================================================
+ * tokens.css — единый источник дизайн-токенов платформы Traektoriya
+ *
+ * Структура: primitive (палитра) → semantic (то, что используют компоненты).
+ * Component-токены добавляются точечно ниже.
+ *
+ * Темизация: dark по умолчанию (R1 решено 2026-05-16). Light — опция.
+ * Переключение через data-theme на <html>: data-theme="dark" | "light".
+ *
+ * Цвета ролей: золото освобождено под бренд (только CTA + акценты).
+ * ТП=фиолетовый, СВ=бирюза, РМ=индиго, КД=приглушённое золото,
+ * admin=серый, superadmin=тёмный нейтральный (R4 решено 2026-05-16).
+ *
+ * Связь с Tailwind v3.4: через theme.extend в tailwind.config.js
+ * (см. _docs/codex/01_foundations.md §10).
+ *
+ * Полная спецификация: D:\Траектория\_docs\codex\01_foundations.md
+ * ============================================================================ */
+
+/* ---------------------------------------------------------------------------
+ * PRIMITIVE (raw values — НИКОГДА не использовать напрямую в компонентах)
+ * --------------------------------------------------------------------------- */
+:root {
+  /* === Brand gold (tactical-наследие, ТОЛЬКО бренд + CTA + акценты) === */
+  --color-gold-50:  #FBF6E4;
+  --color-gold-100: #F4E4A8;
+  --color-gold-200: #ECCF6E;
+  --color-gold-300: #E2B940;
+  --color-gold-400: #D4AF37;  /* основной brand-accent */
+  --color-gold-500: #B8941F;
+  --color-gold-600: #957818;
+  --color-gold-700: #735C12;
+  --color-gold-800: #50410C;
+  --color-gold-900: #2D2407;
+
+  /* === Neutral (тёплый серый — пара золота) === */
+  --color-gray-50:  #FAFAF8;
+  --color-gray-100: #F2F2EE;
+  --color-gray-200: #E5E5DE;
+  --color-gray-300: #C7C7BC;
+  --color-gray-400: #9E9E92;
+  --color-gray-500: #6E6E64;
+  --color-gray-600: #4A4A42;
+  --color-gray-700: #2E2E28;
+  --color-gray-800: #1A1A16;
+  --color-gray-900: #0E0E0B;
+  --color-gray-950: #050504;
+
+  /* === Status primitives === */
+  --color-green-500: #16A34A;  --color-green-600: #15803D;
+  --color-red-500:   #DC2626;  --color-red-600:   #B91C1C;
+  --color-amber-500: #F59E0B;  --color-amber-600: #D97706;
+  --color-blue-500:  #2563EB;  --color-blue-600:  #1D4ED8;
+
+  /* === Spacing — 4px-grid === */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* === Radius === */
+  --radius-none: 0;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 9999px;
+
+  /* === Motion === */
+  --duration-instant: 0ms;
+  --duration-fast:    120ms;
+  --duration-base:    200ms;
+  --duration-slow:    320ms;
+  --easing-standard:   cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+
+  /* === Typography (R5 ещё открыт — оставляем Inter в spec, не форсим) === */
+  --font-sans:    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Manrope', var(--font-sans);
+  --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ---------------------------------------------------------------------------
+ * SEMANTIC — DARK theme (DEFAULT, R1 решено 2026-05-16)
+ * Компоненты обращаются ТОЛЬКО к этим именам.
+ * --------------------------------------------------------------------------- */
+:root,
+[data-theme="dark"] {
+  --color-bg-canvas:         var(--color-gray-950);    /* фон страницы */
+  --color-bg-surface:        var(--color-gray-900);    /* карточки */
+  --color-bg-surface-raised: var(--color-gray-800);    /* модалки, поповеры */
+  --color-bg-muted:          var(--color-gray-800);    /* empty states, disabled */
+  --color-bg-accent:         var(--color-gold-400);    /* primary CTA — БРЕНД, не роль */
+  --color-bg-accent-hover:   var(--color-gold-300);
+
+  --color-fg-default:        var(--color-gray-50);
+  --color-fg-muted:          var(--color-gray-300);
+  --color-fg-subtle:         var(--color-gray-400);
+  --color-fg-on-accent:      var(--color-gray-900);
+
+  --color-border-default:    var(--color-gray-700);
+  --color-border-strong:     var(--color-gray-600);
+  --color-border-accent:     var(--color-gold-400);    /* focus / active state */
+  --color-border-focus:      var(--color-blue-500);
+
+  /* Status (bg + fg парами) */
+  --color-status-success-bg: #052E16;  --color-status-success-fg: #4ADE80;
+  --color-status-warning-bg: #422006;  --color-status-warning-fg: #FBBF24;
+  --color-status-danger-bg:  #450A0A;  --color-status-danger-fg:  #F87171;
+  --color-status-info-bg:    #172554;  --color-status-info-fg:    #60A5FA;
+
+  /* Roles (R4: золото освобождено под бренд) */
+  --color-role-sales:        #A78BFA;  /* ТП — фиолетовый */
+  --color-role-supervisor:   #2DD4BF;  /* СВ — бирюза */
+  --color-role-manager:      #6366F1;  /* РМ — индиго (НОВЫЙ, заменил золото) */
+  --color-role-dir:          var(--color-gold-600);  /* КД — приглушённое золото */
+  --color-role-admin:        #4B5563;
+  --color-role-superadmin:   #1F2937;
+
+  /* Shadows (тёмная тема — глубже) */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 2px 4px rgb(0 0 0 / 0.5);
+  --shadow-3: 0 4px 8px rgb(0 0 0 / 0.6);
+  --shadow-4: 0 8px 16px rgb(0 0 0 / 0.7);
+  --shadow-5: 0 16px 32px rgb(0 0 0 / 0.8);
+}
+
+/* ---------------------------------------------------------------------------
+ * SEMANTIC — LIGHT theme (опция, переключается пользователем)
+ * --------------------------------------------------------------------------- */
+[data-theme="light"] {
+  --color-bg-canvas:         var(--color-gray-50);
+  --color-bg-surface:        #FFFFFF;
+  --color-bg-surface-raised: #FFFFFF;
+  --color-bg-muted:          var(--color-gray-100);
+  --color-bg-accent:         var(--color-gold-400);
+  --color-bg-accent-hover:   var(--color-gold-500);
+
+  --color-fg-default:        var(--color-gray-900);
+  --color-fg-muted:          var(--color-gray-600);
+  --color-fg-subtle:         var(--color-gray-500);
+  --color-fg-on-accent:      var(--color-gray-900);
+
+  --color-border-default:    var(--color-gray-200);
+  --color-border-strong:     var(--color-gray-300);
+  --color-border-accent:     var(--color-gold-400);
+  --color-border-focus:      var(--color-blue-500);
+
+  --color-status-success-bg: #DCFCE7;  --color-status-success-fg: var(--color-green-600);
+  --color-status-warning-bg: #FEF3C7;  --color-status-warning-fg: var(--color-amber-600);
+  --color-status-danger-bg:  #FEE2E2;  --color-status-danger-fg:  var(--color-red-600);
+  --color-status-info-bg:    #DBEAFE;  --color-status-info-fg:    var(--color-blue-600);
+
+  /* Темнее на светлом фоне для контраста */
+  --color-role-sales:        #7C3AED;
+  --color-role-supervisor:   #0891B2;
+  --color-role-manager:      #4F46E5;
+  --color-role-dir:          var(--color-gold-700);
+  --color-role-admin:        #374151;
+  --color-role-superadmin:   #111827;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-2: 0 2px 4px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-3: 0 4px 8px rgb(0 0 0 / 0.08), 0 2px 4px rgb(0 0 0 / 0.06);
+  --shadow-4: 0 8px 16px rgb(0 0 0 / 0.10), 0 4px 8px rgb(0 0 0 / 0.06);
+  --shadow-5: 0 16px 32px rgb(0 0 0 / 0.12);
+}
+
+/* ---------------------------------------------------------------------------
+ * COMPONENT (точечно, только когда semantic не хватает)
+ * --------------------------------------------------------------------------- */
+:root {
+  --button-primary-bg:       var(--color-bg-accent);
+  --button-primary-bg-hover: var(--color-bg-accent-hover);
+  --button-primary-fg:       var(--color-fg-on-accent);
+
+  --input-border:            var(--color-border-default);
+  --input-border-focus:      var(--color-border-focus);
+  --input-bg-disabled:       var(--color-bg-muted);
+
+  --card-bg:                 var(--color-bg-surface);
+  --card-border:             var(--color-border-default);
+  --card-shadow:             var(--shadow-2);
+}
