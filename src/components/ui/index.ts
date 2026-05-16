@@ -95,6 +95,8 @@ export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './Tool
 
 export { ToastContainer, toast } from './Toast';
 
+export { FloatingFeedbackButton } from './FloatingFeedbackButton';
+
 export {
   Table,
   TableHeader,

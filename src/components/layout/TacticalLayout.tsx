@@ -11,6 +11,7 @@
 import type { ReactNode } from 'react';
 import { StatusBar } from '../tactical/StatusBar';
 import { FloatingScreenshotButton } from '../FloatingScreenshotButton';
+import { FloatingFeedbackButton, ToastContainer } from '@/components/ui';
 import '../../styles/tactical-design.css';
 
 const FONT_LINK_ID = 'tactical-fonts';
@@ -42,6 +43,10 @@ export function TacticalLayout({ children, hideStatusBar, fullscreen }: Tactical
         {children}
       </main>
       <FloatingScreenshotButton />
+      {/* Phase 1' B4 (TRJ-037): глобальная кнопка обратной связи на каждой странице */}
+      <FloatingFeedbackButton />
+      {/* Phase 1 B-Toast: единый ToastContainer для toast.success/error/warning/info */}
+      <ToastContainer />
     </div>
   );
 }
