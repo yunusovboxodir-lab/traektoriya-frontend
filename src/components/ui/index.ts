@@ -94,3 +94,14 @@ export {
 export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './Tooltip';
 
 export { ToastContainer, toast } from './Toast';
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableRow,
+  TableHead,
+  TableCell,
+  TableCaption,
+} from './Table';
