@@ -5,6 +5,7 @@ import { offlineApi } from '../api/offline';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { OfflineSession, OfflineTestResult, OfflineGameResult } from '../api/offline';
 import type { Program } from '../types/offlineProgram';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -544,34 +545,38 @@ export function OfflinePage() {
   if (view === 'list') {
     return (
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">Офлайн активности</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setView('join')}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Ввести код
-            </button>
-            {isAdmin && (
-              <>
-                <a
-                  href="/activities/programs"
-                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  📚 Программы
-                </a>
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Создать сессию
-                </button>
-              </>
-            )}
-          </div>
-        </div>
+        <PageHeader
+          title="Офлайн активности"
+          subtitle={`${sessions.length} ${sessions.length === 1 ? 'сессия' : sessions.length < 5 ? 'сессии' : 'сессий'}${
+            isAdmin ? ' · управление программами и шаблонами' : ''
+          }`}
+          actions={
+            <div className="flex gap-2">
+              <button
+                onClick={() => setView('join')}
+                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Ввести код
+              </button>
+              {isAdmin && (
+                <>
+                  <a
+                    href="/activities/programs"
+                    className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Программы
+                  </a>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Создать сессию
+                  </button>
+                </>
+              )}
+            </div>
+          }
+        />
 
         {/* Filters */}
         <div className="flex gap-2">
