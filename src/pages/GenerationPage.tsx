@@ -8,7 +8,7 @@ import {
   type ExtractionResponse,
 } from '../api/generation';
 import { documentsApi, type DocumentResponse } from '../api/documents';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, AIBadge, ConfidenceIndicator, AIFeedbackBar, toast } from '@/components/ui';
 import { ragApi } from '../api/rag';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useT } from '../stores/langStore';
@@ -495,6 +495,27 @@ function SimpleGeneration() {
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-3">{lesson.title}</h2>
 
+              {/* AI-trust блок (Phase 1' B3, 2026-05-16): AIBadge + ConfidenceIndicator
+                  заменяют простой «grounded vs aiKnowledge» бейдж.
+                  Уровень confidence:
+                   - verified: is_grounded === true (есть RAG источники + контент grounded)
+                   - likely: source_count > 0 но не grounded (нашли частично)
+                   - speculative: без источников
+                  См. _docs/codex/03_patterns_ai.md §2. */}
+              <div className="flex items-center gap-2 mb-3">
+                <AIBadge variant="generated" size="sm" />
+                <ConfidenceIndicator
+                  level={
+                    lesson.is_grounded
+                      ? 'verified'
+                      : (lesson.source_count ?? 0) > 0
+                        ? 'likely'
+                        : 'speculative'
+                  }
+                  showDisclaimer={!lesson.is_grounded}
+                />
+              </div>
+
               {/* Metadata badges */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {lesson.difficulty && (
@@ -507,11 +528,6 @@ function SimpleGeneration() {
                     {lesson.estimated_duration_minutes} {t('generation.min')}
                   </span>
                 )}
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  lesson.is_grounded ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                }`}>
-                  {lesson.is_grounded ? t('generation.grounded') : t('generation.aiKnowledge')}
-                </span>
               </div>
 
               {/* Summary */}
@@ -526,6 +542,30 @@ function SimpleGeneration() {
                 className="prose max-w-none text-gray-700 text-sm leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(lesson.content || '') }}
               />
+
+              {/* AIFeedbackBar (B3, 2026-05-16): TRJ-033 — однокликовый feedback под
+                  каждым AI-generated результатом. Mock: silent-fail POST в backend. */}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <AIFeedbackBar
+                  responseId={lesson.title || 'lesson-' + Date.now()}
+                  onFeedback={async (type, comment) => {
+                    // eslint-disable-next-line no-console
+                    console.log('[AI feedback]', { type, comment, lesson: lesson.title });
+                    fetch('/api/v1/feedback', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        kind: 'ai_lesson',
+                        feedback: type,
+                        comment,
+                        context: { lesson_title: lesson.title, is_grounded: lesson.is_grounded },
+                      }),
+                      keepalive: true,
+                    }).catch(() => { /* silent: endpoint в backend ещё не реализован */ });
+                    toast.success('Спасибо за отзыв');
+                  }}
+                />
+              </div>
             </div>
 
             {/* Key points */}
