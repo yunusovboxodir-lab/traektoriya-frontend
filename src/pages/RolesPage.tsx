@@ -4,7 +4,16 @@ import { useAuthStore } from '../stores/authStore';
 import { roleScopesApi, type PageInfo } from '../api/roleScopes';
 import { toast } from '../stores/toastStore';
 import { useT } from '../stores/langStore';
-import { PageHeader, Button } from '@/components/ui';
+import {
+  PageHeader,
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalFooter,
+} from '@/components/ui';
 import { Save } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -59,6 +68,10 @@ export function RolesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
+  // TRJ-042 Волна 3: confirm-диалог перед сохранением.
+  // Изменение прав — критичная операция (может выключить доступ для целой роли),
+  // поэтому Save теперь не пишет в БД сразу, а открывает Modal с подтверждением.
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Load scopes on mount
   useEffect(() => {
@@ -164,7 +177,7 @@ export function RolesPage() {
               leftIcon={<Save size={16} />}
               disabled={!hasChanges}
               loading={saving}
-              onClick={handleSave}
+              onClick={() => setShowConfirm(true)}
             >
               {t('rolesPage.save')}
             </Button>
@@ -250,6 +263,33 @@ export function RolesPage() {
           {t('rolesPage.note')}
         </p>
       </div>
+
+      {/* TRJ-042 Волна 3: подтверждение сохранения прав ролей.
+          Изменение скопов применяется ко всем пользователям с этой ролью сразу —
+          защищаемся от случайного клика. */}
+      <Modal open={showConfirm} onOpenChange={setShowConfirm}>
+        <ModalContent maxWidth="sm">
+          <ModalHeader>
+            <ModalTitle>{t('rolesPage.confirmTitle')}</ModalTitle>
+            <ModalDescription>{t('rolesPage.confirmDesc')}</ModalDescription>
+          </ModalHeader>
+          <ModalFooter>
+            <Button variant="ghost" onClick={() => setShowConfirm(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              loading={saving}
+              onClick={() => {
+                setShowConfirm(false);
+                handleSave();
+              }}
+            >
+              {t('common.save')}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

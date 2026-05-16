@@ -18,7 +18,8 @@ import {
   type DraftCourse,
   type PulsePipelineStatus,
 } from '../api/pulsePipeline';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, Button } from '@/components/ui';
+import { Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Константы
@@ -482,7 +483,8 @@ function Step2Competencies({
         или удали ненужные. Должно быть от 4 до 12 компетенций.
       </p>
 
-      <div className="overflow-x-auto">
+      {/* Desktop: таблица (sm+) */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase">
@@ -545,6 +547,67 @@ function Step2Competencies({
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: card-layout (<sm) */}
+      <div className="block sm:hidden space-y-3">
+        {competencies.map((c, idx) => (
+          <div
+            key={c.tmp_id || idx}
+            className="rounded-md border border-gray-200 p-3 space-y-2 bg-white"
+          >
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Название RU</label>
+              <input
+                type="text"
+                value={c.name}
+                onChange={(e) => updateField(idx, 'name', e.target.value)}
+                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Название UZ</label>
+              <input
+                type="text"
+                value={c.name_uz || ''}
+                onChange={(e) => updateField(idx, 'name_uz', e.target.value)}
+                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
+              <textarea
+                value={c.description}
+                onChange={(e) => updateField(idx, 'description', e.target.value)}
+                rows={2}
+                className="w-full px-2 py-1.5 border border-gray-200 rounded text-xs"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-500 mb-1">Сложность</label>
+              <select
+                value={c.suggested_difficulty || 2}
+                onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
+                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+              >
+                <option value={1}>1 - Стажёр</option>
+                <option value={2}>2 - Практик</option>
+                <option value={3}>3 - Эксперт</option>
+                <option value={4}>4 - Мастер</option>
+              </select>
+            </div>
+            <div className="pt-1">
+              <Button
+                variant="danger"
+                size="sm"
+                leftIcon={<Trash2 size={14} />}
+                onClick={() => removeRow(idx)}
+              >
+                Удалить
+              </Button>
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="flex items-center gap-2">
@@ -789,56 +852,128 @@ function Step3Courses({
             {grouped[level].map((course) => {
               const idx = courses.indexOf(course);
               return (
-                <div key={course.tmp_id || idx} className="flex items-start gap-2 p-2 border border-gray-100 rounded">
-                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      value={course.title_ru}
-                      onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
-                      placeholder="Название RU"
-                      className="px-2 py-1 border border-gray-200 rounded text-sm"
-                    />
-                    <input
-                      type="text"
-                      value={course.title_uz || ''}
-                      onChange={(e) => updateCourse(idx, 'title_uz', e.target.value)}
-                      placeholder="Nomi UZ"
-                      className="px-2 py-1 border border-gray-200 rounded text-sm"
-                    />
-                    <select
-                      value={course.course_type}
-                      onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
-                      className="px-2 py-1 border border-gray-200 rounded text-sm"
+                <div key={course.tmp_id || idx} className="p-2 border border-gray-100 rounded">
+                  {/* Desktop: inline-layout с маленьким × (sm+) */}
+                  <div className="hidden sm:flex items-start gap-2">
+                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={course.title_ru}
+                        onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
+                        placeholder="Название RU"
+                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                      />
+                      <input
+                        type="text"
+                        value={course.title_uz || ''}
+                        onChange={(e) => updateCourse(idx, 'title_uz', e.target.value)}
+                        placeholder="Nomi UZ"
+                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                      />
+                      <select
+                        value={course.course_type}
+                        onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
+                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                      >
+                        {COURSE_TYPES.map((ct) => (
+                          <option key={ct.value} value={ct.value}>{ct.label}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={course.weight}
+                        onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
+                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                      >
+                        <option value={1}>Вес 1 - базовый</option>
+                        <option value={2}>Вес 2 - стандартный</option>
+                        <option value={3}>Вес 3 - важный</option>
+                        <option value={4}>Вес 4 - критический</option>
+                      </select>
+                      <textarea
+                        value={course.short_description_ru || ''}
+                        onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
+                        placeholder="Краткое описание"
+                        rows={1}
+                        className="md:col-span-2 px-2 py-1 border border-gray-200 rounded text-xs"
+                      />
+                    </div>
+                    <button
+                      onClick={() => removeCourse(idx)}
+                      className="text-red-500 hover:text-red-700 text-lg"
+                      title="Удалить"
                     >
-                      {COURSE_TYPES.map((ct) => (
-                        <option key={ct.value} value={ct.value}>{ct.label}</option>
-                      ))}
-                    </select>
-                    <select
-                      value={course.weight}
-                      onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
-                      className="px-2 py-1 border border-gray-200 rounded text-sm"
-                    >
-                      <option value={1}>Вес 1 - базовый</option>
-                      <option value={2}>Вес 2 - стандартный</option>
-                      <option value={3}>Вес 3 - важный</option>
-                      <option value={4}>Вес 4 - критический</option>
-                    </select>
-                    <textarea
-                      value={course.short_description_ru || ''}
-                      onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
-                      placeholder="Краткое описание"
-                      rows={1}
-                      className="md:col-span-2 px-2 py-1 border border-gray-200 rounded text-xs"
-                    />
+                      ×
+                    </button>
                   </div>
-                  <button
-                    onClick={() => removeCourse(idx)}
-                    className="text-red-500 hover:text-red-700 text-lg"
-                    title="Удалить"
-                  >
-                    ×
-                  </button>
+
+                  {/* Mobile: card-layout с явной кнопкой "Удалить" (<sm) */}
+                  <div className="block sm:hidden space-y-2">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Название RU</label>
+                      <input
+                        type="text"
+                        value={course.title_ru}
+                        onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
+                        placeholder="Название RU"
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Nomi UZ</label>
+                      <input
+                        type="text"
+                        value={course.title_uz || ''}
+                        onChange={(e) => updateCourse(idx, 'title_uz', e.target.value)}
+                        placeholder="Nomi UZ"
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Тип курса</label>
+                      <select
+                        value={course.course_type}
+                        onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                      >
+                        {COURSE_TYPES.map((ct) => (
+                          <option key={ct.value} value={ct.value}>{ct.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Вес</label>
+                      <select
+                        value={course.weight}
+                        onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                      >
+                        <option value={1}>Вес 1 - базовый</option>
+                        <option value={2}>Вес 2 - стандартный</option>
+                        <option value={3}>Вес 3 - важный</option>
+                        <option value={4}>Вес 4 - критический</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Краткое описание</label>
+                      <textarea
+                        value={course.short_description_ru || ''}
+                        onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
+                        placeholder="Краткое описание"
+                        rows={2}
+                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-xs"
+                      />
+                    </div>
+                    <div className="pt-1">
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        leftIcon={<Trash2 size={14} />}
+                        onClick={() => removeCourse(idx)}
+                      >
+                        Удалить
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               );
             })}

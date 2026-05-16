@@ -382,6 +382,7 @@
     "materialDone": "Material o'rganildi",
     "allSlidesDone": "Siz ushbu kursning barcha slaydlarini ko'rib chiqdingiz",
     "goBack": "Qaytish",
+    "recommended": "Tavsiya etamiz",
     "errors": {
       "modules": "O'quv modullarini yuklash imkoni bo'lmadi",
       "map": "O'quv xaritasini yuklash imkoni bo'lmadi",
@@ -1008,7 +1009,9 @@
     "loadError": "Sozlamalarni yuklash xatosi",
     "saveError": "Saqlash xatosi",
     "note": "Superadmin har doim barcha bo'limlarga to'liq kirish huquqiga ega. O'zgarishlar saqlash va foydalanuvchi sahifani qayta yuklagandan keyin kuchga kiradi. Agar rol uchun sozlamalar o'rnatilmagan bo'lsa, barcha bo'limlar sukut bo'yicha mavjud.",
-    "unsavedChanges": "Saqlanmagan o'zgarishlar mavjud"
+    "unsavedChanges": "Saqlanmagan o'zgarishlar mavjud",
+    "confirmTitle": "O'zgarishlarni tasdiqlang",
+    "confirmDesc": "Kirish huquqlari o'zgarishi shu rollardagi barcha xodimlarga darhol qo'llaniladi. Saqlaymizmi?"
   },
   "adminUsers": {
     "rowActions": {
@@ -1079,6 +1082,10 @@
       "reindex": "Qayta indekslash",
       "changeType": "Turini o'zgartirish",
       "markReviewed": "Ko'rib chiqilgan deb belgilash"
+    },
+    "filters": {
+      "show": "Filtrlar",
+      "hide": "Filtrlarni yashirish"
     }
   },
   "screenshot": {

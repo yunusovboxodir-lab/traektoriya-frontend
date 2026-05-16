@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { kpiApi } from '../api/kpi';
 import { useAuthStore } from '../stores/authStore';
 import { useT } from '../stores/langStore';
-import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { PageHeader, EmptyState, Button, Collapsible } from '@/components/ui';
 import { BarChart3, RefreshCw } from 'lucide-react';
 
 // ───────────────────────────────────────
@@ -729,6 +729,18 @@ export function KPIPage() {
               </div>
             );
           })()}
+          {/* Вторичные фильтры (Period + Role) — свёрнуты по умолчанию (TRJ-043 progressive disclosure).
+              Открываются автоматически, если у пользователя установлен НЕ дефолтный фильтр. */}
+          {(() => {
+            const periodDirty = selectedPeriod !== undefined;
+            const roleDirty = isAdmin && !!user?.role && roleFilter !== user.role;
+            const activeCount = (periodDirty ? 1 : 0) + (roleDirty ? 1 : 0);
+            const label = activeCount > 0
+              ? `${t('common.filters.show')} (${activeCount})`
+              : t('common.filters.show');
+            return (
+          <Collapsible defaultOpen={activeCount > 0} label={label}>
+            <div className="flex flex-col gap-3">
           {/* Period selector — месяц / квартал / полугодие / год */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm text-gray-500">Период:</span>
@@ -836,6 +848,10 @@ export function KPIPage() {
               ))}
             </div>
           )}
+            </div>
+          </Collapsible>
+            );
+          })()}
 
           {/* Podium Top-3 */}
           <Podium leaders={leaders} />

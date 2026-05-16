@@ -110,3 +110,5 @@ export {
 
 export { RowActions } from './RowActions';
 export type { RowActionItem } from './RowActions';
+
+export { Collapsible } from './Collapsible';

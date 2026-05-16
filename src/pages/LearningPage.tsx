@@ -21,7 +21,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
 import { emitPulseInvalidate } from '../utils/pulseEvents';
-import { PageHeader, EmptyState, Button } from '@/components/ui';
+import { PageHeader, EmptyState, Button, Badge } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
@@ -624,10 +624,24 @@ function LevelBlock({
               </div>
             );
           }
+          // TRJ-042 Волна 3: эмоциональный якорь для новичка.
+          // Если в уровне нет завершённых курсов — помечаем первый незавершённый
+          // badge'ем «Рекомендуем», чтобы было видно «куда нажать первым».
+          // (compass_artifact §1.1 — снижение когнитивной нагрузки на старте.)
+          const hasAnyCompleted = level.courses.some((c) => c.status === 'completed');
+          const recommendedId = !hasAnyCompleted
+            ? visible.find((c) => c.status !== 'completed')?.id
+            : undefined;
           return (
             <div className="divide-y divide-gray-50">
               {visible.map((course, idx) => (
-                <CourseRow key={course.id} course={course} index={idx} onClick={() => onOpenCourse(course.id)} />
+                <CourseRow
+                  key={course.id}
+                  course={course}
+                  index={idx}
+                  onClick={() => onOpenCourse(course.id)}
+                  isFirstRecommended={course.id === recommendedId}
+                />
               ))}
             </div>
           );
@@ -651,10 +665,13 @@ function CourseRow({
   course,
   index,
   onClick,
+  isFirstRecommended = false,
 }: {
   course: CourseItem;
   index: number;
   onClick: () => void;
+  /** Badge «Рекомендуем» для новичков (нет завершённых на уровне). */
+  isFirstRecommended?: boolean;
 }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
@@ -689,9 +706,15 @@ function CourseRow({
 
       {/* Course info */}
       <div className="flex-1 min-w-0">
-        <p className={`font-medium text-[15px] leading-tight ${isCompleted ? 'text-gray-400' : 'text-gray-800'}`}>
-          {bl(course.title, lang)}
-        </p>
+        <div className="flex items-center gap-2 flex-wrap">
+          <p className={`font-medium text-[15px] leading-tight ${isCompleted ? 'text-gray-400' : 'text-gray-800'}`}>
+            {bl(course.title, lang)}
+          </p>
+          {/* TRJ-042 Волна 3: «Рекомендуем» — якорь для новичка (см. LevelBlock). */}
+          {isFirstRecommended && !isCompleted && (
+            <Badge variant="info" size="sm">{t('learning.recommended')}</Badge>
+          )}
+        </div>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
           <span className="text-xs text-gray-400 flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>

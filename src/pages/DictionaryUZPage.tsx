@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { dictionaryApi, type DictionaryEntry, type DictionaryStats } from '../api/dictionary';
-import { PageHeader, SkeletonTableRow } from '@/components/ui';
+import { PageHeader, SkeletonTableRow, Button, Badge } from '@/components/ui';
+import { Check, Trash2 } from 'lucide-react';
 
 const CATEGORIES = [
   { value: '', label: 'Все' },
@@ -267,59 +268,108 @@ export function DictionaryUZPage() {
       ) : entries.length === 0 ? (
         <div className="text-center py-12 text-gray-400">Словарь пуст. Добавьте первый перевод!</div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left text-gray-600 font-semibold">Русский</th>
-                <th className="px-4 py-3 text-left text-gray-600 font-semibold">Узбекский</th>
-                <th className="px-4 py-3 text-left text-gray-600 font-semibold">Категория</th>
-                <th className="px-4 py-3 text-center text-gray-600 font-semibold">Статус</th>
-                {isAdmin && <th className="px-4 py-3 text-center text-gray-600 font-semibold">Действия</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map(entry => (
-                <tr key={entry.id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{entry.russian_term}</td>
-                  <td className="px-4 py-3 text-blue-700">{entry.uzbek_translation}</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">
-                      {entry.context_category || '-'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    {entry.is_verified ? (
-                      <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Одобрено</span>
-                    ) : (
-                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">На модерации</span>
-                    )}
-                  </td>
-                  {isAdmin && (
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {!entry.is_verified && (
-                          <button
-                            onClick={() => handleVerify(entry.id)}
-                            className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
-                          >
-                            Одобрить
-                          </button>
-                        )}
-                        <button
-                          onClick={() => handleDelete(entry.id)}
-                          className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200"
-                        >
-                          Удалить
-                        </button>
-                      </div>
-                    </td>
-                  )}
+        <>
+          {/* Desktop: таблица (sm+) */}
+          <div className="hidden sm:block bg-white rounded-xl shadow-sm border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Русский</th>
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Узбекский</th>
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Категория</th>
+                  <th className="px-4 py-3 text-center text-gray-600 font-semibold">Статус</th>
+                  {isAdmin && <th className="px-4 py-3 text-center text-gray-600 font-semibold">Действия</th>}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {entries.map(entry => (
+                  <tr key={entry.id} className="border-b hover:bg-gray-50">
+                    <td className="px-4 py-3 font-medium">{entry.russian_term}</td>
+                    <td className="px-4 py-3 text-blue-700">{entry.uzbek_translation}</td>
+                    <td className="px-4 py-3">
+                      <span className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">
+                        {entry.context_category || '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {entry.is_verified ? (
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Одобрено</span>
+                      ) : (
+                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">На модерации</span>
+                      )}
+                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {!entry.is_verified && (
+                            <button
+                              onClick={() => handleVerify(entry.id)}
+                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                            >
+                              Одобрить
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDelete(entry.id)}
+                            className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200"
+                          >
+                            Удалить
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile: card-layout (<sm) */}
+          <div className="block sm:hidden bg-white rounded-xl shadow-sm border divide-y divide-gray-200 overflow-hidden">
+            {entries.map(entry => (
+              <div key={entry.id} className="p-3 space-y-2">
+                <div className="font-semibold text-gray-900 text-sm break-words">
+                  {entry.russian_term}
+                </div>
+                <div className="text-blue-700 text-sm break-words">
+                  {entry.uzbek_translation}
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="neutral" size="sm">
+                    {entry.context_category || '-'}
+                  </Badge>
+                  {entry.is_verified ? (
+                    <Badge variant="success" size="sm">Одобрено</Badge>
+                  ) : (
+                    <Badge variant="warning" size="sm">На модерации</Badge>
+                  )}
+                </div>
+                {isAdmin && (
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    {!entry.is_verified && (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        leftIcon={<Check size={14} />}
+                        onClick={() => handleVerify(entry.id)}
+                      >
+                        Одобрить
+                      </Button>
+                    )}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      leftIcon={<Trash2 size={14} />}
+                      onClick={() => handleDelete(entry.id)}
+                    >
+                      Удалить
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
