@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { Program } from '../types/offlineProgram';
+import { PageHeader } from '@/components/ui';
 
 export function OfflineProgramsPage() {
   const navigate = useNavigate();
@@ -32,26 +33,26 @@ export function OfflineProgramsPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-serif text-stone-800">Программы тренингов</h1>
-          <p className="text-stone-500 mt-1">Шаблоны для офлайн-сессий — слайды, тесты, дашборды</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate('/activities')}
-            className="px-4 py-2 text-stone-700 border border-stone-300 rounded-lg hover:bg-stone-50"
-          >
-            ← К сессиям
-          </button>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
-          >
-            + Создать программу
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Программы тренингов"
+        subtitle="Шаблоны для офлайн-сессий — слайды, тесты, дашборды"
+        actions={
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate('/activities')}
+              className="px-4 py-2 text-stone-700 border border-stone-300 rounded-lg hover:bg-stone-50"
+            >
+              ← К сессиям
+            </button>
+            <button
+              onClick={() => setShowCreate(true)}
+              className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
+            >
+              + Создать программу
+            </button>
+          </div>
+        }
+      />
 
       {loading && <div className="text-center py-12 text-stone-400">Загрузка...</div>}
       {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div>}

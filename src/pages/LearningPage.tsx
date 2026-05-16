@@ -21,6 +21,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
 import { emitPulseInvalidate } from '../utils/pulseEvents';
+import { PageHeader } from '@/components/ui';
 import { LearningMap } from '../components/learning/LearningMap';
 import { VillageView } from '../components/learning/VillageView';
 import { KpiChipsFromTitle } from '../components/learning/KpiChip';
@@ -394,10 +395,7 @@ function ModulesView({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('learning.title')}</h1>
-        <p className="text-gray-500 mt-1">{t('learning.subtitle')}</p>
-      </div>
+      <PageHeader title={t('learning.title')} subtitle={t('learning.subtitle')} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {modules.map((m) => {

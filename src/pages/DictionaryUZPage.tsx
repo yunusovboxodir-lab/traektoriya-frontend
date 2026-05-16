@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { dictionaryApi, type DictionaryEntry, type DictionaryStats } from '../api/dictionary';
+import { PageHeader } from '@/components/ui';
 
 const CATEGORIES = [
   { value: '', label: 'Все' },
@@ -122,12 +123,10 @@ export function DictionaryUZPage() {
   return (
     <div className="max-w-5xl mx-auto p-6">
       {/* Заголовок */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('dictionary.title') || 'Словарь UZ'}</h1>
-          <p className="text-gray-500 mt-1">{t('dictionary.subtitle') || 'Краудсорсинг переводов FMCG-терминов'}</p>
-        </div>
-        {stats && (
+      <PageHeader
+        title={t('dictionary.title')}
+        subtitle={t('dictionary.subtitle')}
+        actions={stats && (
           <div className="flex gap-4 text-sm">
             <div className="bg-blue-50 rounded-lg px-3 py-2 text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
@@ -143,7 +142,7 @@ export function DictionaryUZPage() {
             </div>
           </div>
         )}
-      </div>
+      />
 
       {/* Табы */}
       {isAdmin && (

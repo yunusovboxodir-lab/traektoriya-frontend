@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { kpiApi } from '../api/kpi';
 import { useAuthStore } from '../stores/authStore';
 import { useT } from '../stores/langStore';
+import { PageHeader } from '@/components/ui';
 
 // ───────────────────────────────────────
 // Types
@@ -614,33 +615,31 @@ export function KPIPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('kpi.title')}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{t('kpi.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Live indicator */}
-          <span className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            {t('kpi.leaderboard.liveUpdate')}
-          </span>
-          {isAdmin && (
-            <button
-              onClick={async () => {
-                try {
-                  await kpiApi.calculate();
-                  loadData();
-                } catch { /* ignore */ }
-              }}
-              className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {t('kpi.recalculate')}
-            </button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title={t('kpi.title')}
+        subtitle={t('kpi.subtitle')}
+        actions={
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1.5 text-xs text-green-600 bg-green-50 px-2.5 py-1 rounded-full">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              {t('kpi.leaderboard.liveUpdate')}
+            </span>
+            {isAdmin && (
+              <button
+                onClick={async () => {
+                  try {
+                    await kpiApi.calculate();
+                    loadData();
+                  } catch { /* ignore */ }
+                }}
+                className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                {t('kpi.recalculate')}
+              </button>
+            )}
+          </div>
+        }
+      />
 
       {/* Your position card (always visible if user has rank) */}
       {myRank && (

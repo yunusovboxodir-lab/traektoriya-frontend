@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { documentsApi, type DocumentResponse, type DocumentStats } from '../api/documents';
 import { ragApi } from '../api/rag';
 import { useT } from '../stores/langStore';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Constants & Helpers
@@ -779,12 +780,7 @@ export function KnowledgeBasePage() {
   return (
     <div>
       {/* ---- Page Header ---- */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('kb.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {t('kb.subtitle')}
-        </p>
-      </div>
+      <PageHeader title={t('kb.title')} subtitle={t('kb.subtitle')} />
 
       {/* ---- Stats Row ---- */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useGoalsStore } from '../stores/goalsStore';
 import { useT } from '../stores/langStore';
 import type { Goal, UserAchievement, AchievementCatalogItem } from '../api/goals';
+import { PageHeader } from '@/components/ui';
 
 // ───────────────────────────────────────
 // Helpers
@@ -155,29 +156,28 @@ export function GoalsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('goals.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('goals.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl">
-            <span className="text-xl">🏆</span>
-            <div>
-              <p className="text-lg font-bold text-amber-700">{totalPoints}</p>
-              <p className="text-[10px] text-amber-600 leading-tight">{t('goals.points')}</p>
+      <PageHeader
+        title={t('goals.title')}
+        subtitle={t('goals.subtitle')}
+        actions={
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-amber-50 px-4 py-2 rounded-xl">
+              <span className="text-xl">🏆</span>
+              <div>
+                <p className="text-lg font-bold text-amber-700">{totalPoints}</p>
+                <p className="text-[10px] text-amber-600 leading-tight">{t('goals.points')}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
+              <span className="text-xl">🎖️</span>
+              <div>
+                <p className="text-lg font-bold text-blue-700">{achievements.length}</p>
+                <p className="text-[10px] text-blue-600 leading-tight">{t('goals.achievements')}</p>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
-            <span className="text-xl">🎖️</span>
-            <div>
-              <p className="text-lg font-bold text-blue-700">{achievements.length}</p>
-              <p className="text-[10px] text-blue-600 leading-tight">{t('goals.achievements')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Filter tabs */}
       <div className="flex gap-1 bg-gray-100 p-1 rounded-lg w-fit">

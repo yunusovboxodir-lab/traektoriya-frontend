@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usersApi, type UserListItem, type CreateUserPayload } from '../api/users';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -317,23 +318,22 @@ export function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Сотрудники</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Управление аккаунтами и онбординг</p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          Добавить сотрудника
-        </button>
-      </div>
+      <PageHeader
+        title="Сотрудники"
+        subtitle="Управление аккаунтами и онбординг"
+        actions={
+          <button
+            type="button"
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Добавить сотрудника
+          </button>
+        }
+      />
 
       {/* Success message */}
       {successMsg && (

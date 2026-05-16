@@ -8,6 +8,7 @@ import {
   type ExtractionResponse,
 } from '../api/generation';
 import { documentsApi, type DocumentResponse } from '../api/documents';
+import { PageHeader } from '@/components/ui';
 import { ragApi } from '../api/rag';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useT } from '../stores/langStore';
@@ -204,13 +205,7 @@ export function GenerationPage() {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('generation.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {t('generation.subtitle')}
-        </p>
-      </div>
+      <PageHeader title={t('generation.title')} subtitle={t('generation.subtitle')} />
 
       {/* Tab switcher */}
       <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 max-w-2xl">

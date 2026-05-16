@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { assessmentsApi, type Assessment } from '../api/assessments';
 import { useT } from '../stores/langStore';
 // import { useAuthStore } from '../stores/authStore';
+import { PageHeader } from '@/components/ui';
 
 /* ── territory mapping: backend value → i18n key ── */
 const TERRITORY_LEVELS = [
@@ -112,13 +113,7 @@ export function AssessmentsPage() {
 
   return (
     <div>
-      {/* Page header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('assessments.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {t('assessments.subtitle')}
-        </p>
-      </div>
+      <PageHeader title={t('assessments.title')} subtitle={t('assessments.subtitle')} />
 
       {/* Territory level tabs with progress */}
       <div className="flex flex-wrap gap-2 mb-6">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import { useT } from '../stores/langStore';
+import { PageHeader } from '@/components/ui';
 
 // =============================================================================
 // Types — match backend supervisor API response schemas
@@ -224,40 +225,38 @@ export function SupervisorDashboardPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">👔 {t('supervisor.title') || 'Моя команда'}</h1>
-          <p className="text-sm text-gray-500 mt-1">{teamData.team_name} • {teamData.agent_count} сотрудников</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Tab toggle */}
-          <div className="flex bg-gray-100 rounded-lg p-0.5">
+      <PageHeader
+        title={`👔 ${t('supervisor.title') || 'Моя команда'}`}
+        subtitle={`${teamData.team_name} • ${teamData.agent_count} сотрудников`}
+        actions={
+          <div className="flex items-center gap-3">
+            <div className="flex bg-gray-100 rounded-lg p-0.5">
+              <button
+                onClick={() => setTab('team')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  tab === 'team' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                📊 KPI & Команда
+              </button>
+              <button
+                onClick={() => setTab('learning')}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  tab === 'learning' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                📚 Обучение
+              </button>
+            </div>
             <button
-              onClick={() => setTab('team')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                tab === 'team' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}
+              onClick={() => setShowAssign(true)}
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm text-xs font-medium"
             >
-              📊 KPI & Команда
-            </button>
-            <button
-              onClick={() => setTab('learning')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                tab === 'learning' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              📚 Обучение
+              📝 Назначить курс
             </button>
           </div>
-          <button
-            onClick={() => setShowAssign(true)}
-            className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm text-xs font-medium"
-          >
-            📝 Назначить курс
-          </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">

@@ -18,6 +18,7 @@ import {
   type DraftCourse,
   type PulsePipelineStatus,
 } from '../api/pulsePipeline';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Константы
@@ -128,15 +129,10 @@ export function PulsePipelinePage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Pulse Pipeline</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Создание Pulse для роли через AI: ДИ → компетенции → курсы → контент
-          </p>
-        </div>
-        {jobId && (
+      <PageHeader
+        title="Pulse Pipeline"
+        subtitle="Создание Pulse для роли через AI: ДИ → компетенции → курсы → контент"
+        actions={jobId && (
           <button
             onClick={startNewPipeline}
             className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
@@ -144,7 +140,7 @@ export function PulsePipelinePage() {
             Новый пайплайн
           </button>
         )}
-      </div>
+      />
 
       {/* Step indicator */}
       <StepIndicator currentStep={currentStep} />

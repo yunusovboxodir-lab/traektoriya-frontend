@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsApi, type ScreenshotReport } from '../api/reports';
 import { api } from '../api/client';
 import { useT } from '../stores/langStore';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Status badge
@@ -243,29 +244,28 @@ export function ReportsPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">{t('reports.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('reports.subtitle')}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-500">{t('reports.status')}:</span>
-          {['', 'new', 'reviewed', 'resolved'].map((s) => (
-            <button
-              key={s}
-              onClick={() => { setFilterStatus(s); setPage(0); }}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                filterStatus === s
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {s === '' ? t('reports.all') : s === 'new' ? t('reports.statusNew') : s === 'reviewed' ? t('reports.statusReviewed') : t('reports.statusResolved')}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        title={t('reports.title')}
+        subtitle={t('reports.subtitle')}
+        actions={
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">{t('reports.status')}:</span>
+            {['', 'new', 'reviewed', 'resolved'].map((s) => (
+              <button
+                key={s}
+                onClick={() => { setFilterStatus(s); setPage(0); }}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  filterStatus === s
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {s === '' ? t('reports.all') : s === 'new' ? t('reports.statusNew') : s === 'reviewed' ? t('reports.statusReviewed') : t('reports.statusResolved')}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {/* Table */}
       {loading ? (

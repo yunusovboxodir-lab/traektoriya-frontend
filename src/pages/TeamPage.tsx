@@ -3,6 +3,7 @@ import { teamApi, type TeamMember } from '../api/team';
 import { useT, useLangStore } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { TeamLearningTab } from '../components/team/TeamLearningTab';
+import { PageHeader } from '@/components/ui';
 
 const SUPERVISOR_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
@@ -101,11 +102,7 @@ export function TeamPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{t('team.title')}</h1>
-        <p className="text-sm text-gray-500 mt-1">{t('team.subtitle')}</p>
-      </div>
+      <PageHeader title={t('team.title')} subtitle={t('team.subtitle')} />
 
       {/* Tabs (only for supervisor+ roles) */}
       {showLearningTab && (

@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { roleScopesApi, type PageInfo } from '../api/roleScopes';
 import { toast } from '../stores/toastStore';
 import { useT } from '../stores/langStore';
+import { PageHeader } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -147,26 +148,23 @@ export function RolesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{t('rolesPage.title')}</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {t('rolesPage.subtitle')}
-          </p>
-        </div>
-        <button
-          onClick={handleSave}
-          disabled={!hasChanges || saving}
-          className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors
-            ${hasChanges && !saving
-              ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-              : 'bg-gray-400 cursor-not-allowed'
-            }`}
-        >
-          {saving ? t('rolesPage.saving') : t('rolesPage.save')}
-        </button>
-      </div>
+      <PageHeader
+        title={t('rolesPage.title')}
+        subtitle={t('rolesPage.subtitle')}
+        actions={
+          <button
+            onClick={handleSave}
+            disabled={!hasChanges || saving}
+            className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors
+              ${hasChanges && !saving
+                ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                : 'bg-gray-400 cursor-not-allowed'
+              }`}
+          >
+            {saving ? t('rolesPage.saving') : t('rolesPage.save')}
+          </button>
+        }
+      />
 
       {/* Scopes Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
