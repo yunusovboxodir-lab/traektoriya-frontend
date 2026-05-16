@@ -56,3 +56,41 @@ export type { InputSize } from './Input';
 export { Label } from './Label';
 
 export { FormField } from './FormField';
+
+// --- Radix-based (Phase 1-B) ---
+export {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalTitle,
+  ModalDescription,
+  ModalTrigger,
+  ModalClose,
+} from './Modal';
+export type { ModalMaxWidth } from './Modal';
+
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
+
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuGroup,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
+} from './DropdownMenu';
+
+export { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './Tooltip';
+
+export { ToastContainer, toast } from './Toast';
