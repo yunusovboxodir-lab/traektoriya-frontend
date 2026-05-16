@@ -2,8 +2,19 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { documentsApi, type DocumentResponse, type DocumentStats } from '../api/documents';
 import { ragApi } from '../api/rag';
 import { useT } from '../stores/langStore';
-import { PageHeader, Button, RowActions } from '@/components/ui';
-import { Upload, X as XLucide, RefreshCw, Pencil, Trash2 } from 'lucide-react';
+import {
+  PageHeader,
+  Button,
+  RowActions,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription,
+  ModalBody,
+  ModalFooter,
+} from '@/components/ui';
+import { Upload, RefreshCw, Pencil, Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants & Helpers
@@ -68,22 +79,6 @@ function IconUploadCloud({ className = 'w-10 h-10' }: { className?: string }) {
   return (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 3.75 3.75 0 013.572 5.345A3.75 3.75 0 0117.25 19.5H6.75z" />
-    </svg>
-  );
-}
-
-function IconRefresh({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-    </svg>
-  );
-}
-
-function IconTrash({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
     </svg>
   );
 }
@@ -300,8 +295,6 @@ function SmartFilterBar({
   onSort,
   statusFilter,
   onStatus,
-  showUpload,
-  onToggleUpload,
   resultCount,
 }: {
   searchQuery: string;
@@ -311,8 +304,6 @@ function SmartFilterBar({
   onSort: (s: 'date' | 'name' | 'size', d: 'asc' | 'desc') => void;
   statusFilter: string | null;
   onStatus: (s: string | null) => void;
-  showUpload: boolean;
-  onToggleUpload: () => void;
   resultCount: number;
 }) {
   return (
@@ -360,19 +351,6 @@ function SmartFilterBar({
 
       {/* Count */}
       <span className="text-sm text-gray-400 whitespace-nowrap">{resultCount} файлов</span>
-
-      {/* Upload toggle */}
-      <button
-        type="button"
-        onClick={onToggleUpload}
-        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap ${
-          showUpload
-            ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            : 'bg-blue-600 text-white hover:bg-blue-700'
-        }`}
-      >
-        📤 Загрузить
-      </button>
     </div>
   );
 }
@@ -640,6 +618,11 @@ export function KnowledgeBasePage() {
     loadDocuments(0);
     loadStats();
     loadCategories();
+
+    // Закрываем модал, если все файлы загружены успешно
+    if (results.length > 0 && results.every((r) => r.ok)) {
+      setShowUpload(false);
+    }
   }, [selectedFiles, isUploading, uploadDocType, uploadCategory, loadDocuments, loadStats, loadCategories]);
 
   // ----- Re-index -----
@@ -787,10 +770,10 @@ export function KnowledgeBasePage() {
         actions={
           <Button
             variant="primary"
-            leftIcon={showUpload ? <XLucide size={16} /> : <Upload size={16} />}
-            onClick={() => setShowUpload((v) => !v)}
+            leftIcon={<Upload size={16} />}
+            onClick={() => setShowUpload(true)}
           >
-            {showUpload ? t('kb.cancel') : t('kb.upload')}
+            {t('kb.upload')}
           </Button>
         }
       />
@@ -864,168 +847,8 @@ export function KnowledgeBasePage() {
             onSort={(s, d) => { setSortBy(s); setSortDir(d); }}
             statusFilter={statusFilter}
             onStatus={setStatusFilter}
-            showUpload={showUpload}
-            onToggleUpload={() => setShowUpload((v) => !v)}
             resultCount={displayedDocs.length}
           />
-          {showUpload && (
-          <div className="mb-4 bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">
-              {t('kb.uploadTitle')}
-            </h2>
-
-              {/* Document type selector */}
-              <div className="mb-3">
-                <label htmlFor="upload-doc-type" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('kb.docType')}
-                </label>
-                <select
-                  id="upload-doc-type"
-                  value={uploadDocType}
-                  onChange={(e) => setUploadDocType(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                >
-                  {Object.keys(DOC_TYPE_LABELS).map((key) => (
-                    <option key={key} value={key}>
-                      {t('kb.docTypes.' + key)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Category / Position selector */}
-              <div className="mb-4">
-                <label htmlFor="upload-category" className="block text-sm font-medium text-gray-700 mb-1">
-                  {t('kb.positionLabel')}
-                </label>
-                <input
-                  id="upload-category"
-                  type="text"
-                  list="category-suggestions"
-                  value={uploadCategory}
-                  onChange={(e) => setUploadCategory(e.target.value)}
-                  placeholder={t('kb.positionPlaceholder')}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-                />
-                <datalist id="category-suggestions">
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat} />
-                  ))}
-                </datalist>
-                <p className="text-xs text-gray-400 mt-1">
-                  {t('kb.positionHint')}
-                </p>
-              </div>
-
-              {/* Drop zone */}
-              <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => fileInputRef.current?.click()}
-                className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 cursor-pointer transition-colors ${
-                  isDragOver
-                    ? 'border-blue-400 bg-blue-50'
-                    : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
-                }`}
-              >
-                <IconUploadCloud
-                  className={`w-10 h-10 mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}
-                />
-                <p className="text-sm text-gray-600 text-center">
-                  {t('kb.dragDrop')}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  PDF, DOCX, DOC, TXT, ZIP
-                </p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  multiple
-                  accept=".pdf,.docx,.doc,.txt,.zip"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                />
-              </div>
-
-              {/* Selected files list */}
-              {selectedFiles.length > 0 && (
-                <div className="mt-4 space-y-2">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {t('kb.selectedFiles', { count: selectedFiles.length })}{' '}
-                    {pluralize(selectedFiles.length, 'файл', 'файла', 'файлов')}
-                  </p>
-                  <ul className="space-y-1.5 max-h-48 overflow-y-auto">
-                    {selectedFiles.map((file, idx) => (
-                      <li
-                        key={`${file.name}-${idx}`}
-                        className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <FileTypeIcon fileType={file.name.split('.').pop() || ''} />
-                          <div className="min-w-0">
-                            <p className="text-sm text-gray-800 truncate">{file.name}</p>
-                            <p className="text-xs text-gray-400">{formatFileSize(file.size)}</p>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(idx)}
-                          className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
-                          aria-label="Удалить файл"
-                        >
-                          <IconX className="w-4 h-4" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Upload button */}
-              <button
-                type="button"
-                onClick={handleUpload}
-                disabled={selectedFiles.length === 0 || isUploading}
-                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                {isUploading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    {t('kb.uploading')}
-                  </>
-                ) : (
-                  t('kb.upload')
-                )}
-              </button>
-
-              {/* Upload results */}
-              {uploadResults.length > 0 && (
-                <div className="mt-4 space-y-1.5">
-                  {uploadResults.map((r, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
-                        r.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                      }`}
-                    >
-                      {r.ok ? (
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                        </svg>
-                      )}
-                      <span className="truncate">{r.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-          </div>
-          )}
-
           {/* ---- Bulk Action Bar ---- */}
           {selectedIds.size > 0 && (
             <div className="mb-3 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
@@ -1313,16 +1136,6 @@ export function KnowledgeBasePage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => handleReindex(doc.id)}
-                        disabled={reindexingIds.has(doc.id)}
-                        className="p-1.5 rounded-md text-gray-400 hover:text-blue-600 hover:bg-blue-50 disabled:opacity-50 transition-colors"
-                      >
-                        <IconRefresh
-                          className={`w-4 h-4 ${reindexingIds.has(doc.id) ? 'animate-spin' : ''}`}
-                        />
-                      </button>
                       {deleteConfirmId === doc.id ? (
                         <div className="flex items-center gap-1">
                           <button
@@ -1341,13 +1154,40 @@ export function KnowledgeBasePage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          type="button"
-                          onClick={() => setDeleteConfirmId(doc.id)}
-                          className="p-1.5 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                        >
-                          <IconTrash className="w-4 h-4" />
-                        </button>
+                        <RowActions
+                          label={t('kb.rowActions.label')}
+                          items={[
+                            {
+                              label: t('common.actions.reindex'),
+                              icon: (
+                                <RefreshCw
+                                  size={14}
+                                  className={reindexingIds.has(doc.id) ? 'animate-spin' : ''}
+                                />
+                              ),
+                              disabled: reindexingIds.has(doc.id),
+                              onSelect: () => handleReindex(doc.id),
+                            },
+                            {
+                              label: t('common.actions.changeType'),
+                              icon: <Pencil size={14} />,
+                              onSelect: () => {
+                                setSelectedIds(new Set([doc.id]));
+                                setBulkDocType('');
+                                setBulkCategory('');
+                                setBulkCategoryClear(false);
+                                setShowBulkEdit(true);
+                              },
+                            },
+                            { separator: true },
+                            {
+                              label: t('common.actions.delete'),
+                              icon: <Trash2 size={14} />,
+                              destructive: true,
+                              onSelect: () => setDeleteConfirmId(doc.id),
+                            },
+                          ]}
+                        />
                       )}
                     </div>
                   </div>
@@ -1411,6 +1251,163 @@ export function KnowledgeBasePage() {
           onClick={() => setDeleteConfirmId(null)}
         />
       )}
+
+      {/* ---- Upload Modal ---- */}
+      <Modal open={showUpload} onOpenChange={setShowUpload}>
+        <ModalContent maxWidth="md">
+          <ModalHeader>
+            <ModalTitle>{t('kb.uploadModalTitle')}</ModalTitle>
+            <ModalDescription>{t('kb.uploadModalDesc')}</ModalDescription>
+          </ModalHeader>
+          <ModalBody>
+            {/* Document type selector */}
+            <div>
+              <label htmlFor="upload-doc-type" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('kb.docType')}
+              </label>
+              <select
+                id="upload-doc-type"
+                value={uploadDocType}
+                onChange={(e) => setUploadDocType(e.target.value)}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              >
+                {Object.keys(DOC_TYPE_LABELS).map((key) => (
+                  <option key={key} value={key}>
+                    {t('kb.docTypes.' + key)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Category / Position selector */}
+            <div>
+              <label htmlFor="upload-category" className="block text-sm font-medium text-gray-700 mb-1">
+                {t('kb.positionLabel')}
+              </label>
+              <input
+                id="upload-category"
+                type="text"
+                list="category-suggestions"
+                value={uploadCategory}
+                onChange={(e) => setUploadCategory(e.target.value)}
+                placeholder={t('kb.positionPlaceholder')}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              />
+              <datalist id="category-suggestions">
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+              <p className="text-xs text-gray-400 mt-1">
+                {t('kb.positionHint')}
+              </p>
+            </div>
+
+            {/* Drop zone */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 cursor-pointer transition-colors ${
+                isDragOver
+                  ? 'border-blue-400 bg-blue-50'
+                  : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+              }`}
+            >
+              <IconUploadCloud
+                className={`w-10 h-10 mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}
+              />
+              <p className="text-sm text-gray-600 text-center">
+                {t('kb.dragDrop')}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                PDF, DOCX, DOC, TXT, ZIP
+              </p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept=".pdf,.docx,.doc,.txt,.zip"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </div>
+
+            {/* Selected files list */}
+            {selectedFiles.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                  {t('kb.selectedFiles', { count: selectedFiles.length })}{' '}
+                  {pluralize(selectedFiles.length, 'файл', 'файла', 'файлов')}
+                </p>
+                <ul className="space-y-1.5 max-h-48 overflow-y-auto">
+                  {selectedFiles.map((file, idx) => (
+                    <li
+                      key={`${file.name}-${idx}`}
+                      className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <FileTypeIcon fileType={file.name.split('.').pop() || ''} />
+                        <div className="min-w-0">
+                          <p className="text-sm text-gray-800 truncate">{file.name}</p>
+                          <p className="text-xs text-gray-400">{formatFileSize(file.size)}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(idx)}
+                        className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        aria-label={t('kb.removeFile')}
+                      >
+                        <IconX className="w-4 h-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Upload results */}
+            {uploadResults.length > 0 && (
+              <div className="space-y-1.5">
+                {uploadResults.map((r, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
+                      r.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {r.ok ? (
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                      </svg>
+                    )}
+                    <span className="truncate">{r.name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="ghost" onClick={() => setShowUpload(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="primary"
+              loading={isUploading}
+              disabled={selectedFiles.length === 0}
+              onClick={handleUpload}
+            >
+              {isUploading ? t('kb.uploading') : t('kb.uploadSubmit')}
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

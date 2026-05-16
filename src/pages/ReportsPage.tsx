@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { reportsApi, type ScreenshotReport } from '../api/reports';
 import { api } from '../api/client';
 import { useT } from '../stores/langStore';
-import { PageHeader, EmptyState, RowActions } from '@/components/ui';
+import { PageHeader, EmptyState, RowActions, Button } from '@/components/ui';
 import { FileText, Eye, Check, Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
@@ -284,6 +284,7 @@ export function ReportsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-left">
+                <th className="px-4 py-3 font-medium text-gray-500 w-28"></th>
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.date')}</th>
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.author')}</th>
                 <th className="px-4 py-3 font-medium text-gray-500">{t('reports.screenshot')}</th>
@@ -300,6 +301,16 @@ export function ReportsPage() {
                   className="hover:bg-blue-50 cursor-pointer transition-colors"
                   onClick={() => setSelectedReport(r)}
                 >
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      leftIcon={<Eye size={14} />}
+                      onClick={() => setSelectedReport(r)}
+                    >
+                      {t('common.actions.open')}
+                    </Button>
+                  </td>
                   <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
                     {new Date(r.created_at).toLocaleDateString()}<br />
                     {new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -322,11 +333,6 @@ export function ReportsPage() {
                     <RowActions
                       label={t('reports.rowActions.label')}
                       items={[
-                        {
-                          label: t('common.actions.open'),
-                          icon: <Eye size={14} />,
-                          onSelect: () => setSelectedReport(r),
-                        },
                         ...(r.status !== 'reviewed' && r.status !== 'resolved'
                           ? [
                               {

@@ -785,6 +785,9 @@
     "loadError": "Hujjatlarni yuklash imkoni bo'lmadi",
     "tryAgain": "Qayta urinish",
     "uploadTitle": "Hujjatlarni yuklash",
+    "uploadModalTitle": "Hujjat yuklash",
+    "uploadModalDesc": "Fayl bilimlar bazasiga tushadi va AI-konsultant uchun indekslanadi.",
+    "uploadSubmit": "Yuklash",
     "docType": "Hujjat turi",
     "positionLabel": "Lavozim / Tasnif",
     "positionPlaceholder": "Masalan: Savdo vakili",
@@ -1095,7 +1098,8 @@
     "actions": {
       "programs": "Dasturlar",
       "createSession": "Sessiya yaratish",
-      "enterCode": "Kodni kiritish"
+      "enterCode": "Kodni kiritish",
+      "runProjector": "Proyektorda ishga tushirish"
     },
     "empty": {
       "title": "Hozircha oflayn sessiyalar yo'q",

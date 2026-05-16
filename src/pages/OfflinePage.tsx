@@ -7,7 +7,7 @@ import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { OfflineSession, OfflineTestResult, OfflineGameResult } from '../api/offline';
 import type { Program } from '../types/offlineProgram';
 import { PageHeader, EmptyState, Button } from '@/components/ui';
-import { Users, Plus, KeyRound, FileText } from 'lucide-react';
+import { Users, Plus, KeyRound, FileText, Presentation } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -209,7 +209,12 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 // ---------------------------------------------------------------------------
 
 function SessionCard({ session, onClick }: { session: OfflineSession; onClick: () => void }) {
+  const t = useT();
   const programClass = PROGRAM_COLORS[session.program] || 'bg-gray-100 text-gray-800';
+  const handleProjector = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(`/activities/sessions/${session.id}/present`, '_blank', 'noreferrer');
+  };
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
       <button type="button" onClick={onClick} className="w-full text-left">
@@ -230,15 +235,17 @@ function SessionCard({ session, onClick }: { session: OfflineSession; onClick: (
           <span className="text-xs text-gray-500">{session.participant_count} уч.</span>
         </div>
       </button>
-      <a
-        href={`/activities/sessions/${session.id}/present`}
-        target="_blank"
-        rel="noreferrer"
-        className="mt-3 block text-center text-xs px-3 py-2 bg-stone-100 hover:bg-stone-800 hover:text-white rounded-lg font-semibold text-stone-700 transition-colors"
-        onClick={(e) => e.stopPropagation()}
-      >
-        🖥 Запустить на проекторе
-      </a>
+      <div className="mt-3">
+        <Button
+          variant="primary"
+          size="sm"
+          leftIcon={<Presentation size={16} />}
+          onClick={handleProjector}
+          className="w-full"
+        >
+          {t('offline.actions.runProjector')}
+        </Button>
+      </div>
     </div>
   );
 }
