@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { dictionaryApi, type DictionaryEntry, type DictionaryStats } from '../api/dictionary';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, SkeletonTableRow } from '@/components/ui';
 
 const CATEGORIES = [
   { value: '', label: 'Все' },
@@ -257,7 +257,13 @@ export function DictionaryUZPage() {
 
       {/* Таблица */}
       {loading ? (
-        <div className="text-center py-12 text-gray-500">Загрузка...</div>
+        <div className="py-4">
+          <SkeletonTableRow cells={3} />
+          <SkeletonTableRow cells={3} />
+          <SkeletonTableRow cells={3} />
+          <SkeletonTableRow cells={3} />
+          <SkeletonTableRow cells={3} />
+        </div>
       ) : entries.length === 0 ? (
         <div className="text-center py-12 text-gray-400">Словарь пуст. Добавьте первый перевод!</div>
       ) : (

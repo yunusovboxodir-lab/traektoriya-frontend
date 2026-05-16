@@ -118,7 +118,17 @@ export function OfflineSessionPresenterPage() {
   const exitPresenter = () => navigate('/activities');
 
   if (error) return <div className="p-8 min-h-screen" style={{ color: '#FCA5A5', background: '#0D0F14' }}>{error}</div>;
-  if (!session) return <div className="p-8 min-h-screen" style={{ color: '#9CA3AF', background: '#0D0F14' }}>Загрузка...</div>;
+  if (!session) {
+    return (
+      <div className="p-8 min-h-screen flex items-center justify-center" style={{ background: '#0D0F14' }}>
+        <div className="max-w-md w-full bg-gray-700/30 rounded-lg p-6 motion-safe:animate-pulse">
+          <div className="h-6 w-1/2 bg-gray-600/50 rounded mb-4"></div>
+          <div className="h-4 w-3/4 bg-gray-600/30 rounded mb-2"></div>
+          <div className="h-4 w-2/3 bg-gray-600/30 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   // Дефолтный фон проектора — dark с лёгким градиентом, в стиле платформы.
   // Отдельные слайды могут переопределить через slide.bg_style.

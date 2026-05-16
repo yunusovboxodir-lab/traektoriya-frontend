@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { Block, Category, Program, Question, Slide, SlideType } from '../types/offlineProgram';
 import { emptyBlock, emptySlide } from '../types/offlineProgram';
+import { SkeletonCard } from '@/components/ui';
 import { BlockRenderer } from '../components/offline/blocks/BlockRenderer';
 import { BlockEditor } from '../components/offline/blocks/BlockEditor';
 
@@ -63,7 +64,7 @@ export function OfflineProgramEditPage() {
     load();
   }, [programId]);
 
-  if (loading) return <div className="p-8 text-center text-stone-400">Загрузка...</div>;
+  if (loading) return <div className="p-8"><SkeletonCard lines={4} /></div>;
   if (error || !program) return <div className="p-8 text-red-700">{error || 'Программа не найдена'}</div>;
 
   return (

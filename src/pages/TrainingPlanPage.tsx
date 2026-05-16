@@ -29,6 +29,7 @@ import type {
   TargetRole,
   TrainingRequest,
 } from '../types/trainingPlan';
+import { SkeletonCard, SkeletonTableRow } from '@/components/ui';
 
 type Tab = 'calendar' | 'requests' | 'field-trips';
 type Lang = 'ru' | 'uz';
@@ -430,8 +431,12 @@ function CalendarTab({ lang }: { lang: Lang }) {
       </div>
 
       {loading && (
-        <div className="text-zinc-500 font-mono uppercase tracking-widest text-sm py-8 text-center">
-          {lang === 'uz' ? 'YUKLANMOQDA...' : 'ЗАГРУЗКА АКТИВНОСТЕЙ...'}
+        <div className="space-y-1 py-4">
+          <SkeletonTableRow cells={6} />
+          <SkeletonTableRow cells={6} />
+          <SkeletonTableRow cells={6} />
+          <SkeletonTableRow cells={6} />
+          <SkeletonTableRow cells={6} />
         </div>
       )}
       {error && (
@@ -609,8 +614,10 @@ function RequestsTab({ canApprove, lang }: { canApprove: boolean; lang: Lang }) 
       </div>
 
       {loading && (
-        <div className="text-zinc-500 font-mono uppercase tracking-widest text-sm py-8 text-center">
-          {lang === 'uz' ? 'YUKLANMOQDA...' : 'ЗАГРУЗКА...'}
+        <div className="space-y-3 py-4">
+          <SkeletonCard lines={3} />
+          <SkeletonCard lines={3} />
+          <SkeletonCard lines={3} />
         </div>
       )}
       {error && <div className="text-red-400">Error: {error}</div>}
@@ -749,8 +756,10 @@ function FieldTripsTab({ lang }: { lang: Lang }) {
 
   if (loading)
     return (
-      <div className="text-zinc-500 font-mono uppercase tracking-widest text-sm py-8 text-center">
-        {lang === 'uz' ? 'YUKLANMOQDA...' : 'ЗАГРУЗКА...'}
+      <div className="space-y-3 py-4">
+        <SkeletonCard lines={3} />
+        <SkeletonCard lines={3} />
+        <SkeletonCard lines={3} />
       </div>
     );
   if (error) return <div className="text-red-400">Error: {error}</div>;

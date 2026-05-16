@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
 import type { CalendarEvent, FieldTripReport } from '../types/trainingPlan';
+import { SkeletonCard } from '@/components/ui';
 
 const ROLE_LABELS: Record<string, string> = {
   tp: 'ТП',
@@ -95,7 +96,7 @@ export function FieldTripDetailPage() {
   }, [tripId]);
 
   if (loading) {
-    return <div className="max-w-4xl mx-auto p-6 text-stone-600">Загрузка…</div>;
+    return <div className="max-w-4xl mx-auto p-6"><SkeletonCard lines={4} /></div>;
   }
   if (error) {
     return <div className="max-w-4xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;

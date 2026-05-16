@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
 import type { LeaderboardEntry, MyStats } from '../types/caseStudio';
+import { SkeletonCard } from '@/components/ui';
 
 const ACTION_LABELS: Record<string, string> = {
   scenario_created: 'Создание кейса',
@@ -56,7 +57,12 @@ export function CaseStudioMyPage() {
   }, [leaderboard, user]);
 
   if (loading) {
-    return <div className="max-w-3xl mx-auto p-6 text-stone-500">Загрузка…</div>;
+    return (
+      <div className="max-w-3xl mx-auto p-6 grid gap-4">
+        <SkeletonCard lines={2} />
+        <SkeletonCard lines={3} />
+      </div>
+    );
   }
   if (error) {
     return <div className="max-w-3xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;

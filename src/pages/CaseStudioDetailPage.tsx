@@ -24,6 +24,7 @@ import type {
   CaseSolution,
   DialogueLine,
 } from '../types/caseStudio';
+import { SkeletonCard } from '@/components/ui';
 
 const ROLE_LABELS: Record<string, string> = {
   sales_rep: 'ТП',
@@ -88,7 +89,7 @@ export function CaseStudioDetailPage() {
 
   const reload = () => setReloadKey((k) => k + 1);
 
-  if (loading) return <div className="max-w-4xl mx-auto p-6 text-stone-500">Загрузка…</div>;
+  if (loading) return <div className="max-w-4xl mx-auto p-6"><SkeletonCard withAvatar lines={5} /></div>;
   if (error) return <div className="max-w-4xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;
   if (!scenario) return <div className="max-w-4xl mx-auto p-6">Кейс не найден</div>;
 

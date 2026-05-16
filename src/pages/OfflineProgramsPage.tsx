@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { Program } from '../types/offlineProgram';
-import { PageHeader } from '@/components/ui';
+import { PageHeader, SkeletonCard } from '@/components/ui';
 
 export function OfflineProgramsPage() {
   const navigate = useNavigate();
@@ -54,7 +54,13 @@ export function OfflineProgramsPage() {
         }
       />
 
-      {loading && <div className="text-center py-12 text-stone-400">Загрузка...</div>}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <SkeletonCard lines={3} />
+          <SkeletonCard lines={3} />
+          <SkeletonCard lines={3} />
+        </div>
+      )}
       {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div>}
 
       {!loading && !error && (

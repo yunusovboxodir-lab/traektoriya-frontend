@@ -24,6 +24,7 @@ import type {
   LeaderboardEntry,
   MyStats,
 } from '../types/caseStudio';
+import { SkeletonLine, SkeletonCard } from '@/components/ui';
 
 type Tab = 'scenarios' | 'leaderboard' | 'categories';
 
@@ -237,7 +238,13 @@ function ScenariosTab() {
         </div>
       </div>
 
-      {loading && <p className="text-stone-500 py-4">Загрузка…</p>}
+      {loading && (
+        <div className="grid gap-3 py-4">
+          <SkeletonCard lines={2} />
+          <SkeletonCard lines={2} />
+          <SkeletonCard lines={2} />
+        </div>
+      )}
       {error && <p className="text-red-600 py-4">Ошибка: {error}</p>}
 
       {!loading && !error && scenarios.length === 0 && (
@@ -320,7 +327,15 @@ function LeaderboardTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-stone-500 py-4">Загрузка…</p>;
+  if (loading) {
+    return (
+      <div className="grid gap-3 py-4">
+        <SkeletonLine width="3/4" />
+        <SkeletonLine width="1/2" />
+        <SkeletonLine width="2/3" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -410,7 +425,15 @@ function CategoriesTab({ canManage }: { canManage: boolean }) {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-stone-500 py-4">Загрузка…</p>;
+  if (loading) {
+    return (
+      <div className="grid gap-3 py-4">
+        <SkeletonLine width="3/4" />
+        <SkeletonLine width="1/2" />
+        <SkeletonLine width="2/3" />
+      </div>
+    );
+  }
 
   return (
     <div>

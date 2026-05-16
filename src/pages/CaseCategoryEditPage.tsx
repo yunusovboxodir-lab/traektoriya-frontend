@@ -10,6 +10,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import type { CaseCategory, CategoryCreateIn } from '../types/caseStudio';
+import { SkeletonCard } from '@/components/ui';
 
 const ROLE_OPTIONS = [
   { value: 'sales_rep', label: 'ТП' },
@@ -114,7 +115,7 @@ export function CaseCategoryEditPage() {
     navigate('/case-studio');
   };
 
-  if (loading) return <div className="max-w-2xl mx-auto p-6 text-stone-500">Загрузка…</div>;
+  if (loading) return <div className="max-w-2xl mx-auto p-6"><SkeletonCard lines={4} /></div>;
 
   return (
     <div className="max-w-2xl mx-auto p-6">

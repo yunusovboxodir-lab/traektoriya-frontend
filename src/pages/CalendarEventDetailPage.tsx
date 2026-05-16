@@ -23,6 +23,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
 import { useAuthStore } from '../stores/authStore';
 import type { CalendarEvent, EventStatus, EventType } from '../types/trainingPlan';
+import { SkeletonCard } from '@/components/ui';
 
 const ROLE_LABELS: Record<string, string> = {
   sales_rep: 'ТП',
@@ -142,7 +143,11 @@ export function CalendarEventDetailPage() {
   };
 
   if (loading) {
-    return <div className="max-w-4xl mx-auto p-6 text-stone-600">Загрузка…</div>;
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <SkeletonCard withAvatar lines={3} />
+      </div>
+    );
   }
   if (error) {
     return <div className="max-w-4xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;
