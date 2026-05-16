@@ -1,0 +1,50 @@
+name: Lighthouse CI (mobile gate)
+
+# TRJ-026 (Phase 0, 2026-05-16): Lighthouse Mobile Performance gate ≥85.
+# Запускается на каждый PR + push в main. Проверяет ключевые страницы платформы
+# в mobile-режиме на бюджеты из _docs/codex/12_performance.md.
+#
+# Что измеряется:
+#  - Performance ≥ 85 (LCP < 2.5s, TBT < 300ms, CLS < 0.1)
+#  - Accessibility ≥ 95 (axe-core + Lighthouse)
+#  - Best Practices ≥ 90
+#  - SEO ≥ 80
+#
+# Падение порога — error (PR блокируется при merge protection rule).
+# Падение не-критичных метрик (SEO) — warn.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lighthouse:
+    name: Lighthouse Mobile Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        continue-on-error: false

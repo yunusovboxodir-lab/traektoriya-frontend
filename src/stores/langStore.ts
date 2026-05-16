@@ -65,21 +65,86 @@ export function applyUserLang(userLang: string | null | undefined): void {
 }
 
 // ---------------------------------------------------------------------------
+// TRJ-022 (Phase 0, 2026-05-16) — i18n production fail-loud
+//
+// Когда t() возвращает сам ключ (translation missing), это баг — пользователь
+// видит сырой ключ типа `dictionary.title` вместо текста. Аудит C4 поймал 3
+// таких случая. Здесь мы это ловим и сигналим:
+//   - dev: console.warn (виден в DevTools)
+//   - prod: console.error + опциональный POST на /api/v1/telemetry/missing-i18n
+//     (silent fail если эндпоинт ещё не реализован)
+//   - critical namespaces (auth/common.actions/errors): дополнительная отметка
+//     с тегом critical=true для будущей Sentry/Telegram alert-интеграции
+//
+// Дедупликация — каждый ключ репортится один раз за сессию (anti-flood).
+//
+// См. _docs/codex/10_bilingual.md §10 «production fail-loud» и TRJ-022.
+// ---------------------------------------------------------------------------
+
+const CRITICAL_NAMESPACES = ['auth', 'common.actions', 'errors'];
+const reportedKeys = new Set<string>();
+
+function isCriticalKey(key: string): boolean {
+  return CRITICAL_NAMESPACES.some((ns) => key.startsWith(ns + '.') || key === ns);
+}
+
+function reportMissingKey(key: string, lang: Lang): void {
+  const dedupeKey = `${lang}:${key}`;
+  if (reportedKeys.has(dedupeKey)) return;
+  reportedKeys.add(dedupeKey);
+
+  const critical = isCriticalKey(key);
+  const message = `[i18n] Missing key: ${key} (lang=${lang})${critical ? ' [CRITICAL]' : ''}`;
+
+  if (import.meta.env.DEV) {
+    // eslint-disable-next-line no-console
+    console.warn(message);
+  } else if (critical) {
+    // eslint-disable-next-line no-console
+    console.error(message);
+  } else {
+    // eslint-disable-next-line no-console
+    console.warn(message);
+  }
+
+  // Опциональная отправка в backend для централизованного логирования.
+  // Эндпоинт может ещё не существовать — silent failure, это допустимо.
+  if (!import.meta.env.DEV) {
+    fetch('/api/v1/telemetry/missing-i18n', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, lang, critical, url: window.location.pathname }),
+      keepalive: true,
+    }).catch(() => {
+      /* silent: telemetry endpoint может ещё не существовать */
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Translation helper — use in components: const t = useT();
 // ---------------------------------------------------------------------------
 
 /**
  * Get a nested value from an object by dot-path.
  * t('nav.dashboard') → strings.nav.dashboard
+ * Если ключ не найден — вызывается reportMissingKey (TRJ-022) и возвращается сам key.
  */
-function getByPath(obj: Record<string, unknown>, path: string): string {
+function getByPath(obj: Record<string, unknown>, path: string, lang: Lang): string {
   const parts = path.split('.');
   let current: unknown = obj;
   for (const part of parts) {
-    if (current == null || typeof current !== 'object') return path;
+    if (current == null || typeof current !== 'object') {
+      reportMissingKey(path, lang);
+      return path;
+    }
     current = (current as Record<string, unknown>)[part];
   }
-  return typeof current === 'string' ? current : path;
+  if (typeof current !== 'string') {
+    reportMissingKey(path, lang);
+    return path;
+  }
+  return current;
 }
 
 /**
@@ -87,10 +152,11 @@ function getByPath(obj: Record<string, unknown>, path: string): string {
  * Supports simple interpolation: t('team.shown', { filtered: 5, total: 10 })
  */
 export function useT() {
+  const lang = useLangStore((s) => s.lang);
   const strings = useLangStore((s) => s.strings);
 
   return (key: string, params?: Record<string, string | number>): string => {
-    let value = getByPath(strings as unknown as Record<string, unknown>, key);
+    let value = getByPath(strings as unknown as Record<string, unknown>, key, lang);
     if (params) {
       for (const [k, v] of Object.entries(params)) {
         value = value.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
