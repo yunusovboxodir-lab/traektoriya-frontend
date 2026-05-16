@@ -104,7 +104,7 @@ export const ModalContent = forwardRef<HTMLDivElement, ModalContentProps>(
 );
 ModalContent.displayName = 'ModalContent';
 
-interface ModalSlotProps extends HTMLAttributes<HTMLDivElement> {}
+type ModalSlotProps = HTMLAttributes<HTMLDivElement>;
 
 export function ModalHeader({ className, children, ...rest }: ModalSlotProps) {
   return (

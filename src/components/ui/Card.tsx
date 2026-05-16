@@ -46,7 +46,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
 );
 Card.displayName = 'Card';
 
-interface CardSlotProps extends HTMLAttributes<HTMLDivElement> {}
+type CardSlotProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardHeader = forwardRef<HTMLDivElement, CardSlotProps>(
   ({ className, children, ...rest }, ref) => (
@@ -96,7 +96,7 @@ export function CardTitle({ as: Tag = 'h3', className, children, ...rest }: Card
   );
 }
 
-interface CardDescriptionProps extends HTMLAttributes<HTMLParagraphElement> {}
+type CardDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
 export function CardDescription({ className, children, ...rest }: CardDescriptionProps) {
   return (

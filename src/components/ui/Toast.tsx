@@ -63,6 +63,7 @@ export function ToastContainer({ position = 'top-right' }: ToastContainerProps =
  * Обёртка над Sonner toast() с разумными дефолтами для durations.
  * Импортировать как `import { toast } from '@/components/ui';`
  */
+// eslint-disable-next-line react-refresh/only-export-components -- toast helper намеренно живёт рядом с ToastContainer для удобства импорта
 export const toast = {
   success: (message: string, options?: Parameters<typeof sonnerToast.success>[1]) =>
     sonnerToast.success(message, { duration: 4000, ...options }),
