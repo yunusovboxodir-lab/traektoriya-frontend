@@ -5,12 +5,13 @@ import { useAuthStore } from '../stores/authStore';
 import { TeamPage } from './TeamPage';
 import { SupervisorDashboardPage } from './SupervisorDashboardPage';
 import { AdminUsersPage } from './AdminUsersPage';
+import { OrgStructurePage } from './OrgStructurePage';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type TeamTab = 'members' | 'management' | 'admin';
+type TeamTab = 'members' | 'management' | 'admin' | 'structure';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -45,6 +46,7 @@ export function TeamHubPage() {
     }
     if (isAdminPlus) {
       tabs.push({ id: 'admin', labelKey: 'teamHub.tabAdmin' });
+      tabs.push({ id: 'structure', labelKey: 'teamHub.tabStructure' });
     }
     return tabs;
   }, [isSupervisorPlus, isAdminPlus]);
@@ -96,6 +98,11 @@ export function TeamHubPage() {
       {activeTab === 'members' && <TeamPage />}
       {activeTab === 'management' && isSupervisorPlus && <SupervisorDashboardPage />}
       {activeTab === 'admin' && isAdminPlus && <AdminUsersPage />}
+      {activeTab === 'structure' && isAdminPlus && (
+        <div className="max-w-5xl mx-auto px-4">
+          <OrgStructurePage />
+        </div>
+      )}
     </div>
   );
 }

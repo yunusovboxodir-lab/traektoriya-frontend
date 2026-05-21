@@ -4,10 +4,12 @@ import { useT } from '../stores/langStore';
 import { toast } from '../stores/toastStore';
 import { offlineApi } from '../api/offline';
 import { offlineProgramsApi } from '../api/offlinePrograms';
+import { teamApi } from '../api/team';
 import type { OfflineSession, OfflineTestResult, OfflineGameResult } from '../api/offline';
+import type { Region, Dealer } from '../api/team';
 import type { Program } from '../types/offlineProgram';
 import { PageHeader, EmptyState, Button } from '@/components/ui';
-import { Users, Plus, KeyRound, FileText, Presentation } from 'lucide-react';
+import { Users, Plus, KeyRound, FileText, Presentation, ChevronDown } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -51,47 +53,95 @@ type View = 'list' | 'detail' | 'join';
 // ---------------------------------------------------------------------------
 
 function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
-  const [title, setTitle] = useState('');
   const [program, setProgram] = useState('DSPM');
-  const [region, setRegion] = useState('');
+  const [regionId, setRegionId] = useState('');
+  const [dealerId, setDealerId] = useState('');
   const [date, setDate] = useState('');
   const [presentationUrl, setPresentationUrl] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [saving, setSaving] = useState(false);
+
   // Список программ-шаблонов из БД (loading on mount)
   const [programs, setPrograms] = useState<Program[]>([]);
   const [loadingPrograms, setLoadingPrograms] = useState(true);
 
-  // Маппинг "DSPM" → code "dspm" (как делает бэкенд для автопривязки)
-  const programNameToCode = (name: string) => name.toLowerCase().replace(/\s+/g, '');
+  // Справочники регионов и дилеров
+  const [regions, setRegions] = useState<Region[]>([]);
+  const [dealers, setDealers] = useState<Dealer[]>([]);
+  const [loadingDealers, setLoadingDealers] = useState(false);
 
-  // Загружаем доступные программы при открытии модалки
+  // Загружаем программы и регионы при открытии модалки
   useEffect(() => {
     offlineProgramsApi.list()
       .then((res) => {
         const items = (res.data?.programs as Program[] | undefined) ?? [];
         setPrograms(items);
-        // Авто-выбор первой программы если есть
-        if (items.length > 0 && items[0].title) {
-          setProgram(items[0].title);
+        // Авто-выбор первой программы (храним code — по нему бэкенд привязывает program_id)
+        if (items.length > 0 && items[0].code) {
+          setProgram(items[0].code);
         }
       })
       .catch(() => setPrograms([]))
       .finally(() => setLoadingPrograms(false));
+
+    teamApi.getRegions()
+      .then((res) => setRegions(res.data?.items ?? []))
+      .catch(() => setRegions([]));
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
+  // При смене региона — подгружаем дилеров этого региона и сбрасываем выбор дилера
+  useEffect(() => {
+    setDealerId('');
+    setDealers([]);
+    if (!regionId) return;
+    setLoadingDealers(true);
+    teamApi.getDealers(regionId)
+      .then((res) => setDealers(res.data?.items ?? []))
+      .catch(() => setDealers([]))
+      .finally(() => setLoadingDealers(false));
+  }, [regionId]);
+
+  const selectedRegion = regions.find((r) => r.id === regionId);
+  const selectedDealer = dealers.find((d) => d.id === dealerId);
+
+  // Найдём выбранную программу по code (для описания и красивого названия)
+  const selectedProgram = programs.find((p) => p.code === program);
+  // Человекочитаемое название для авто-имени сессии (для fallback-строк — сама строка)
+  const programLabel = selectedProgram?.title ?? program;
+
+  // Сборка строки региона: "Навои — Алишер" (дилер опционален)
+  const buildRegionString = () => {
+    const parts = [selectedRegion?.name, selectedDealer?.name].filter(Boolean);
+    return parts.join(' — ');
+  };
+
+  // Автогенерация названия: "{Программа} — {Дилер}, {dd.mm.yyyy}"
+  const buildTitle = () => {
+    const head = selectedDealer?.name
+      ? `${programLabel} — ${selectedDealer.name}`
+      : selectedRegion?.name
+        ? `${programLabel} — ${selectedRegion.name}`
+        : programLabel;
+    const tail = date ? `, ${new Date(date).toLocaleDateString('ru-RU')}` : '';
+    return `${head}${tail}`;
+  };
+
+  // Создание сессии. launch=true → сразу открыть проектор в новой вкладке.
+  const submit = async (launch: boolean) => {
+    if (!program) return;
     setSaving(true);
     try {
-      await offlineApi.createSession({
-        title: title.trim(),
+      const res = await offlineApi.createSession({
+        title: buildTitle(),
         program,
-        region: region.trim() || undefined,
+        region: buildRegionString() || undefined,
         scheduled_date: date || undefined,
         presentation_url: presentationUrl.trim() || undefined,
       });
       toast.success('Сессия создана');
+      if (launch && res.data?.id) {
+        window.open(`/activities/sessions/${res.data.id}/present`, '_blank', 'noreferrer');
+      }
       onCreated();
       onClose();
     } catch {
@@ -101,25 +151,12 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
     }
   };
 
-  // Найдём выбранную программу для показа описания/деталей
-  const selectedProgram = programs.find((p) => p.title === program || programNameToCode(program) === p.code);
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-lg font-semibold mb-4">Создать сессию</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Название *</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Тренинг DSPM — Навои"
-              required
-            />
-          </div>
+        <h2 className="text-lg font-semibold mb-1">Создать сессию</h2>
+        <p className="text-xs text-gray-500 mb-4">Выберите программу, регион/дилера и дату — название создастся автоматически.</p>
+        <form onSubmit={(e) => { e.preventDefault(); submit(true); }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Программа
@@ -138,7 +175,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               ) : programs.length > 0 ? (
                 <>
                   {programs.map((p) => (
-                    <option key={p.id} value={p.title}>
+                    <option key={p.id} value={p.code}>
                       {p.icon ? `${p.icon} ` : ''}{p.title} ({p.num_questions} вопр., {p.duration_minutes} мин)
                     </option>
                   ))}
@@ -157,16 +194,46 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               <p className="mt-1 text-xs text-gray-500">{selectedProgram.description}</p>
             )}
           </div>
+          {/* Регион */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Регион</label>
-            <input
-              type="text"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
+            <select
+              value={regionId}
+              onChange={(e) => setRegionId(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Навои"
-            />
+            >
+              <option value="">— Выберите регион —</option>
+              {regions.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </select>
           </div>
+
+          {/* Дилер (зависит от региона) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Дилер</label>
+            <select
+              value={dealerId}
+              onChange={(e) => setDealerId(e.target.value)}
+              disabled={!regionId || loadingDealers}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+            >
+              <option value="">
+                {!regionId
+                  ? 'Сначала выберите регион'
+                  : loadingDealers
+                    ? 'Загрузка дилеров...'
+                    : dealers.length === 0
+                      ? 'В этом регионе нет дилеров'
+                      : '— Выберите дилера —'}
+              </option>
+              {dealers.map((d) => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Дата */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Дата</label>
             <input
@@ -176,26 +243,59 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ссылка на презентацию</label>
-            <input
-              type="url"
-              value={presentationUrl}
-              onChange={(e) => setPresentationUrl(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="https://docs.google.com/presentation/..."
-            />
+
+          {/* Предпросмотр автоназвания */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <p className="text-xs text-gray-500 mb-0.5">Название (создастся автоматически):</p>
+            <p className="text-sm font-medium text-gray-800 break-words">{buildTitle()}</p>
           </div>
+
+          {/* Расширенные параметры */}
+          <div className="border-t border-gray-100 pt-2">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((v) => !v)}
+              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+            >
+              <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
+              Расширенные параметры
+            </button>
+            {showAdvanced && (
+              <div className="mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ссылка на внешнюю презентацию</label>
+                <input
+                  type="url"
+                  value={presentationUrl}
+                  onChange={(e) => setPresentationUrl(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="https://docs.google.com/presentation/..."
+                />
+                <p className="mt-1 text-xs text-gray-400">
+                  Нужна только если хотите показать внешние слайды (Google Slides) вместо встроенных слайдов программы.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Кнопки */}
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
               Отмена
             </button>
             <button
-              type="submit"
-              disabled={saving || !title.trim()}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              type="button"
+              onClick={() => submit(false)}
+              disabled={saving || !program}
+              className="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
             >
               {saving ? 'Создание...' : 'Создать'}
+            </button>
+            <button
+              type="submit"
+              disabled={saving || !program}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {saving ? 'Создание...' : 'Создать и запустить →'}
             </button>
           </div>
         </form>

@@ -72,7 +72,8 @@
   "teamHub": {
     "tabMembers": "Состав",
     "tabManagement": "Управление",
-    "tabAdmin": "Администрирование"
+    "tabAdmin": "Администрирование",
+    "tabStructure": "Структура"
   },
   "comp": {
     "tabPulse": "Пульс",
