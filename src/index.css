@@ -285,7 +285,8 @@ body {
   color: var(--text-primary) !important;
 }
 :not(.tactical-root, .tactical-root *):where(
-  .text-gray-700, .text-stone-700, .text-slate-700
+  .text-gray-700, .text-stone-700, .text-slate-700,
+  .text-gray-600, .text-stone-600, .text-slate-600
 ) {
   color: var(--text-secondary) !important;
 }

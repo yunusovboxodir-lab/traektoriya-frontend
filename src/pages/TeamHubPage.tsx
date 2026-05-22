@@ -38,9 +38,11 @@ export function TeamHubPage() {
 
   // Build visible tabs based on role
   const visibleTabs = useMemo(() => {
-    const tabs: { id: TeamTab; labelKey: string }[] = [
-      { id: 'members', labelKey: 'teamHub.tabMembers' },
-    ];
+    const tabs: { id: TeamTab; labelKey: string }[] = [];
+    // «Состав» грузит админский /users (роль admin+), супервайзеру он недоступен (403)
+    if (isAdminPlus) {
+      tabs.push({ id: 'members', labelKey: 'teamHub.tabMembers' });
+    }
     if (isSupervisorPlus) {
       tabs.push({ id: 'management', labelKey: 'teamHub.tabManagement' });
     }
@@ -52,8 +54,9 @@ export function TeamHubPage() {
   }, [isSupervisorPlus, isAdminPlus]);
 
   const tabFromUrl = searchParams.get('tab') as TeamTab | null;
+  const defaultTab = visibleTabs[0]?.id ?? 'members';
   const [activeTab, setActiveTab] = useState<TeamTab>(
-    tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : 'members',
+    tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : defaultTab,
   );
 
   // Sync URL → state
