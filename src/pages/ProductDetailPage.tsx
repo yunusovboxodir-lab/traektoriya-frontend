@@ -2,19 +2,31 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { productsApi, type ProductDetail, type ProductHPV, type ProductTest } from '../api/products';
 import { useT } from '../stores/langStore';
+import { useAuthStore } from '../stores/authStore';
+import { toast } from '../stores/toastStore';
 
 type Tab = 'info' | 'merch' | 'sales' | 'hpv' | 'test';
+
+// Кубок NMEDOV 2026 — кто может верифицировать продукты
+const VERIFY_ROLES = new Set(['superadmin', 'admin', 'commercial_dir', 'regional_manager']);
 
 
 export function ProductDetailPage() {
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
   const t = useT();
+  const user = useAuthStore((s) => s.user);
 
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('info');
+
+  // Кубок NMEDOV 2026 — верификация
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  const canVerify = !!user && VERIFY_ROLES.has(user.role);
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
     { key: 'info', label: t('productDetail.tabs.info'), icon: '📋' },
@@ -60,6 +72,38 @@ export function ProductDetailPage() {
       setHpvLoading(false);
     }
   }, [productId]);
+
+  // Кубок 2026 — подтвердить контент продукта
+  const handleVerify = useCallback(async () => {
+    if (!productId) return;
+    try {
+      setVerifying(true);
+      const res = await productsApi.verifyProduct(productId);
+      const points = res.data.points_earned ?? 5;
+      const todayCount = res.data.total_verifications_today ?? 0;
+      toast.success(`+${points} баллов в Кубок! Сегодня подтверждено: ${todayCount}/2`);
+      setVerifyModalOpen(false);
+
+      // Найти следующий неподтверждённый продукт
+      try {
+        const list = await productsApi.getProducts(0, 1, false);
+        const next = list.data.items?.[0];
+        if (next && next.id !== productId) {
+          navigate(`/products/${next.id}`);
+        } else {
+          // Все подтверждены — обновим текущую страницу с обновлённым флагом
+          await loadProduct(productId);
+        }
+      } catch {
+        await loadProduct(productId);
+      }
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Не удалось подтвердить продукт';
+      toast.error(message);
+    } finally {
+      setVerifying(false);
+    }
+  }, [productId, navigate]);
 
   if (loading) {
     return (
@@ -148,19 +192,52 @@ export function ProductDetailPage() {
               ) : (
                 <span className="text-xs font-medium text-red-700 bg-red-50 px-2.5 py-1 rounded">{t('productDetail.inactive')}</span>
               )}
+              {/* Кубок 2026 — статус верификации */}
+              {product.is_verified && (
+                <span
+                  className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded inline-flex items-center gap-1"
+                  title={product.verified_at ? `Подтверждено ${new Date(product.verified_at).toLocaleDateString('ru-RU')}` : ''}
+                >
+                  ✅ Подтверждено
+                </span>
+              )}
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-1">{product.name}</h1>
             {product.short_description && (
               <p className="text-sm text-gray-500 mb-2">{product.short_description}</p>
             )}
-            {product.price_rrp != null && (
-              <p className="text-xl font-bold text-blue-600">
-                {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум
-              </p>
-            )}
+            <div className="flex flex-wrap items-center gap-3">
+              {product.price_rrp != null && (
+                <p className="text-xl font-bold text-blue-600">
+                  {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум
+                </p>
+              )}
+              {/* Кнопка верификации — только для admin/superadmin/commercial_dir/regional_manager + только для unverified */}
+              {canVerify && !product.is_verified && (
+                <button
+                  type="button"
+                  onClick={() => setVerifyModalOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-sm transition-all"
+                  title="Подтвердить контент продукта (+5 баллов в Кубок NMEDOV 2026)"
+                >
+                  ✅ Подтвердить контент
+                  <span className="ml-1 px-1.5 py-0.5 bg-white/20 rounded text-xs font-bold">+5</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Кубок 2026 — Modal подтверждения */}
+      {verifyModalOpen && (
+        <VerifyConfirmModal
+          productName={product.name}
+          loading={verifying}
+          onConfirm={handleVerify}
+          onCancel={() => setVerifyModalOpen(false)}
+        />
+      )}
 
       {/* Tabs */}
       <div className="border-b border-gray-200 mb-6">
@@ -524,4 +601,84 @@ function pluralize(n: number, one: string, few: string, many: string): string {
   if (last > 1 && last < 5) return few;
   if (last === 1) return one;
   return many;
+}
+
+// ============================================================================
+// Кубок NMEDOV 2026 — Modal подтверждения контента
+// ============================================================================
+
+function VerifyConfirmModal({
+  productName,
+  loading,
+  onConfirm,
+  onCancel,
+}: {
+  productName: string;
+  loading: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header — золотой gradient */}
+        <div className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 px-6 py-5 text-center">
+          <div className="text-4xl mb-2">🏆</div>
+          <h3 className="text-lg font-bold text-white">Подтвердить контент продукта?</h3>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+            <p className="text-sm text-gray-700 mb-2">
+              Вы подтверждаете, что весь контент продукта
+            </p>
+            <p className="text-base font-semibold text-gray-900 mb-2">«{productName}»</p>
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">актуален и корректен:</span>
+              {' '}название, бренд, категория, цена, описание, состав, конкуренты, ХПВ, тесты.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <span className="text-2xl">⭐</span>
+            <div>
+              <p className="text-sm font-semibold text-emerald-900">+5 баллов в Кубок NMEDOV 2026</p>
+              <p className="text-xs text-emerald-700">Засчитается в ваш месячный лидерборд</p>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 text-center">
+            ⚠️ Подтверждённый продукт нельзя «переподтвердить». Если данные неверны — нажмите «Отмена» и сообщите PO.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          >
+            Отмена
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          >
+            {loading ? 'Подтверждаем…' : '✅ Да, подтвердить (+5)'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

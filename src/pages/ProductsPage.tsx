@@ -12,10 +12,14 @@ import { DeleteConfirmModal } from '../components/products/DeleteConfirmModal';
 
 type ViewMode = 'grid' | 'table';
 
+// Кубок NMEDOV 2026 — кто видит toggle «Не подтверждённые» и кому показываем визуальные индикаторы
+const VERIFY_ROLES = new Set(['superadmin', 'admin', 'commercial_dir', 'regional_manager']);
+
 export function ProductsPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === 'superadmin' || user?.role === 'manager';
+  const canVerify = !!user && VERIFY_ROLES.has(user.role);
   const t = useT();
   const lang = useLangStore((s) => s.lang);
 
@@ -25,6 +29,7 @@ export function ProductsPage() {
   const [search, setSearch] = useState('');
   const [selectedTab, setSelectedTab] = useState(-1); // -1 = "All" tab
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [unverifiedOnly, setUnverifiedOnly] = useState(false); // Кубок 2026 — toggle
 
   // Admin modal state
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -68,6 +73,12 @@ export function ProductsPage() {
     return counts;
   }, [products]);
 
+  // Кубок 2026 — счётчик неподтверждённых (по всему каталогу)
+  const unverifiedCount = useMemo(
+    () => products.filter((p) => p.is_verified === false).length,
+    [products],
+  );
+
   // Filter products for current tab
   const filtered = useMemo(() => {
     let result = isAllTab
@@ -83,8 +94,14 @@ export function ProductsPage() {
           (p.subcategory && p.subcategory.toLowerCase().includes(q)),
       );
     }
+
+    // Кубок 2026 — фильтр «только неподтверждённые»
+    if (unverifiedOnly) {
+      result = result.filter((p) => p.is_verified === false);
+    }
+
     return result;
-  }, [products, selectedTab, search, currentBrand?.brandKey, isAllTab]);
+  }, [products, selectedTab, search, currentBrand?.brandKey, isAllTab, unverifiedOnly]);
 
   // Group products by brand (for "All" tab), ordered by BRAND_TABS
   const groupedByBrand = useMemo(() => {
@@ -159,8 +176,34 @@ export function ProductsPage() {
         : t('products.skuCount', { brand: currentBrand!.label, count: filtered.length, total: currentBrand!.expectedSKU })}
     >
       {/* Page header — дубль title убран, остался только toolbar справа */}
-      <div className="flex items-center justify-end gap-3 mb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-3 mb-5">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Кубок NMEDOV 2026 — фильтр «не подтверждённые» (только для верификаторов) */}
+          {canVerify && (
+            <button
+              type="button"
+              onClick={() => setUnverifiedOnly((v) => !v)}
+              className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+                unverifiedOnly
+                  ? 'bg-amber-500 text-white border-amber-500 shadow-sm hover:bg-amber-600'
+                  : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-50'
+              }`}
+              title="Кубок NMEDOV 2026 — показать только продукты, которые ждут верификации"
+            >
+              <span>⏳</span>
+              <span>Не подтверждённые</span>
+              {unverifiedCount > 0 && (
+                <span
+                  className={`min-w-[22px] px-1.5 py-0.5 rounded-full text-xs font-bold ${
+                    unverifiedOnly ? 'bg-white text-amber-600' : 'bg-amber-500 text-white'
+                  }`}
+                >
+                  {unverifiedCount}
+                </span>
+              )}
+            </button>
+          )}
+
           {/* Admin: Add product */}
           {isAdmin && (
             <button
@@ -283,33 +326,62 @@ export function ProductsPage() {
                 <span className="text-sm text-gray-400">{brandProducts.length} SKU</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
-                {brandProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all group overflow-hidden cursor-pointer"
-                    onClick={() => navigate(`/products/${product.id}`)}
-                  >
-                    <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-4xl opacity-20">📦</span>'; }} />
-                      ) : (
-                        <span className="text-4xl opacity-20">📦</span>
-                      )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-2 line-clamp-2">{product.name}</h3>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
-                        {product.subcategory && <span>{product.subcategory}</span>}
-                        {product.weight && <span>{product.weight}</span>}
-                      </div>
-                      {product.price_rrp != null && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <span className="text-sm font-semibold text-gray-800">{formatPrice(product.price_rrp)}</span>
+                {brandProducts.map((product) => {
+                  // Кубок 2026 — визуальные индикаторы верификации
+                  const isUnverified = product.is_verified === false;
+                  const isVerified = product.is_verified === true;
+                  return (
+                    <div
+                      key={product.id}
+                      className={`relative bg-white rounded-xl shadow-sm border hover:shadow-md transition-all group overflow-hidden cursor-pointer ${
+                        isUnverified
+                          ? 'border-amber-300 ring-1 ring-amber-200 hover:border-amber-400'
+                          : 'border-gray-200 hover:border-blue-200'
+                      }`}
+                      onClick={() => navigate(`/products/${product.id}`)}
+                    >
+                      {/* Verified checkmark (top-right) */}
+                      {isVerified && (
+                        <div
+                          className="absolute top-2 right-2 z-10 w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm"
+                          title="Подтверждено"
+                        >
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
                         </div>
                       )}
+                      {/* Unverified ribbon (top-right) */}
+                      {isUnverified && (
+                        <div
+                          className="absolute top-2 right-2 z-10 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded shadow-sm uppercase tracking-wide"
+                          title="Ждёт верификации (Кубок NMEDOV 2026)"
+                        >
+                          ⏳ Не подтв.
+                        </div>
+                      )}
+                      <div className="w-full h-40 bg-gray-50 flex items-center justify-center p-3 border-b border-gray-100">
+                        {product.image_url ? (
+                          <img src={product.image_url} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; (e.target as HTMLImageElement).parentElement!.innerHTML = '<span class="text-4xl opacity-20">📦</span>'; }} />
+                        ) : (
+                          <span className="text-4xl opacity-20">📦</span>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors leading-snug mb-2 line-clamp-2">{product.name}</h3>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+                          {product.subcategory && <span>{product.subcategory}</span>}
+                          {product.weight && <span>{product.weight}</span>}
+                        </div>
+                        {product.price_rrp != null && (
+                          <div className="mt-3 pt-3 border-t border-gray-100">
+                            <span className="text-sm font-semibold text-gray-800">{formatPrice(product.price_rrp)}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -318,12 +390,39 @@ export function ProductsPage() {
       {viewMode === 'grid' && !isAllTab && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {/* Real product cards */}
-          {filtered.map((product) => (
+          {filtered.map((product) => {
+            const isUnverified = product.is_verified === false;
+            const isVerified = product.is_verified === true;
+            return (
             <div
               key={product.id}
-              className="relative bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md hover:border-blue-200 transition-all group overflow-hidden cursor-pointer"
+              className={`relative bg-white rounded-xl shadow-sm border hover:shadow-md transition-all group overflow-hidden cursor-pointer ${
+                isUnverified
+                  ? 'border-amber-300 ring-1 ring-amber-200 hover:border-amber-400'
+                  : 'border-gray-200 hover:border-blue-200'
+              }`}
               onClick={() => navigate(`/products/${product.id}`)}
             >
+              {/* Кубок 2026 — verified checkmark / unverified ribbon */}
+              {isVerified && (
+                <div
+                  className="absolute top-2 left-2 z-10 w-7 h-7 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm"
+                  title="Подтверждено"
+                >
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              )}
+              {isUnverified && (
+                <div
+                  className="absolute top-2 left-2 z-10 px-2 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded shadow-sm uppercase tracking-wide"
+                  title="Ждёт верификации (Кубок NMEDOV 2026)"
+                >
+                  ⏳ Не подтв.
+                </div>
+              )}
+
               {/* Admin icons (top-right, hover) */}
               {isAdmin && (
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -404,7 +503,8 @@ export function ProductsPage() {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
 
           {/* Placeholder cards ("СКОРО БУДЕТ") */}
           {Array.from({ length: placeholderCount }).map((_, idx) => (
@@ -443,6 +543,9 @@ export function ProductsPage() {
               <table className="w-full min-w-[600px]">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-200">
+                    {canVerify && (
+                      <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-3 py-3 w-10"></th>
+                    )}
                     <th className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider px-5 py-3">
                       {t('products.tableHeaders.name')}
                     </th>
@@ -467,8 +570,24 @@ export function ProductsPage() {
                     <tr
                       key={product.id}
                       onClick={() => navigate(`/products/${product.id}`)}
-                      className="hover:bg-blue-50 cursor-pointer transition-colors"
+                      className={`cursor-pointer transition-colors ${
+                        product.is_verified === false ? 'hover:bg-amber-50/70' : 'hover:bg-blue-50'
+                      }`}
                     >
+                      {canVerify && (
+                        <td className="px-3 py-3.5 text-center">
+                          {product.is_verified === true && (
+                            <span className="inline-flex w-5 h-5 bg-emerald-500 rounded-full items-center justify-center" title="Подтверждено">
+                              <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
+                          )}
+                          {product.is_verified === false && (
+                            <span className="inline-block w-2 h-2 bg-amber-500 rounded-full" title="Ждёт верификации" />
+                          )}
+                        </td>
+                      )}
                       <td className="px-5 py-3.5">
                         <span className="text-sm font-medium text-gray-900">{product.name}</span>
                       </td>

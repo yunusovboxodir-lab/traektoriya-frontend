@@ -62,8 +62,35 @@ export interface Product {
   created_at: string;
   updated_at?: string;
 
+  // Кубок NMEDOV 2026 — Верификация
+  is_verified?: boolean;
+  verified_by?: string | null;
+  verified_at?: string | null;
+  last_edited_by?: string | null;
+  last_edited_at?: string | null;
+
   // Computed: first image URL
   image_url: string | null;
+}
+
+// Кубок NMEDOV 2026 — Лидерборд верификации
+export interface CupLeaderboardEntry {
+  rank: number;
+  user_id: string;
+  user_name: string;
+  user_role?: string | null;
+  verifications_count: number;
+  total_points: number;
+}
+
+export interface CupLeaderboardResponse {
+  period_year: number;
+  period_month: number;
+  total_unverified: number;
+  total_verified_this_period: number;
+  entries: CupLeaderboardEntry[];
+  current_user_rank?: number | null;
+  current_user_points?: number | null;
 }
 
 export interface ProductImage {
@@ -120,9 +147,18 @@ function fakeError(msg: string) {
 }
 
 export const productsApi = {
-  getProducts: (skip = 0, limit = 50) => {
-    if (USE_LOCAL_PRODUCTS) return fakeOk<ProductListResponse>(localGetProducts(skip, limit));
-    return api.get<ProductListResponse>('/api/v1/products', { params: { skip, limit } });
+  getProducts: (skip = 0, limit = 50, isVerified?: boolean) => {
+    if (USE_LOCAL_PRODUCTS) {
+      // В локальном режиме все продукты считаются verified=true (нет верификации)
+      const data = localGetProducts(skip, limit);
+      if (isVerified === false) {
+        return fakeOk<ProductListResponse>({ ...data, items: [], total: 0 });
+      }
+      return fakeOk<ProductListResponse>(data);
+    }
+    const params: Record<string, string | number | boolean> = { skip, limit };
+    if (isVerified !== undefined) params.is_verified = isVerified;
+    return api.get<ProductListResponse>('/api/v1/products', { params });
   },
   getProduct: (id: string) => {
     if (USE_LOCAL_PRODUCTS) {
@@ -148,4 +184,33 @@ export const productsApi = {
     api.post(`/api/v1/products/${productId}/test`, { answers }),
   getTestResults: (productId: string) =>
     api.get(`/api/v1/products/${productId}/test-results`),
+
+  // Кубок NMEDOV 2026 — Верификация продуктов РМ-командой
+  verifyProduct: (productId: string) => {
+    if (USE_LOCAL_PRODUCTS) {
+      return fakeError('Верификация недоступна: продукты загружены локально. Деплой backend → переключите USE_LOCAL_PRODUCTS=false.');
+    }
+    return api.post<{ product: Product; points_earned: number; total_verifications_today: number }>(
+      `/api/v1/products/${productId}/verify`,
+    );
+  },
+
+  // Лидерборд верификации (топ РМ за месяц)
+  getCupLeaderboard: (periodYear?: number, periodMonth?: number) => {
+    if (USE_LOCAL_PRODUCTS) {
+      return fakeOk<CupLeaderboardResponse>({
+        period_year: periodYear ?? new Date().getFullYear(),
+        period_month: periodMonth ?? new Date().getMonth() + 1,
+        total_unverified: 0,
+        total_verified_this_period: 0,
+        entries: [],
+        current_user_rank: null,
+        current_user_points: null,
+      });
+    }
+    const params: Record<string, number> = {};
+    if (periodYear) params.period_year = periodYear;
+    if (periodMonth) params.period_month = periodMonth;
+    return api.get<CupLeaderboardResponse>('/api/v1/products/cup/leaderboard', { params });
+  },
 };
