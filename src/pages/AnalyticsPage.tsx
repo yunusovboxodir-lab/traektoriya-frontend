@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 import { OverviewTab } from '../components/analytics/OverviewTab';
 import { LmsTab } from '../components/analytics/LmsTab';
 import { EffectivenessTab } from '../components/analytics/EffectivenessTab';
+import { RoiTab } from '../components/analytics/RoiTab';
 import { ReportsPage } from './ReportsPage';
 import { PrintReport } from '../components/analytics/PrintReport';
 import type {
@@ -13,7 +14,7 @@ import type {
   LeaderboardEntry, LmsDashboard, InsightItem,
 } from '../components/analytics/types';
 
-type AnalyticsTabId = 'overview' | 'lms' | 'effectiveness' | 'reports';
+type AnalyticsTabId = 'overview' | 'lms' | 'effectiveness' | 'reports' | 'roi';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -53,7 +54,10 @@ export function AnalyticsPage() {
     { id: 'overview', labelKey: 'analytics.tabOverview' },
     { id: 'lms', labelKey: 'analytics.tabLms' },
     { id: 'effectiveness', labelKey: 'analytics.tabEffectiveness' },
-    ...(isAdminPlus ? [{ id: 'reports' as const, labelKey: 'analytics.tabReports' }] : []),
+    ...(isAdminPlus ? [
+      { id: 'roi' as const, labelKey: 'analytics.tabRoi' },
+      { id: 'reports' as const, labelKey: 'analytics.tabReports' },
+    ] : []),
   ];
 
   const tabFromUrl = searchParams.get('tab') as AnalyticsTabId | null;
@@ -354,6 +358,9 @@ export function AnalyticsPage() {
           track={lmsTrack}
         />
       )}
+
+      {/* TAB: ROI обучения (admin+) */}
+      {activeTab === 'roi' && isAdminPlus && <RoiTab />}
 
       {/* TAB: Reports (admin+) */}
       {activeTab === 'reports' && isAdminPlus && <ReportsPage />}
