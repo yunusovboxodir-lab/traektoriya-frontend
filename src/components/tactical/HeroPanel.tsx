@@ -7,6 +7,7 @@ import { Panel, Stat, ProgressBar, RingProgress } from './Panel';
 import { ZONES as DEFAULT_ZONES } from './data';
 import type { MapZone, TeamMember } from './types';
 import { useLangStore } from '../../stores/langStore';
+import { bl } from '../../utils/bilingual';
 
 const TEAM: TeamMember[] = [
   { n: 'Gulnaza', r: 'СВ', p: 75, s: 'oklch(0.78 0.15 155)' },
@@ -87,7 +88,7 @@ export function HeroPanel({
       <div className="hero-rank">
         <RingProgress value={overallPct} label={t('ПРАКТИК', 'PRAKTIK')} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'oklch(0.55 0.02 250)' }}>{t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}</div>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'oklch(0.55 0.02 250)' }}>{t('ТЕКУЩАЯ ТЕРРИТОРИЯ', 'JORIY HUDUD')}</div>
           <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'oklch(0.82 0.15 75)' }}>{t('Практик', 'Praktik')}</div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'oklch(0.6 0.02 250)', marginTop: 2 }}>
             {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'oklch(0.78 0.15 155)' }}>{t('Эксперт', 'Ekspert')}</span>
@@ -143,7 +144,7 @@ export function HeroPanel({
               onClick={() => onZoneFocus(active ? null : i)}
             >
               <span className="chip-num">T{i + 1}</span>
-              <span className="chip-name">{z.label}</span>
+              <span className="chip-name">{bl(z.label, lang)}</span>
               <span className="chip-count">{z.count}</span>
             </button>
           );

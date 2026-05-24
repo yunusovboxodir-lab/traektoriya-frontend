@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as DEFAULT_EDGES } from './data';
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
 import { useLangStore } from '../../stores/langStore';
+import { bl } from '../../utils/bilingual';
 
 const TERRITORY_NUMERAL: Record<string, string> = {
   stazher: 'I',
@@ -277,6 +278,7 @@ interface PinchMapProps {
 }
 
 function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }: PinchMapProps) {
+  const lang = useLangStore((s) => s.lang);
   const MAP_W = 1100, MAP_H = 580;
   const containerRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 220 });
@@ -405,7 +407,7 @@ function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }:
               fontFamily="Cinzel, serif" fontWeight="600"
               fontSize="13" letterSpacing="0.22em"
               fill={z.accent} opacity="0.85">
-              {z.label}
+              {bl(z.label, lang)}
             </text>
           ))}
 
@@ -587,6 +589,8 @@ interface TerritoryListProps {
 }
 
 function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryListProps) {
+  const lang = useLangStore((s) => s.lang);
+  const villagesLabel = lang === 'uz' ? 'POSYOLKALAR' : 'ПОСЁЛКОВ';
   return (
     <div style={{ padding: '4px 0 8px' }}>
       {zones.map((z, zi) => {
@@ -619,12 +623,12 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                   <span style={{
                     fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
                     letterSpacing: '0.18em', color: z.accent,
-                  }}>{z.label}</span>
+                  }}>{bl(z.label, lang)}</span>
                   <span style={{
                     fontSize: 9, color: 'oklch(0.55 0.04 250)',
                     fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
                   }}>
-                    {villages.length} ПОСЁЛКОВ
+                    {villages.length} {villagesLabel}
                   </span>
                 </div>
                 <div style={{
@@ -768,7 +772,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: '0.14em', fontWeight: 600,
               }}>
-                {zone.label} · {village.code}
+                {bl(zone.label, lang)} · {village.code}
               </span>
               <span style={{
                 fontSize: 9, color: s.stroke,
@@ -777,7 +781,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                 padding: '1px 6px', borderRadius: 3,
                 background: `${s.stroke}20`,
               }}>
-                {s.label.toUpperCase()}
+                {bl(s.label, lang).toUpperCase()}
               </span>
             </div>
             <h2 style={{

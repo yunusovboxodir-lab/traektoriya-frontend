@@ -1,7 +1,14 @@
 /**
  * Tactical Dashboard types — карта обучения в стиле Tactical HUD.
  * Адаптировано из Claude Design handoff (Traektoriya.zip 2026-05-01).
+ *
+ * TRJ-046 (2026-05-18): MapZone.label/sub стали BiText — рендер
+ * локализуется через `bl()` helper из utils/bilingual.ts. Это закрывает
+ * критический баг: ранее zone-названия всегда показывались на RU, даже
+ * при UZ-режиме, потому что приходили из констант фронта (не из API).
  */
+
+import type { BiText } from '../../utils/bilingual';
 
 export type NodeState = 'done' | 'active' | 'new' | 'locked' | 'mastered';
 
@@ -35,8 +42,10 @@ export interface MapNode {
 
 export interface MapZone {
   id: string;
-  label: string;
-  sub: string;
+  /** Имя зоны — bilingual. Рендер через `bl(zone.label, lang)`. */
+  label: BiText;
+  /** Подзаголовок зоны (напр. «ТЕРРИТОРИЯ 1» / «HUDUD 1»). */
+  sub: BiText;
   count: number;
   x: number;
   w: number;
@@ -53,7 +62,8 @@ export interface StateStyle {
   stroke: string;
   fill: string;
   glyph: string;
-  label: string;
+  /** Подпись статуса — bilingual. Рендер через `bl(s.label, lang)`. TRJ-046 (2026-05-18). */
+  label: BiText;
 }
 
 export interface Recommendation {

@@ -7,8 +7,10 @@
  */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Target } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useLangStore } from '../stores/langStore';
+import { bl } from '../utils/bilingual';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
 import { HeroPanel } from '../components/tactical/HeroPanel';
@@ -178,7 +180,8 @@ export function TacticalLearningPage() {
           }}
           title={lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
         >
-          🎯 {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+          <Target size={14} strokeWidth={2} style={{ marginRight: 6, verticalAlign: 'text-bottom' }} aria-hidden="true" />
+          {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
         </button>
         <div className="title-meta">
           <span><b>{totalCourses}</b> {lang === 'uz' ? 'KURSLAR' : 'КУРСОВ'}</span>
@@ -238,7 +241,7 @@ export function TacticalLearningPage() {
                   className="panel-code"
                   style={{ color: STATE_STYLES[selectedNode.state].stroke }}
                 >
-                  {STATE_STYLES[selectedNode.state].glyph} {STATE_STYLES[selectedNode.state].label.toUpperCase()}
+                  {STATE_STYLES[selectedNode.state].glyph} {bl(STATE_STYLES[selectedNode.state].label, lang).toUpperCase()}
                 </span>
                 <button
                   onClick={() => setSelectedNode(null)}
@@ -302,7 +305,7 @@ export function TacticalLearningPage() {
                         )}
                       </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: STATE_STYLES[h.s].stroke, flexShrink: 0, marginLeft: 12 }}>
-                        {STATE_STYLES[h.s].glyph} {STATE_STYLES[h.s].label}
+                        {STATE_STYLES[h.s].glyph} {bl(STATE_STYLES[h.s].label, lang)}
                       </span>
                     </button>
                   );

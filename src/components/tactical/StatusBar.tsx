@@ -10,6 +10,13 @@
  */
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  Home, BookOpen, Package, ClipboardList, Users, Target as TargetIcon,
+  Sparkles, Trophy, LayoutGrid, Calendar, BarChart3, GraduationCap,
+  Languages, ShoppingCart, Globe, Settings,
+  Lock, LogOut, ChevronDown,
+  type LucideIcon,
+} from 'lucide-react';
 import { useLangStore, useT } from '../../stores/langStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
@@ -23,31 +30,43 @@ const ROLE_HIERARCHY: Record<string, number> = {
   sales_rep: 1,
 };
 
-// Иконки разделов вместо «военных» кодов (UX-аудит 2026-05-03)
-const NAV_ITEMS_DEF = [
-  { icon: '🏠', labelKey: 'nav.home',         path: '/dashboard',     pageKey: 'dashboard' },
-  { icon: '📚', labelKey: 'nav.learning',     path: '/learning',      pageKey: 'learning' },
-  { icon: '📦', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
-  { icon: '📋', labelKey: 'nav.tasks',        path: '/tasks',         pageKey: 'tasks' },
-  { icon: '👥', labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
-  { icon: '🎯', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
-  { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
-  { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
-  { icon: '📐', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
-  { icon: '📅', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
-  { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
-  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
-] as const;
+// TRJ-048 (2026-05-18): эмодзи в navigation заменены на Lucide-иконки
+// (Кодекс v2.1 §00 anti-pattern #8 — эмодзи запрещены в системном UI).
+// Прежнее решение «иконки разделов вместо военных кодов» (UX-аудит 2026-05-03)
+// сохранено по сути — иконки остаются, просто теперь они векторные/стилизуемые
+// через токены вместо растровых эмодзи (разные на iOS/Android, не масштабируются,
+// ломают screen-reader-нарратив, не наследуют currentColor).
+interface NavItemDef {
+  icon: LucideIcon;
+  labelKey: string;
+  path: string;
+  pageKey: string;
+}
+
+const NAV_ITEMS_DEF: readonly NavItemDef[] = [
+  { icon: Home,           labelKey: 'nav.home',         path: '/dashboard',     pageKey: 'dashboard' },
+  { icon: BookOpen,       labelKey: 'nav.learning',     path: '/learning',      pageKey: 'learning' },
+  { icon: Package,        labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
+  { icon: ClipboardList,  labelKey: 'nav.tasks',        path: '/tasks',         pageKey: 'tasks' },
+  { icon: Users,          labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
+  { icon: TargetIcon,     labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
+  { icon: Sparkles,       labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
+  { icon: Trophy,         labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
+  { icon: LayoutGrid,     labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
+  { icon: Calendar,       labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
+  { icon: BarChart3,      labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
+  { icon: GraduationCap,  labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
+];
 
 // QW-6 (Sprint 0, 2026-05-16): добавлены ShelfCorrections и TranslationReview —
 // раньше доступны только по прямому URL (висячие маршруты, см. UI/UX-аудит S7).
 // Привязаны к admin-секции, т.к. это инструменты для admin/superadmin.
-const ADMIN_NAV_ITEMS_DEF = [
-  { icon: '🔤', labelKey: 'nav.dictionaryUZ',      path: '/dictionary-uz',      pageKey: 'dictionary-uz' },
-  { icon: '🛒', labelKey: 'nav.shelfCorrections',  path: '/shelf-corrections',  pageKey: 'admin-roles' },
-  { icon: '🌐', labelKey: 'nav.translationReview', path: '/translation-review', pageKey: 'admin-roles' },
-  { icon: '⚙️', labelKey: 'nav.settings',          path: '/admin/roles',        pageKey: 'admin-roles' },
-] as const;
+const ADMIN_NAV_ITEMS_DEF: readonly NavItemDef[] = [
+  { icon: Languages,     labelKey: 'nav.dictionaryUZ',      path: '/dictionary-uz',      pageKey: 'dictionary-uz' },
+  { icon: ShoppingCart,  labelKey: 'nav.shelfCorrections',  path: '/shelf-corrections',  pageKey: 'admin-roles' },
+  { icon: Globe,         labelKey: 'nav.translationReview', path: '/translation-review', pageKey: 'admin-roles' },
+  { icon: Settings,      labelKey: 'nav.settings',          path: '/admin/roles',        pageKey: 'admin-roles' },
+];
 
 const FROZEN_PAGES = ['analytics', 'goals'];
 const ADMIN_ONLY_PAGES = ['ai-studio'];
@@ -130,7 +149,7 @@ export function StatusBar() {
             <div className="brand-name">TRAEKTORIYA</div>
             <div className="brand-tag">{lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта'}</div>
           </div>
-          <span className="brand-caret">▾</span>
+          <ChevronDown size={14} className="brand-caret" aria-hidden="true" />
         </button>
 
         {menuOpen && (
@@ -153,6 +172,7 @@ export function StatusBar() {
               {allItems.map((item) => {
                 const frozen = FROZEN_PAGES.includes(item.pageKey);
                 const active = isActive(item.path);
+                const Icon = item.icon;
                 return (
                   <button
                     key={item.path}
@@ -162,11 +182,13 @@ export function StatusBar() {
                     onClick={() => handleNav(item.path, frozen)}
                     style={frozen ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
                   >
-                    <span className="nav-code" aria-hidden="true">{item.icon}</span>
+                    <span className="nav-code" aria-hidden="true">
+                      <Icon size={16} strokeWidth={1.75} />
+                    </span>
                     <span className="nav-label">
-                      <span className="nav-label-main">
+                      <span className="nav-label-main" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                         {t(item.labelKey)}
-                        {frozen && <span style={{ marginLeft: 8, fontSize: 10, opacity: 0.7 }}>🔒</span>}
+                        {frozen && <Lock size={10} aria-label={lang === 'uz' ? 'Bloklangan' : 'Заблокировано'} style={{ opacity: 0.7 }} />}
                       </span>
                     </span>
                     {active && <span className="nav-on-dot" aria-hidden="true" />}
@@ -181,7 +203,9 @@ export function StatusBar() {
                 onClick={handleLogout}
                 style={{ borderTop: '1px solid var(--line-soft)', marginTop: 6 }}
               >
-                <span className="nav-code" style={{ color: 'oklch(0.70 0.15 28)' }}>⤴</span>
+                <span className="nav-code" style={{ color: 'oklch(0.70 0.15 28)' }} aria-hidden="true">
+                  <LogOut size={16} strokeWidth={1.75} />
+                </span>
                 <span className="nav-label">
                   <span className="nav-label-main" style={{ color: 'oklch(0.85 0.12 28)' }}>{t('nav.logout')}</span>
                 </span>

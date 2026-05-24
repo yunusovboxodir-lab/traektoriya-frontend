@@ -7,11 +7,12 @@
  */
 import type { MapEdge, MapNode, MapZone, StateStyle, NodeState } from './types';
 
+// TRJ-046 (2026-05-18): label/sub теперь BiText — рендер через `bl()`. См. types.ts.
 export const ZONES: MapZone[] = [
-  { id: 'stazher', label: 'СТАЖЁР',  sub: 'ТЕРРИТОРИЯ 1', count: 5, x: 0.02, w: 0.24, cx: 0.14, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
-  { id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 6, x: 0.26, w: 0.24, cx: 0.39, cy: 0.50, accent: 'oklch(0.78 0.14 75)'  },
-  { id: 'expert',  label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 7, x: 0.50, w: 0.24, cx: 0.63, cy: 0.50, accent: 'oklch(0.74 0.11 155)' },
-  { id: 'master',  label: 'МАСТЕР',  sub: 'ТЕРРИТОРИЯ 4', count: 6, x: 0.74, w: 0.24, cx: 0.86, cy: 0.50, accent: 'oklch(0.85 0.13 88)'  },
+  { id: 'stazher', label: { ru: 'СТАЖЁР',  uz: 'STAJYOR' }, sub: { ru: 'ТЕРРИТОРИЯ 1', uz: 'HUDUD 1' }, count: 5, x: 0.02, w: 0.24, cx: 0.14, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
+  { id: 'praktik', label: { ru: 'ПРАКТИК', uz: 'PRAKTIK' }, sub: { ru: 'ТЕРРИТОРИЯ 2', uz: 'HUDUD 2' }, count: 6, x: 0.26, w: 0.24, cx: 0.39, cy: 0.50, accent: 'oklch(0.78 0.14 75)'  },
+  { id: 'expert',  label: { ru: 'ЭКСПЕРТ', uz: 'EKSPERT' }, sub: { ru: 'ТЕРРИТОРИЯ 3', uz: 'HUDUD 3' }, count: 7, x: 0.50, w: 0.24, cx: 0.63, cy: 0.50, accent: 'oklch(0.74 0.11 155)' },
+  { id: 'master',  label: { ru: 'МАСТЕР',  uz: 'USTA' },    sub: { ru: 'ТЕРРИТОРИЯ 4', uz: 'HUDUD 4' }, count: 6, x: 0.74, w: 0.24, cx: 0.86, cy: 0.50, accent: 'oklch(0.85 0.13 88)'  },
 ];
 
 interface NodeDef {
@@ -125,10 +126,12 @@ export const EDGES: MapEdge[] = [
   ['v22', 'v23'], ['v23', 'v24'], ['v22', 'v24'],
 ];
 
+// TRJ-046 (2026-05-18): label теперь BiText. Glyph 🔒 для locked — оставлен
+// до отдельной задачи (замена на Lucide Lock потребует JSX, не string).
 export const STATE_STYLES: Record<NodeState, StateStyle> = {
-  done: { stroke: 'oklch(0.78 0.15 155)', fill: 'oklch(0.32 0.10 155)', glyph: '✓', label: 'Пройден' },
-  active: { stroke: 'oklch(0.82 0.15 75)', fill: 'oklch(0.34 0.12 75)', glyph: '◆', label: 'В процессе' },
-  new: { stroke: 'oklch(0.78 0.15 220)', fill: 'oklch(0.30 0.10 220)', glyph: '▲', label: 'Новый курс' },
-  locked: { stroke: 'oklch(0.50 0.02 250)', fill: 'oklch(0.22 0.02 250)', glyph: '🔒', label: 'Заблокирован' },
-  mastered: { stroke: 'oklch(0.85 0.15 90)', fill: 'oklch(0.40 0.13 90)', glyph: '★', label: 'Мастер' },
+  done:     { stroke: 'oklch(0.78 0.15 155)', fill: 'oklch(0.32 0.10 155)', glyph: '✓',  label: { ru: 'Пройден',      uz: 'Oʻtildi' } },
+  active:   { stroke: 'oklch(0.82 0.15 75)',  fill: 'oklch(0.34 0.12 75)',  glyph: '◆',  label: { ru: 'В процессе',   uz: 'Jarayonda' } },
+  new:      { stroke: 'oklch(0.78 0.15 220)', fill: 'oklch(0.30 0.10 220)', glyph: '▲',  label: { ru: 'Новый курс',   uz: 'Yangi kurs' } },
+  locked:   { stroke: 'oklch(0.50 0.02 250)', fill: 'oklch(0.22 0.02 250)', glyph: '🔒', label: { ru: 'Заблокирован', uz: 'Bloklangan' } },
+  mastered: { stroke: 'oklch(0.85 0.15 90)',  fill: 'oklch(0.40 0.13 90)',  glyph: '★',  label: { ru: 'Мастер',       uz: 'Usta' } },
 };

@@ -23,12 +23,12 @@ import type {
 } from '../api/learning';
 import type { MapEdge, MapHouse, MapNode, MapZone, NodeState } from '../components/tactical/types';
 
-// 4 зоны (статичны, имена/позиции из handoff)
+// 4 зоны (статичны, имена/позиции из handoff). TRJ-046: label/sub теперь BiText.
 export const LEARNING_ZONES: MapZone[] = [
-  { id: 'stazher', label: 'СТАЖЁР',  sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.02, w: 0.24, cx: 0.14, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
-  { id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.26, w: 0.24, cx: 0.39, cy: 0.50, accent: 'oklch(0.78 0.14 75)' },
-  { id: 'expert',  label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.50, w: 0.24, cx: 0.63, cy: 0.50, accent: 'oklch(0.74 0.11 155)' },
-  { id: 'master',  label: 'МАСТЕР',  sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.74, w: 0.24, cx: 0.86, cy: 0.50, accent: 'oklch(0.85 0.13 88)' },
+  { id: 'stazher', label: { ru: 'СТАЖЁР',  uz: 'STAJYOR' }, sub: { ru: 'ТЕРРИТОРИЯ 1', uz: 'HUDUD 1' }, count: 0, x: 0.02, w: 0.24, cx: 0.14, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
+  { id: 'praktik', label: { ru: 'ПРАКТИК', uz: 'PRAKTIK' }, sub: { ru: 'ТЕРРИТОРИЯ 2', uz: 'HUDUD 2' }, count: 0, x: 0.26, w: 0.24, cx: 0.39, cy: 0.50, accent: 'oklch(0.78 0.14 75)' },
+  { id: 'expert',  label: { ru: 'ЭКСПЕРТ', uz: 'EKSPERT' }, sub: { ru: 'ТЕРРИТОРИЯ 3', uz: 'HUDUD 3' }, count: 0, x: 0.50, w: 0.24, cx: 0.63, cy: 0.50, accent: 'oklch(0.74 0.11 155)' },
+  { id: 'master',  label: { ru: 'МАСТЕР',  uz: 'USTA' },    sub: { ru: 'ТЕРРИТОРИЯ 4', uz: 'HUDUD 4' }, count: 0, x: 0.74, w: 0.24, cx: 0.86, cy: 0.50, accent: 'oklch(0.85 0.13 88)' },
 ];
 
 const LEVEL_TO_ZONE: Record<string, number> = {

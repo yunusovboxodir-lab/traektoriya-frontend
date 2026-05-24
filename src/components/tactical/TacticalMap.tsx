@@ -5,6 +5,8 @@
 import { useMemo, type ReactNode } from 'react';
 import type { MapNode, MapEdge as MapEdgeType, MapZone, TerritoryMode } from './types';
 import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES, STATE_STYLES } from './data';
+import { useLangStore } from '../../stores/langStore';
+import { bl } from '../../utils/bilingual';
 
 interface MapNodeProps {
   node: MapNode;
@@ -13,6 +15,7 @@ interface MapNodeProps {
 }
 
 function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
+  const lang = useLangStore((s) => s.lang);
   const s = STATE_STYLES[node.state];
   const r = node.state === 'mastered' ? 22 : 18;
 
@@ -41,15 +44,27 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
     return null;
   };
 
+  const ariaLabel = `${node.title} — ${bl(s.label, lang)}, ${lang === 'uz' ? 'kod' : 'код'} ${node.code}, ${lang === 'uz' ? 'jarayon' : 'прогресс'} ${node.done ?? 0}/${node.sections ?? 0}`;
+
   return (
     <g
       transform={`translate(${node._px ?? 0}, ${node._py ?? 0})`}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', outline: 'none' }}
       onClick={() => onSelect(node)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(node);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={ariaLabel}
+      aria-pressed={selected}
     >
       {selected && <circle r={r + 6} fill="none" stroke={s.stroke} strokeWidth="1" opacity="0.5" />}
       <circle r={r} fill={s.fill} stroke={s.stroke} strokeWidth={selected ? 2 : 1.5} />
-      <g>{renderGlyph()}</g>
+      <g aria-hidden="true">{renderGlyph()}</g>
       <text textAnchor="middle" y={r + 13}
         fontSize="9.5"
         fontFamily="Inter, sans-serif"
@@ -107,6 +122,7 @@ interface ZoneColumnProps {
 }
 
 function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome', sourceZones }: ZoneColumnProps) {
+  const lang = useLangStore((s) => s.lang);
   const x0 = zone.x * W;
   const w = zone.w * W;
   const cx = x0 + w / 2;
@@ -115,15 +131,17 @@ function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome', sourceZones }:
   const dim = focusZone !== null && focusZone !== idx;
   const tint = ['oklch(0.75 0.10 220)', 'oklch(0.78 0.12 75)', 'oklch(0.75 0.12 155)', 'oklch(0.82 0.13 90)'][idx];
 
+  const sectionsLabel = lang === 'uz' ? 'BOʻLIM' : 'РАЗД.';
+
   const header = (
     <g>
       <text x={cx} y="24" textAnchor="middle"
         fontSize="12" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.28em" fontWeight="700" fill={tint}>{zone.label}</text>
+        letterSpacing="0.28em" fontWeight="700" fill={tint}>{bl(zone.label, lang)}</text>
       <text x={cx} y="38" textAnchor="middle"
         fontSize="8" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.18em" opacity="0.55"
-        fill="oklch(0.7 0.02 250)">{`T-0${idx + 1} · ${zone.count} РАЗД.`}</text>
+        fill="oklch(0.7 0.02 250)">{`T-0${idx + 1} · ${zone.count} ${sectionsLabel}`}</text>
     </g>
   );
 
@@ -203,7 +221,7 @@ function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome', sourceZones }:
 
 function WorldMap({ W, H }: { W: number; H: number }) {
   return (
-    <g style={{ pointerEvents: 'none' }}>
+    <g style={{ pointerEvents: 'none' }} aria-hidden="true">
       <defs>
         <radialGradient id="mapVignette" cx="50%" cy="50%" r="75%">
           <stop offset="55%" stopColor="oklch(0.10 0.02 250)" stopOpacity="0" />
@@ -260,7 +278,15 @@ export function TacticalMap({
   );
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" style={{ display: 'block' }}>
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      width="100%"
+      height="100%"
+      style={{ display: 'block' }}
+      role="img"
+      aria-label="Карта обучения с зонами и узлами курсов"
+    >
+      <title>Карта обучения: 4 территории, узлы курсов кликабельны</title>
       <defs>
         <radialGradient id="bgGlow" cx="50%" cy="55%" r="70%">
           <stop offset="0%" stopColor="oklch(0.26 0.06 220)" stopOpacity="0.55" />
@@ -268,7 +294,7 @@ export function TacticalMap({
           <stop offset="100%" stopColor="oklch(0.08 0.02 250)" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <rect width={W} height={H} fill="url(#bgGlow)" />
+      <rect width={W} height={H} fill="url(#bgGlow)" aria-hidden="true" />
 
       <WorldMap W={W} H={H} />
 
