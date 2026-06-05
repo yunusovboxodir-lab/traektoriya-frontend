@@ -736,15 +736,15 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
       <div onClick={onClose} style={{
         position: 'fixed', inset: 0,
         background: 'oklch(0.04 0.02 250 / 0.6)',
-        backdropFilter: 'blur(4px)', zIndex: 20,
+        backdropFilter: 'blur(4px)', zIndex: 50,
         animation: 'fadeIn 0.2s ease',
       }} />
       <div style={{
-        position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 21,
+        position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 51,
         background: 'linear-gradient(180deg, oklch(0.12 0.03 250 / 0.98), oklch(0.08 0.02 250 / 0.98))',
         borderTop: `2px solid ${zone.accent}`,
         borderTopLeftRadius: 18, borderTopRightRadius: 18,
-        padding: '10px 18px 22px',
+        padding: '10px 18px calc(22px + env(safe-area-inset-bottom))',
         boxShadow: '0 -12px 32px oklch(0.04 0.02 250 / 0.7)',
         backdropFilter: 'blur(20px)',
         animation: 'slideUp 0.28s cubic-bezier(0.22, 0.36, 0, 1)',
