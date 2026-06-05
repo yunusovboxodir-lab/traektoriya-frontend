@@ -63,6 +63,9 @@
     "submit": "Kirish",
     "loading": "Kirish...",
     "error": "Kirish xatosi. Ma'lumotlarni tekshiring.",
+    "errorNetwork": "Server bilan aloqa yo'q. Internetni tekshiring yoki tarmoqni o'zgartiring — mehmon va ommaviy Wi-Fi ko'pincha kirishni bloklaydi. Mobil internetdan foydalanib ko'ring.",
+    "errorCredentials": "Xodim ID yoki parol noto'g'ri.",
+    "errorServer": "Server vaqtincha ishlamayapti. Bir daqiqadan so'ng urinib ko'ring.",
     "demoAccess": "Demo kirish"
   },
   "home": {

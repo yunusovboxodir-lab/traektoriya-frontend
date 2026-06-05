@@ -28,8 +28,24 @@ export function LoginPage() {
       await login(employeeId, password);
       navigate('/rating');
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { detail?: string } } };
-      setError(axiosErr.response?.data?.detail || t('login.error'));
+      const axiosErr = err as {
+        code?: string;
+        response?: { status?: number; data?: { detail?: string } };
+      };
+      // Различаем причину, чтобы не сваливать всё в «проверьте данные»:
+      //  • нет ответа от сервера (timeout / network / DNS-перехват гостевой
+      //    сети) → сетевая ошибка, а не вина пароля;
+      //  • 401 → реально неверный ID/пароль;
+      //  • 5xx → сервер временно недоступен.
+      if (!axiosErr.response) {
+        setError(t('login.errorNetwork'));
+      } else if (axiosErr.response.status === 401) {
+        setError(axiosErr.response.data?.detail || t('login.errorCredentials'));
+      } else if ((axiosErr.response.status ?? 0) >= 500) {
+        setError(t('login.errorServer'));
+      } else {
+        setError(axiosErr.response.data?.detail || t('login.error'));
+      }
     } finally {
       setIsLoading(false);
     }

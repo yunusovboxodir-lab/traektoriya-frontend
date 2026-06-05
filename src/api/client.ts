@@ -4,6 +4,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://api.traektoriya.space';
 
 export const api = axios.create({
   baseURL: API_URL,
+  // Таймаут: без него заблокированный/перехваченный API «висит» бесконечно
+  // (типично для гостевых Wi-Fi с captive portal). 20 сек → быстрый явный отказ
+  // вместо вечного спиннера, дальше показываем понятную сетевую ошибку.
+  timeout: 20000,
   headers: { 'Content-Type': 'application/json' },
 });
 
