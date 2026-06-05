@@ -176,8 +176,8 @@ export function PlanogramPage() {
       const formData = new FormData();
       formData.append('photo', selectedFile);
 
+      // Content-Type не ставим вручную — axios/браузер сами добавят multipart boundary
       const response = await api.post('/api/v1/shelf/analyze', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 120000,
       });
 

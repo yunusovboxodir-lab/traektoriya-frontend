@@ -169,10 +169,10 @@ export const coursesApi = {
   uploadMedia: (itemId: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
+    // Content-Type не ставим вручную — axios/браузер сами добавят multipart boundary
     return api.post<ContentItem>(
       '/api/v1/courses/items/' + itemId + '/media',
       formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } },
     );
   },
 

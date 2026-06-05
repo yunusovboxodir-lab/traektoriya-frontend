@@ -62,9 +62,8 @@ export const documentsApi = {
     if (category) {
       formData.append('category', category);
     }
-    return api.post<DocumentResponse>('/api/v1/documents/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    // Content-Type не ставим вручную — axios/браузер сами добавят multipart boundary
+    return api.post<DocumentResponse>('/api/v1/documents/upload', formData);
   },
 
   uploadBatch: async (files: File[], documentType: string, category?: string) => {
@@ -76,9 +75,7 @@ export const documentsApi = {
     if (category) {
       formData.append('category', category);
     }
-    return api.post('/api/v1/documents/upload-batch', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/api/v1/documents/upload-batch', formData);
   },
 
   uploadZip: async (file: File, documentType: string, category?: string) => {
@@ -90,9 +87,7 @@ export const documentsApi = {
     if (category) {
       formData.append('category', category);
     }
-    return api.post('/api/v1/documents/upload-zip', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    return api.post('/api/v1/documents/upload-zip', formData);
   },
 
   list: async (params?: { document_type?: string; category?: string; status?: string; limit?: number; offset?: number }) => {
