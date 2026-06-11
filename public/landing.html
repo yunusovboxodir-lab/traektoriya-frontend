@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b0a08">
+<title>Traektoriya — обучайте и управляйте персоналом с помощью AI</title>
+<meta name="description" content="AI-платформа развития персонала: траектория сотрудника от стажёра до мастера. AI-наставник, Trace — цифровой след реальной работы, живой KPI. RU/UZ. Облако или ваш контур.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noir:#0b0a08;
+    --coal:#141109;
+    --coal-2:#1b160c;
+    --line:rgba(212,175,106,.18);
+    --gold:#d4af6a;
+    --gold-deep:#a8813f;
+    --champagne:#f0ddb0;
+    --ivory:#f5efe2;
+    --dim:#a39477;
+    --target:#c8362b;
+    --grad:linear-gradient(95deg,#a8813f,#f0ddb0 50%,#d4af6a);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--noir);color:var(--ivory);font-family:"Manrope",system-ui,sans-serif;line-height:1.55;font-size:16.5px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  h1,h2{font-family:"Playfair Display",Georgia,serif;font-weight:700;letter-spacing:.005em}
+  .mono{font-family:"JetBrains Mono",monospace}
+  a{color:inherit}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+  ::selection{background:rgba(212,175,106,.3)}
+
+  .amb{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .amb .g{position:absolute;border-radius:50%;filter:blur(120px)}
+
+  nav{position:sticky;top:0;z-index:50;background:rgba(11,10,8,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+  .logo .mk{width:26px;height:26px;flex-shrink:0}
+  .logo b{font-family:"Playfair Display",serif;font-size:18px;font-weight:700;letter-spacing:.08em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .navlinks{display:flex;gap:26px;font-size:13.5px;font-weight:600;color:var(--dim)}
+  .navlinks a{text-decoration:none;transition:color .15s}
+  .navlinks a:hover{color:var(--champagne)}
+  .btn{display:inline-block;font-weight:800;font-size:15px;padding:13px 26px;border-radius:12px;text-decoration:none;transition:transform .15s,box-shadow .15s;cursor:pointer;border:none;font-family:"Manrope"}
+  .btn.primary{background:var(--grad);color:#1a1305;box-shadow:0 0 26px rgba(212,175,106,.25)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(240,221,176,.4)}
+  .btn.ghost{border:1px solid var(--line);color:var(--champagne);background:rgba(212,175,106,.05)}
+  .btn.ghost:hover{border-color:var(--gold)}
+  .btn.sm{padding:10px 18px;font-size:13.5px}
+
+  .hero{position:relative;padding:74px 0 22px;z-index:1;text-align:center}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .hero h1{font-size:clamp(31px,5.2vw,56px);line-height:1.12;margin:18px auto 18px;max-width:19ch}
+  .hero h1 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+  .hero .sub{font-size:18px;color:var(--dim);max-width:58ch;margin:0 auto 28px;font-weight:500}
+  .hero .sub b{color:var(--ivory)}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .meta{margin-top:26px;display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+  .pill{background:rgba(212,175,106,.07);border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-size:12.5px;font-weight:600;color:var(--dim)}
+
+  /* VIEWER */
+  .viewer-sec{position:relative;padding:44px 0 70px;z-index:1}
+  .viewer{background:linear-gradient(180deg,var(--coal),rgba(20,17,9,.5));border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .v-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .v-title{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .toggle{display:flex;gap:6px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:11px;padding:4px}
+  .toggle button{font-family:"Manrope";font-weight:700;font-size:13px;padding:9px 16px;border-radius:8px;border:none;background:transparent;color:var(--dim);cursor:pointer;transition:.15s}
+  .toggle button.on{background:var(--grad);color:#1a1305}
+  .v-body{display:grid;grid-template-columns:1.45fr 1fr;min-height:480px}
+  .stagebox{position:relative;min-height:480px}
+  #stage{position:absolute;inset:0;touch-action:none;cursor:grab}
+  #stage.dragging{cursor:grabbing}
+  #stage canvas{display:block}
+  #radar2d{position:absolute;inset:0;display:none}
+  #radar2d canvas{display:block;width:100%;height:100%}
+  .hint{position:absolute;left:18px;bottom:14px;font-family:"JetBrains Mono",monospace;font-size:11px;color:rgba(163,148,119,.75);letter-spacing:.06em;pointer-events:none;z-index:3}
+  .replay{position:absolute;right:14px;bottom:12px;z-index:4;display:none;font-family:"JetBrains Mono",monospace;font-size:11.5px;letter-spacing:.06em;background:rgba(0,0,0,.4);border:1px solid var(--line);color:var(--champagne);border-radius:9px;padding:8px 13px;cursor:pointer}
+  .replay:hover{border-color:var(--gold)}
+
+  .panel{border-left:1px solid var(--line);padding:24px 26px 20px;display:flex;flex-direction:column;gap:12px;background:rgba(0,0,0,.22)}
+  .panel .p-eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+  .panel h3{font-family:"Playfair Display",serif;font-size:22px;font-weight:700;color:var(--champagne);line-height:1.2}
+  .panel .desc{font-size:14px;color:var(--dim)}
+  .panel .desc b{color:var(--ivory)}
+  .kv{display:flex;flex-direction:column;gap:8px;margin-top:2px}
+  .kv .row{display:flex;justify-content:space-between;align-items:center;font-size:13px;border-bottom:1px solid rgba(212,175,106,.12);padding-bottom:7px}
+  .kv .row .l{color:var(--dim)}
+  .kv .row .r{font-family:"JetBrains Mono",monospace;color:var(--champagne);font-weight:600}
+  .kv .row .r .up{color:#7fb069;font-size:11px;margin-left:6px}
+  .p-foot{margin-top:auto;font-size:12.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:13px}
+  .p-foot b{color:var(--gold)}
+
+  .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(212,175,106,.03);position:relative;z-index:1}
+  .strip-in{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:26px 0}
+  .stat .v{font-family:"Playfair Display",serif;font-size:clamp(22px,2.8vw,30px);font-weight:700;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .k{font-size:13px;color:var(--dim);margin-top:5px;font-weight:600}
+
+  section{position:relative;padding:80px 0;z-index:1}
+  .sec-head{max-width:680px;margin-bottom:42px}
+  .sec-head h2{font-size:clamp(24px,3.2vw,36px);line-height:1.18;margin:14px 0 12px;color:var(--champagne)}
+  .sec-head p{color:var(--dim);font-size:16px;font-weight:500}
+
+  .mods{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .mod{background:var(--coal);border:1px solid var(--line);border-radius:18px;padding:26px 24px;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+  .mod::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:0;transition:opacity .2s}
+  .mod:hover{border-color:rgba(212,175,106,.5);transform:translateY(-4px)}
+  .mod:hover::before{opacity:1}
+  .mod .ic{width:44px;height:44px;border-radius:12px;background:rgba(212,175,106,.08);border:1px solid rgba(212,175,106,.3);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+  .mod h3{font-family:"Manrope";font-weight:800;font-size:17.5px;margin-bottom:8px;color:var(--ivory)}
+  .mod p{font-size:14.5px;color:var(--dim)}
+  .mod p b{color:var(--champagne)}
+
+  /* TRACE */
+  .trace{background:linear-gradient(135deg,var(--coal-2),var(--coal));border:1px solid var(--line);border-radius:22px;padding:34px 30px;position:relative;overflow:hidden}
+  .trace::after{content:"";position:absolute;top:-80px;right:-80px;width:260px;height:260px;border-radius:50%;background:rgba(212,175,106,.08);filter:blur(60px)}
+  .trace-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;position:relative;z-index:1}
+  .trace h3{font-family:"Playfair Display",serif;font-size:25px;font-weight:700;margin-bottom:12px;color:var(--champagne)}
+  .trace h3 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .trace p{color:var(--dim);font-size:15px;margin-bottom:16px}
+  .trace p b{color:var(--ivory)}
+  .sensors{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .sensor{display:flex;align-items:center;gap:10px;background:rgba(212,175,106,.06);border:1px solid var(--line);border-radius:11px;padding:10px 13px;font-size:13px;font-weight:600;color:var(--champagne)}
+  .sensor span{font-size:16px}
+  .flowbox{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .flow-t{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+  .ph-row{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid rgba(212,175,106,.12);font-size:13.5px}
+  .ph-row:last-child{border-bottom:none}
+  .ph-row .l{color:var(--dim)}
+  .ph-row .r{font-weight:800;color:var(--ivory)}
+  .score{font-family:"Playfair Display",serif;font-size:24px;color:var(--gold)}
+  .trace-note{position:relative;z-index:1;margin-top:18px;font-size:13px;color:var(--dim);border-top:1px solid var(--line);padding-top:14px}
+  .trace-note b{color:var(--champagne)}
+
+  .chan{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .ch{border:1px solid var(--line);border-radius:18px;padding:26px 24px;background:rgba(212,175,106,.03);text-align:center}
+  .ch .big{font-size:28px;margin-bottom:10px}
+  .ch h3{font-family:"Manrope";font-weight:800;font-size:17px;margin-bottom:6px;color:var(--ivory)}
+  .ch p{font-size:13.5px;color:var(--dim)}
+
+  .vert{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .vc{background:linear-gradient(160deg,var(--coal-2),var(--coal));border:1px solid var(--line);border-radius:20px;padding:30px 28px}
+  .vc .mono-k{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--gold);letter-spacing:.16em;text-transform:uppercase}
+  .vc h3{font-family:"Playfair Display",serif;font-weight:700;font-size:22px;margin:10px 0 12px;color:var(--champagne)}
+  .vc ul{margin:0;padding-left:18px;color:var(--dim);font-size:14.5px}
+  .vc li{margin-bottom:8px}
+  .vc li b{color:var(--ivory)}
+  .vert-note{grid-column:1/3;text-align:center;color:var(--dim);font-size:14.5px;padding-top:6px}
+  .vert-note b{color:var(--champagne)}
+
+  .trust{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .pillt{background:var(--coal);border:1px solid var(--line);border-radius:999px;padding:10px 18px;font-size:13px;font-weight:600;color:var(--dim)}
+  .pillt b{color:var(--champagne)}
+
+  .final{text-align:center;padding:96px 0 104px}
+  .final h2{font-size:clamp(26px,3.8vw,42px);line-height:1.12;max-width:22ch;margin:0 auto 16px;color:var(--champagne)}
+  .final h2 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+  .final p{color:var(--dim);font-size:16px;max-width:50ch;margin:0 auto 30px;font-weight:500}
+
+  footer{border-top:1px solid var(--line);padding:28px 0 46px;position:relative;z-index:1}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;color:var(--dim);font-size:13px}
+
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:940px){
+    .navlinks{display:none}
+    .v-body{grid-template-columns:1fr}
+    .panel{border-left:none;border-top:1px solid var(--line)}
+    .stagebox{min-height:400px}
+    .strip-in{grid-template-columns:1fr 1fr}
+    .mods,.chan{grid-template-columns:1fr}
+    .vert{grid-template-columns:1fr}
+    .vert-note{grid-column:1}
+    .trace-grid{grid-template-columns:1fr}
+    .sensors{grid-template-columns:1fr 1fr}
+  }
+  @media(prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="amb">
+  <div class="g" style="top:-140px;left:-160px;width:520px;height:520px;background:rgba(168,129,63,.13)"></div>
+  <div class="g" style="top:600px;right:-200px;width:560px;height:560px;background:rgba(212,175,106,.08)"></div>
+  <div class="g" style="bottom:-180px;left:25%;width:600px;height:600px;background:rgba(240,221,176,.05)"></div>
+</div>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" href="#">
+      <span class="mk"><svg viewBox="0 0 26 26" width="26" height="26"><path d="M3 22 L3 5 M3 22 L22 22 M3 22 C 8 12, 15 8, 21 6" fill="none" stroke="#d4af6a" stroke-width="2" stroke-linecap="round"/><path d="M21 6 l-4 .8 M21 6 l-.8 4" fill="none" stroke="#d4af6a" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <b>TRAEKTORIYA</b>
+    </a>
+    <div class="navlinks">
+      <a href="#map">3D-карта</a>
+      <a href="#why">Платформа</a>
+      <a href="#trace">Trace</a>
+      <a href="#verticals">Отрасли</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <a class="btn ghost sm" href="/login">Войти</a>
+      <a class="btn primary sm" href="#demo">Запросить демо</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">траектория сотрудника — с нуля до эксперта</div>
+    <h1>Обучайте и управляйте персоналом с помощью <span class="ai">AI</span></h1>
+    <p class="sub">Traektoriya ведёт каждого сотрудника по личной траектории — <b>от стажёра до мастера</b>: AI-наставник по вашим стандартам, объективная картина реальной работы и живой KPI. На русском и узбекском.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#demo">Запросить демо</a>
+      <a class="btn ghost" href="#map">Исследовать карту</a>
+    </div>
+    <div class="meta">
+      <span class="pill">🖥 Web</span><span class="pill">✈️ Telegram</span><span class="pill">📱 Mobile</span><span class="pill">🇷🇺 RU · 🇺🇿 UZ</span>
+    </div>
+  </div>
+</div>
+
+<!-- VIEWER -->
+<div class="viewer-sec" id="map">
+  <div class="wrap">
+    <div class="viewer">
+      <div class="v-top">
+        <div class="v-title" id="vTitle">УЧЕБНАЯ ВСЕЛЕННАЯ · 4 ТЕРРИТОРИИ × 10 ЭТАЖЕЙ</div>
+        <div class="toggle" role="tablist">
+          <button id="btnTower" class="on" role="tab" aria-selected="true">🏛 Башня 4×10</button>
+          <button id="btnRadar" role="tab" aria-selected="false">📈 Радар: 30 дней роста</button>
+        </div>
+      </div>
+      <div class="v-body">
+        <div class="stagebox">
+          <div id="stage" aria-label="3D-башня компетенций: вращайте, нажимайте на сегменты"></div>
+          <div id="radar2d" aria-label="Анимация роста компетенций нового сотрудника за 30 дней"><canvas id="rc"></canvas></div>
+          <div class="hint" id="hint">⟲ вращайте · нажмите на сегмент</div>
+          <button class="replay" id="replay">⟲ ЗАНОВО</button>
+        </div>
+        <div class="panel" id="panel">
+          <div class="p-eyebrow" id="pEyebrow">КАК ЧИТАТЬ КАРТУ</div>
+          <h3 id="pTitle">Путь сотрудника — это здание</h3>
+          <div class="desc" id="pDesc">Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму: от знакомства до мастерства. Каждый светящийся сегмент — пакет микро-уроков. Нажмите на любой сегмент.</div>
+          <div class="kv" id="pKv"></div>
+          <div class="p-foot" id="pFoot"><b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="strip">
+  <div class="wrap strip-in">
+    <div class="stat reveal"><div class="v">240+</div><div class="k">сотрудников уже на платформе</div></div>
+    <div class="stat reveal"><div class="v">25 000+</div><div class="k">точек в контуре клиента</div></div>
+    <div class="stat reveal"><div class="v">73</div><div class="k">микро-курса · 8 кластеров компетенций</div></div>
+    <div class="stat reveal"><div class="v">30 сек</div><div class="k">от сигнала до оценки результата</div></div>
+  </div>
+</div>
+
+<!-- USP -->
+<section id="why">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">// почему traektoriya</div>
+      <h2>Не «ещё одна LMS»</h2>
+      <p>Платформа сама решает, кого, чему и когда учить — и показывает результат в цифрах, а не в сертификатах.</p>
+    </div>
+    <div class="mods">
+      <div class="mod reveal"><div class="ic">🎯</div><h3>Видна работа, а не отчёты</h3><p>Курс пройден ≠ стандарт выполняется. Traektoriya видит <b>результат реальной работы</b> и сама закрывает пробелы точечным обучением.</p></div>
+      <div class="mod reveal"><div class="ic">💬</div><h3>AI-наставник вашей компании</h3><p>Отвечает по <b>вашим стандартам</b> — текстом и голосом, RU/UZ, 24/7. Как ваш лучший тренер, только на всю сеть сразу.</p></div>
+      <div class="mod reveal"><div class="ic">📡</div><h3>Trace: цифровой след работы</h3><p>Собирает <b>реальные результаты деятельности</b> — фото, голос, гео, данные систем — и превращает их в объективную оценку.</p></div>
+      <div class="mod reveal"><div class="ic">📊</div><h3>Рейтинги, которые двигают</h3><p>Качество, результат и обучение — в одном живом рейтинге: сотрудник → команда → компания. Кубки и лиги вместо «обязаловки».</p></div>
+      <div class="mod reveal"><div class="ic">⚡</div><h3>Запуск за недели</h3><p>Пришлите регламенты — получите академию: курсы RU/UZ с озвучкой. Каждый урок проходит <b>тройную AI-проверку и живую фокус-группу</b> до выхода к людям.</p></div>
+      <div class="mod reveal"><div class="ic">🛡</div><h3>Данные не покидают контур</h3><p>Облако, private VPC или полностью on-prem. AI-слой сменный — <b>в том числе на ваших моделях</b>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACE -->
+<section id="trace" style="padding-top:14px">
+  <div class="wrap">
+    <div class="trace reveal">
+      <div class="trace-grid">
+        <div>
+          <div class="eyebrow">// модуль trace</div>
+          <h3>Цифровой след <em>реальной работы</em></h3>
+          <p>Задача Trace — собирать <b>результаты деятельности сотрудника там, где они возникают</b>, и превращать их в объективную картину. Не самоотчёты и не «честное слово» — сенсорные данные с места работы:</p>
+          <div class="sensors">
+            <div class="sensor"><span>📸</span>Фото результата</div>
+            <div class="sensor"><span>🎙</span>Голос и звонки</div>
+            <div class="sensor"><span>📍</span>Гео и визиты</div>
+            <div class="sensor"><span>🔗</span>Данные CRM / SFA</div>
+            <div class="sensor"><span>✅</span>Чек-листы и документы</div>
+            <div class="sensor"><span>📱</span>Активность в системах</div>
+          </div>
+        </div>
+        <div class="flowbox">
+          <div class="flow-t">Trace · пример события</div>
+          <div class="ph-row"><span class="l">Объект</span><span class="r">№ 0417 · 📍 подтверждено</span></div>
+          <div class="ph-row"><span class="l">Сигнал получен</span><span class="r">14:02:31</span></div>
+          <div class="ph-row"><span class="l">Оценка результата</span><span class="r score">87 / 100</span></div>
+          <div class="ph-row"><span class="l">Критерии</span><span class="r">5 · слабый — №3</span></div>
+          <div class="ph-row"><span class="l">Действие</span><span class="r">микро-урок назначен ✦</span></div>
+        </div>
+      </div>
+      <div class="trace-note"><b>Отраслевые издания Trace:</b> в FMCG это ShelfScan — фото полки анализируется за 30 секунд → оценка 0–100 по 5 критериям, с GPS и timestamp. В банке — след обслуживания и продаж фронт-офиса. Сенсоры меняются, принцип один: <b>оценка строится на реальном результате.</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- CHANNELS -->
+<section style="padding-top:14px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">// каналы</div>
+      <h2>Там, где работают люди</h2>
+      <p>У каждого канала — своя роль: учатся в приложении и на ПК, Telegram догоняет, напоминает и проверяет.</p>
+    </div>
+    <div class="chan">
+      <div class="ch reveal"><div class="big">🖥</div><h3>Web-кабинет · ПК</h3><p>Полноценные уроки и тесты на ПК. Для руководителей — аналитика: рейтинги, карты компетенций, динамика подразделений.</p></div>
+      <div class="ch reveal"><div class="big">✈️</div><h3>Telegram</h3><p>Лёгкий слой: напоминания, короткие проверочные задания и приём Trace-сигналов — фото и голос прямо в боте. Уроки здесь не живут — бот за ними отправляет.</p></div>
+      <div class="ch reveal"><div class="big">📱</div><h3>Мобильное приложение</h3><p>Основная среда обучения: уроки, тесты, голосовой наставник, Trace с точки, офлайн-режим в поле.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- VERTICALS -->
+<section id="verticals" style="padding-top:14px">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">// отрасли</div>
+      <h2>Один контур — разные передовые</h2>
+      <p>Меняются стандарты, роли и сенсоры — траектория остаётся той же.</p>
+    </div>
+    <div class="vert">
+      <div class="vc reveal">
+        <div class="mono-k">FMCG · дистрибуция · ритейл</div>
+        <h3>Полевые продажи</h3>
+        <ul>
+          <li><b>Полевые команды:</b> торговые представители, супервайзеры, мерчандайзеры</li>
+          <li><b>Trace → ShelfScan:</b> результат работы ТП на полке — оценка каждой точки</li>
+          <li><b>Проверено в проде:</b> 240 полевых сотрудников, 25 000+ точек</li>
+        </ul>
+      </div>
+      <div class="vc reveal">
+        <div class="mono-k">Банки · финансы · сервис</div>
+        <h3>Фронт-офис</h3>
+        <ul>
+          <li><b>Все клиентские роли:</b> от кассира до персонального менеджера</li>
+          <li><b>Trace для офиса:</b> след обслуживания, продаж и стандартов зала</li>
+          <li><b>Комплаенс-контур:</b> on-prem, ваши модели, аудит</li>
+        </ul>
+      </div>
+      <div class="vert-note reveal">Аптеки, телеком, страхование, HoReCa — <b>любой распределённый персонал, работающий по стандартам.</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section style="padding:30px 0 60px">
+  <div class="wrap trust">
+    <span class="pillt">🛡 Облако / Private VPC / <b>On-prem</b></span>
+    <span class="pillt">🔄 Сменный AI-слой · <b>ваши модели</b></span>
+    <span class="pillt">🔐 SSO · аудит-логи</span>
+    <span class="pillt">🌐 RU / UZ из коробки</span>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" id="demo" style="padding-top:30px">
+  <div class="wrap">
+    <div class="eyebrow">// 30 минут</div>
+    <h2 style="margin-top:14px">Покажем платформу <span class="ai">на ваших стандартах</span></h2>
+    <p>Пришлите один регламент — к демо он уже будет внутри: наставник ответит по нему, Trace покажет результат, траектория построится.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="mailto:hello@traektoriya.space">Запросить демо</a>
+      <a class="btn ghost" href="https://t.me/traektoriya">Написать в Telegram</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <a class="logo" href="#"><b style="font-family:'Playfair Display',serif;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">TRAEKTORIYA</b></a>
+    <div>Траектория сотрудника — с нуля до эксперта · Ташкент</div>
+    <div class="mono" style="font-size:12px">© 2026</div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const stage=document.getElementById('stage');
+  const radarBox=document.getElementById('radar2d');
+  const hint=document.getElementById('hint');
+  const replayBtn=document.getElementById('replay');
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $=id=>document.getElementById(id);
+
+  /* ================= TOWER (Three.js) ================= */
+  const TERR=[
+    {name:'Стажёр',  c:0x6e5526, hi:0x9a7838, desc:'входит в профессию: база, термины, первые стандарты'},
+    {name:'Практик', c:0xa8813f, hi:0xc89a52, desc:'уверенно работает по стандарту каждый день'},
+    {name:'Эксперт', c:0xd4af6a, hi:0xe9c987, desc:'разбирает сложные случаи, оценивает работу других'},
+    {name:'Мастер',  c:0xf0ddb0, hi:0xfff0cf, desc:'эталон роли: улучшает стандарты и растит коллег'}
+  ];
+  const FLOORS=[
+    ['Знакомство','ориентируется в теме и роли'],
+    ['Запоминание','знает термины, продукты и стандарты'],
+    ['Понимание','объясняет суть своими словами'],
+    ['Применение','выполняет работу по стандарту'],
+    ['Анализ','находит причины ошибок и просадок'],
+    ['Синтез','комбинирует приёмы под ситуацию'],
+    ['Оценка','оценивает качество работы — своей и чужой'],
+    ['Создание','предлагает улучшения стандартов'],
+    ['Наставничество','обучает и подтягивает коллег'],
+    ['Мастерство','эталонная работа — пример для сети']
+  ];
+
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(38,1,0.1,100);
+  camera.position.set(0,1.7,7.4); camera.lookAt(0,0,0);
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  stage.appendChild(renderer.domElement);
+  scene.add(new THREE.AmbientLight(0xfff2d8,.55));
+  const p1=new THREE.PointLight(0xffe2a8,1.15,40);p1.position.set(5,6,6);scene.add(p1);
+  const p2=new THREE.PointLight(0xd4af6a,.6,40);p2.position.set(-6,-3,-4);scene.add(p2);
+  const rig=new THREE.Group();scene.add(rig);
+  const towerG=new THREE.Group();rig.add(towerG);
+
+  const towerMeshes=[];
+  (function(){
+    const fh=.26,gap=.10,R=1.55,segGap=.14;
+    for(let f=0;f<10;f++){
+      const y=(f-4.5)*(fh+gap);
+      for(let t=0;t<4;t++){
+        const geo=new THREE.CylinderGeometry(R,R,fh,26,1,false,t*Math.PI/2+segGap/2,Math.PI/2-segGap);
+        const mat=new THREE.MeshStandardMaterial({color:TERR[t].c,metalness:.75,roughness:.32,transparent:true,opacity:.95});
+        const m=new THREE.Mesh(geo,mat);
+        m.position.y=y;m.userData={floor:f,terr:t};
+        towerG.add(m);towerMeshes.push(m);
+      }
+    }
+    const spineMat=new THREE.MeshStandardMaterial({color:0xf0ddb0,metalness:.9,roughness:.2,emissive:0x6e5526,emissiveIntensity:.4});
+    const spine=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,(fh+gap)*10+0.5,12),spineMat);
+    towerG.add(spine);
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(.14,.34,12),spineMat.clone());
+    tip.position.y=((fh+gap)*10+0.5)/2+0.15;towerG.add(tip);
+    towerG.rotation.y=.5;
+  })();
+
+  let dragging=false,moved=0,px=0,py=0,selected=null;
+  function setEmissive(mesh,on){
+    if(!mesh)return;
+    mesh.material.emissive=new THREE.Color(on?TERR[mesh.userData.terr].hi:0x000000);
+    mesh.material.emissiveIntensity=on?.7:0;
+  }
+  stage.addEventListener('pointerdown',e=>{dragging=true;moved=0;px=e.clientX;py=e.clientY;stage.classList.add('dragging');stage.setPointerCapture(e.pointerId);});
+  stage.addEventListener('pointermove',e=>{
+    if(!dragging)return;
+    const dx=e.clientX-px,dy=e.clientY-py;moved+=Math.abs(dx)+Math.abs(dy);
+    rig.rotation.y+=dx*.006;
+    rig.rotation.x=Math.max(-.5,Math.min(.65,rig.rotation.x+dy*.004));
+    px=e.clientX;py=e.clientY;
+  });
+  stage.addEventListener('pointerup',e=>{dragging=false;stage.classList.remove('dragging');if(moved<6)pick(e);});
+  stage.addEventListener('pointerleave',()=>{dragging=false;stage.classList.remove('dragging');});
+
+  const ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
+  function pick(e){
+    const r=renderer.domElement.getBoundingClientRect();
+    ndc.x=((e.clientX-r.left)/r.width)*2-1;ndc.y=-((e.clientY-r.top)/r.height)*2+1;
+    ray.setFromCamera(ndc,camera);
+    const hit=ray.intersectObjects(towerMeshes,false)[0];
+    if(!hit)return;
+    if(selected)setEmissive(selected,false);
+    selected=hit.object;setEmissive(selected,true);
+    const d=selected.userData,t=TERR[d.terr],f=FLOORS[d.floor];
+    $('pEyebrow').textContent='ТЕРРИТОРИЯ · '+t.name.toUpperCase();
+    $('pTitle').textContent='Этаж '+(d.floor+1)+' · '+f[0];
+    $('pDesc').innerHTML='<b>'+t.name+'</b> — '+t.desc+'. На этом этаже сотрудник '+f[1]+'.';
+    $('pKv').innerHTML=
+      '<div class="row"><span class="l">Формат</span><span class="r">микро-уроки 5–8 мин</span></div>'+
+      '<div class="row"><span class="l">Проверка</span><span class="r">тест + результат в работе</span></div>'+
+      '<div class="row"><span class="l">Языки</span><span class="r">RU · UZ · голос</span></div>';
+    $('pFoot').innerHTML='<b>Следующий сегмент</b> платформа откроет сама — по реальной работе, а не по расписанию.';
+  }
+
+  /* ================= RADAR 2D (canvas, 30 days) ================= */
+  const AXES=[
+    {name:'Знание продукта',short:'Продукт',k:[12,46,68,82]},
+    {name:'Стандарты работы',short:'Стандарты',k:[8,54,76,88]},
+    {name:'Клиентский диалог',short:'Диалог',k:[30,46,62,76]},
+    {name:'Работа с возражениями',short:'Возражения',k:[5,16,42,64]},
+    {name:'Дисциплина',short:'Дисциплина',k:[55,68,79,86]},
+    {name:'Отчётность',short:'Отчётность',k:[15,52,70,80]},
+    {name:'Цифровые инструменты',short:'Цифра',k:[35,60,72,78]},
+    {name:'Командная работа',short:'Команда',k:[40,52,63,72]}
+  ];
+  const KEYDAYS=[1,10,20,30];
+  const TARGET=[85,90,80,70,90,85,80,75];
+  const rc=document.getElementById('rc');
+  const ctx=rc.getContext('2d');
+  let radarActive=false,radarStart=0,radarDone=false;
+  const DUR=10000,HOLD=2200;
+
+  function smooth(a,b,t){t=t*t*(3-2*t);return a+(b-a)*t;}
+  function valueAt(axis,day){
+    const k=axis.k;
+    if(day<=KEYDAYS[0])return k[0];
+    if(day>=KEYDAYS[3])return k[3];
+    for(let i=0;i<3;i++){
+      if(day<=KEYDAYS[i+1]){
+        const t=(day-KEYDAYS[i])/(KEYDAYS[i+1]-KEYDAYS[i]);
+        return smooth(k[i],k[i+1],t);
+      }
+    }
+    return k[3];
+  }
+
+  function drawRadar(day){
+    const w=radarBox.clientWidth,h=radarBox.clientHeight;
+    const dpr=Math.min(window.devicePixelRatio,2);
+    if(rc.width!==w*dpr){rc.width=w*dpr;rc.height=h*dpr;}
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+    const cx=w/2,cy=h/2+8,R=Math.min(w,h)/2-66;
+    const N=AXES.length;
+    const pt=(i,v)=>{const a=i/N*Math.PI*2-Math.PI/2;const r=R*v/100;return[cx+Math.cos(a)*r,cy+Math.sin(a)*r];};
+
+    // rings
+    ctx.lineWidth=1;
+    for(const lvl of[20,40,60,80,100]){
+      ctx.beginPath();
+      for(let i=0;i<=N;i++){const[x,y]=pt(i%N,lvl);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+      ctx.strokeStyle=lvl===100?'rgba(212,175,106,.4)':'rgba(168,129,63,.18)';
+      ctx.stroke();
+    }
+    // spokes + labels
+    ctx.font='600 11px JetBrains Mono, monospace';
+    for(let i=0;i<N;i++){
+      const[x,y]=pt(i,100);
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x,y);
+      ctx.strokeStyle='rgba(168,129,63,.22)';ctx.stroke();
+      const[lx,ly]=pt(i,118);
+      ctx.fillStyle='rgba(163,148,119,.95)';
+      ctx.textAlign=Math.abs(lx-cx)<12?'center':(lx>cx?'left':'right');
+      ctx.textBaseline=Math.abs(ly-cy)<12?'middle':(ly>cy?'top':'bottom');
+      ctx.fillText(AXES[i].short,lx,ly);
+    }
+    // target profile (red dashed)
+    ctx.beginPath();
+    for(let i=0;i<=N;i++){const[x,y]=pt(i%N,TARGET[i%N]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+    ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(200,54,43,.8)';ctx.lineWidth=1.6;ctx.stroke();ctx.setLineDash([]);
+
+    // current profile
+    const vals=AXES.map(a=>valueAt(a,day));
+    ctx.beginPath();
+    for(let i=0;i<=N;i++){const[x,y]=pt(i%N,vals[i%N]);i?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+    ctx.closePath();
+    const g=ctx.createRadialGradient(cx,cy,R*.1,cx,cy,R);
+    g.addColorStop(0,'rgba(240,221,176,.42)');g.addColorStop(1,'rgba(168,129,63,.16)');
+    ctx.fillStyle=g;ctx.fill();
+    ctx.strokeStyle='#f0ddb0';ctx.lineWidth=2;ctx.stroke();
+    // vertices
+    for(let i=0;i<N;i++){
+      const[x,y]=pt(i,vals[i]);
+      ctx.beginPath();ctx.arc(x,y,3.4,0,Math.PI*2);
+      ctx.fillStyle='#f0ddb0';ctx.fill();
+    }
+    // day counter
+    ctx.font='700 13px JetBrains Mono, monospace';
+    ctx.fillStyle='#d4af6a';ctx.textAlign='left';ctx.textBaseline='top';
+    ctx.fillText('ДЕНЬ '+String(Math.round(day)).padStart(2,'0')+' / 30',18,16);
+    ctx.font='500 11px JetBrains Mono, monospace';ctx.fillStyle='rgba(163,148,119,.8)';
+    ctx.fillText(day<8?'онбординг · база':day<18?'практика в поле':day<27?'уверенная работа':'выход на профиль роли',18,34);
+    // legend
+    ctx.textAlign='right';
+    ctx.fillStyle='#f0ddb0';ctx.fillText('— текущий профиль',w-18,16);
+    ctx.fillStyle='rgba(200,54,43,.9)';ctx.fillText('--- целевой профиль роли',w-18,34);
+
+    return vals;
+  }
+
+  function updateRadarPanel(day,vals){
+    $('pKv').innerHTML=AXES.map((a,i)=>{
+      const v=Math.round(vals[i]),d=v-a.k[0];
+      return '<div class="row"><span class="l">'+a.name+'</span><span class="r">'+v+'<span class="up">+'+d+'</span></span></div>';
+    }).join('');
+  }
+
+  function radarFrame(ts){
+    if(!radarActive)return;
+    if(!radarStart)radarStart=ts;
+    let el=ts-radarStart;
+    let day;
+    if(reduced){day=30;radarDone=true;}
+    else if(el<DUR){day=1+29*(el/DUR);}
+    else if(el<DUR+HOLD){day=30;}
+    else{radarStart=ts;day=1;}
+    const vals=drawRadar(day);
+    if(Math.round(day*2)!==radarFrame.last){updateRadarPanel(day,vals);radarFrame.last=Math.round(day*2);}
+    if(!reduced||!radarDone)requestAnimationFrame(radarFrame);
+  }
+  replayBtn.addEventListener('click',()=>{radarStart=0;radarDone=false;if(reduced){const v=drawRadar(30);updateRadarPanel(30,v);}});
+
+  /* ================= MODE TOGGLE ================= */
+  let mode='tower';
+  const bT=$('btnTower'),bR=$('btnRadar');
+  function setMode(m){
+    mode=m;
+    const tower=m==='tower';
+    stage.style.display=tower?'block':'none';
+    radarBox.style.display=tower?'none':'block';
+    replayBtn.style.display=tower?'none':'block';
+    hint.textContent=tower?'⟲ вращайте · нажмите на сегмент':'живая динамика: новичок → профиль роли за 30 дней';
+    bT.classList.toggle('on',tower);bR.classList.toggle('on',!tower);
+    bT.setAttribute('aria-selected',tower);bR.setAttribute('aria-selected',!tower);
+    if(tower){
+      radarActive=false;
+      $('vTitle').textContent='УЧЕБНАЯ ВСЕЛЕННАЯ · 4 ТЕРРИТОРИИ × 10 ЭТАЖЕЙ';
+      $('pEyebrow').textContent='КАК ЧИТАТЬ КАРТУ';
+      $('pTitle').textContent='Путь сотрудника — это здание';
+      $('pDesc').innerHTML='Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму. Каждый сегмент — пакет микро-уроков. Нажмите на любой сегмент.';
+      $('pKv').innerHTML='';
+      $('pFoot').innerHTML='<b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.';
+    }else{
+      radarActive=true;radarStart=0;radarDone=false;radarFrame.last=-1;
+      $('vTitle').textContent='РАДАР КОМПЕТЕНЦИЙ · 30 ДНЕЙ РОСТА НОВОГО СОТРУДНИКА';
+      $('pEyebrow').textContent='ЖИВАЯ ДИНАМИКА';
+      $('pTitle').textContent='Из новичка — в профиль роли';
+      $('pDesc').innerHTML='Золотая фигура — <b>текущий профиль</b> по 8 базовым компетенциям. Красный пунктир — <b>целевой профиль роли</b>. Старт не с нуля: дисциплина и общение уже есть. Финиш не 100%: возражения и команда растут дольше — и это честно.';
+      $('pFoot').innerHTML='<b>Радар обновляется</b> после каждого события Trace и каждого урока — это не план, а факт.';
+      requestAnimationFrame(radarFrame);
+    }
+  }
+  bT.addEventListener('click',()=>setMode('tower'));
+  bR.addEventListener('click',()=>setMode('radar'));
+
+  /* ================= LOOP & RESIZE ================= */
+  function resize(){
+    const w=stage.clientWidth||radarBox.clientWidth,h=stage.clientHeight||radarBox.clientHeight;
+    renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',resize);
+  new ResizeObserver(resize).observe(document.querySelector('.stagebox'));
+  resize();
+
+  let t=0;
+  (function animate(){
+    requestAnimationFrame(animate);
+    if(mode!=='tower')return;
+    t+=.01;
+    if(!dragging&&!reduced)rig.rotation.y+=.0028;
+    if(!reduced)towerG.position.y=Math.sin(t)*.05;
+    renderer.render(scene,camera);
+  })();
+})();
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

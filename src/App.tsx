@@ -13,7 +13,6 @@ import { lazyWithRetry } from './utils/lazyWithRetry';
 // Lazy-loaded pages (with auto-retry on chunk load errors)
 // ---------------------------------------------------------------------------
 
-const LandingPage = lazyWithRetry(() => import('./pages/LandingPage').then(m => ({ default: m.LandingPage })));
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 
 // Consolidated wrapper pages (tabs inside)
@@ -141,7 +140,11 @@ function SmartRedirect() {
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (!isAuthenticated) {
-    return <Navigate to="/landing" replace />;
+    // Лендинг — статическая страница (public/landing.html), Vercel отдаёт её по /landing.
+    // Нужен полноценный переход браузера (а не client-side <Navigate>), чтобы
+    // загрузился статический HTML с его собственным Three.js, а не маршрут React.
+    window.location.replace('/landing');
+    return <PageLoader />;
   }
   return <Navigate to={getFirstAllowedPath()} replace />;
 }
@@ -164,8 +167,8 @@ function AppRoutes() {
       {/* Dev: Character preview (temp) */}
       <Route path="/dev/characters" element={<CharacterPreview />} />
 
-      {/* Лендинг (доступен всегда) */}
-      <Route path="/landing" element={<LandingPage />} />
+      {/* Лендинг — статическая страница public/landing.html (Vercel rewrite /landing).
+          React-маршрут больше не нужен: SmartRedirect делает hard-redirect на /landing. */}
 
       {/* Страница входа (публичная) */}
       <Route
