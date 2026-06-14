@@ -37,13 +37,17 @@
   .amb .g{position:absolute;border-radius:50%;filter:blur(120px)}
 
   nav{position:sticky;top:0;z-index:50;background:rgba(11,10,8,.78);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px}
-  .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-  .logo .mk{width:26px;height:26px;flex-shrink:0}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:64px;gap:12px}
+  .logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+  .logo img{height:44px;width:auto;display:block}
   .logo b{font-family:"Playfair Display",serif;font-size:18px;font-weight:700;letter-spacing:.08em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
   .navlinks{display:flex;gap:26px;font-size:13.5px;font-weight:600;color:var(--dim)}
   .navlinks a{text-decoration:none;transition:color .15s}
   .navlinks a:hover{color:var(--champagne)}
+  .nav-right{display:flex;align-items:center;gap:12px}
+  .langsw{display:flex;gap:2px;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:9px;padding:3px;flex-shrink:0}
+  .langsw button{font-family:"Manrope";font-weight:700;font-size:12px;padding:6px 10px;border:none;border-radius:6px;background:transparent;color:var(--dim);cursor:pointer;transition:.15s}
+  .langsw button.on{background:var(--grad);color:#1a1305}
   .btn{display:inline-block;font-weight:800;font-size:15px;padding:13px 26px;border-radius:12px;text-decoration:none;transition:transform .15s,box-shadow .15s;cursor:pointer;border:none;font-family:"Manrope"}
   .btn.primary{background:var(--grad);color:#1a1305;box-shadow:0 0 26px rgba(212,175,106,.25)}
   .btn.primary:hover{transform:translateY(-2px);box-shadow:0 0 36px rgba(240,221,176,.4)}
@@ -176,6 +180,7 @@
     .vert-note{grid-column:1}
     .trace-grid{grid-template-columns:1fr}
     .sensors{grid-template-columns:1fr 1fr}
+    .logo img{height:38px}
   }
   @media(prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}}
 </style>
@@ -190,19 +195,22 @@
 
 <nav>
   <div class="wrap nav-in">
-    <a class="logo" href="#">
-      <span class="mk"><svg viewBox="0 0 26 26" width="26" height="26"><path d="M3 22 L3 5 M3 22 L22 22 M3 22 C 8 12, 15 8, 21 6" fill="none" stroke="#d4af6a" stroke-width="2" stroke-linecap="round"/><path d="M21 6 l-4 .8 M21 6 l-.8 4" fill="none" stroke="#d4af6a" stroke-width="2" stroke-linecap="round"/></svg></span>
-      <b>TRAEKTORIYA</b>
+    <a class="logo" href="#" aria-label="Traektoriya">
+      <img src="/tactical/traektoriya-logo.png" alt="Traektoriya">
     </a>
     <div class="navlinks">
-      <a href="#map">3D-карта</a>
-      <a href="#why">Платформа</a>
-      <a href="#trace">Trace</a>
-      <a href="#verticals">Отрасли</a>
+      <a id="nv-map" href="#map">3D-карта</a>
+      <a id="nv-why" href="#why">Платформа</a>
+      <a id="nv-trace" href="#trace">Trace</a>
+      <a id="nv-vert" href="#verticals">Отрасли</a>
     </div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <a class="btn ghost sm" href="/login">Войти</a>
-      <a class="btn primary sm" href="#demo">Запросить демо</a>
+    <div class="nav-right">
+      <div class="langsw" role="group" aria-label="Язык / Til">
+        <button id="lng-ru" type="button">RU</button>
+        <button id="lng-uz" type="button">UZ</button>
+      </div>
+      <a class="btn ghost sm" id="nv-login" href="/login">Войти</a>
+      <a class="btn primary sm" id="nv-demo" href="#demo">Запросить демо</a>
     </div>
   </div>
 </nav>
@@ -210,12 +218,12 @@
 <!-- HERO -->
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">траектория сотрудника — с нуля до эксперта</div>
-    <h1>Обучайте и управляйте персоналом с помощью <span class="ai">AI</span></h1>
-    <p class="sub">Traektoriya ведёт каждого сотрудника по личной траектории — <b>от стажёра до мастера</b>: AI-наставник по вашим стандартам, объективная картина реальной работы и живой KPI. На русском и узбекском.</p>
+    <div class="eyebrow" id="h-eyebrow">траектория сотрудника — с нуля до эксперта</div>
+    <h1 id="h-h1">Обучайте и управляйте персоналом с помощью <span class="ai">AI</span></h1>
+    <p class="sub" id="h-sub">Traektoriya ведёт каждого сотрудника по личной траектории — <b>от стажёра до мастера</b>: AI-наставник по вашим стандартам, объективная картина реальной работы и живой KPI. На русском и узбекском.</p>
     <div class="cta-row">
-      <a class="btn primary" href="#demo">Запросить демо</a>
-      <a class="btn ghost" href="#map">Исследовать карту</a>
+      <a class="btn primary" id="h-cta1" href="#demo">Запросить демо</a>
+      <a class="btn ghost" id="h-cta2" href="#map">Исследовать карту</a>
     </div>
     <div class="meta">
       <span class="pill">🖥 Web</span><span class="pill">✈️ Telegram</span><span class="pill">📱 Mobile</span><span class="pill">🇷🇺 RU · 🇺🇿 UZ</span>
@@ -256,10 +264,10 @@
 <!-- STATS -->
 <div class="strip">
   <div class="wrap strip-in">
-    <div class="stat reveal"><div class="v">240+</div><div class="k">сотрудников уже на платформе</div></div>
-    <div class="stat reveal"><div class="v">25 000+</div><div class="k">точек в контуре клиента</div></div>
-    <div class="stat reveal"><div class="v">73</div><div class="k">микро-курса · 8 кластеров компетенций</div></div>
-    <div class="stat reveal"><div class="v">30 сек</div><div class="k">от сигнала до оценки результата</div></div>
+    <div class="stat reveal"><div class="v">240+</div><div class="k" id="st1k">сотрудников уже на платформе</div></div>
+    <div class="stat reveal"><div class="v">25 000+</div><div class="k" id="st2k">точек в контуре клиента</div></div>
+    <div class="stat reveal"><div class="v">73</div><div class="k" id="st3k">микро-курса · 8 кластеров компетенций</div></div>
+    <div class="stat reveal"><div class="v">30 сек</div><div class="k" id="st4k">от сигнала до оценки результата</div></div>
   </div>
 </div>
 
@@ -267,17 +275,17 @@
 <section id="why">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">// почему traektoriya</div>
-      <h2>Не «ещё одна LMS»</h2>
-      <p>Платформа сама решает, кого, чему и когда учить — и показывает результат в цифрах, а не в сертификатах.</p>
+      <div class="eyebrow" id="usp-eyebrow">// почему traektoriya</div>
+      <h2 id="usp-h2">Не «ещё одна LMS»</h2>
+      <p id="usp-p">Платформа сама решает, кого, чему и когда учить — и показывает результат в цифрах, а не в сертификатах.</p>
     </div>
     <div class="mods">
-      <div class="mod reveal"><div class="ic">🎯</div><h3>Видна работа, а не отчёты</h3><p>Курс пройден ≠ стандарт выполняется. Traektoriya видит <b>результат реальной работы</b> и сама закрывает пробелы точечным обучением.</p></div>
-      <div class="mod reveal"><div class="ic">💬</div><h3>AI-наставник вашей компании</h3><p>Отвечает по <b>вашим стандартам</b> — текстом и голосом, RU/UZ, 24/7. Как ваш лучший тренер, только на всю сеть сразу.</p></div>
-      <div class="mod reveal"><div class="ic">📡</div><h3>Trace: цифровой след работы</h3><p>Собирает <b>реальные результаты деятельности</b> — фото, голос, гео, данные систем — и превращает их в объективную оценку.</p></div>
-      <div class="mod reveal"><div class="ic">📊</div><h3>Рейтинги, которые двигают</h3><p>Качество, результат и обучение — в одном живом рейтинге: сотрудник → команда → компания. Кубки и лиги вместо «обязаловки».</p></div>
-      <div class="mod reveal"><div class="ic">⚡</div><h3>Запуск за недели</h3><p>Пришлите регламенты — получите академию: курсы RU/UZ с озвучкой. Каждый урок проходит <b>тройную AI-проверку и живую фокус-группу</b> до выхода к людям.</p></div>
-      <div class="mod reveal"><div class="ic">🛡</div><h3>Данные не покидают контур</h3><p>Облако, private VPC или полностью on-prem. AI-слой сменный — <b>в том числе на ваших моделях</b>.</p></div>
+      <div class="mod reveal"><div class="ic">🎯</div><h3 id="m1h">Видна работа, а не отчёты</h3><p id="m1p">Курс пройден ≠ стандарт выполняется. Traektoriya видит <b>результат реальной работы</b> и сама закрывает пробелы точечным обучением.</p></div>
+      <div class="mod reveal"><div class="ic">💬</div><h3 id="m2h">AI-наставник вашей компании</h3><p id="m2p">Отвечает по <b>вашим стандартам</b> — текстом и голосом, RU/UZ, 24/7. Как ваш лучший тренер, только на всю сеть сразу.</p></div>
+      <div class="mod reveal"><div class="ic">📡</div><h3 id="m3h">Trace: цифровой след работы</h3><p id="m3p">Собирает <b>реальные результаты деятельности</b> — фото, голос, гео, данные систем — и превращает их в объективную оценку.</p></div>
+      <div class="mod reveal"><div class="ic">📊</div><h3 id="m4h">Рейтинги, которые двигают</h3><p id="m4p">Качество, результат и обучение — в одном живом рейтинге: сотрудник → команда → компания. Кубки и лиги вместо «обязаловки».</p></div>
+      <div class="mod reveal"><div class="ic">⚡</div><h3 id="m5h">Запуск за недели</h3><p id="m5p">Пришлите регламенты — получите академию: курсы RU/UZ с озвучкой. Каждый урок проходит <b>тройную AI-проверку и живую фокус-группу</b> до выхода к людям.</p></div>
+      <div class="mod reveal"><div class="ic">🛡</div><h3 id="m6h">Данные не покидают контур</h3><p id="m6p">Облако, private VPC или полностью on-prem. AI-слой сменный — <b>в том числе на ваших моделях</b>.</p></div>
     </div>
   </div>
 </section>
@@ -288,28 +296,28 @@
     <div class="trace reveal">
       <div class="trace-grid">
         <div>
-          <div class="eyebrow">// модуль trace</div>
-          <h3>Цифровой след <em>реальной работы</em></h3>
-          <p>Задача Trace — собирать <b>результаты деятельности сотрудника там, где они возникают</b>, и превращать их в объективную картину. Не самоотчёты и не «честное слово» — сенсорные данные с места работы:</p>
+          <div class="eyebrow" id="tr-eyebrow">// модуль trace</div>
+          <h3 id="tr-h3">Цифровой след <em>реальной работы</em></h3>
+          <p id="tr-p">Задача Trace — собирать <b>результаты деятельности сотрудника там, где они возникают</b>, и превращать их в объективную картину. Не самоотчёты и не «честное слово» — сенсорные данные с места работы:</p>
           <div class="sensors">
-            <div class="sensor"><span>📸</span>Фото результата</div>
-            <div class="sensor"><span>🎙</span>Голос и звонки</div>
-            <div class="sensor"><span>📍</span>Гео и визиты</div>
-            <div class="sensor"><span>🔗</span>Данные CRM / SFA</div>
-            <div class="sensor"><span>✅</span>Чек-листы и документы</div>
-            <div class="sensor"><span>📱</span>Активность в системах</div>
+            <div class="sensor" id="se1"><span>📸</span>Фото результата</div>
+            <div class="sensor" id="se2"><span>🎙</span>Голос и звонки</div>
+            <div class="sensor" id="se3"><span>📍</span>Гео и визиты</div>
+            <div class="sensor" id="se4"><span>🔗</span>Данные CRM / SFA</div>
+            <div class="sensor" id="se5"><span>✅</span>Чек-листы и документы</div>
+            <div class="sensor" id="se6"><span>📱</span>Активность в системах</div>
           </div>
         </div>
         <div class="flowbox">
-          <div class="flow-t">Trace · пример события</div>
-          <div class="ph-row"><span class="l">Объект</span><span class="r">№ 0417 · 📍 подтверждено</span></div>
-          <div class="ph-row"><span class="l">Сигнал получен</span><span class="r">14:02:31</span></div>
-          <div class="ph-row"><span class="l">Оценка результата</span><span class="r score">87 / 100</span></div>
-          <div class="ph-row"><span class="l">Критерии</span><span class="r">5 · слабый — №3</span></div>
-          <div class="ph-row"><span class="l">Действие</span><span class="r">микро-урок назначен ✦</span></div>
+          <div class="flow-t" id="fl-t">Trace · пример события</div>
+          <div class="ph-row"><span class="l" id="fl1l">Объект</span><span class="r" id="fl1r">№ 0417 · 📍 подтверждено</span></div>
+          <div class="ph-row"><span class="l" id="fl2l">Сигнал получен</span><span class="r">14:02:31</span></div>
+          <div class="ph-row"><span class="l" id="fl3l">Оценка результата</span><span class="r score">87 / 100</span></div>
+          <div class="ph-row"><span class="l" id="fl4l">Критерии</span><span class="r" id="fl4r">5 · слабый — №3</span></div>
+          <div class="ph-row"><span class="l" id="fl5l">Действие</span><span class="r" id="fl5r">микро-урок назначен ✦</span></div>
         </div>
       </div>
-      <div class="trace-note"><b>Отраслевые издания Trace:</b> в FMCG это ShelfScan — фото полки анализируется за 30 секунд → оценка 0–100 по 5 критериям, с GPS и timestamp. В банке — след обслуживания и продаж фронт-офиса. Сенсоры меняются, принцип один: <b>оценка строится на реальном результате.</b></div>
+      <div class="trace-note" id="tr-note"><b>Отраслевые издания Trace:</b> в FMCG это ShelfScan — фото полки анализируется за 30 секунд → оценка 0–100 по 5 критериям, с GPS и timestamp. В банке — след обслуживания и продаж фронт-офиса. Сенсоры меняются, принцип один: <b>оценка строится на реальном результате.</b></div>
     </div>
   </div>
 </section>
@@ -318,14 +326,14 @@
 <section style="padding-top:14px">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">// каналы</div>
-      <h2>Там, где работают люди</h2>
-      <p>У каждого канала — своя роль: учатся в приложении и на ПК, Telegram догоняет, напоминает и проверяет.</p>
+      <div class="eyebrow" id="ch-eyebrow">// каналы</div>
+      <h2 id="ch-h2">Там, где работают люди</h2>
+      <p id="ch-p">У каждого канала — своя роль: учатся в приложении и на ПК, Telegram догоняет, напоминает и проверяет.</p>
     </div>
     <div class="chan">
-      <div class="ch reveal"><div class="big">🖥</div><h3>Web-кабинет · ПК</h3><p>Полноценные уроки и тесты на ПК. Для руководителей — аналитика: рейтинги, карты компетенций, динамика подразделений.</p></div>
-      <div class="ch reveal"><div class="big">✈️</div><h3>Telegram</h3><p>Лёгкий слой: напоминания, короткие проверочные задания и приём Trace-сигналов — фото и голос прямо в боте. Уроки здесь не живут — бот за ними отправляет.</p></div>
-      <div class="ch reveal"><div class="big">📱</div><h3>Мобильное приложение</h3><p>Основная среда обучения: уроки, тесты, голосовой наставник, Trace с точки, офлайн-режим в поле.</p></div>
+      <div class="ch reveal"><div class="big">🖥</div><h3 id="c1h">Web-кабинет · ПК</h3><p id="c1p">Полноценные уроки и тесты на ПК. Для руководителей — аналитика: рейтинги, карты компетенций, динамика подразделений.</p></div>
+      <div class="ch reveal"><div class="big">✈️</div><h3 id="c2h">Telegram</h3><p id="c2p">Лёгкий слой: напоминания, короткие проверочные задания и приём Trace-сигналов — фото и голос прямо в боте. Уроки здесь не живут — бот за ними отправляет.</p></div>
+      <div class="ch reveal"><div class="big">📱</div><h3 id="c3h">Мобильное приложение</h3><p id="c3p">Основная среда обучения: уроки, тесты, голосовой наставник, Trace с точки, офлайн-режим в поле.</p></div>
     </div>
   </div>
 </section>
@@ -334,30 +342,30 @@
 <section id="verticals" style="padding-top:14px">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">// отрасли</div>
-      <h2>Один контур — разные передовые</h2>
-      <p>Меняются стандарты, роли и сенсоры — траектория остаётся той же.</p>
+      <div class="eyebrow" id="vt-eyebrow">// отрасли</div>
+      <h2 id="vt-h2">Один контур — разные передовые</h2>
+      <p id="vt-p">Меняются стандарты, роли и сенсоры — траектория остаётся той же.</p>
     </div>
     <div class="vert">
       <div class="vc reveal">
-        <div class="mono-k">FMCG · дистрибуция · ритейл</div>
-        <h3>Полевые продажи</h3>
+        <div class="mono-k" id="vc1k">FMCG · дистрибуция · ритейл</div>
+        <h3 id="vc1h">Полевые продажи</h3>
         <ul>
-          <li><b>Полевые команды:</b> торговые представители, супервайзеры, мерчандайзеры</li>
-          <li><b>Trace → ShelfScan:</b> результат работы ТП на полке — оценка каждой точки</li>
-          <li><b>Проверено в проде:</b> 240 полевых сотрудников, 25 000+ точек</li>
+          <li id="vc1l1"><b>Полевые команды:</b> торговые представители, супервайзеры, мерчандайзеры</li>
+          <li id="vc1l2"><b>Trace → ShelfScan:</b> результат работы ТП на полке — оценка каждой точки</li>
+          <li id="vc1l3"><b>Проверено в проде:</b> 240 полевых сотрудников, 25 000+ точек</li>
         </ul>
       </div>
       <div class="vc reveal">
-        <div class="mono-k">Банки · финансы · сервис</div>
-        <h3>Фронт-офис</h3>
+        <div class="mono-k" id="vc2k">Банки · финансы · сервис</div>
+        <h3 id="vc2h">Фронт-офис</h3>
         <ul>
-          <li><b>Все клиентские роли:</b> от кассира до персонального менеджера</li>
-          <li><b>Trace для офиса:</b> след обслуживания, продаж и стандартов зала</li>
-          <li><b>Комплаенс-контур:</b> on-prem, ваши модели, аудит</li>
+          <li id="vc2l1"><b>Все клиентские роли:</b> от кассира до персонального менеджера</li>
+          <li id="vc2l2"><b>Trace для офиса:</b> след обслуживания, продаж и стандартов зала</li>
+          <li id="vc2l3"><b>Комплаенс-контур:</b> on-prem, ваши модели, аудит</li>
         </ul>
       </div>
-      <div class="vert-note reveal">Аптеки, телеком, страхование, HoReCa — <b>любой распределённый персонал, работающий по стандартам.</b></div>
+      <div class="vert-note reveal" id="vt-note">Аптеки, телеком, страхование, HoReCa — <b>любой распределённый персонал, работающий по стандартам.</b></div>
     </div>
   </div>
 </section>
@@ -365,22 +373,22 @@
 <!-- TRUST -->
 <section style="padding:30px 0 60px">
   <div class="wrap trust">
-    <span class="pillt">🛡 Облако / Private VPC / <b>On-prem</b></span>
-    <span class="pillt">🔄 Сменный AI-слой · <b>ваши модели</b></span>
-    <span class="pillt">🔐 SSO · аудит-логи</span>
-    <span class="pillt">🌐 RU / UZ из коробки</span>
+    <span class="pillt" id="tp1">🛡 Облако / Private VPC / <b>On-prem</b></span>
+    <span class="pillt" id="tp2">🔄 Сменный AI-слой · <b>ваши модели</b></span>
+    <span class="pillt" id="tp3">🔐 SSO · аудит-логи</span>
+    <span class="pillt" id="tp4">🌐 RU / UZ из коробки</span>
   </div>
 </section>
 
 <!-- FINAL CTA -->
 <section class="final" id="demo" style="padding-top:30px">
   <div class="wrap">
-    <div class="eyebrow">// 30 минут</div>
-    <h2 style="margin-top:14px">Покажем платформу <span class="ai">на ваших стандартах</span></h2>
-    <p>Пришлите один регламент — к демо он уже будет внутри: наставник ответит по нему, Trace покажет результат, траектория построится.</p>
+    <div class="eyebrow" id="fn-eyebrow">// 30 минут</div>
+    <h2 id="fn-h2" style="margin-top:14px">Покажем платформу <span class="ai">на ваших стандартах</span></h2>
+    <p id="fn-p">Пришлите один регламент — к демо он уже будет внутри: наставник ответит по нему, Trace покажет результат, траектория построится.</p>
     <div class="cta-row">
-      <a class="btn primary" href="mailto:hello@traektoriya.space">Запросить демо</a>
-      <a class="btn ghost" href="https://t.me/traektoriya">Написать в Telegram</a>
+      <a class="btn primary" id="fn-cta1" href="mailto:hello@traektoriya.space">Запросить демо</a>
+      <a class="btn ghost" id="fn-cta2" href="https://t.me/traektoriya">Написать в Telegram</a>
     </div>
   </div>
 </section>
@@ -388,7 +396,7 @@
 <footer>
   <div class="wrap foot">
     <a class="logo" href="#"><b style="font-family:'Playfair Display',serif;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">TRAEKTORIYA</b></a>
-    <div>Траектория сотрудника — с нуля до эксперта · Ташкент</div>
+    <div id="ft-tag">Траектория сотрудника — с нуля до эксперта · Ташкент</div>
     <div class="mono" style="font-size:12px">© 2026</div>
   </div>
 </footer>
@@ -403,24 +411,118 @@
   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $=id=>document.getElementById(id);
 
+  /* ================= I18N ================= */
+  // Язык по умолчанию — RU; выбор сохраняется в localStorage.
+  let lang = (localStorage.getItem('trj_lang')==='uz') ? 'uz' : 'ru';
+  const tr = o => (o && o[lang]!=null) ? o[lang] : (o ? o.ru : '');
+
+  // Статичные строки (id элемента → {ru, uz}). innerHTML, с сохранением тегов.
+  const S = {
+    'nv-map':{ru:'3D-карта',uz:'3D-xarita'},
+    'nv-why':{ru:'Платформа',uz:'Platforma'},
+    'nv-trace':{ru:'Trace',uz:'Trace'},
+    'nv-vert':{ru:'Отрасли',uz:'Tarmoqlar'},
+    'nv-login':{ru:'Войти',uz:'Kirish'},
+    'nv-demo':{ru:'Запросить демо',uz:`Demo so'rash`},
+    'h-eyebrow':{ru:'траектория сотрудника — с нуля до эксперта',uz:'xodimning traektoriyasi — noldan ekspertgacha'},
+    'h-h1':{ru:`Обучайте и управляйте персоналом с помощью <span class="ai">AI</span>`,uz:`<span class="ai">AI</span> yordamida xodimlarni o'rgating va boshqaring`},
+    'h-sub':{ru:`Traektoriya ведёт каждого сотрудника по личной траектории — <b>от стажёра до мастера</b>: AI-наставник по вашим стандартам, объективная картина реальной работы и живой KPI. На русском и узбекском.`,uz:`Traektoriya har bir xodimni shaxsiy traektoriya bo'yicha olib boradi — <b>stajerdan mastergacha</b>: sizning standartlaringiz bo'yicha AI-nastavnik, real ish natijalarining ob'ektiv ko'rinishi va jonli KPI. Rus va o'zbek tillarida.`},
+    'h-cta1':{ru:'Запросить демо',uz:`Demo so'rash`},
+    'h-cta2':{ru:'Исследовать карту',uz:`Xaritani ko'rish`},
+    'btnTower':{ru:'🏛 Башня 4×10',uz:'🏛 Minora 4×10'},
+    'btnRadar':{ru:'📈 Радар: 30 дней роста',uz:`📈 Radar: 30 kunlik o'sish`},
+    'replay':{ru:'⟲ ЗАНОВО',uz:'⟲ QAYTADAN'},
+    'st1k':{ru:'сотрудников уже на платформе',uz:'xodim allaqachon platformada'},
+    'st2k':{ru:'точек в контуре клиента',uz:'mijoz konturidagi nuqtalar'},
+    'st3k':{ru:'микро-курса · 8 кластеров компетенций',uz:'mikro-kurs · 8 kompetensiya klasteri'},
+    'st4k':{ru:'от сигнала до оценки результата',uz:'signaldan natijani baholashgacha'},
+    'usp-eyebrow':{ru:'// почему traektoriya',uz:'// nima uchun traektoriya'},
+    'usp-h2':{ru:'Не «ещё одна LMS»',uz:'«Yana bir LMS» emas'},
+    'usp-p':{ru:'Платформа сама решает, кого, чему и когда учить — и показывает результат в цифрах, а не в сертификатах.',uz:'Platforma o’zi hal qiladi — kimni, nimaga va qachon o’qitishni — va natijani sertifikatlarda emas, raqamlarda ko’rsatadi.'},
+    'm1h':{ru:'Видна работа, а не отчёты',uz:'Ish ko’rinadi, hisobot emas'},
+    'm1p':{ru:'Курс пройден ≠ стандарт выполняется. Traektoriya видит <b>результат реальной работы</b> и сама закрывает пробелы точечным обучением.',uz:'Kurs o’tildi ≠ standart bajarilmoqda. Traektoriya <b>real ish natijasini</b> ko’radi va bo’shliqlarni o’zi maqsadli o’qitish orqali yopadi.'},
+    'm2h':{ru:'AI-наставник вашей компании',uz:'Kompaniyangizning AI-nastavniki'},
+    'm2p':{ru:'Отвечает по <b>вашим стандартам</b> — текстом и голосом, RU/UZ, 24/7. Как ваш лучший тренер, только на всю сеть сразу.',uz:'<b>Sizning standartlaringiz</b> bo’yicha javob beradi — matn va ovoz orqali, RU/UZ, 24/7. Eng yaxshi treneringiz kabi, faqat butun tarmoq uchun bir vaqtda.'},
+    'm3h':{ru:'Trace: цифровой след работы',uz:'Trace: ishning raqamli izi'},
+    'm3p':{ru:'Собирает <b>реальные результаты деятельности</b> — фото, голос, гео, данные систем — и превращает их в объективную оценку.',uz:'<b>Real faoliyat natijalarini</b> to’playdi — foto, ovoz, geo, tizim ma’lumotlari — va ularni ob’ektiv bahoga aylantiradi.'},
+    'm4h':{ru:'Рейтинги, которые двигают',uz:'Harakat qildiruvchi reytinglar'},
+    'm4p':{ru:'Качество, результат и обучение — в одном живом рейтинге: сотрудник → команда → компания. Кубки и лиги вместо «обязаловки».',uz:'Sifat, natija va o’qitish — bitta jonli reytingda: xodim → jamoa → kompaniya. Majburiyat o’rniga kuboklar va ligalar.'},
+    'm5h':{ru:'Запуск за недели',uz:'Bir necha haftada ishga tushirish'},
+    'm5p':{ru:'Пришлите регламенты — получите академию: курсы RU/UZ с озвучкой. Каждый урок проходит <b>тройную AI-проверку и живую фокус-группу</b> до выхода к людям.',uz:'Reglamentlarni yuboring — akademiya oling: ovozli RU/UZ kurslar. Har bir dars odamlarga chiqishdan oldin <b>uch bosqichli AI-tekshiruv va jonli fokus-guruh</b>dan o’tadi.'},
+    'm6h':{ru:'Данные не покидают контур',uz:'Ma’lumotlar konturdan chiqmaydi'},
+    'm6p':{ru:'Облако, private VPC или полностью on-prem. AI-слой сменный — <b>в том числе на ваших моделях</b>.',uz:'Bulut, private VPC yoki to’liq on-prem. AI-qatlam almashtiriladigan — <b>jumladan sizning modellaringizda ham</b>.'},
+    'tr-eyebrow':{ru:'// модуль trace',uz:'// trace moduli'},
+    'tr-h3':{ru:'Цифровой след <em>реальной работы</em>',uz:'<em>Real ishning</em> raqamli izi'},
+    'tr-p':{ru:'Задача Trace — собирать <b>результаты деятельности сотрудника там, где они возникают</b>, и превращать их в объективную картину. Не самоотчёты и не «честное слово» — сенсорные данные с места работы:',uz:'Trace vazifasi — <b>xodim faoliyati natijalarini ular yuzaga kelgan joyda</b> yig’ish va ob’ektiv rasmga aylantirish. O’z-o’ziga hisobot emas, «so’zga ishonch» emas — ish joyidan sensor ma’lumotlar:'},
+    'se1':{ru:'<span>📸</span>Фото результата',uz:'<span>📸</span>Natija fotosi'},
+    'se2':{ru:'<span>🎙</span>Голос и звонки',uz:'<span>🎙</span>Ovoz va qo’ng’iroqlar'},
+    'se3':{ru:'<span>📍</span>Гео и визиты',uz:'<span>📍</span>Geo va tashriflar'},
+    'se4':{ru:'<span>🔗</span>Данные CRM / SFA',uz:'<span>🔗</span>CRM / SFA ma’lumotlari'},
+    'se5':{ru:'<span>✅</span>Чек-листы и документы',uz:'<span>✅</span>Chek-listlar va hujjatlar'},
+    'se6':{ru:'<span>📱</span>Активность в системах',uz:'<span>📱</span>Tizimlardagi faollik'},
+    'fl-t':{ru:'Trace · пример события',uz:'Trace · hodisa namunasi'},
+    'fl1l':{ru:'Объект',uz:'Ob’ekt'},
+    'fl1r':{ru:'№ 0417 · 📍 подтверждено',uz:'№ 0417 · 📍 tasdiqlandi'},
+    'fl2l':{ru:'Сигнал получен',uz:'Signal qabul qilindi'},
+    'fl3l':{ru:'Оценка результата',uz:'Natija bahosi'},
+    'fl4l':{ru:'Критерии',uz:'Mezonlar'},
+    'fl4r':{ru:'5 · слабый — №3',uz:'5 · zaif — №3'},
+    'fl5l':{ru:'Действие',uz:'Harakat'},
+    'fl5r':{ru:'микро-урок назначен ✦',uz:'mikro-dars tayinlandi ✦'},
+    'tr-note':{ru:'<b>Отраслевые издания Trace:</b> в FMCG это ShelfScan — фото полки анализируется за 30 секунд → оценка 0–100 по 5 критериям, с GPS и timestamp. В банке — след обслуживания и продаж фронт-офиса. Сенсоры меняются, принцип один: <b>оценка строится на реальном результате.</b>',uz:'<b>Trace tarmoq ko’rinishlari:</b> FMCGda bu ShelfScan — polka fotosi 30 soniyada tahlil qilinadi → 5 mezon bo’yicha 0–100 baho, GPS va timestamp bilan. Bankda — front-ofis xizmati va savdosining izi. Sensorlar o’zgaradi, tamoyil bitta: <b>baho real natija asosida quriladi.</b>'},
+    'ch-eyebrow':{ru:'// каналы',uz:'// kanallar'},
+    'ch-h2':{ru:'Там, где работают люди',uz:'Odamlar ishlaydigan joyda'},
+    'ch-p':{ru:'У каждого канала — своя роль: учатся в приложении и на ПК, Telegram догоняет, напоминает и проверяет.',uz:'Har bir kanalning o’z roli bor: ilova va PKda o’rganadilar, Telegram quvib yetadi, eslatadi va tekshiradi.'},
+    'c1h':{ru:'Web-кабинет · ПК',uz:'Web-kabinet · PK'},
+    'c1p':{ru:'Полноценные уроки и тесты на ПК. Для руководителей — аналитика: рейтинги, карты компетенций, динамика подразделений.',uz:'PKda to’liq darslar va testlar. Rahbarlar uchun — analitika: reytinglar, kompetensiya xaritalari, bo’limlar dinamikasi.'},
+    'c2h':{ru:'Telegram',uz:'Telegram'},
+    'c2p':{ru:'Лёгкий слой: напоминания, короткие проверочные задания и приём Trace-сигналов — фото и голос прямо в боте. Уроки здесь не живут — бот за ними отправляет.',uz:'Yengil qatlam: eslatmalar, qisqa tekshiruv topshiriqlari va Trace-signallarni qabul qilish — foto va ovoz to’g’ridan-to’g’ri botda. Darslar bu yerda yashamaydi — bot ularni yuboradi.'},
+    'c3h':{ru:'Мобильное приложение',uz:'Mobil ilova'},
+    'c3p':{ru:'Основная среда обучения: уроки, тесты, голосовой наставник, Trace с точки, офлайн-режим в поле.',uz:'Asosiy o’quv muhiti: darslar, testlar, ovozli nastavnik, nuqtadan Trace, maydonda oflayn-rejim.'},
+    'vt-eyebrow':{ru:'// отрасли',uz:'// tarmoqlar'},
+    'vt-h2':{ru:'Один контур — разные передовые',uz:'Bitta kontur — turli frontlar'},
+    'vt-p':{ru:'Меняются стандарты, роли и сенсоры — траектория остаётся той же.',uz:'Standartlar, rollar va sensorlar o’zgaradi — traektoriya o’sha-o’sha qoladi.'},
+    'vc1k':{ru:'FMCG · дистрибуция · ритейл',uz:'FMCG · distribusiya · ritejl'},
+    'vc1h':{ru:'Полевые продажи',uz:'Dala savdosi'},
+    'vc1l1':{ru:'<b>Полевые команды:</b> торговые представители, супервайзеры, мерчандайзеры',uz:'<b>Dala jamoalari:</b> savdo vakillari (TP), supervayzerlar (SV), merchandayzerlar'},
+    'vc1l2':{ru:'<b>Trace → ShelfScan:</b> результат работы ТП на полке — оценка каждой точки',uz:'<b>Trace → ShelfScan:</b> TP ning polkadagi ish natijasi — har bir nuqta bahosi'},
+    'vc1l3':{ru:'<b>Проверено в проде:</b> 240 полевых сотрудников, 25 000+ точек',uz:'<b>Prodda tekshirilgan:</b> 240 dala xodimi, 25 000+ nuqta'},
+    'vc2k':{ru:'Банки · финансы · сервис',uz:'Banklar · moliya · servis'},
+    'vc2h':{ru:'Фронт-офис',uz:'Front-ofis'},
+    'vc2l1':{ru:'<b>Все клиентские роли:</b> от кассира до персонального менеджера',uz:'<b>Barcha mijoz rollari:</b> kassirdan shaxsiy menejerga qadar'},
+    'vc2l2':{ru:'<b>Trace для офиса:</b> след обслуживания, продаж и стандартов зала',uz:'<b>Ofis uchun Trace:</b> xizmat, savdo va zal standartlarining izi'},
+    'vc2l3':{ru:'<b>Комплаенс-контур:</b> on-prem, ваши модели, аудит',uz:'<b>Komplaens-kontur:</b> on-prem, sizning modellaringiz, audit'},
+    'vt-note':{ru:'Аптеки, телеком, страхование, HoReCa — <b>любой распределённый персонал, работающий по стандартам.</b>',uz:'Dorixonalar, telekom, sug’urta, HoReCa — <b>standartlar bo’yicha ishlaydigan har qanday taqsimlangan xodimlar.</b>'},
+    'tp1':{ru:'🛡 Облако / Private VPC / <b>On-prem</b>',uz:'🛡 Bulut / Private VPC / <b>On-prem</b>'},
+    'tp2':{ru:'🔄 Сменный AI-слой · <b>ваши модели</b>',uz:'🔄 Almashtiriladigan AI-qatlam · <b>sizning modellaringiz</b>'},
+    'tp3':{ru:'🔐 SSO · аудит-логи',uz:'🔐 SSO · audit-loglar'},
+    'tp4':{ru:'🌐 RU / UZ из коробки',uz:'🌐 RU / UZ qutidan tayyor'},
+    'fn-eyebrow':{ru:'// 30 минут',uz:'// 30 daqiqa'},
+    'fn-h2':{ru:`Покажем платформу <span class="ai">на ваших стандартах</span>`,uz:`Platformani <span class="ai">sizning standartlaringizda</span> ko'rsatamiz`},
+    'fn-p':{ru:'Пришлите один регламент — к демо он уже будет внутри: наставник ответит по нему, Trace покажет результат, траектория построится.',uz:'Bitta reglament yuboring — demoga u allaqachon ichida bo’ladi: nastavnik u bo’yicha javob beradi, Trace natijani ko’rsatadi, traektoriya quriladi.'},
+    'fn-cta1':{ru:'Запросить демо',uz:`Demo so'rash`},
+    'fn-cta2':{ru:'Написать в Telegram',uz:'Telegramda yozish'},
+    'ft-tag':{ru:'Траектория сотрудника — с нуля до эксперта · Ташкент',uz:'Xodimning traektoriyasi — noldan ekspertgacha · Toshkent'}
+  };
+
   /* ================= TOWER (Three.js) ================= */
   const TERR=[
-    {name:'Стажёр',  c:0x6e5526, hi:0x9a7838, desc:'входит в профессию: база, термины, первые стандарты'},
-    {name:'Практик', c:0xa8813f, hi:0xc89a52, desc:'уверенно работает по стандарту каждый день'},
-    {name:'Эксперт', c:0xd4af6a, hi:0xe9c987, desc:'разбирает сложные случаи, оценивает работу других'},
-    {name:'Мастер',  c:0xf0ddb0, hi:0xfff0cf, desc:'эталон роли: улучшает стандарты и растит коллег'}
+    {name:{ru:'Стажёр',uz:'Stajer'},  c:0x6e5526, hi:0x9a7838, desc:{ru:'входит в профессию: база, термины, первые стандарты',uz:'kasbga kirish: baza, atamalar, birinchi standartlar'}},
+    {name:{ru:'Практик',uz:'Praktik'}, c:0xa8813f, hi:0xc89a52, desc:{ru:'уверенно работает по стандарту каждый день',uz:'har kuni standart bo’yicha ishonch bilan ishlaydi'}},
+    {name:{ru:'Эксперт',uz:'Ekspert'}, c:0xd4af6a, hi:0xe9c987, desc:{ru:'разбирает сложные случаи, оценивает работу других',uz:'murakkab holatlarni tahlil qiladi, boshqalarning ishini baholaydi'}},
+    {name:{ru:'Мастер',uz:'Master'},  c:0xf0ddb0, hi:0xfff0cf, desc:{ru:'эталон роли: улучшает стандарты и растит коллег',uz:'rol etaloni: standartlarni yaxshilaydi va hamkasblarini o’stiradi'}}
   ];
   const FLOORS=[
-    ['Знакомство','ориентируется в теме и роли'],
-    ['Запоминание','знает термины, продукты и стандарты'],
-    ['Понимание','объясняет суть своими словами'],
-    ['Применение','выполняет работу по стандарту'],
-    ['Анализ','находит причины ошибок и просадок'],
-    ['Синтез','комбинирует приёмы под ситуацию'],
-    ['Оценка','оценивает качество работы — своей и чужой'],
-    ['Создание','предлагает улучшения стандартов'],
-    ['Наставничество','обучает и подтягивает коллег'],
-    ['Мастерство','эталонная работа — пример для сети']
+    {n:{ru:'Знакомство',uz:'Tanishuv'},d:{ru:'ориентируется в теме и роли',uz:'mavzu va rolda yo’nalish oladi'}},
+    {n:{ru:'Запоминание',uz:'Yodlash'},d:{ru:'знает термины, продукты и стандарты',uz:'atamalarni, mahsulotlarni va standartlarni biladi'}},
+    {n:{ru:'Понимание',uz:'Tushunish'},d:{ru:'объясняет суть своими словами',uz:'mohiyatni o’z so’zlari bilan tushuntiradi'}},
+    {n:{ru:'Применение',uz:'Qo’llash'},d:{ru:'выполняет работу по стандарту',uz:'ishni standart bo’yicha bajaradi'}},
+    {n:{ru:'Анализ',uz:'Tahlil'},d:{ru:'находит причины ошибок и просадок',uz:'xatolar va tushkunlik sabablarini topadi'}},
+    {n:{ru:'Синтез',uz:'Sintez'},d:{ru:'комбинирует приёмы под ситуацию',uz:'vaziyatga qarab usullarni birlashtiradi'}},
+    {n:{ru:'Оценка',uz:'Baholash'},d:{ru:'оценивает качество работы — своей и чужой',uz:'o’z va boshqalarning ish sifatini baholaydi'}},
+    {n:{ru:'Создание',uz:'Yaratish'},d:{ru:'предлагает улучшения стандартов',uz:'standartlarni yaxshilash takliflarini beradi'}},
+    {n:{ru:'Наставничество',uz:'Nastavniklik'},d:{ru:'обучает и подтягивает коллег',uz:'hamkasblarini o’qitadi va ko’taradi'}},
+    {n:{ru:'Мастерство',uz:'Mahorat'},d:{ru:'эталонная работа — пример для сети',uz:'etalon ish — tarmoq uchun namuna'}}
   ];
 
   const scene=new THREE.Scene();
@@ -482,27 +584,34 @@
     if(!hit)return;
     if(selected)setEmissive(selected,false);
     selected=hit.object;setEmissive(selected,true);
+    renderPanel();
+  }
+  // Перерисовка панели башни для текущего выбранного сегмента и языка.
+  function renderPanel(){
+    if(!selected)return;
     const d=selected.userData,t=TERR[d.terr],f=FLOORS[d.floor];
-    $('pEyebrow').textContent='ТЕРРИТОРИЯ · '+t.name.toUpperCase();
-    $('pTitle').textContent='Этаж '+(d.floor+1)+' · '+f[0];
-    $('pDesc').innerHTML='<b>'+t.name+'</b> — '+t.desc+'. На этом этаже сотрудник '+f[1]+'.';
+    const L={ru:{terr:'ТЕРРИТОРИЯ · ',fl:'Этаж ',fmt:'Формат',ml:'микро-уроки 5–8 мин',chk:'Проверка',chkv:'тест + результат в работе',lng:'Языки',lngv:'RU · UZ · голос',foot:'<b>Следующий сегмент</b> платформа откроет сама — по реальной работе, а не по расписанию.',on:' На этом этаже сотрудник '},
+            uz:{terr:'HUDUD · ',fl:'Qavat ',fmt:'Format',ml:'mikro-darslar 5–8 daq',chk:'Tekshiruv',chkv:'test + ishdagi natija',lng:'Tillar',lngv:'RU · UZ · ovoz',foot:'<b>Keyingi segmentni</b> platforma o’zi ochadi — jadval bo’yicha emas, real ish bo’yicha.',on:' Bu qavatda xodim '}}[lang];
+    $('pEyebrow').textContent=L.terr+tr(t.name).toUpperCase();
+    $('pTitle').textContent=L.fl+(d.floor+1)+' · '+tr(f.n);
+    $('pDesc').innerHTML='<b>'+tr(t.name)+'</b> — '+tr(t.desc)+'.'+L.on+tr(f.d)+'.';
     $('pKv').innerHTML=
-      '<div class="row"><span class="l">Формат</span><span class="r">микро-уроки 5–8 мин</span></div>'+
-      '<div class="row"><span class="l">Проверка</span><span class="r">тест + результат в работе</span></div>'+
-      '<div class="row"><span class="l">Языки</span><span class="r">RU · UZ · голос</span></div>';
-    $('pFoot').innerHTML='<b>Следующий сегмент</b> платформа откроет сама — по реальной работе, а не по расписанию.';
+      '<div class="row"><span class="l">'+L.fmt+'</span><span class="r">'+L.ml+'</span></div>'+
+      '<div class="row"><span class="l">'+L.chk+'</span><span class="r">'+L.chkv+'</span></div>'+
+      '<div class="row"><span class="l">'+L.lng+'</span><span class="r">'+L.lngv+'</span></div>';
+    $('pFoot').innerHTML=L.foot;
   }
 
   /* ================= RADAR 2D (canvas, 30 days) ================= */
   const AXES=[
-    {name:'Знание продукта',short:'Продукт',k:[12,46,68,82]},
-    {name:'Стандарты работы',short:'Стандарты',k:[8,54,76,88]},
-    {name:'Клиентский диалог',short:'Диалог',k:[30,46,62,76]},
-    {name:'Работа с возражениями',short:'Возражения',k:[5,16,42,64]},
-    {name:'Дисциплина',short:'Дисциплина',k:[55,68,79,86]},
-    {name:'Отчётность',short:'Отчётность',k:[15,52,70,80]},
-    {name:'Цифровые инструменты',short:'Цифра',k:[35,60,72,78]},
-    {name:'Командная работа',short:'Команда',k:[40,52,63,72]}
+    {name:{ru:'Знание продукта',uz:'Mahsulot bilimi'},short:{ru:'Продукт',uz:'Mahsulot'},k:[12,46,68,82]},
+    {name:{ru:'Стандарты работы',uz:'Ish standartlari'},short:{ru:'Стандарты',uz:'Standartlar'},k:[8,54,76,88]},
+    {name:{ru:'Клиентский диалог',uz:'Mijoz muloqoti'},short:{ru:'Диалог',uz:'Muloqot'},k:[30,46,62,76]},
+    {name:{ru:'Работа с возражениями',uz:'E’tirozlar bilan ishlash'},short:{ru:'Возражения',uz:'E’tirozlar'},k:[5,16,42,64]},
+    {name:{ru:'Дисциплина',uz:'Intizom'},short:{ru:'Дисциплина',uz:'Intizom'},k:[55,68,79,86]},
+    {name:{ru:'Отчётность',uz:'Hisobotlilik'},short:{ru:'Отчётность',uz:'Hisobotlilik'},k:[15,52,70,80]},
+    {name:{ru:'Цифровые инструменты',uz:'Raqamli vositalar'},short:{ru:'Цифра',uz:'Raqam'},k:[35,60,72,78]},
+    {name:{ru:'Командная работа',uz:'Jamoa ishi'},short:{ru:'Команда',uz:'Jamoa'},k:[40,52,63,72]}
   ];
   const KEYDAYS=[1,10,20,30];
   const TARGET=[85,90,80,70,90,85,80,75];
@@ -553,7 +662,7 @@
       ctx.fillStyle='rgba(163,148,119,.95)';
       ctx.textAlign=Math.abs(lx-cx)<12?'center':(lx>cx?'left':'right');
       ctx.textBaseline=Math.abs(ly-cy)<12?'middle':(ly>cy?'top':'bottom');
-      ctx.fillText(AXES[i].short,lx,ly);
+      ctx.fillText(tr(AXES[i].short),lx,ly);
     }
     // target profile (red dashed)
     ctx.beginPath();
@@ -576,15 +685,18 @@
       ctx.fillStyle='#f0ddb0';ctx.fill();
     }
     // day counter
+    const RL=(lang==='uz')
+      ? {day:'KUN ',ph:[ 'onbording · baza','dala amaliyoti','ishonchli ish','rol profiliga chiqish'],cur:'— joriy profil',tgt:'--- rol maqsadli profili'}
+      : {day:'ДЕНЬ ',ph:['онбординг · база','практика в поле','уверенная работа','выход на профиль роли'],cur:'— текущий профиль',tgt:'--- целевой профиль роли'};
     ctx.font='700 13px JetBrains Mono, monospace';
     ctx.fillStyle='#d4af6a';ctx.textAlign='left';ctx.textBaseline='top';
-    ctx.fillText('ДЕНЬ '+String(Math.round(day)).padStart(2,'0')+' / 30',18,16);
+    ctx.fillText(RL.day+String(Math.round(day)).padStart(2,'0')+' / 30',18,16);
     ctx.font='500 11px JetBrains Mono, monospace';ctx.fillStyle='rgba(163,148,119,.8)';
-    ctx.fillText(day<8?'онбординг · база':day<18?'практика в поле':day<27?'уверенная работа':'выход на профиль роли',18,34);
+    ctx.fillText(day<8?RL.ph[0]:day<18?RL.ph[1]:day<27?RL.ph[2]:RL.ph[3],18,34);
     // legend
     ctx.textAlign='right';
-    ctx.fillStyle='#f0ddb0';ctx.fillText('— текущий профиль',w-18,16);
-    ctx.fillStyle='rgba(200,54,43,.9)';ctx.fillText('--- целевой профиль роли',w-18,34);
+    ctx.fillStyle='#f0ddb0';ctx.fillText(RL.cur,w-18,16);
+    ctx.fillStyle='rgba(200,54,43,.9)';ctx.fillText(RL.tgt,w-18,34);
 
     return vals;
   }
@@ -592,7 +704,7 @@
   function updateRadarPanel(day,vals){
     $('pKv').innerHTML=AXES.map((a,i)=>{
       const v=Math.round(vals[i]),d=v-a.k[0];
-      return '<div class="row"><span class="l">'+a.name+'</span><span class="r">'+v+'<span class="up">+'+d+'</span></span></div>';
+      return '<div class="row"><span class="l">'+tr(a.name)+'</span><span class="r">'+v+'<span class="up">+'+d+'</span></span></div>';
     }).join('');
   }
 
@@ -620,29 +732,53 @@
     stage.style.display=tower?'block':'none';
     radarBox.style.display=tower?'none':'block';
     replayBtn.style.display=tower?'none':'block';
-    hint.textContent=tower?'⟲ вращайте · нажмите на сегмент':'живая динамика: новичок → профиль роли за 30 дней';
+    hint.textContent=tower
+      ? (lang==='uz'?'⟲ aylantiring · segmentni bosing':'⟲ вращайте · нажмите на сегмент')
+      : (lang==='uz'?'jonli dinamika: yangilik → rol profili 30 kunda':'живая динамика: новичок → профиль роли за 30 дней');
     bT.classList.toggle('on',tower);bR.classList.toggle('on',!tower);
     bT.setAttribute('aria-selected',tower);bR.setAttribute('aria-selected',!tower);
     if(tower){
       radarActive=false;
-      $('vTitle').textContent='УЧЕБНАЯ ВСЕЛЕННАЯ · 4 ТЕРРИТОРИИ × 10 ЭТАЖЕЙ';
-      $('pEyebrow').textContent='КАК ЧИТАТЬ КАРТУ';
-      $('pTitle').textContent='Путь сотрудника — это здание';
-      $('pDesc').innerHTML='Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму. Каждый сегмент — пакет микро-уроков. Нажмите на любой сегмент.';
-      $('pKv').innerHTML='';
-      $('pFoot').innerHTML='<b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.';
+      $('vTitle').textContent=(lang==='uz')?'O’QUV OLAMI · 4 HUDUD × 10 QAVAT':'УЧЕБНАЯ ВСЕЛЕННАЯ · 4 ТЕРРИТОРИИ × 10 ЭТАЖЕЙ';
+      if(selected){
+        renderPanel();
+      }else{
+        $('pEyebrow').textContent=(lang==='uz')?'XARITANI QANDAY O’QISH KERAK':'КАК ЧИТАТЬ КАРТУ';
+        $('pTitle').textContent=(lang==='uz')?'Xodimning yo’li — bu bino':'Путь сотрудника — это здание';
+        $('pDesc').innerHTML=(lang==='uz')
+          ?'To’rtta hudud — <b>Stajer, Praktik, Ekspert, Master</b> — bu minoraning qirralari. O’n qavat — Blum bo’yicha ko’nikmani egallash chuqurligi. Har bir segment — mikro-darslar to’plami. Istalgan segmentni bosing.'
+          :'Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму. Каждый сегмент — пакет микро-уроков. Нажмите на любой сегмент.';
+        $('pKv').innerHTML='';
+        $('pFoot').innerHTML=(lang==='uz')?'<b>Traektoriya</b> xodimga keyingi qaysi segmentni ochishni o’zi hal qiladi.':'<b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.';
+      }
     }else{
       radarActive=true;radarStart=0;radarDone=false;radarFrame.last=-1;
-      $('vTitle').textContent='РАДАР КОМПЕТЕНЦИЙ · 30 ДНЕЙ РОСТА НОВОГО СОТРУДНИКА';
-      $('pEyebrow').textContent='ЖИВАЯ ДИНАМИКА';
-      $('pTitle').textContent='Из новичка — в профиль роли';
-      $('pDesc').innerHTML='Золотая фигура — <b>текущий профиль</b> по 8 базовым компетенциям. Красный пунктир — <b>целевой профиль роли</b>. Старт не с нуля: дисциплина и общение уже есть. Финиш не 100%: возражения и команда растут дольше — и это честно.';
-      $('pFoot').innerHTML='<b>Радар обновляется</b> после каждого события Trace и каждого урока — это не план, а факт.';
+      $('vTitle').textContent=(lang==='uz')?'KOMPETENSIYALAR RADARI · YANGI XODIMNING 30 KUNLIK O’SISHI':'РАДАР КОМПЕТЕНЦИЙ · 30 ДНЕЙ РОСТА НОВОГО СОТРУДНИКА';
+      $('pEyebrow').textContent=(lang==='uz')?'JONLI DINAMIKA':'ЖИВАЯ ДИНАМИКА';
+      $('pTitle').textContent=(lang==='uz')?'Yangilikdan — rol profiliga':'Из новичка — в профиль роли';
+      $('pDesc').innerHTML=(lang==='uz')
+        ?'Oltin figura — 8 ta asosiy kompetensiya bo’yicha <b>joriy profil</b>. Qizil nuqtali chiziq — <b>rol maqsadli profili</b>. Start noldan emas: intizom va muloqot allaqachon bor. Finish 100% emas: e’tirozlar va jamoa uzoqroq o’sadi — va bu halol.'
+        :'Золотая фигура — <b>текущий профиль</b> по 8 базовым компетенциям. Красный пунктир — <b>целевой профиль роли</b>. Старт не с нуля: дисциплина и общение уже есть. Финиш не 100%: возражения и команда растут дольше — и это честно.';
+      $('pFoot').innerHTML=(lang==='uz')?'<b>Radar yangilanadi</b> har bir Trace hodisasi va har bir darsdan keyin — bu reja emas, haqiqat.':'<b>Радар обновляется</b> после каждого события Trace и каждого урока — это не план, а факт.';
       requestAnimationFrame(radarFrame);
     }
   }
   bT.addEventListener('click',()=>setMode('tower'));
   bR.addEventListener('click',()=>setMode('radar'));
+
+  /* ================= LANGUAGE ================= */
+  const bRu=$('lng-ru'),bUz=$('lng-uz');
+  function setLang(l){
+    lang=(l==='uz')?'uz':'ru';
+    localStorage.setItem('trj_lang',lang);
+    document.documentElement.lang=lang;
+    for(const id in S){const el=$(id);if(el)el.innerHTML=S[id][lang];}
+    bRu.classList.toggle('on',lang==='ru');
+    bUz.classList.toggle('on',lang==='uz');
+    setMode(mode); // перерисовать динамический вьюер на текущем языке
+  }
+  bRu.addEventListener('click',()=>setLang('ru'));
+  bUz.addEventListener('click',()=>setLang('uz'));
 
   /* ================= LOOP & RESIZE ================= */
   function resize(){
@@ -652,6 +788,9 @@
   window.addEventListener('resize',resize);
   new ResizeObserver(resize).observe(document.querySelector('.stagebox'));
   resize();
+
+  // Инициализация языка (RU по умолчанию или сохранённый UZ).
+  setLang(lang);
 
   let t=0;
   (function animate(){
