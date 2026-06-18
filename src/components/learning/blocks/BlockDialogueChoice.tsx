@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { BlockDialogueChoiceData } from '../../../api/learning';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
+import { BlockCard } from './BlockCard';
 
 interface Props {
   data: BlockDialogueChoiceData;
@@ -28,32 +29,25 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
   }, [selected, data.options, onAnswer, onReady]);
 
   return (
-    <div className="animate-slideUp">
-      <div
-        className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
-        style={{ color: accent, background: accentSoft }}
-      >
-        {'\u{1F4AC}'} {t.blocks.whatSay}
-      </div>
-      <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
+    <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u{1F4AC}'} {t.blocks.whatSay}</>}>
         {/* Situation */}
-        <div className="bg-sky-50 rounded-xl p-3 mb-3 text-[13px] leading-relaxed">
+        <div className="bg-status-info-bg rounded-xl p-3 mb-3 text-[13px] leading-relaxed">
           <span dangerouslySetInnerHTML={{ __html: bl(data.situation, lang) }} />
         </div>
 
         {/* Options */}
         <div className="space-y-1.5">
           {data.options.map((opt, i) => {
-            let optClass = 'border-gray-200';
-            let letterClass = 'bg-gray-200 text-gray-600';
+            let optClass = 'border-border-default';
+            let letterClass = 'bg-bg-muted text-fg-muted';
 
             if (selected !== null) {
               if (opt.isCorrect) {
-                optClass = 'border-green-500 bg-green-50';
-                letterClass = 'bg-green-500 text-white';
+                optClass = 'border-status-success-fg bg-status-success-bg';
+                letterClass = 'bg-status-success-fg text-bg-canvas';
               } else if (i === selected && !opt.isCorrect) {
-                optClass = 'border-red-500 bg-red-50';
-                letterClass = 'bg-red-500 text-white';
+                optClass = 'border-status-danger-fg bg-status-danger-bg';
+                letterClass = 'bg-status-danger-fg text-bg-canvas';
               }
             }
 
@@ -77,12 +71,11 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
         {selected !== null && (
           <div
             className={`mt-2 p-2.5 rounded-xl text-xs leading-relaxed animate-fadeIn
-              ${isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
+              ${isCorrect ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-danger-bg text-status-danger-fg'}`}
           >
             {bl(data.options[selected].explanation, lang)}
           </div>
         )}
-      </div>
-    </div>
+    </BlockCard>
   );
 }

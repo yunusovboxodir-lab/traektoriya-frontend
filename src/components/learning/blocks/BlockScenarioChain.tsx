@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { BlockScenarioChainData } from '../../../api/learning';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
+import { BlockCard } from './BlockCard';
 
 interface Props {
   data: BlockScenarioChainData;
@@ -43,20 +44,13 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
   }, [isLastStep, stepIndex, onReady]);
 
   return (
-    <div className="animate-slideUp">
-      <div
-        className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
-        style={{ color: accent, background: accentSoft }}
-      >
-        {t.blocks.solveCase}
-      </div>
-      <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
+    <BlockCard accent={accent} accentSoft={accentSoft} label={t.blocks.solveCase}>
         <div className="text-sm font-bold mb-1 leading-relaxed">{bl(data.title, lang)}</div>
-        <div className="text-xs text-gray-500 mb-3 leading-relaxed">{bl(data.intro, lang)}</div>
+        <div className="text-xs text-fg-muted mb-3 leading-relaxed">{bl(data.intro, lang)}</div>
 
         {!showFinale ? (
           <>
-            <div className="text-[11px] text-gray-400 mb-2">{stepIndex + 1} / {data.steps.length}</div>
+            <div className="text-[11px] text-fg-subtle mb-2">{stepIndex + 1} / {data.steps.length}</div>
             <div
               className="rounded-xl p-3 mb-3 text-[13px] leading-relaxed"
               style={{ background: accentSoft }}
@@ -66,10 +60,10 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
 
             <div className="space-y-1.5">
               {step.options.map((opt, i) => {
-                let optClass = 'border-gray-200';
+                let optClass = 'border-border-default';
                 if (picked !== null) {
-                  if (opt.isCorrect) optClass = 'border-green-500 bg-green-50';
-                  else if (i === picked) optClass = 'border-red-500 bg-red-50';
+                  if (opt.isCorrect) optClass = 'border-status-success-fg bg-status-success-bg';
+                  else if (i === picked) optClass = 'border-status-danger-fg bg-status-danger-bg';
                 }
                 return (
                   <div
@@ -88,14 +82,13 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
               <>
                 <div
                   className={`mt-2 p-2.5 rounded-xl text-xs leading-relaxed animate-fadeIn
-                    ${step.options[picked].isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
+                    ${step.options[picked].isCorrect ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-danger-bg text-status-danger-fg'}`}
                 >
                   {bl(step.options[picked].outcome, lang)}
                 </div>
                 <button
                   onClick={handleContinue}
-                  className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-[0.98]"
-                  style={{ background: accent }}
+                  className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold bg-bg-accent text-fg-on-accent transition-all active:scale-[0.98]"
                 >
                   {isLastStep ? t.blocks.finalStep : t.blocks.continueStep}
                 </button>
@@ -103,11 +96,10 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
             )}
           </>
         ) : (
-          <div className="rounded-xl p-4 text-[13px] leading-relaxed font-semibold bg-green-50 text-green-800 border-2 border-green-200 animate-fadeIn">
+          <div className="rounded-xl p-4 text-[13px] leading-relaxed font-semibold bg-status-success-bg text-status-success-fg border-2 border-status-success-fg animate-fadeIn">
             {bl(data.finale, lang)}
           </div>
         )}
-      </div>
-    </div>
+    </BlockCard>
   );
 }

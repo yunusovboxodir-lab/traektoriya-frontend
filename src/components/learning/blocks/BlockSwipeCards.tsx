@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { BlockSwipeCardsData } from '../../../api/learning';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
+import { BlockCard } from './BlockCard';
 
 interface Props {
   data: BlockSwipeCardsData;
@@ -43,20 +44,13 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
   const card = data.cards[cardIndex];
 
   return (
-    <div className="animate-slideUp">
-      <div
-        className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
-        style={{ color: accent, background: accentSoft }}
-      >
-        {'\u{1F446}'} {t.blocks.trueOrFalse}
-      </div>
-      <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
-        <div className="text-[11px] text-gray-400 text-center mb-3">
+    <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u{1F446}'} {t.blocks.trueOrFalse}</>}>
+        <div className="text-[11px] text-fg-subtle text-center mb-3">
           {t.blocks.evaluate} ({cardIndex + 1}/{data.cards.length})
         </div>
 
         {allDone ? (
-          <div className="text-center py-4 text-sm font-bold text-green-600">
+          <div className="text-center py-4 text-sm font-bold text-status-success-fg">
             {'\u2705'} {t.blocks.allCardsDone}
           </div>
         ) : (
@@ -65,9 +59,9 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
               className={`rounded-xl p-5 text-center text-[15px] font-medium leading-relaxed min-h-[70px] flex items-center justify-center mb-3 border-2 transition-all duration-300
                 ${answered
                   ? lastCorrect
-                    ? 'bg-green-50 border-green-500'
-                    : 'bg-red-50 border-red-500'
-                  : 'bg-gray-50 border-transparent'
+                    ? 'bg-status-success-bg border-status-success-fg'
+                    : 'bg-status-danger-bg border-status-danger-fg'
+                  : 'bg-bg-muted border-transparent'
                 }`}
             >
               {bl(card.text, lang)}
@@ -77,14 +71,14 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
               <button
                 onClick={() => handleAnswer(false)}
                 disabled={answered}
-                className="flex-1 py-3 rounded-xl text-sm font-bold bg-red-50 text-red-600 disabled:opacity-50 active:scale-95 transition-transform"
+                className="flex-1 py-3 rounded-xl text-sm font-bold bg-status-danger-bg text-status-danger-fg disabled:opacity-50 active:scale-95 transition-transform"
               >
                 {'\u2715'} {t.blocks.false}
               </button>
               <button
                 onClick={() => handleAnswer(true)}
                 disabled={answered}
-                className="flex-1 py-3 rounded-xl text-sm font-bold bg-green-50 text-green-600 disabled:opacity-50 active:scale-95 transition-transform"
+                className="flex-1 py-3 rounded-xl text-sm font-bold bg-status-success-bg text-status-success-fg disabled:opacity-50 active:scale-95 transition-transform"
               >
                 {'\u2713'} {t.blocks.true}
               </button>
@@ -93,14 +87,13 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
             {answered && (
               <div
                 className={`mt-2 text-center p-2.5 rounded-xl text-xs font-semibold animate-fadeIn
-                  ${lastCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
+                  ${lastCorrect ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-danger-bg text-status-danger-fg'}`}
               >
                 {lastCorrect ? '\u2705 ' : '\u274C '}{bl(card.feedback, lang)}
               </div>
             )}
           </>
         )}
-      </div>
-    </div>
+    </BlockCard>
   );
 }

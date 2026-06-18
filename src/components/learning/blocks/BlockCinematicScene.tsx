@@ -298,8 +298,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                 </div>
                 <motion.button
                   onClick={onAdvance}
-                  className="w-full py-4 rounded-xl text-white text-base font-bold shadow-lg"
-                  style={{ background: `linear-gradient(135deg, ${accent}, #a855f7)` }}
+                  className="w-full py-4 rounded-xl bg-bg-accent text-fg-on-accent text-base font-bold shadow-lg"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
                 >

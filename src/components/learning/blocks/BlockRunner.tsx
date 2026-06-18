@@ -300,7 +300,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
   // Results block — special rendering with stats
   if (isResultsBlock && currentBlock.type === 'results') {
     return (
-      <div className="min-h-screen bg-[#f0f2f5]">
+      <div className="min-h-screen bg-bg-canvas">
         <BlockProgressBar
           title={title}
           current={currentIndex}
@@ -324,7 +324,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5]">
+    <div className="min-h-screen bg-bg-canvas">
       <BlockProgressBar
         title={title}
         current={currentIndex}

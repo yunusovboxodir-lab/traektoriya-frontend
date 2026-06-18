@@ -25,23 +25,23 @@ export function BlockResults({ data, title, correct, total, elapsedSeconds, acce
 
   return (
     <div className="animate-slideUp">
-      <div className="bg-white mx-3 rounded-2xl p-8 shadow-sm text-center">
+      <div className="bg-bg-surface border border-border-default text-fg-default mx-3 rounded-2xl p-8 shadow-2 text-center">
         <div className="text-[56px] mb-2">{emoji}</div>
         <div className="text-xl font-extrabold mb-1">{t.blocks.lessonDone}</div>
-        <div className="text-[13px] text-gray-400 mb-5">{bl(title, lang)}</div>
+        <div className="text-[13px] text-fg-subtle mb-5">{bl(title, lang)}</div>
 
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="bg-gray-50 rounded-xl py-3 px-1.5">
+          <div className="bg-bg-muted rounded-xl py-3 px-1.5">
             <div className="text-xl font-black" style={{ color: accent }}>{correct}</div>
-            <div className="text-[9px] text-gray-400 mt-0.5">{t.blocks.correct}</div>
+            <div className="text-[9px] text-fg-subtle mt-0.5">{t.blocks.correct}</div>
           </div>
-          <div className="bg-gray-50 rounded-xl py-3 px-1.5">
+          <div className="bg-bg-muted rounded-xl py-3 px-1.5">
             <div className="text-xl font-black" style={{ color: accent }}>{total}</div>
-            <div className="text-[9px] text-gray-400 mt-0.5">{t.blocks.totalQ}</div>
+            <div className="text-[9px] text-fg-subtle mt-0.5">{t.blocks.totalQ}</div>
           </div>
-          <div className="bg-gray-50 rounded-xl py-3 px-1.5">
+          <div className="bg-bg-muted rounded-xl py-3 px-1.5">
             <div className="text-xl font-black" style={{ color: accent }}>{minutes}</div>
-            <div className="text-[9px] text-gray-400 mt-0.5">{t.blocks.minutes}</div>
+            <div className="text-[9px] text-fg-subtle mt-0.5">{t.blocks.minutes}</div>
           </div>
         </div>
 
@@ -51,8 +51,7 @@ export function BlockResults({ data, title, correct, total, elapsedSeconds, acce
 
         <button
           onClick={onFinish}
-          className="w-full py-3.5 rounded-xl text-white text-sm font-bold transition-transform active:scale-[0.97]"
-          style={{ background: accent }}
+          className="w-full py-3.5 rounded-xl bg-bg-accent text-fg-on-accent text-sm font-bold transition-transform active:scale-[0.97]"
         >
           {t.blocks.continue} {'\u2192'}
         </button>

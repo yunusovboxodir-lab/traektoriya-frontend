@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import type { BlockFillBlankData } from '../../../api/learning';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
+import { BlockCard } from './BlockCard';
 
 interface Props {
   data: BlockFillBlankData;
@@ -33,21 +34,14 @@ export function BlockFillBlank({ data, accent, accentSoft, onAnswer, onReady }: 
   }, [selectedIdx, correctIdx, onAnswer, onReady]);
 
   return (
-    <div className="animate-slideUp">
-      <div
-        className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
-        style={{ color: accent, background: accentSoft }}
-      >
-        {'\u270F\uFE0F'} {t.blocks.fillBlank}
-      </div>
-      <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
+    <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u270F\uFE0F'} {t.blocks.fillBlank}</>}>
         <div className="text-[15px] leading-[1.8] mb-3.5">
           {bl(data.sentenceBefore, lang)}
           <span
             className="inline-block min-w-[70px] border-b-[3px] text-center font-bold px-1.5 py-0.5 mx-1 transition-colors"
             style={{
-              borderColor: selectedIdx === null ? accent : isCorrect ? '#22c55e' : '#ef4444',
-              color: selectedIdx === null ? accent : isCorrect ? '#16a34a' : '#dc2626',
+              borderColor: selectedIdx === null ? accent : isCorrect ? 'var(--color-status-success-fg)' : 'var(--color-status-danger-fg)',
+              color: selectedIdx === null ? accent : isCorrect ? 'var(--color-status-success-fg)' : 'var(--color-status-danger-fg)',
             }}
           >
             {selectedIdx !== null ? bl(data.correctAnswer, lang) : '___'}
@@ -57,10 +51,10 @@ export function BlockFillBlank({ data, accent, accentSoft, onAnswer, onReady }: 
 
         <div className="flex flex-wrap gap-2">
           {data.options.map((opt, idx) => {
-            let optClass = 'border-gray-200 bg-gray-50';
+            let optClass = 'border-border-default bg-bg-muted';
             if (selectedIdx !== null) {
-              if (idx === correctIdx) optClass = 'border-green-500 bg-green-50 text-green-600';
-              else if (idx === selectedIdx) optClass = 'border-red-500 bg-red-50 text-red-600';
+              if (idx === correctIdx) optClass = 'border-status-success-fg bg-status-success-bg text-status-success-fg';
+              else if (idx === selectedIdx) optClass = 'border-status-danger-fg bg-status-danger-bg text-status-danger-fg';
             }
 
             return (
@@ -76,7 +70,6 @@ export function BlockFillBlank({ data, accent, accentSoft, onAnswer, onReady }: 
             );
           })}
         </div>
-      </div>
-    </div>
+    </BlockCard>
   );
 }
