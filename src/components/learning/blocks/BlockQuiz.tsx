@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import type { BlockQuizData } from '../../../api/learning';
+import { useState, useCallback, useMemo } from 'react';
+import type { BlockQuizData, QuizQuestionItem } from '../../../api/learning';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
 
@@ -14,18 +14,33 @@ interface Props {
 export function BlockQuiz({ data, accent, accentSoft, onAnswer, onReady }: Props) {
   const lang = useLangStore(s => s.lang);
   const t = useLangStore(s => s.strings);
+
+  // Нормализация: v2 questions[] ИЛИ legacy одиночный question+options
+  const questions: QuizQuestionItem[] = useMemo(() => {
+    if (Array.isArray(data.questions) && data.questions.length > 0) return data.questions;
+    if (data.question && data.options) return [{ question: data.question, options: data.options }];
+    return [];
+  }, [data]);
+
+  const [qIndex, setQIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+
+  const q = questions[qIndex];
+  const isLastQ = qIndex === questions.length - 1;
 
   const handleSelect = useCallback((index: number) => {
-    if (selected !== null) return;
-    const opt = data.options[index];
-    const correct = opt.isCorrect;
+    if (selected !== null || !q) return;
     setSelected(index);
-    setIsCorrect(correct);
-    onAnswer(correct);
-    onReady();
-  }, [selected, data.options, onAnswer, onReady]);
+    onAnswer(q.options[index].isCorrect);
+    if (isLastQ) onReady();  // последний вопрос отвечен — разблокировать «Далее»
+  }, [selected, q, isLastQ, onAnswer, onReady]);
+
+  const handleNextQ = useCallback(() => {
+    setQIndex(qIndex + 1);
+    setSelected(null);
+  }, [qIndex]);
+
+  if (!q) return <div className="p-4 text-center text-gray-400">—</div>;
 
   return (
     <div className="animate-slideUp">
@@ -33,13 +48,18 @@ export function BlockQuiz({ data, accent, accentSoft, onAnswer, onReady }: Props
         className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
         style={{ color: accent, background: accentSoft }}
       >
-        {'\u2705'} {t.blocks.finalQuestion}
+        {'✅'} {t.blocks.finalQuestion}
       </div>
       <div className="bg-white mx-3 rounded-2xl p-5 shadow-sm">
-        <div className="text-sm font-bold mb-3 leading-relaxed">{bl(data.question, lang)}</div>
+        {questions.length > 1 && (
+          <div className="text-[11px] text-gray-400 mb-1.5">
+            {t.blocks.question} {qIndex + 1} {t.blocks.of} {questions.length}
+          </div>
+        )}
+        <div className="text-sm font-bold mb-3 leading-relaxed">{bl(q.question, lang)}</div>
 
         <div className="space-y-1.5">
-          {data.options.map((opt, i) => {
+          {q.options.map((opt, i) => {
             let optClass = 'border-gray-200';
             let letterClass = 'bg-gray-200 text-gray-600';
 
@@ -70,12 +90,23 @@ export function BlockQuiz({ data, accent, accentSoft, onAnswer, onReady }: Props
         </div>
 
         {selected !== null && (
-          <div
-            className={`mt-2 p-2.5 rounded-xl text-xs leading-relaxed animate-fadeIn
-              ${isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
-          >
-            {bl(data.options[selected].explanation, lang)}
-          </div>
+          <>
+            <div
+              className={`mt-2 p-2.5 rounded-xl text-xs leading-relaxed animate-fadeIn
+                ${q.options[selected].isCorrect ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}
+            >
+              {bl(q.options[selected].explanation, lang)}
+            </div>
+            {!isLastQ && (
+              <button
+                onClick={handleNextQ}
+                className="w-full mt-3 py-2.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-[0.98]"
+                style={{ background: accent }}
+              >
+                {t.blocks.continueStep}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

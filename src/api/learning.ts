@@ -387,9 +387,54 @@ export interface BlockDialogueChoiceData {
 }
 
 // Quiz (final question)
-export interface BlockQuizData {
+// v2 (SPEC v2): поддерживает массив questions[] (near-transfer). Legacy: одиночный question+options.
+export interface QuizQuestionItem {
   question: BiText;
   options: DialogueOption[];
+}
+export interface BlockQuizData {
+  question?: BiText;            // legacy: одиночный вопрос
+  options?: DialogueOption[];   // legacy: варианты одиночного вопроса
+  questions?: QuizQuestionItem[]; // v2: массив вопросов
+}
+
+// === SPEC v2 — 4-актная модель (3 новых блока) ===
+
+// scenario_chain — многоходовый кейс (Акт 4). options: text/isCorrect/outcome (НЕ letter/explanation)
+export interface ScenarioOption {
+  text: BiText;
+  isCorrect: boolean;
+  outcome: BiText;   // что произойдёт дальше при этом выборе
+}
+export interface ScenarioStep {
+  scene: BiText;
+  options: ScenarioOption[];
+}
+export interface BlockScenarioChainData {
+  title: BiText;
+  intro: BiText;
+  steps: ScenarioStep[];
+  finale: BiText;    // замыкает историю героя сцены
+}
+
+// mistake_analysis — разбор анти-примера (Акт 3)
+export interface MistakeItem {
+  label: BiText;
+  isMistake: boolean;
+  explanation: BiText;
+}
+export interface BlockMistakeAnalysisData {
+  title: BiText;
+  intro: BiText;
+  items: MistakeItem[];
+}
+
+// field_task — полевое задание (перенос знания в поведение)
+export interface BlockFieldTaskData {
+  title: BiText;
+  task: BiText;
+  checklist: BiText[];
+  reviewer: BiText;
 }
 
 // Results
@@ -416,6 +461,9 @@ export type LessonBlock =
   | { type: 'sorting'; data: BlockSortingData }
   | { type: 'fill_blank'; data: BlockFillBlankData }
   | { type: 'dialogue_choice'; data: BlockDialogueChoiceData }
+  | { type: 'scenario_chain'; data: BlockScenarioChainData }
+  | { type: 'mistake_analysis'; data: BlockMistakeAnalysisData }
+  | { type: 'field_task'; data: BlockFieldTaskData }
   | { type: 'quiz'; data: BlockQuizData }
   | { type: 'results'; data: BlockResultsData };
 

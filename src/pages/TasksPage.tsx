@@ -34,9 +34,10 @@ const SOURCE_STYLES: Record<string, { bg: string; text: string; label: string }>
   learning_module: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Обучение' },
   crm: { bg: 'bg-teal-50', text: 'text-teal-700', label: 'CRM' },
   manual: { bg: 'bg-gray-50', text: 'text-gray-600', label: 'Вручную' },
+  field_task: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Полевое задание' },
 };
 
-function TaskCard({ task, onStatusChange, onCardClick }: { task: Task; onStatusChange: (id: string, status: string) => void; onCardClick: (task: Task) => void }) {
+function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task; onStatusChange: (id: string, status: string) => void; onCardClick: (task: Task) => void; isManager: boolean }) {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
   const style = PRIORITY_STYLES[task.priority] || PRIORITY_STYLES.medium;
@@ -140,7 +141,8 @@ function TaskCard({ task, onStatusChange, onCardClick }: { task: Task; onStatusC
             {t('tasks.actions.toReview')}
           </button>
         )}
-        {task.status !== 'done' && (
+        {/* Полевое задание с ревью СВ: ученик доводит до review, в done переводит только СВ */}
+        {task.status !== 'done' && !(task.extra_data?.requires_sv_review === true && !isManager) && (
           <button
             onClick={() => onStatusChange(task.id, 'done')}
             className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors font-medium"
@@ -719,7 +721,7 @@ export function TasksPage() {
                 {/* Tasks */}
                 <div className="space-y-3">
                   {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} onStatusChange={handleStatusChange} onCardClick={setSelectedTask} />
+                    <TaskCard key={task.id} task={task} onStatusChange={handleStatusChange} onCardClick={setSelectedTask} isManager={isManager} />
                   ))}
                   {tasks.length === 0 && (
                     <div className="text-center py-10">

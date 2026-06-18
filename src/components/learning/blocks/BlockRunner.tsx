@@ -9,6 +9,9 @@ import { BlockSwipeCards } from './BlockSwipeCards';
 import { BlockSorting } from './BlockSorting';
 import { BlockFillBlank } from './BlockFillBlank';
 import { BlockDialogueChoice } from './BlockDialogueChoice';
+import { BlockScenarioChain } from './BlockScenarioChain';
+import { BlockMistakeAnalysis } from './BlockMistakeAnalysis';
+import { BlockFieldTask } from './BlockFieldTask';
 import { BlockQuiz } from './BlockQuiz';
 import { BlockResults } from './BlockResults';
 import { useLangStore } from '../../../stores/langStore';
@@ -377,6 +380,12 @@ function BlockContent({
       return <BlockFillBlank data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
     case 'dialogue_choice':
       return <BlockDialogueChoice data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
+    case 'scenario_chain':
+      return <BlockScenarioChain data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
+    case 'mistake_analysis':
+      return <BlockMistakeAnalysis data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
+    case 'field_task':
+      return <BlockFieldTask data={block.data} accent={accent} accentSoft={accentSoft} onReady={onReady} />;
     case 'quiz':
       return <BlockQuiz data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
     default:
