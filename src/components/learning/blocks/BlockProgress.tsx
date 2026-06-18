@@ -44,7 +44,7 @@ export function BlockBottomBar({ current, total, canAdvance, isLast, onNext }: B
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-bg-surface border-t border-border-default">
-      <div className="max-w-[420px] mx-auto flex items-center gap-3 px-4 py-2.5">
+      <div className="max-w-[480px] md:max-w-[640px] mx-auto flex items-center gap-3 px-4 py-2.5">
         <span className="text-xs text-fg-subtle whitespace-nowrap tabular-nums">
           {current + 1} / {total}
         </span>

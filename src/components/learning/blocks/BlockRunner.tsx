@@ -307,7 +307,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
           total={blocks.length}
           accent={accent}
         />
-        <div className="pt-4 pb-20">
+        <div className="pt-4 pb-20 max-w-[480px] md:max-w-[640px] mx-auto">
           <BlockResults
             data={currentBlock.data}
             title={title}
@@ -332,7 +332,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
         accent={accent}
       />
 
-      <div className="pt-1 pb-20 max-w-[420px] mx-auto">
+      <div className="pt-1 pb-20 max-w-[480px] md:max-w-[640px] mx-auto">
         <BlockContent
           block={currentBlock}
           accent={accent}

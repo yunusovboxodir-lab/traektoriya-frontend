@@ -45,7 +45,7 @@ export function BlockResults({ data, title, correct, total, elapsedSeconds, acce
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-3 rounded-xl text-base font-extrabold mb-3">
+        <div className="bg-gradient-to-r from-bg-accent to-bg-accent-hover text-fg-on-accent py-3 rounded-xl text-base font-extrabold mb-3">
           +{data.xpReward} XP {'\u{1F3C6}'}
         </div>
 
