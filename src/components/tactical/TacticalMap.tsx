@@ -41,12 +41,22 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
     return null;
   };
 
+  // «Живой» пульс на текущем фронтире (в процессе / доступно), чтобы карта дышала
+  // и подсказывала, куда идти дальше. Заблокированные/пройденные — статичны.
+  const pulsing = node.state === 'active' || node.state === 'new';
+
   return (
     <g
       transform={`translate(${node._px ?? 0}, ${node._py ?? 0})`}
       style={{ cursor: 'pointer' }}
       onClick={() => onSelect(node)}
     >
+      {pulsing && (
+        <circle r={r} fill="none" stroke={s.stroke} strokeWidth="2" opacity="0.55">
+          <animate attributeName="r" values={`${r};${r + 12};${r}`} dur={node.state === 'active' ? '1.8s' : '2.6s'} repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.55;0;0.55" dur={node.state === 'active' ? '1.8s' : '2.6s'} repeatCount="indefinite" />
+        </circle>
+      )}
       {selected && <circle r={r + 6} fill="none" stroke={s.stroke} strokeWidth="1" opacity="0.5" />}
       <circle r={r} fill={s.fill} stroke={s.stroke} strokeWidth={selected ? 2 : 1.5} />
       <g>{renderGlyph()}</g>

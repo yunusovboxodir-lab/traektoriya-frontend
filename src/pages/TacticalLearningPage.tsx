@@ -231,7 +231,11 @@ export function TacticalLearningPage() {
           </div>
 
           {selectedNode && (
-            <div className="glass-panel" style={{ position: 'relative' }}>
+            <div
+              onClick={() => setSelectedNode(null)}
+              style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'oklch(0 0 0 / 0.6)', backdropFilter: 'blur(2px)', padding: 24 }}
+            >
+            <div className="glass-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
               <div className="panel-header">
                 <span className="panel-label">УЗЕЛ · {selectedNode.code}</span>
                 <span
@@ -311,6 +315,7 @@ export function TacticalLearningPage() {
               <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--text-2)', letterSpacing: '0.12em', textAlign: 'right', paddingTop: 8, borderTop: '1px solid var(--line-soft)' }}>
                 {lang === 'uz' ? 'Jarayon' : 'Прогресс'}: <strong style={{ color: 'var(--brass)', fontWeight: 700, fontSize: 14 }}>{selectedNode.done} / {selectedNode.sections}</strong>
               </div>
+            </div>
             </div>
           )}
         </div>

@@ -324,7 +324,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-bg-canvas">
+    <div className="min-h-screen bg-bg-canvas flex flex-col">
       <BlockProgressBar
         title={title}
         current={currentIndex}
@@ -332,7 +332,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
         accent={accent}
       />
 
-      <div className="pt-1 pb-20 max-w-[480px] md:max-w-[640px] mx-auto">
+      <div className="flex-1 flex flex-col justify-center pt-4 pb-28 w-full max-w-[480px] md:max-w-[640px] mx-auto">
         <BlockContent
           block={currentBlock}
           accent={accent}

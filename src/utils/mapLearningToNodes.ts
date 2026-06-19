@@ -149,15 +149,14 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
     for (let i = 0; i < lvlCourses.length; i += 3) {
       villagesInZone.push(lvlCourses.slice(i, i + 3));
     }
-    // Размещаем посёлки в зоне (2 столбца × N строк)
+    // Размещаем посёлки извилистой ТРОПОЙ по территории (путь, а не сетка):
+    // спускаемся сверху вниз по зоне, по горизонтали — синусоида (лево↔право).
+    const villageCount = villagesInZone.length;
     villagesInZone.forEach((group, vIdx) => {
-      const cols = 2;
-      const col = vIdx % cols;
-      const row = Math.floor(vIdx / cols);
-      // Нормализованные координаты внутри зоны
       const zone = LEARNING_ZONES[zoneIdx];
-      const localX = 0.18 + col * 0.42; // 18%, 60% внутри зоны
-      const localY = 0.20 + row * 0.22; // 20%, 42%, 64%, 86%
+      const t = villageCount > 1 ? vIdx / (villageCount - 1) : 0.5; // 0..1 вниз по зоне
+      const localY = 0.14 + t * 0.72;                               // 14%..86%
+      const localX = 0.5 + 0.30 * Math.sin(vIdx * 1.15);            // центр ±30%, чередование
       const x = zone.x + zone.w * localX;
       const y = Math.min(0.92, localY);
 

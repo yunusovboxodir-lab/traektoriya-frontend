@@ -43,7 +43,7 @@ export function BlockBottomBar({ current, total, canAdvance, isLast, onNext }: B
   const t = useLangStore(s => s.strings);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-bg-surface border-t border-border-default">
+    <div className="fixed bottom-0 left-0 right-0 z-50 bg-bg-surface border-t border-border-default shadow-[0_-6px_20px_rgb(0_0_0/0.45)]">
       <div className="max-w-[480px] md:max-w-[640px] mx-auto flex items-center gap-3 px-4 py-2.5">
         <span className="text-xs text-fg-subtle whitespace-nowrap tabular-nums">
           {current + 1} / {total}
