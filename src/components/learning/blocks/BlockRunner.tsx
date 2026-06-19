@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { LessonBlock, BlockLessonData, NarrationResponse } from '../../../api/learning';
 import { useBlockSession } from './useBlockSession';
-import { BlockProgressBar, BlockBottomBar } from './BlockProgress';
+import { BlockProgressBar } from './BlockProgress';
 import { BlockCinematicScene } from './BlockCinematicScene';
 import { BlockVideoScene } from './BlockVideoScene';
 import { BlockKeyPoint } from './BlockKeyPoint';
@@ -332,7 +332,7 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
         accent={accent}
       />
 
-      <div className="flex-1 flex flex-col justify-center pt-4 pb-28 w-full max-w-[480px] md:max-w-[640px] mx-auto">
+      <div className="flex-1 flex flex-col justify-center pt-4 pb-10 w-full max-w-[480px] md:max-w-[640px] mx-auto">
         <BlockContent
           block={currentBlock}
           accent={accent}
@@ -340,16 +340,22 @@ export function BlockRunner({ lessonData, narration, onComplete }: Props) {
           onAnswer={recordAnswer}
           onReady={handleReady}
         />
+
+        {/* Кнопка «Далее» — в обычном потоке, прямо под карточкой (всегда видна) */}
+        <div className="px-3 mt-5 flex items-center gap-3">
+          <span className="text-xs text-fg-subtle whitespace-nowrap tabular-nums">
+            {currentIndex + 1} / {blocks.length}
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={!canAdvance}
+            className="flex-1 py-3 rounded-xl bg-bg-accent text-fg-on-accent text-sm font-bold transition-all disabled:bg-bg-muted disabled:text-fg-subtle disabled:opacity-60"
+          >
+            {isLastBlock ? t.blocks.finish : t.blocks.next}
+          </button>
+        </div>
       </div>
 
-      <BlockBottomBar
-        current={currentIndex}
-        total={blocks.length}
-        canAdvance={canAdvance}
-        isLast={isLastBlock}
-        onNext={handleNext}
-        accent={accent}
-      />
       {FloatingAudioPlayer}
     </div>
   );
