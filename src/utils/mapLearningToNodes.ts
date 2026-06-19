@@ -23,13 +23,24 @@ import type {
 } from '../api/learning';
 import type { MapEdge, MapHouse, MapNode, MapZone, NodeState } from '../components/tactical/types';
 
-// 4 зоны (статичны, имена/позиции из handoff)
+// 4 зоны = 4 материка на карте world-map-v4.png. cx/cy — якорь подписи территории
+// НАД её материком (нормировано к полной карте). Путь узлов — TIER_PATHS ниже.
 export const LEARNING_ZONES: MapZone[] = [
-  { id: 'stazher', label: 'СТАЖЁР',  sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.02, w: 0.24, cx: 0.14, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
-  { id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.26, w: 0.24, cx: 0.39, cy: 0.50, accent: 'oklch(0.78 0.14 75)' },
-  { id: 'expert',  label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.50, w: 0.24, cx: 0.63, cy: 0.50, accent: 'oklch(0.74 0.11 155)' },
-  { id: 'master',  label: 'МАСТЕР',  sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.74, w: 0.24, cx: 0.86, cy: 0.50, accent: 'oklch(0.85 0.13 88)' },
+  { id: 'stazher', label: 'СТАЖЁР',  sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.02, w: 0.24, cx: 0.16, cy: 0.54, accent: 'oklch(0.74 0.13 200)' },
+  { id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.26, w: 0.24, cx: 0.54, cy: 0.31, accent: 'oklch(0.78 0.14 75)' },
+  { id: 'expert',  label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.50, w: 0.24, cx: 0.82, cy: 0.37, accent: 'oklch(0.74 0.11 155)' },
+  { id: 'master',  label: 'МАСТЕР',  sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.74, w: 0.24, cx: 0.89, cy: 0.07, accent: 'oklch(0.85 0.13 88)' },
 ];
+
+// Путевые точки на СУШЕ (нормировано к полной карте 0..1). Узлы тиров садятся сюда —
+// чтобы стоять на материках, а не висеть над океаном. Первый заход, точки нужно
+// калибровать по реальной карте (итерация по скринам владельца).
+const TIER_PATHS: Record<number, [number, number][]> = {
+  0: [[0.09, 0.70], [0.13, 0.80], [0.19, 0.86], [0.23, 0.77], [0.21, 0.66], [0.15, 0.62]], // материк снизу-слева
+  1: [[0.47, 0.72], [0.51, 0.80], [0.55, 0.66], [0.58, 0.54], [0.60, 0.44], [0.53, 0.50]], // центральный континент+острова
+  2: [[0.74, 0.72], [0.78, 0.62], [0.82, 0.70], [0.86, 0.58], [0.84, 0.46], [0.78, 0.52]], // правый континент
+  3: [[0.82, 0.32], [0.86, 0.25], [0.90, 0.19], [0.93, 0.14], [0.88, 0.18], [0.84, 0.27]], // снежные пики справа-сверху
+};
 
 const LEVEL_TO_ZONE: Record<string, number> = {
   trainee: 0,
@@ -149,16 +160,13 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
     for (let i = 0; i < lvlCourses.length; i += 3) {
       villagesInZone.push(lvlCourses.slice(i, i + 3));
     }
-    // Размещаем посёлки извилистой ТРОПОЙ по территории (путь, а не сетка):
-    // спускаемся сверху вниз по зоне, по горизонтали — синусоида (лево↔право).
-    const villageCount = villagesInZone.length;
+    // Узлы тира садятся на путевые точки своего МАТЕРИКА (на сушу карты).
     villagesInZone.forEach((group, vIdx) => {
-      const zone = LEARNING_ZONES[zoneIdx];
-      const t = villageCount > 1 ? vIdx / (villageCount - 1) : 0.5; // 0..1 вниз по зоне
-      const localY = 0.14 + t * 0.72;                               // 14%..86%
-      const localX = 0.5 + 0.30 * Math.sin(vIdx * 1.15);            // центр ±30%, чередование
-      const x = zone.x + zone.w * localX;
-      const y = Math.min(0.92, localY);
+      const path = TIER_PATHS[zoneIdx] ?? TIER_PATHS[0];
+      const base = path[vIdx % path.length];
+      const overflow = Math.floor(vIdx / path.length); // если посёлков больше точек — лёгкий сдвиг
+      const x = base[0] + overflow * 0.012;
+      const y = Math.min(0.95, base[1] + overflow * 0.03);
 
       // Дома (3 курса в группе)
       const houses: MapHouse[] = group.map((c) => ({

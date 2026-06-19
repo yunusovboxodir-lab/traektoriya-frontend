@@ -2,7 +2,7 @@
  * TacticalMap — SVG карта обучения с 4 зонами × 24 поселениями.
  * Адаптировано из tactical-map.jsx (handoff Claude Design 2026-05-01).
  */
-import { useMemo, type ReactNode } from 'react';
+import { useMemo } from 'react';
 import type { MapNode, MapEdge as MapEdgeType, MapZone, TerritoryMode } from './types';
 import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES, STATE_STYLES } from './data';
 
@@ -116,97 +116,23 @@ interface ZoneColumnProps {
   sourceZones: MapZone[];
 }
 
-function ZoneColumn({ zone, idx, W, H, focusZone, mode = 'biome', sourceZones }: ZoneColumnProps) {
-  const x0 = zone.x * W;
-  const w = zone.w * W;
-  const cx = x0 + w / 2;
+function ZoneColumn({ zone, idx, W, H, focusZone }: ZoneColumnProps) {
   const tcx = zone.cx * W;
   const tcy = zone.cy * H;
   const dim = focusZone !== null && focusZone !== idx;
   const tint = ['oklch(0.75 0.10 220)', 'oklch(0.78 0.12 75)', 'oklch(0.75 0.12 155)', 'oklch(0.82 0.13 90)'][idx];
 
-  const header = (
-    <g>
-      <text x={cx} y="24" textAnchor="middle"
-        fontSize="12" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.28em" fontWeight="700" fill={tint}>{zone.label}</text>
-      <text x={cx} y="38" textAnchor="middle"
-        fontSize="8" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.18em" opacity="0.55"
-        fill="oklch(0.7 0.02 250)">{`T-0${idx + 1} · ${zone.count} РАЗД.`}</text>
-    </g>
-  );
-
-  const isLast = idx === sourceZones.length - 1;
-  const barrierX = x0 + w;
-  let modeContent: ReactNode = null;
-
-  if (mode === 'biome') {
-    modeContent = (
-      <g>
-        <rect x={x0} y={56} width={w} height={H - 86} fill={tint} opacity="0.04" />
-        {!isLast && (
-          <line x1={barrierX} y1={56} x2={barrierX} y2={H - 30}
-            stroke="oklch(0.40 0.04 240)" strokeWidth="0.8"
-            strokeDasharray="2 4" opacity="0.55" />
-        )}
-      </g>
-    );
-  } else if (mode === 'flag') {
-    modeContent = (
-      <g>
-        {!isLast && (
-          <line x1={barrierX} y1={56} x2={barrierX} y2={H - 30}
-            stroke={tint} strokeOpacity="0.40"
-            strokeWidth="0.8" strokeDasharray="3 5" />
-        )}
-        <g transform={`translate(${cx - 16}, 50)`}>
-          <rect width="32" height="2" fill={tint} opacity="0.7" />
-        </g>
-      </g>
-    );
-  } else if (mode === 'topo') {
-    const rings = [0.50, 0.78, 1.06];
-    modeContent = (
-      <g>
-        {rings.map((r, i) => (
-          <ellipse key={i}
-            cx={tcx} cy={tcy}
-            rx={w * 0.36 * r} ry={H * 0.16 * r}
-            fill="none" stroke={tint}
-            strokeOpacity={0.18 - i * 0.04}
-            strokeWidth="0.6"
-            strokeDasharray="1 5" />
-        ))}
-        {!isLast && (
-          <line x1={barrierX} y1={56} x2={barrierX} y2={H - 30}
-            stroke="oklch(0.40 0.04 240)" strokeWidth="0.8"
-            strokeDasharray="2 4" opacity="0.55" />
-        )}
-      </g>
-    );
-  } else if (mode === 'forcefield') {
-    modeContent = (
-      <g>
-        {!isLast && (
-          <g>
-            <line x1={barrierX} y1={56} x2={barrierX} y2={H - 30}
-              stroke={tint} strokeOpacity="0.50"
-              strokeWidth="0.9" strokeDasharray="4 4" />
-            <line x1={barrierX - 4} y1={56} x2={barrierX + 4} y2={56}
-              stroke={tint} strokeOpacity="0.7" strokeWidth="0.9" />
-            <line x1={barrierX - 4} y1={H - 30} x2={barrierX + 4} y2={H - 30}
-              stroke={tint} strokeOpacity="0.7" strokeWidth="0.9" />
-          </g>
-        )}
-      </g>
-    );
-  }
-
+  // Подпись территории стоит НАД её материком (не колонка). Мягкое свечение региона.
   return (
-    <g opacity={dim ? 0.35 : 1}>
-      {modeContent}
-      {header}
+    <g opacity={dim ? 0.3 : 1} style={{ pointerEvents: 'none' }}>
+      <circle cx={tcx} cy={tcy + 42} r={86} fill={tint} opacity="0.05" />
+      <text x={tcx} y={tcy} textAnchor="middle"
+        fontSize="13" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.26em" fontWeight="700" fill={tint}>{zone.label}</text>
+      <text x={tcx} y={tcy + 15} textAnchor="middle"
+        fontSize="8" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.18em" opacity="0.6"
+        fill="oklch(0.7 0.02 250)">{`T-0${idx + 1} · ${zone.count} РАЗД.`}</text>
     </g>
   );
 }
@@ -260,8 +186,9 @@ export function TacticalMap({
   const sourceEdges = edges ?? DEFAULT_EDGES;
   const sourceZones = zones ?? DEFAULT_ZONES;
 
+  // Полный маппинг к координатам карты-картинки → узлы стоят ровно на суше
   const placed = useMemo(
-    () => sourceNodes.map((n) => ({ ...n, _px: n.x * W, _py: 80 + n.y * (H - 140) })),
+    () => sourceNodes.map((n) => ({ ...n, _px: n.x * W, _py: n.y * H })),
     [sourceNodes]
   );
   const byId = useMemo(
