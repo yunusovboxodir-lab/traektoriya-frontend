@@ -101,7 +101,13 @@ export function TacticalLearningPage() {
   }, [viewAsRole, lang]);
 
   const handleSelect = (node: MapNode) => {
-    setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+    // Каждый узел = один курс → 1 клик открывает урок. Заблокированный — показываем инфо.
+    const h = node.houses?.[0];
+    if (h?.course_id && h.s !== 'locked') {
+      openCourse(h.course_id);
+    } else {
+      setSelectedNode((prev) => (prev?.id === node.id ? null : node));
+    }
   };
 
   // Открыть курс по ID (передаётся из bottom-sheet или нажатием на дом)

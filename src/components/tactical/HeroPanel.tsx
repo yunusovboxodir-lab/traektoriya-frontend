@@ -5,15 +5,8 @@
 import type { CSSProperties } from 'react';
 import { Panel, Stat, ProgressBar, RingProgress } from './Panel';
 import { ZONES as DEFAULT_ZONES } from './data';
-import type { MapZone, TeamMember } from './types';
+import type { MapZone } from './types';
 import { useLangStore } from '../../stores/langStore';
-
-const TEAM: TeamMember[] = [
-  { n: 'Gulnaza', r: 'СВ', p: 75, s: 'oklch(0.78 0.15 155)' },
-  { n: 'Ibrahim', r: 'СВ', p: 60, s: 'oklch(0.82 0.15 75)' },
-  { n: 'Aset',    r: 'СВ', p: 45, s: 'oklch(0.82 0.15 75)' },
-  { n: 'Bekzod',  r: 'СВ', p: 30, s: 'oklch(0.78 0.15 220)' },
-];
 
 const ZONE_TINTS = [
   'oklch(0.75 0.10 220)',
@@ -149,22 +142,6 @@ export function HeroPanel({
           );
         })}
       </div>
-
-      <div className="divider" />
-
-      {/* Team */}
-      <div className="section-label">{t('КОМАНДНЫЙ ОБЗОР · JEKA-DIV', 'JAMOA · JEKA-DIV')}</div>
-      {TEAM.map((t) => (
-        <div key={t.n} className="team-row">
-          <div className="team-id">
-            {t.n} <span className="team-role">({t.r})</span>
-          </div>
-          <div className="team-bar">
-            <div className="team-bar-fill" style={{ width: t.p + '%', background: t.s }} />
-          </div>
-          <div className="team-pct">{t.p}%</div>
-        </div>
-      ))}
     </Panel>
   );
 }

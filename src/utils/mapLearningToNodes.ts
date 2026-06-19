@@ -36,11 +36,23 @@ export const LEARNING_ZONES: MapZone[] = [
 // чтобы стоять на материках, а не висеть над океаном. Первый заход, точки нужно
 // калибровать по реальной карте (итерация по скринам владельца).
 const TIER_PATHS: Record<number, [number, number][]> = {
-  0: [[0.09, 0.70], [0.13, 0.80], [0.19, 0.86], [0.23, 0.77], [0.21, 0.66], [0.15, 0.62]], // материк снизу-слева
-  1: [[0.47, 0.72], [0.51, 0.80], [0.55, 0.66], [0.58, 0.54], [0.60, 0.44], [0.53, 0.50]], // центральный континент+острова
-  2: [[0.74, 0.72], [0.78, 0.62], [0.82, 0.70], [0.86, 0.58], [0.84, 0.46], [0.78, 0.52]], // правый континент
-  3: [[0.82, 0.32], [0.86, 0.25], [0.90, 0.19], [0.93, 0.14], [0.88, 0.18], [0.84, 0.27]], // снежные пики справа-сверху
+  0: [[0.09, 0.70], [0.13, 0.80], [0.19, 0.86], [0.23, 0.77], [0.21, 0.66], [0.15, 0.62]], // Стажёр — материк снизу-слева (ок)
+  1: [[0.49, 0.58], [0.52, 0.50], [0.55, 0.43], [0.585, 0.37], [0.60, 0.45], [0.565, 0.53]], // Практик — центр. континент (поднял из воды)
+  2: [[0.75, 0.64], [0.78, 0.56], [0.82, 0.49], [0.85, 0.43], [0.81, 0.50], [0.77, 0.58]], // Эксперт — правый континент (на сушу)
+  3: [[0.83, 0.30], [0.87, 0.24], [0.90, 0.18], [0.92, 0.12], [0.88, 0.16], [0.85, 0.24]], // Мастер — снежные пики справа-сверху
 };
+
+// Точка на ломаной-тропе при параметре t∈[0,1] (интерполяция между путевыми точками)
+function pointOnPath(path: [number, number][], t: number): [number, number] {
+  if (path.length === 1) return path[0];
+  const segs = path.length - 1;
+  const p = Math.max(0, Math.min(1, t)) * segs;
+  const i = Math.min(Math.floor(p), segs - 1);
+  const f = p - i;
+  const a = path[i];
+  const b = path[i + 1];
+  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+}
 
 const LEVEL_TO_ZONE: Record<string, number> = {
   trainee: 0,
@@ -72,15 +84,6 @@ function courseStatusToNodeState(status: string): NodeState {
     case 'locked':
     default: return 'locked';
   }
-}
-
-function aggregateState(houses: MapHouse[]): NodeState {
-  const states = houses.map((h) => h.s);
-  if (states.every((s) => s === 'done' || s === 'mastered')) return 'done';
-  if (states.some((s) => s === 'active')) return 'active';
-  if (states.some((s) => s === 'new')) return 'new';
-  if (states.every((s) => s === 'locked')) return 'locked';
-  return 'new';
 }
 
 interface MapData {
@@ -152,54 +155,31 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
     if (byLevel[c.level]) byLevel[c.level].push(c);
   }
 
-  // 6. В каждом уровне группируем по 3 → посёлки. Layout по сетке 2-3 ряда внутри зоны.
+  // 6. КАЖДЫЙ КУРС = свой узел-локация, размещён вдоль тропы своего материка.
   const nodes: MapNode[] = [];
   for (const [lvlKey, lvlCourses] of Object.entries(byLevel)) {
     const zoneIdx = LEVEL_TO_ZONE[lvlKey];
-    const villagesInZone: FlatCourse[][] = [];
-    for (let i = 0; i < lvlCourses.length; i += 3) {
-      villagesInZone.push(lvlCourses.slice(i, i + 3));
-    }
-    // Узлы тира садятся на путевые точки своего МАТЕРИКА (на сушу карты).
-    villagesInZone.forEach((group, vIdx) => {
-      const path = TIER_PATHS[zoneIdx] ?? TIER_PATHS[0];
-      const base = path[vIdx % path.length];
-      const overflow = Math.floor(vIdx / path.length); // если посёлков больше точек — лёгкий сдвиг
-      const x = base[0] + overflow * 0.012;
-      const y = Math.min(0.95, base[1] + overflow * 0.03);
-
-      // Дома (3 курса в группе)
-      const houses: MapHouse[] = group.map((c) => ({
-        s: courseStatusToNodeState(c.status),
-        course_id: c.course_id,
-        course_title: c.title,
-      }));
-      // Pad до 3 если меньше
-      while (houses.length < 3) houses.push({ s: 'locked' });
-
-      const state = aggregateState(houses);
-      // Заголовок посёлка = первый курс (укорочённый) или название секции
-      const firstCourse = group[0];
-      const villageTitle = firstCourse
-        ? firstCourse.title.length > 22
-          ? firstCourse.title.substring(0, 20) + '…'
-          : firstCourse.title
-        : `Группа ${vIdx + 1}`;
-
+    const path = TIER_PATHS[zoneIdx] ?? TIER_PATHS[0];
+    const n = lvlCourses.length;
+    lvlCourses.forEach((c, cIdx) => {
+      const tt = n > 1 ? cIdx / (n - 1) : 0.5;        // 0..1 вдоль тропы материка
+      const [x, y] = pointOnPath(path, tt);
+      const st = courseStatusToNodeState(c.status);
+      const title = c.title.length > 22 ? c.title.substring(0, 20) + '…' : c.title;
       const codePrefix = ['СТ', 'ПР', 'ЭК', 'МР'][zoneIdx] ?? 'XX';
-      const code = `${codePrefix}-${String(vIdx + 1).padStart(2, '0')}`;
+      const houses: MapHouse[] = [{ s: st, course_id: c.course_id, course_title: c.title }];
 
       nodes.push({
-        id: `n${zoneIdx}-${vIdx}`,
-        code,
-        title: villageTitle,
-        state,
+        id: `n${zoneIdx}-${cIdx}`,
+        code: `${codePrefix}-${String(cIdx + 1).padStart(2, '0')}`,
+        title,
+        state: st,
         houses,
         zone: zoneIdx,
         x,
         y,
-        sections: 3,
-        done: houses.filter((h) => h.s === 'done' || h.s === 'mastered').length,
+        sections: 1,
+        done: (st === 'done' || st === 'mastered') ? 1 : 0,
       });
     });
   }
