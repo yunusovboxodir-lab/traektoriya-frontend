@@ -35,23 +35,28 @@ export const LEARNING_ZONES: MapZone[] = [
 // Путевые точки на СУШЕ (нормировано к полной карте 0..1). Узлы тиров садятся сюда —
 // чтобы стоять на материках, а не висеть над океаном. Первый заход, точки нужно
 // калибровать по реальной карте (итерация по скринам владельца).
-const TIER_PATHS: Record<number, [number, number][]> = {
-  0: [[0.09, 0.70], [0.13, 0.80], [0.19, 0.86], [0.23, 0.77], [0.21, 0.66], [0.15, 0.62]], // Стажёр — материк снизу-слева (ок)
-  1: [[0.49, 0.58], [0.52, 0.50], [0.55, 0.43], [0.585, 0.37], [0.60, 0.45], [0.565, 0.53]], // Практик — центр. континент (поднял из воды)
-  2: [[0.75, 0.64], [0.78, 0.56], [0.82, 0.49], [0.85, 0.43], [0.81, 0.50], [0.77, 0.58]], // Эксперт — правый континент (на сушу)
-  3: [[0.83, 0.30], [0.87, 0.24], [0.90, 0.18], [0.92, 0.12], [0.88, 0.16], [0.85, 0.24]], // Мастер — снежные пики справа-сверху
+// Регионы-материки на world-map-v4.png (bbox нормировано к полной карте) —
+// узлы РАЗБРАСЫВАЮТСЯ внутри своего материка как отдельные локации (не цепочкой).
+const TIER_REGIONS: Record<number, { x0: number; x1: number; y0: number; y1: number }> = {
+  0: { x0: 0.04, x1: 0.26, y0: 0.60, y1: 0.93 }, // Стажёр — материк снизу-слева
+  1: { x0: 0.47, x1: 0.63, y0: 0.33, y1: 0.60 }, // Практик — центральный континент
+  2: { x0: 0.72, x1: 0.91, y0: 0.36, y1: 0.78 }, // Эксперт — правый континент
+  3: { x0: 0.80, x1: 0.97, y0: 0.09, y1: 0.33 }, // Мастер — снежные пики справа-сверху
 };
 
-// Точка на ломаной-тропе при параметре t∈[0,1] (интерполяция между путевыми точками)
-function pointOnPath(path: [number, number][], t: number): [number, number] {
-  if (path.length === 1) return path[0];
-  const segs = path.length - 1;
-  const p = Math.max(0, Math.min(1, t)) * segs;
-  const i = Math.min(Math.floor(p), segs - 1);
-  const f = p - i;
-  const a = path[i];
-  const b = path[i + 1];
-  return [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
+const frac = (x: number) => x - Math.floor(x);
+
+// Детерминированный «посев» n точек в регионе: джиттер-сетка → разброс без слипания.
+function scatter(region: { x0: number; x1: number; y0: number; y1: number }, i: number, n: number): [number, number] {
+  const cols = Math.max(1, Math.ceil(Math.sqrt(n)));
+  const rows = Math.max(1, Math.ceil(n / cols));
+  const col = i % cols;
+  const row = Math.floor(i / cols);
+  const jx = frac(Math.sin((i + 1) * 12.9898) * 43758.5453) * 2 - 1;
+  const jy = frac(Math.sin((i + 1) * 78.233) * 43758.5453) * 2 - 1;
+  const lx = Math.min(0.97, Math.max(0.03, (col + 0.5) / cols + jx * (0.34 / cols)));
+  const ly = Math.min(0.97, Math.max(0.03, (row + 0.5) / rows + jy * (0.34 / rows)));
+  return [region.x0 + (region.x1 - region.x0) * lx, region.y0 + (region.y1 - region.y0) * ly];
 }
 
 const LEVEL_TO_ZONE: Record<string, number> = {
@@ -159,11 +164,10 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
   const nodes: MapNode[] = [];
   for (const [lvlKey, lvlCourses] of Object.entries(byLevel)) {
     const zoneIdx = LEVEL_TO_ZONE[lvlKey];
-    const path = TIER_PATHS[zoneIdx] ?? TIER_PATHS[0];
+    const region = TIER_REGIONS[zoneIdx] ?? TIER_REGIONS[0];
     const n = lvlCourses.length;
     lvlCourses.forEach((c, cIdx) => {
-      const tt = n > 1 ? cIdx / (n - 1) : 0.5;        // 0..1 вдоль тропы материка
-      const [x, y] = pointOnPath(path, tt);
+      const [x, y] = scatter(region, cIdx, n); // разброс по материку (отдельные локации)
       const st = courseStatusToNodeState(c.status);
       const title = c.title.length > 22 ? c.title.substring(0, 20) + '…' : c.title;
       const codePrefix = ['СТ', 'ПР', 'ЭК', 'МР'][zoneIdx] ?? 'XX';
@@ -184,22 +188,8 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
     });
   }
 
-  // 7. Edges — последовательные внутри зоны + межзональные мосты
+  // 7. Линий между узлами нет — как на реальной карте (только пины-локации).
   const edges: MapEdge[] = [];
-  for (let zi = 0; zi < 4; zi++) {
-    const zoneNodes = nodes.filter((n) => n.zone === zi);
-    for (let i = 0; i < zoneNodes.length - 1; i++) {
-      edges.push([zoneNodes[i].id, zoneNodes[i + 1].id]);
-    }
-    // Мост к следующей зоне
-    if (zi < 3) {
-      const lastInZone = zoneNodes[zoneNodes.length - 1];
-      const firstInNext = nodes.find((n) => n.zone === zi + 1);
-      if (lastInZone && firstInNext) {
-        edges.push([lastInZone.id, firstInNext.id]);
-      }
-    }
-  }
 
   // 8. Обновим count в zones
   const zonesUpdated = LEARNING_ZONES.map((z, i) => ({

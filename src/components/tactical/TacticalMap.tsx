@@ -4,7 +4,7 @@
  */
 import { useMemo } from 'react';
 import type { MapNode, MapEdge as MapEdgeType, MapZone, TerritoryMode } from './types';
-import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES, STATE_STYLES } from './data';
+import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES } from './data';
 
 interface MapNodeProps {
   node: MapNode;
@@ -12,55 +12,75 @@ interface MapNodeProps {
   onSelect: (node: MapNode) => void;
 }
 
-function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
-  const s = STATE_STYLES[node.state];
-  const r = node.state === 'mastered' ? 22 : 18;
+// Палитра территорий (тиров) — ЦВЕТ пина = к какому материку/уровню относится курс.
+// Это даёт реальную вариативность пинов «как на карте» (4 разных цвета), пока
+// прогрессия по статусам не включена. СОСТОЯНИЕ передаём ДИЗАЙНОМ (глиф/пульс), не цветом.
+const TIER_TINTS: { stroke: string; fill: string }[] = [
+  { stroke: 'oklch(0.80 0.14 220)', fill: 'oklch(0.32 0.10 220)' }, // T1 Стажёр — синий
+  { stroke: 'oklch(0.83 0.15 75)',  fill: 'oklch(0.34 0.12 75)'  }, // T2 Практик — янтарь
+  { stroke: 'oklch(0.80 0.14 155)', fill: 'oklch(0.32 0.10 155)' }, // T3 Эксперт — зелёный
+  { stroke: 'oklch(0.86 0.14 90)',  fill: 'oklch(0.40 0.13 90)'  }, // T4 Мастер — золото
+];
+const LOCKED_TINT = { stroke: 'oklch(0.52 0.02 250)', fill: 'oklch(0.22 0.02 250)' };
 
+function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
+  const locked = node.state === 'locked';
+  // Цвет = тир (или приглушённый серый для заблокированных).
+  const col = locked ? LOCKED_TINT : (TIER_TINTS[node.zone ?? 0] ?? TIER_TINTS[0]);
+  const R = node.state === 'mastered' ? 13 : 11; // радиус головы пина
+  const headY = -(R + 13);                        // голова над точкой, остриё — на локации
+  // Пульсирует только активный (текущий) курс — чтобы не зашумлять карту.
+  const pulsing = node.state === 'active';
+
+  // Глиф = СОСТОЯНИЕ (форма, не цвет): ✓ пройден · ◆ в процессе · ▲ доступен · 🔒 закрыт · ★ мастер
   const renderGlyph = () => {
     if (node.state === 'done') {
-      return <path d="M -5 0 L -1 4 L 6 -5" stroke={s.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
+      return <path d="M -5 0 L -1 4 L 6 -5" stroke={col.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
     }
     if (node.state === 'new') {
-      return <path d="M -6 -2 L 0 5 L 6 -2" stroke={s.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
+      return <path d="M -6 -2 L 0 5 L 6 -2" stroke={col.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
     }
     if (node.state === 'active') {
-      return <path d="M 0 -6 L 5 0 L 0 6 L -5 0 Z" stroke={s.stroke} strokeWidth="2" fill={s.stroke} fillOpacity="0.4" strokeLinejoin="round" />;
+      return <path d="M 0 -6 L 5 0 L 0 6 L -5 0 Z" stroke={col.stroke} strokeWidth="2" fill={col.stroke} fillOpacity="0.4" strokeLinejoin="round" />;
     }
     if (node.state === 'locked') {
       return (
-        <g stroke={s.stroke} strokeWidth="1.6" fill="none">
-          <rect x="-4.5" y="-1.5" width="9" height="7" rx="1" fill={s.stroke} fillOpacity="0.22" />
+        <g stroke={col.stroke} strokeWidth="1.6" fill="none">
+          <rect x="-4.5" y="-1.5" width="9" height="7" rx="1" fill={col.stroke} fillOpacity="0.22" />
           <path d="M -3 -1.5 V -4 a 3 3 0 0 1 6 0 V -1.5" />
         </g>
       );
     }
     if (node.state === 'mastered') {
       return <path d="M 0 -8 L 2.4 -2.4 L 8 -2.4 L 3.2 1.6 L 4.8 7 L 0 4 L -4.8 7 L -3.2 1.6 L -8 -2.4 L -2.4 -2.4 Z"
-        fill={s.stroke} fillOpacity="0.55" stroke={s.stroke} strokeWidth="1.3" strokeLinejoin="round" />;
+        fill={col.stroke} fillOpacity="0.55" stroke={col.stroke} strokeWidth="1.3" strokeLinejoin="round" />;
     }
     return null;
   };
 
-  // «Живой» пульс на текущем фронтире (в процессе / доступно), чтобы карта дышала
-  // и подсказывала, куда идти дальше. Заблокированные/пройденные — статичны.
-  const pulsing = node.state === 'active' || node.state === 'new';
-
   return (
     <g
       transform={`translate(${node._px ?? 0}, ${node._py ?? 0})`}
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: 'pointer', opacity: locked ? 0.72 : 1 }}
       onClick={() => onSelect(node)}
     >
+      {/* пульс вокруг головы (только активный — текущий курс) */}
       {pulsing && (
-        <circle r={r} fill="none" stroke={s.stroke} strokeWidth="2" opacity="0.55">
-          <animate attributeName="r" values={`${r};${r + 12};${r}`} dur={node.state === 'active' ? '1.8s' : '2.6s'} repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.55;0;0.55" dur={node.state === 'active' ? '1.8s' : '2.6s'} repeatCount="indefinite" />
+        <circle cx={0} cy={headY} r={R} fill="none" stroke={col.stroke} strokeWidth="2" opacity="0.5">
+          <animate attributeName="r" values={`${R};${R + 9};${R}`} dur="1.8s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.5;0;0.5" dur="1.8s" repeatCount="indefinite" />
         </circle>
       )}
-      {selected && <circle r={r + 6} fill="none" stroke={s.stroke} strokeWidth="1" opacity="0.5" />}
-      <circle r={r} fill={s.fill} stroke={s.stroke} strokeWidth={selected ? 2 : 1.5} />
-      <g>{renderGlyph()}</g>
-      <text textAnchor="middle" y={r + 13}
+      {/* тень пина на «земле» */}
+      <ellipse cx={0} cy={1} rx={4.5} ry={1.6} fill="oklch(0 0 0)" opacity="0.35" />
+      {/* остриё пина — указывает на точку локации */}
+      <path d={`M ${-R * 0.55} ${headY + R * 0.7} L ${R * 0.55} ${headY + R * 0.7} L 0 -1 Z`} fill={col.stroke} />
+      {/* голова пина */}
+      {selected && <circle cx={0} cy={headY} r={R + 5} fill="none" stroke={col.stroke} strokeWidth="1.2" opacity="0.6" />}
+      <circle cx={0} cy={headY} r={R} fill={col.fill} stroke={col.stroke} strokeWidth={selected ? 2.6 : 1.8} />
+      <g transform={`translate(0, ${headY})`}>{renderGlyph()}</g>
+      {/* подпись под пином */}
+      <text textAnchor="middle" y={11}
         fontSize="9.5"
         fontFamily="Inter, sans-serif"
         fontWeight={selected ? 600 : 500}
