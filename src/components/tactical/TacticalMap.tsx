@@ -79,13 +79,16 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
       {selected && <circle cx={0} cy={headY} r={R + 5} fill="none" stroke={col.stroke} strokeWidth="1.2" opacity="0.6" />}
       <circle cx={0} cy={headY} r={R} fill={col.fill} stroke={col.stroke} strokeWidth={selected ? 2.6 : 1.8} />
       <g transform={`translate(0, ${headY})`}>{renderGlyph()}</g>
-      {/* подпись под пином */}
-      <text textAnchor="middle" y={11}
-        fontSize="9.5"
-        fontFamily="Inter, sans-serif"
-        fontWeight={selected ? 600 : 500}
-        fill="oklch(0.85 0.02 250)"
-        style={{ pointerEvents: 'none' }}>{node.title}</text>
+      {/* подпись курса — только у выбранного пина (иначе нечитаемо и зашумляет карту) */}
+      {selected && (
+        <text textAnchor="middle" y={11}
+          fontSize="10"
+          fontFamily="Inter, sans-serif"
+          fontWeight={600}
+          fill="oklch(0.92 0.02 250)"
+          style={{ pointerEvents: 'none', paintOrder: 'stroke' }}
+          stroke="oklch(0.10 0.02 250)" strokeWidth="3">{node.title}</text>
+      )}
     </g>
   );
 }
