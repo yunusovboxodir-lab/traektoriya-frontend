@@ -139,23 +139,51 @@ interface ZoneColumnProps {
   sourceZones: MapZone[];
 }
 
+// Палитра территорий (совпадает с цветом пинов по тиру): граница + лёгкая заливка региона.
+const REGION_TINTS = [
+  { stroke: 'oklch(0.72 0.13 220)', fillId: 'rg-t1' }, // T1 Стажёр — синий
+  { stroke: 'oklch(0.78 0.14 75)',  fillId: 'rg-t2' }, // T2 Практик — янтарь
+  { stroke: 'oklch(0.72 0.13 155)', fillId: 'rg-t3' }, // T3 Эксперт — зелёный
+  { stroke: 'oklch(0.84 0.14 90)',  fillId: 'rg-t4' }, // T4 Мастер — золото
+];
+
+// Гладкий замкнутый контур через квадратичное сглаживание по серединам рёбер полигона.
+function smoothClosedPath(poly: [number, number][], W: number, H: number): string {
+  const pts = poly.map(([x, y]) => [x * W, y * H] as [number, number]);
+  const n = pts.length;
+  if (n < 3) return '';
+  const mid = (a: [number, number], b: [number, number]): [number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const mids = pts.map((p, i) => mid(p, pts[(i + 1) % n]));
+  let d = `M ${mids[n - 1][0].toFixed(1)} ${mids[n - 1][1].toFixed(1)}`;
+  for (let i = 0; i < n; i++) {
+    d += ` Q ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)} ${mids[i][0].toFixed(1)} ${mids[i][1].toFixed(1)}`;
+  }
+  return d + ' Z';
+}
+
+// ТЕРРИТОРИЯ — очерченный регион (контур + заливка) + подпись. База-узлы лежат внутри.
 function ZoneColumn({ zone, idx, W, H, focusZone }: ZoneColumnProps) {
   const tcx = zone.cx * W;
   const tcy = zone.cy * H;
   const dim = focusZone !== null && focusZone !== idx;
-  const tint = ['oklch(0.75 0.10 220)', 'oklch(0.78 0.12 75)', 'oklch(0.75 0.12 155)', 'oklch(0.82 0.13 90)'][idx];
+  const t = REGION_TINTS[idx] ?? REGION_TINTS[0];
+  const d = zone.poly ? smoothClosedPath(zone.poly, W, H) : '';
 
-  // Подпись территории стоит НАД её материком (не колонка). Мягкое свечение региона.
   return (
-    <g opacity={dim ? 0.3 : 1} style={{ pointerEvents: 'none' }}>
-      <circle cx={tcx} cy={tcy + 42} r={86} fill={tint} opacity="0.05" />
+    <g opacity={dim ? 0.28 : 1} style={{ pointerEvents: 'none' }}>
+      {d && (
+        <path d={d} fill={`url(#${t.fillId})`} stroke={t.stroke} strokeWidth="1.6"
+          strokeDasharray="7 7" strokeLinejoin="round" opacity="0.85" />
+      )}
       <text x={tcx} y={tcy} textAnchor="middle"
-        fontSize="13" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.26em" fontWeight="700" fill={tint}>{zone.label}</text>
-      <text x={tcx} y={tcy + 15} textAnchor="middle"
-        fontSize="8" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.18em" opacity="0.6"
-        fill="oklch(0.7 0.02 250)">{`T-0${idx + 1} · ${zone.count} РАЗД.`}</text>
+        fontSize="14" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.26em" fontWeight="700" fill={t.stroke}
+        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{zone.label}</text>
+      <text x={tcx} y={tcy + 16} textAnchor="middle"
+        fontSize="8.5" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.18em" opacity="0.75"
+        fill="oklch(0.78 0.02 250)"
+        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">{`T-0${idx + 1} · ${zone.count} БАЗ`}</text>
     </g>
   );
 }
@@ -226,6 +254,23 @@ export function TacticalMap({
           <stop offset="0%" stopColor="oklch(0.26 0.06 220)" stopOpacity="0.55" />
           <stop offset="60%" stopColor="oklch(0.13 0.03 240)" stopOpacity="0.25" />
           <stop offset="100%" stopColor="oklch(0.08 0.02 250)" stopOpacity="0" />
+        </radialGradient>
+        {/* Заливки территорий — мягкое свечение цветом тира внутри контура */}
+        <radialGradient id="rg-t1" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="oklch(0.60 0.13 220)" stopOpacity="0.20" />
+          <stop offset="100%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.05" />
+        </radialGradient>
+        <radialGradient id="rg-t2" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="oklch(0.65 0.14 75)" stopOpacity="0.20" />
+          <stop offset="100%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.05" />
+        </radialGradient>
+        <radialGradient id="rg-t3" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="oklch(0.60 0.13 155)" stopOpacity="0.20" />
+          <stop offset="100%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.05" />
+        </radialGradient>
+        <radialGradient id="rg-t4" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="oklch(0.70 0.14 90)" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.06" />
         </radialGradient>
       </defs>
       <rect width={W} height={H} fill="url(#bgGlow)" />

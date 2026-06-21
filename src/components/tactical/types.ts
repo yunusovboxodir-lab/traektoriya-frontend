@@ -43,6 +43,9 @@ export interface MapZone {
   cx: number;
   cy: number;
   accent: string;
+  /** Контур территории на карте (норм. [x,y] точки по часовой) — рисуется как регион,
+   *  базы (узлы) распределяются ВНУТРИ него. Если нет — регион не рисуется. */
+  poly?: [number, number][];
 }
 
 export type MapEdge = [string, string];

@@ -23,71 +23,74 @@ import type {
 } from '../api/learning';
 import type { MapEdge, MapHouse, MapNode, MapZone, NodeState } from '../components/tactical/types';
 
-// 4 зоны = 4 территории по сюжетной географии world-map-v4.png. cx/cy — якорь подписи
-// территории НАД её землёй (нормировано к полной карте). Раскладка узлов — TIER_ANCHORS ниже.
+// 4 зоны = 4 ТЕРРИТОРИИ по географии world-map-v4.png. Как в стратегиях/RPG-картах:
+// у каждой территории — очерченный контур (poly), а базы (узлы) равномерно ЗАПОЛНЯЮТ
+// его форму. cx/cy — якорь подписи территории (норм. к полной карте).
 export const LEARNING_ZONES: MapZone[] = [
-  { id: 'stazher', label: 'СТАЖЁР',  sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.02, w: 0.24, cx: 0.11, cy: 0.50, accent: 'oklch(0.74 0.13 200)' },
-  { id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.26, w: 0.24, cx: 0.42, cy: 0.34, accent: 'oklch(0.78 0.14 75)' },
-  { id: 'expert',  label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.50, w: 0.24, cx: 0.66, cy: 0.27, accent: 'oklch(0.74 0.11 155)' },
-  { id: 'master',  label: 'МАСТЕР',  sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.74, w: 0.24, cx: 0.88, cy: 0.11, accent: 'oklch(0.85 0.13 88)' },
+  {
+    id: 'stazher', label: 'СТАЖЁР', sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.02, w: 0.24,
+    cx: 0.11, cy: 0.50, accent: 'oklch(0.74 0.13 200)',
+    // Стартовый материк-остров снизу-слева
+    poly: [[0.04, 0.57], [0.11, 0.52], [0.20, 0.55], [0.235, 0.64], [0.215, 0.75], [0.14, 0.83], [0.055, 0.79], [0.02, 0.67]],
+  },
+  {
+    id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.26, w: 0.24,
+    cx: 0.41, cy: 0.355, accent: 'oklch(0.78 0.14 75)',
+    // Морская зона — базы-архипелаг в центральном океане
+    poly: [[0.31, 0.45], [0.40, 0.40], [0.50, 0.44], [0.535, 0.54], [0.50, 0.66], [0.42, 0.72], [0.325, 0.66], [0.29, 0.55]],
+  },
+  {
+    id: 'expert', label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.50, w: 0.24,
+    cx: 0.655, cy: 0.275, accent: 'oklch(0.74 0.11 155)',
+    // Западное побережье правого континента
+    poly: [[0.595, 0.35], [0.68, 0.31], [0.745, 0.40], [0.735, 0.52], [0.70, 0.645], [0.625, 0.685], [0.575, 0.575], [0.565, 0.44]],
+  },
+  {
+    id: 'master', label: 'МАСТЕР', sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.74, w: 0.24,
+    cx: 0.875, cy: 0.115, accent: 'oklch(0.85 0.13 88)',
+    // Правый континент со снежными горами; сложнейшее — к верхнему-правому углу
+    poly: [[0.80, 0.20], [0.885, 0.14], [0.965, 0.21], [0.985, 0.35], [0.955, 0.51], [0.90, 0.63], [0.815, 0.585], [0.775, 0.42], [0.78, 0.28]],
+  },
 ];
-
-// СЮЖЕТНАЯ раскладка по реальной географии world-map-v4.png (норм. 0..1).
-// Путь героя — диагональ: снизу-слева → центр-океан → правое побережье → горы справа-сверху.
-// Каждый тир = набор якорей-блобов {x,y,r} НА реальной суше/воде своей территории.
-// Курсы раскидываются по блобам (round-robin) с круговым джиттером внутри — органичные
-// кластеры-локации, а не сетка и не цепочка.
-type Blob = { x: number; y: number; r: number };
-
-const TIER_ANCHORS: Record<number, Blob[]> = {
-  // T1 Стажёр — стартовый материк-остров снизу-слева (песчаная суша)
-  0: [
-    { x: 0.06, y: 0.60, r: 0.045 },
-    { x: 0.13, y: 0.65, r: 0.05 },
-    { x: 0.09, y: 0.73, r: 0.045 },
-    { x: 0.18, y: 0.60, r: 0.045 },
-    { x: 0.15, y: 0.72, r: 0.04 },
-    { x: 0.05, y: 0.68, r: 0.035 },
-  ],
-  // T2 Практик — базы на воде: архипелаг в центральном океане
-  1: [
-    { x: 0.33, y: 0.50, r: 0.035 },
-    { x: 0.40, y: 0.58, r: 0.04 },
-    { x: 0.45, y: 0.50, r: 0.035 },
-    { x: 0.43, y: 0.68, r: 0.04 },
-    { x: 0.36, y: 0.42, r: 0.03 },
-    { x: 0.50, y: 0.60, r: 0.035 },
-  ],
-  // T3 Эксперт — западное побережье правого континента (выход из океана на сушу): дуга
-  2: [
-    { x: 0.62, y: 0.38, r: 0.035 },
-    { x: 0.66, y: 0.46, r: 0.04 },
-    { x: 0.63, y: 0.55, r: 0.04 },
-    { x: 0.69, y: 0.61, r: 0.038 },
-    { x: 0.67, y: 0.34, r: 0.03 },
-    { x: 0.71, y: 0.50, r: 0.035 },
-  ],
-  // T4 Мастер — правый континент со снежными горами; сложность растёт к правому-верхнему углу
-  3: [
-    { x: 0.82, y: 0.42, r: 0.045 },
-    { x: 0.86, y: 0.34, r: 0.045 },
-    { x: 0.90, y: 0.46, r: 0.04 },
-    { x: 0.88, y: 0.24, r: 0.04 },
-    { x: 0.93, y: 0.32, r: 0.038 },
-    { x: 0.94, y: 0.18, r: 0.035 }, // самые сложные уроки — верхний-правый угол
-  ],
-};
 
 const frac = (x: number) => x - Math.floor(x);
 
-// Детерминированное размещение i-го курса: круговой джиттер внутри его якоря-блоба.
-function placeOnAnchors(blobs: Blob[], i: number): [number, number] {
-  const blob = blobs[i % blobs.length];
-  const ang = frac(Math.sin((i + 1) * 12.9898) * 43758.5453) * Math.PI * 2;
-  const rad = Math.sqrt(frac(Math.sin((i + 1) * 78.233) * 43758.5453)) * blob.r;
-  const x = Math.min(0.97, Math.max(0.03, blob.x + Math.cos(ang) * rad));
-  const y = Math.min(0.97, Math.max(0.03, blob.y + Math.sin(ang) * rad));
-  return [x, y];
+// Точка внутри полигона (ray-casting). poly — норм. точки контура территории.
+function pointInPoly(px: number, py: number, poly: [number, number][]): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+    const intersect = (yi > py) !== (yj > py) && px < ((xj - xi) * (py - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+// Равномерное ЗАПОЛНЕНИЕ контура базами: детерминированная джиттер-сетка по bbox,
+// оставляем точки внутри полигона, i-й курс берёт равномерно распределённую точку.
+// Так базы повторяют форму территории (как в стратегиях), без сетки/цепочки/слипания.
+function placeInPolygon(poly: [number, number][], i: number, n: number): [number, number] {
+  let x0 = 1, x1 = 0, y0 = 1, y1 = 0;
+  for (const [x, y] of poly) {
+    x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+    y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+  }
+  const cols = Math.max(4, Math.ceil(Math.sqrt(n) * 1.9));
+  const rows = cols;
+  const pts: [number, number][] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const k = r * cols + c + 1;
+      const jx = (frac(Math.sin(k * 12.9898) * 43758.5453) - 0.5) * 0.85;
+      const jy = (frac(Math.sin(k * 78.233) * 43758.5453) - 0.5) * 0.85;
+      const gx = x0 + (x1 - x0) * ((c + 0.5 + jx) / cols);
+      const gy = y0 + (y1 - y0) * ((r + 0.5 + jy) / rows);
+      if (pointInPoly(gx, gy, poly)) pts.push([gx, gy]);
+    }
+  }
+  if (pts.length === 0) return [(x0 + x1) / 2, (y0 + y1) / 2];
+  const idx = Math.floor((i + 0.5) * (pts.length / Math.max(1, n))) % pts.length;
+  return pts[idx];
 }
 
 const LEVEL_TO_ZONE: Record<string, number> = {
@@ -191,13 +194,14 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
     if (byLevel[c.level]) byLevel[c.level].push(c);
   }
 
-  // 6. КАЖДЫЙ КУРС = свой узел-локация, размещён по якорям-блобам своей территории.
+  // 6. КАЖДЫЙ КУРС = база, равномерно заполняющая контур своей территории.
   const nodes: MapNode[] = [];
   for (const [lvlKey, lvlCourses] of Object.entries(byLevel)) {
     const zoneIdx = LEVEL_TO_ZONE[lvlKey];
-    const blobs = TIER_ANCHORS[zoneIdx] ?? TIER_ANCHORS[0];
+    const poly = LEARNING_ZONES[zoneIdx]?.poly ?? LEARNING_ZONES[0].poly!;
+    const n = lvlCourses.length;
     lvlCourses.forEach((c, cIdx) => {
-      const [x, y] = placeOnAnchors(blobs, cIdx); // сюжетный кластер-локация на своей земле
+      const [x, y] = placeInPolygon(poly, cIdx, n); // база внутри контура территории
       const st = courseStatusToNodeState(c.status);
       const title = c.title.length > 22 ? c.title.substring(0, 20) + '…' : c.title;
       const codePrefix = ['СТ', 'ПР', 'ЭК', 'МР'][zoneIdx] ?? 'XX';
