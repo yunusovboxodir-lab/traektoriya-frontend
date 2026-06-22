@@ -1,5 +1,11 @@
 import { create } from 'zustand';
 import { roleScopesApi } from '../api/roleScopes';
+import { powerApi } from '../api/power';
+import {
+  PROGRESSIVE_DISCLOSURE_ENABLED,
+  isTierGated,
+  type Tier,
+} from '../config/progressiveDisclosure';
 
 /** Map pageKey → route path (must match App.tsx routes) */
 const PAGE_KEY_TO_PATH: Record<string, string> = {
@@ -52,7 +58,12 @@ const LEGACY_TO_NEW: Record<string, string> = {
 interface ScopeState {
   allowedPages: string[] | null; // null = not loaded yet → allow all
   isLoaded: boolean;
+  /** Роль и тир Мощи — для прогрессивного раскрытия разделов (онбординг). */
+  userRole: string | null;
+  userTier: Tier | null;
   fetchMyScopes: () => Promise<void>;
+  /** Загрузить тир Мощи текущего юзера (для гейтинга по уровню). role — из authStore. */
+  fetchUserTier: (role?: string | null) => Promise<void>;
   isPageAllowed: (pageKey: string) => boolean;
   /** Returns the route path of the first allowed page (for redirects). */
   getFirstAllowedPath: () => string;
@@ -62,6 +73,8 @@ interface ScopeState {
 export const useScopeStore = create<ScopeState>((set, get) => ({
   allowedPages: null,
   isLoaded: false,
+  userRole: null,
+  userTier: null,
 
   fetchMyScopes: async () => {
     try {
@@ -73,21 +86,35 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
     }
   },
 
+  fetchUserTier: async (role?: string | null) => {
+    if (role !== undefined) set({ userRole: role });
+    // Без флага тир не нужен — не дёргаем power зря.
+    if (!PROGRESSIVE_DISCLOSURE_ENABLED) return;
+    try {
+      const res = await powerApi.getMyPower();
+      set({ userTier: res.data.tier });
+    } catch {
+      // оставляем null → трактуется как bronze (консервативно)
+    }
+  },
+
   isPageAllowed: (pageKey: string) => {
-    const { allowedPages } = get();
-    // null = not loaded or error → allow all
-    if (allowedPages === null) return true;
+    const { allowedPages, userRole, userTier } = get();
 
-    // Direct match
-    if (allowedPages.includes(pageKey)) return true;
+    // 1) Базовый доступ по role-scope (как раньше)
+    const baseAllowed =
+      allowedPages === null ||
+      allowedPages.includes(pageKey) ||
+      Object.entries(LEGACY_TO_NEW)
+        .filter(([, newKey]) => newKey === pageKey)
+        .map(([oldKey]) => oldKey)
+        .some((k) => allowedPages.includes(k));
+    if (!baseAllowed) return false;
 
-    // Check if any legacy key maps to this new pageKey
-    // e.g. if 'competencies' is checked but backend sent 'assessments'
-    const legacyKeys = Object.entries(LEGACY_TO_NEW)
-      .filter(([, newKey]) => newKey === pageKey)
-      .map(([oldKey]) => oldKey);
+    // 2) Прогрессивное раскрытие (UX-слой, только ТП, за флагом). OFF → no-op.
+    if (isTierGated(pageKey, userRole, userTier)) return false;
 
-    return legacyKeys.some((k) => allowedPages.includes(k));
+    return true;
   },
 
   getFirstAllowedPath: () => {
@@ -98,5 +125,5 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
     return PAGE_KEY_TO_PATH[firstKey] || '/dashboard';
   },
 
-  reset: () => set({ allowedPages: null, isLoaded: false }),
+  reset: () => set({ allowedPages: null, isLoaded: false, userRole: null, userTier: null }),
 }));

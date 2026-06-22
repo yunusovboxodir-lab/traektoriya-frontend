@@ -56,8 +56,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { applyUserLang } = await import('./langStore');
       applyUserLang((user as { telegram_lang?: string | null }).telegram_lang);
 
-      // Load role scopes after login
+      // Load role scopes + power tier (для прогрессивного раскрытия) after login
       useScopeStore.getState().fetchMyScopes();
+      useScopeStore.getState().fetchUserTier(user?.role);
     } catch (error: any) {
       const message = error.response?.data?.detail || 'Login failed';
       set({
@@ -95,6 +96,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     try {
       const response = await authApi.me();
       set({ user: response.data });
+      // Тир Мощи для прогрессивного раскрытия (роль из /me)
+      useScopeStore.getState().fetchUserTier(response.data?.role);
       // Авто-выбор языка при восстановлении сессии
       const { applyUserLang } = await import('./langStore');
       applyUserLang((response.data as { telegram_lang?: string | null }).telegram_lang);

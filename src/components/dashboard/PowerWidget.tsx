@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { powerApi, type PowerResponse } from '../../api/power';
 import { useLangStore } from '../../stores/langStore';
+import { nextUnlocks } from '../../config/progressiveDisclosure';
 
 // Тиры — на дизайн-токенах (как в StreakAchievementWidget).
 const TIER_STYLES: Record<string, { bg: string; text: string; ring: string; label: { ru: string; uz: string } }> = {
@@ -117,6 +118,27 @@ export function PowerWidget() {
                 : `До ранга «${TIER_STYLES[data.next_tier].label.ru}»: ${data.to_next_tier.toLocaleString('ru-RU')} ⚡`)
             : (lang === 'uz' ? 'Eng yuqori daraja!' : 'Максимальный ранг!')}
         </p>
+
+        {/* Скоро откроется (curiosity-gap, под флагом прогрессивного раскрытия) */}
+        {(() => {
+          const upcoming = nextUnlocks(data.tier, lang === 'uz' ? 'uz' : 'ru').slice(0, 2);
+          if (upcoming.length === 0) return null;
+          return (
+            <div
+              className="mb-3 rounded-lg px-3 py-2 text-xs ring-1"
+              style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+            >
+              <span style={{ color: 'var(--text-muted)' }}>{lang === 'uz' ? 'Tez orada: ' : 'Скоро откроется: '}</span>
+              {upcoming.map((u, i) => (
+                <span key={u.page}>
+                  {i > 0 && ' · '}
+                  <span style={{ color: 'var(--color-tp)' }}>🔒 {u.page}</span>{' '}
+                  <span style={{ color: 'var(--text-muted)' }}>({u.tier})</span>
+                </span>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Разбивка (бизнес-доминанта первой) */}
         <div className="grid grid-cols-4 gap-2 sm:gap-3">
