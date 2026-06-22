@@ -53,7 +53,7 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
             <div className="text-[11px] text-fg-subtle mb-2">{stepIndex + 1} / {data.steps.length}</div>
             <div
               className="rounded-xl p-3 mb-3 text-[13px] leading-relaxed"
-              style={{ background: accentSoft }}
+              style={{ background: accentSoft, color: 'oklch(0.20 0.02 265)' }}
             >
               {bl(step.scene, lang)}
             </div>
