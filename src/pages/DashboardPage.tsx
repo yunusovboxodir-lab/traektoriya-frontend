@@ -9,6 +9,7 @@
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { PowerWidget } from '../components/dashboard/PowerWidget';
+import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
 import { ActivityWidget } from '../components/dashboard/ActivityWidget';
@@ -39,6 +40,9 @@ export function DashboardPage() {
         >
           <PowerWidget />
         </TacticalPanel>
+
+        {/* 0.5. Квесты дня — ежедневная петля (P1). Виджет сам рендерит панель и скрывается, если квестов нет. */}
+        <DailyQuestsWidget />
 
         {/* 1. Рейтинг сотрудников — Лига Чемпионов с total_score 50/30/20. */}
         <TacticalPanel

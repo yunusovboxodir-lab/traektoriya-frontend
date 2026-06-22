@@ -8,7 +8,7 @@ export interface Goal {
   id: string;
   title: string;
   description: string | null;
-  type: 'learning' | 'shelf_quality' | 'kpi' | 'custom';
+  type: 'learning' | 'shelf_quality' | 'kpi' | 'custom' | 'daily_quest';
   target_value: number;
   current_value: number;
   unit: string | null;
@@ -16,6 +16,13 @@ export interface Goal {
   percentage: number;
   deadline: string | null;
   created_at: string;
+  metadata?: {
+    quest_date?: string;
+    category?: string;
+    order?: number;
+    icon?: string;
+    title_uz?: string;
+  } | null;
 }
 
 export interface Nudge {

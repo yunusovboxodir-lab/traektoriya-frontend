@@ -71,7 +71,7 @@ export function PowerWidget() {
           style={{ color: 'var(--color-tp)', fontFamily: 'var(--font-body)', letterSpacing: '0.08em' }}
         >
           <span className="text-base">{'⚡'}</span>
-          {lang === 'uz' ? 'TP ning kuchi' : 'Мощь ТП'}
+          {lang === 'uz' ? 'Mening kuchim' : 'Моя мощь'}
         </h2>
         <Link
           to="/kpi"
