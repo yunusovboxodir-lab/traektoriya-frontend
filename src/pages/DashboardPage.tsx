@@ -8,6 +8,7 @@
  */
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
+import { PowerWidget } from '../components/dashboard/PowerWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { PulseWidget } from '../components/dashboard/PulseWidget';
 import { ActivityWidget } from '../components/dashboard/ActivityWidget';
@@ -31,6 +32,14 @@ export function DashboardPage() {
       subtitle={`${today}${operatorRole ? ` · ${operatorRole}` : ''}`}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        {/* 0. Мощь ТП — единый накопительный счётчик (Phase 0 геймификации). */}
+        <TacticalPanel
+          label="POWER"
+          title={lang === 'uz' ? 'TP ning kuchi' : 'Мощь ТП'}
+        >
+          <PowerWidget />
+        </TacticalPanel>
+
         {/* 1. Рейтинг сотрудников — Лига Чемпионов с total_score 50/30/20. */}
         <TacticalPanel
           label="RANK"
