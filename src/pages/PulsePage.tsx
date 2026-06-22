@@ -111,7 +111,8 @@ export function PulsePage() {
   // View toggle (для пользователей с подчинёнными)
   const subordinateRole = SUBORDINATE_ROLES[user?.role || ''];
   const canViewTeam = !!subordinateRole;
-  const [view, setView] = useState<'me' | 'team'>('me');
+  // Менеджеры/админ по умолчанию видят команду (у них нет личных данных обучения)
+  const [view, setView] = useState<'me' | 'team'>(canViewTeam ? 'team' : 'me');
 
   // Team data
   const [teamData, setTeamData] = useState<SubordinatesPulseResponse | null>(null);

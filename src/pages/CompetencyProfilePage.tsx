@@ -72,7 +72,9 @@ export function CompetencyProfilePage() {
     setError(null);
     try {
       const res = await competencyProfilesApi.getProfiles();
-      setProfiles(res.data.items || []);
+      // API может вернуть как {items:[...]}, так и голый массив
+      const data = res.data as unknown;
+      setProfiles(Array.isArray(data) ? data : ((data as { items?: PositionProfile[] }).items || []));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setError(msg);

@@ -33,10 +33,10 @@ export function DashboardPage() {
       subtitle={`${today}${operatorRole ? ` · ${operatorRole}` : ''}`}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* 0. Мощь ТП — единый накопительный счётчик (Phase 0 геймификации). */}
+        {/* 0. Моя мощь — единый накопительный счётчик (Phase 0 геймификации). */}
         <TacticalPanel
           label="POWER"
-          title={lang === 'uz' ? 'TP ning kuchi' : 'Мощь ТП'}
+          title={lang === 'uz' ? 'Mening kuchim' : 'Моя мощь'}
         >
           <PowerWidget />
         </TacticalPanel>
