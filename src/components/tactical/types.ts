@@ -36,6 +36,8 @@ export interface MapNode {
 export interface MapZone {
   id: string;
   label: string;
+  /** Подпись территории на узбекском (для lang='uz') */
+  labelUz?: string;
   sub: string;
   count: number;
   x: number;

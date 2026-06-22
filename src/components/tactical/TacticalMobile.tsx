@@ -26,6 +26,9 @@ const TERRITORY_NUMERAL: Record<string, string> = {
   master: 'IV',
 };
 
+// Подпись территории с учётом языка (RU/UZ)
+const zLabel = (z: MapZone, lang: 'ru' | 'uz') => (lang === 'uz' ? (z.labelUz ?? z.label) : z.label);
+
 // =============================================================================
 // Top bar (УДАЛЁН в UX-аудите 2026-05-02 — Layout рендерит свой мобильный header
 // с рабочей кнопкой ☰. Этот дубль вводил юзеров в заблуждение фейковой кнопкой.)
@@ -277,6 +280,7 @@ interface PinchMapProps {
 }
 
 function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }: PinchMapProps) {
+  const lang = useLangStore((s) => s.lang);
   const MAP_W = 1100, MAP_H = 580;
   const containerRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 220 });
@@ -405,7 +409,7 @@ function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }:
               fontFamily="Cinzel, serif" fontWeight="600"
               fontSize="13" letterSpacing="0.22em"
               fill={z.accent} opacity="0.85">
-              {z.label}
+              {zLabel(z, lang)}
             </text>
           ))}
 
@@ -587,6 +591,7 @@ interface TerritoryListProps {
 }
 
 function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryListProps) {
+  const lang = useLangStore((s) => s.lang);
   return (
     <div style={{ padding: '4px 0 8px' }}>
       {zones.map((z, zi) => {
@@ -619,7 +624,7 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                   <span style={{
                     fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
                     letterSpacing: '0.18em', color: z.accent,
-                  }}>{z.label}</span>
+                  }}>{zLabel(z, lang)}</span>
                   <span style={{
                     fontSize: 9, color: 'oklch(0.55 0.04 250)',
                     fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
@@ -768,7 +773,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: '0.14em', fontWeight: 600,
               }}>
-                {zone.label} · {village.code}
+                {zLabel(zone, lang)} · {village.code}
               </span>
               <span style={{
                 fontSize: 9, color: s.stroke,

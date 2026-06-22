@@ -115,10 +115,10 @@ export function TacticalLearningPage() {
     navigate(`/learning/course/${courseId}`);
   };
 
-  const operatorName = user?.full_name || user?.employee_id || 'Оператор';
+  const operatorName = user?.full_name || user?.employee_id || (lang === 'uz' ? 'Operator' : 'Оператор');
   const operatorRole = user?.role
-    ? `${roleLabel(user.role)} · TASHKENT`
-    : 'ОПЕРАТОР';
+    ? `${roleLabel(user.role, lang)} · TASHKENT`
+    : (lang === 'uz' ? 'OPERATOR' : 'ОПЕРАТОР');
 
   // На мобильном — отдельный UX
   if (isMobile) {
@@ -335,8 +335,8 @@ export function TacticalLearningPage() {
   );
 }
 
-function roleLabel(role: string): string {
-  const map: Record<string, string> = {
+function roleLabel(role: string, lang: 'ru' | 'uz' = 'ru'): string {
+  const ru: Record<string, string> = {
     superadmin: 'СУПЕРАДМИН',
     admin: 'АДМИН',
     commercial_dir: 'КОМ. ДИРЕКТОР',
@@ -345,6 +345,16 @@ function roleLabel(role: string): string {
     sales_rep: 'ТП',
     trainer: 'ТРЕНЕР',
   };
+  const uz: Record<string, string> = {
+    superadmin: 'SUPERADMIN',
+    admin: 'ADMIN',
+    commercial_dir: 'KOM. DIREKTOR',
+    regional_manager: 'REG. MENEJER',
+    supervisor: 'SUPERVAYZER',
+    sales_rep: 'TP',
+    trainer: 'TRENER',
+  };
+  const map = lang === 'uz' ? uz : ru;
   return map[role] || role.toUpperCase();
 }
 

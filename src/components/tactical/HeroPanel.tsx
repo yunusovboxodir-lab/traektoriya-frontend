@@ -136,7 +136,7 @@ export function HeroPanel({
               onClick={() => onZoneFocus(active ? null : i)}
             >
               <span className="chip-num">T{i + 1}</span>
-              <span className="chip-name">{z.label}</span>
+              <span className="chip-name">{lang === 'uz' ? (z.labelUz ?? z.label) : z.label}</span>
               <span className="chip-count">{z.count}</span>
             </button>
           );

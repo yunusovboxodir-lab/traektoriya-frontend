@@ -5,6 +5,7 @@
 import { useMemo } from 'react';
 import type { MapNode, MapEdge as MapEdgeType, MapZone, TerritoryMode } from './types';
 import { NODES as DEFAULT_NODES, EDGES as DEFAULT_EDGES, ZONES as DEFAULT_ZONES } from './data';
+import { useLangStore } from '../../stores/langStore';
 
 interface MapNodeProps {
   node: MapNode;
@@ -137,6 +138,7 @@ interface ZoneColumnProps {
   focusZone: number | null;
   mode?: TerritoryMode;
   sourceZones: MapZone[];
+  lang: 'ru' | 'uz';
 }
 
 // Палитра территорий (совпадает с цветом пинов по тиру): граница + лёгкая заливка региона.
@@ -149,13 +151,15 @@ const REGION_TINTS = [
 
 // ТЕРРИТОРИЯ-ПОЛОСА — колонка во всю высоту карты (заливка цветом тира) + подпись сверху.
 // Базы-узлы распределены внутри колонки. Границы между полосами рисуются отдельно.
-function ZoneColumn({ zone, idx, W, H, focusZone }: ZoneColumnProps) {
+function ZoneColumn({ zone, idx, W, H, focusZone, lang }: ZoneColumnProps) {
   const tcx = zone.cx * W;
   const tcy = zone.cy * H;
   const dim = focusZone !== null && focusZone !== idx;
   const t = REGION_TINTS[idx] ?? REGION_TINTS[0];
   const x0 = zone.x * W;
   const w = zone.w * W;
+  const label = lang === 'uz' ? (zone.labelUz ?? zone.label) : zone.label;
+  const unit = lang === 'uz' ? 'BAZA' : 'БАЗ';
 
   return (
     <g opacity={dim ? 0.28 : 1} style={{ pointerEvents: 'none' }}>
@@ -167,12 +171,12 @@ function ZoneColumn({ zone, idx, W, H, focusZone }: ZoneColumnProps) {
       <text x={tcx} y={tcy} textAnchor="middle"
         fontSize="15" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.28em" fontWeight="700" fill={t.stroke}
-        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{zone.label}</text>
+        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{label}</text>
       <text x={tcx} y={tcy + 17} textAnchor="middle"
         fontSize="9" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.18em" opacity="0.8"
         fill="oklch(0.80 0.02 250)"
-        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">{`T-0${idx + 1} · ${zone.count} БАЗ`}</text>
+        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">{`T-0${idx + 1} · ${zone.count} ${unit}`}</text>
     </g>
   );
 }
@@ -221,6 +225,7 @@ export function TacticalMap({
 }: TacticalMapProps) {
   const W = 1100;
   const H = 580;
+  const lang = useLangStore((s) => s.lang);
 
   const sourceNodes = nodes ?? DEFAULT_NODES;
   const sourceEdges = edges ?? DEFAULT_EDGES;
@@ -271,7 +276,7 @@ export function TacticalMap({
       <WorldMap W={W} H={H} />
 
       {sourceZones.map((z, i) => (
-        <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} sourceZones={sourceZones} />
+        <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} sourceZones={sourceZones} lang={lang} />
       ))}
 
       {/* Границы между территориями — вертикальные пунктиры от верхней грани до нижней,
