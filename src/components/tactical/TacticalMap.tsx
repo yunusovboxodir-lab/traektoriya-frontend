@@ -147,42 +147,31 @@ const REGION_TINTS = [
   { stroke: 'oklch(0.84 0.14 90)',  fillId: 'rg-t4' }, // T4 Мастер — золото
 ];
 
-// Гладкий замкнутый контур через квадратичное сглаживание по серединам рёбер полигона.
-function smoothClosedPath(poly: [number, number][], W: number, H: number): string {
-  const pts = poly.map(([x, y]) => [x * W, y * H] as [number, number]);
-  const n = pts.length;
-  if (n < 3) return '';
-  const mid = (a: [number, number], b: [number, number]): [number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-  const mids = pts.map((p, i) => mid(p, pts[(i + 1) % n]));
-  let d = `M ${mids[n - 1][0].toFixed(1)} ${mids[n - 1][1].toFixed(1)}`;
-  for (let i = 0; i < n; i++) {
-    d += ` Q ${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)} ${mids[i][0].toFixed(1)} ${mids[i][1].toFixed(1)}`;
-  }
-  return d + ' Z';
-}
-
-// ТЕРРИТОРИЯ — очерченный регион (контур + заливка) + подпись. База-узлы лежат внутри.
+// ТЕРРИТОРИЯ-ПОЛОСА — колонка во всю высоту карты (заливка цветом тира) + подпись сверху.
+// Базы-узлы распределены внутри колонки. Границы между полосами рисуются отдельно.
 function ZoneColumn({ zone, idx, W, H, focusZone }: ZoneColumnProps) {
   const tcx = zone.cx * W;
   const tcy = zone.cy * H;
   const dim = focusZone !== null && focusZone !== idx;
   const t = REGION_TINTS[idx] ?? REGION_TINTS[0];
-  const d = zone.poly ? smoothClosedPath(zone.poly, W, H) : '';
+  const x0 = zone.x * W;
+  const w = zone.w * W;
 
   return (
     <g opacity={dim ? 0.28 : 1} style={{ pointerEvents: 'none' }}>
-      {d && (
-        <path d={d} fill={`url(#${t.fillId})`} stroke={t.stroke} strokeWidth="1.6"
-          strokeDasharray="7 7" strokeLinejoin="round" opacity="0.85" />
-      )}
+      {/* заливка колонки цветом территории */}
+      <rect x={x0} y={0} width={w} height={H} fill={`url(#${t.fillId})`} />
+      {/* плашка-шапка под подписью */}
+      <rect x={x0} y={0} width={w} height={H * 0.135} fill={t.stroke} opacity="0.10" />
+      <line x1={x0} y1={H * 0.135} x2={x0 + w} y2={H * 0.135} stroke={t.stroke} strokeWidth="1" opacity="0.35" />
       <text x={tcx} y={tcy} textAnchor="middle"
-        fontSize="14" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.26em" fontWeight="700" fill={t.stroke}
+        fontSize="15" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.28em" fontWeight="700" fill={t.stroke}
         style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{zone.label}</text>
-      <text x={tcx} y={tcy + 16} textAnchor="middle"
-        fontSize="8.5" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.18em" opacity="0.75"
-        fill="oklch(0.78 0.02 250)"
+      <text x={tcx} y={tcy + 17} textAnchor="middle"
+        fontSize="9" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.18em" opacity="0.8"
+        fill="oklch(0.80 0.02 250)"
         style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">{`T-0${idx + 1} · ${zone.count} БАЗ`}</text>
     </g>
   );
@@ -255,23 +244,27 @@ export function TacticalMap({
           <stop offset="60%" stopColor="oklch(0.13 0.03 240)" stopOpacity="0.25" />
           <stop offset="100%" stopColor="oklch(0.08 0.02 250)" stopOpacity="0" />
         </radialGradient>
-        {/* Заливки территорий — мягкое свечение цветом тира внутри контура */}
-        <radialGradient id="rg-t1" cx="50%" cy="50%" r="65%">
-          <stop offset="0%" stopColor="oklch(0.60 0.13 220)" stopOpacity="0.20" />
-          <stop offset="100%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.05" />
-        </radialGradient>
-        <radialGradient id="rg-t2" cx="50%" cy="50%" r="65%">
-          <stop offset="0%" stopColor="oklch(0.65 0.14 75)" stopOpacity="0.20" />
-          <stop offset="100%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.05" />
-        </radialGradient>
-        <radialGradient id="rg-t3" cx="50%" cy="50%" r="65%">
-          <stop offset="0%" stopColor="oklch(0.60 0.13 155)" stopOpacity="0.20" />
-          <stop offset="100%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.05" />
-        </radialGradient>
-        <radialGradient id="rg-t4" cx="50%" cy="50%" r="65%">
-          <stop offset="0%" stopColor="oklch(0.70 0.14 90)" stopOpacity="0.22" />
-          <stop offset="100%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.06" />
-        </radialGradient>
+        {/* Заливки территорий-полос — вертикальный градиент цветом тира (ярче к центру) */}
+        <linearGradient id="rg-t1" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.04" />
+          <stop offset="45%" stopColor="oklch(0.60 0.13 220)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.04" />
+        </linearGradient>
+        <linearGradient id="rg-t2" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.04" />
+          <stop offset="45%" stopColor="oklch(0.65 0.14 75)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.04" />
+        </linearGradient>
+        <linearGradient id="rg-t3" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.04" />
+          <stop offset="45%" stopColor="oklch(0.60 0.13 155)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.04" />
+        </linearGradient>
+        <linearGradient id="rg-t4" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.05" />
+          <stop offset="45%" stopColor="oklch(0.70 0.14 90)" stopOpacity="0.17" />
+          <stop offset="100%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.05" />
+        </linearGradient>
       </defs>
       <rect width={W} height={H} fill="url(#bgGlow)" />
 
@@ -280,6 +273,16 @@ export function TacticalMap({
       {sourceZones.map((z, i) => (
         <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} sourceZones={sourceZones} />
       ))}
+
+      {/* Границы между территориями — вертикали от верхней грани до нижней */}
+      {sourceZones.slice(1).map((z) => {
+        const bx = z.x * W;
+        return (
+          <line key={`div-${z.id}`} x1={bx} y1={0} x2={bx} y2={H}
+            stroke="oklch(0.70 0.05 230)" strokeWidth="1.3"
+            strokeDasharray="9 9" opacity="0.4" style={{ pointerEvents: 'none' }} />
+        );
+      })}
 
       <g>
         {sourceEdges.map(([a, b]: MapEdgeType) => {
