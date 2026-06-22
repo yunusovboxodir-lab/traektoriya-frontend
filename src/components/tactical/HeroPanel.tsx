@@ -9,10 +9,10 @@ import type { MapZone } from './types';
 import { useLangStore } from '../../stores/langStore';
 
 const ZONE_TINTS = [
-  'oklch(0.75 0.10 220)',
-  'oklch(0.78 0.12 75)',
-  'oklch(0.75 0.12 155)',
-  'oklch(0.82 0.13 90)',
+  'oklch(0.76 0.15 150)', // T1 Стажёр — зелёный
+  'oklch(0.72 0.14 245)', // T2 Практик — синий
+  'oklch(0.86 0.15 100)', // T3 Эксперт — жёлтый
+  'oklch(0.70 0.18 27)',  // T4 Мастер — красный
 ];
 
 interface HeroPanelProps {

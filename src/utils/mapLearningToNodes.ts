@@ -40,19 +40,19 @@ function colPoly(x0: number, w: number): [number, number][] {
 export const LEARNING_ZONES: MapZone[] = [
   {
     id: 'stazher', label: 'СТАЖЁР', sub: 'ТЕРРИТОРИЯ 1', count: 0, x: 0.0, w: 0.25,
-    cx: 0.125, cy: 0.085, accent: 'oklch(0.74 0.13 200)', poly: colPoly(0.0, 0.25),
+    cx: 0.125, cy: 0.085, accent: 'oklch(0.76 0.15 150)', poly: colPoly(0.0, 0.25),
   },
   {
     id: 'praktik', label: 'ПРАКТИК', sub: 'ТЕРРИТОРИЯ 2', count: 0, x: 0.25, w: 0.25,
-    cx: 0.375, cy: 0.085, accent: 'oklch(0.78 0.14 75)', poly: colPoly(0.25, 0.25),
+    cx: 0.375, cy: 0.085, accent: 'oklch(0.72 0.14 245)', poly: colPoly(0.25, 0.25),
   },
   {
     id: 'expert', label: 'ЭКСПЕРТ', sub: 'ТЕРРИТОРИЯ 3', count: 0, x: 0.5, w: 0.25,
-    cx: 0.625, cy: 0.085, accent: 'oklch(0.74 0.11 155)', poly: colPoly(0.5, 0.25),
+    cx: 0.625, cy: 0.085, accent: 'oklch(0.86 0.15 100)', poly: colPoly(0.5, 0.25),
   },
   {
     id: 'master', label: 'МАСТЕР', sub: 'ТЕРРИТОРИЯ 4', count: 0, x: 0.75, w: 0.25,
-    cx: 0.875, cy: 0.085, accent: 'oklch(0.85 0.13 88)', poly: colPoly(0.75, 0.25),
+    cx: 0.875, cy: 0.085, accent: 'oklch(0.70 0.18 27)', poly: colPoly(0.75, 0.25),
   },
 ];
 

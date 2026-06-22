@@ -16,10 +16,10 @@ interface MapNodeProps {
 // Это даёт реальную вариативность пинов «как на карте» (4 разных цвета), пока
 // прогрессия по статусам не включена. СОСТОЯНИЕ передаём ДИЗАЙНОМ (глиф/пульс), не цветом.
 const TIER_TINTS: { stroke: string; fill: string }[] = [
-  { stroke: 'oklch(0.80 0.14 220)', fill: 'oklch(0.32 0.10 220)' }, // T1 Стажёр — синий
-  { stroke: 'oklch(0.83 0.15 75)',  fill: 'oklch(0.34 0.12 75)'  }, // T2 Практик — янтарь
-  { stroke: 'oklch(0.80 0.14 155)', fill: 'oklch(0.32 0.10 155)' }, // T3 Эксперт — зелёный
-  { stroke: 'oklch(0.86 0.14 90)',  fill: 'oklch(0.40 0.13 90)'  }, // T4 Мастер — золото
+  { stroke: 'oklch(0.80 0.16 150)', fill: 'oklch(0.33 0.11 150)' }, // T1 Стажёр — зелёный
+  { stroke: 'oklch(0.74 0.15 245)', fill: 'oklch(0.33 0.12 245)' }, // T2 Практик — синий
+  { stroke: 'oklch(0.88 0.16 100)', fill: 'oklch(0.42 0.14 100)' }, // T3 Эксперт — жёлтый
+  { stroke: 'oklch(0.70 0.20 27)',  fill: 'oklch(0.34 0.14 27)'  }, // T4 Мастер — красный
 ];
 const LOCKED_TINT = { stroke: 'oklch(0.52 0.02 250)', fill: 'oklch(0.22 0.02 250)' };
 
@@ -141,10 +141,10 @@ interface ZoneColumnProps {
 
 // Палитра территорий (совпадает с цветом пинов по тиру): граница + лёгкая заливка региона.
 const REGION_TINTS = [
-  { stroke: 'oklch(0.72 0.13 220)', fillId: 'rg-t1' }, // T1 Стажёр — синий
-  { stroke: 'oklch(0.78 0.14 75)',  fillId: 'rg-t2' }, // T2 Практик — янтарь
-  { stroke: 'oklch(0.72 0.13 155)', fillId: 'rg-t3' }, // T3 Эксперт — зелёный
-  { stroke: 'oklch(0.84 0.14 90)',  fillId: 'rg-t4' }, // T4 Мастер — золото
+  { stroke: 'oklch(0.74 0.15 150)', fillId: 'rg-t1' }, // T1 Стажёр — зелёный
+  { stroke: 'oklch(0.70 0.14 245)', fillId: 'rg-t2' }, // T2 Практик — синий
+  { stroke: 'oklch(0.86 0.15 100)', fillId: 'rg-t3' }, // T3 Эксперт — жёлтый
+  { stroke: 'oklch(0.68 0.19 27)',  fillId: 'rg-t4' }, // T4 Мастер — красный
 ];
 
 // ТЕРРИТОРИЯ-ПОЛОСА — колонка во всю высоту карты (заливка цветом тира) + подпись сверху.
@@ -246,24 +246,24 @@ export function TacticalMap({
         </radialGradient>
         {/* Заливки территорий-полос — вертикальный градиент цветом тира (ярче к центру) */}
         <linearGradient id="rg-t1" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.04" />
-          <stop offset="45%" stopColor="oklch(0.60 0.13 220)" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="oklch(0.55 0.12 220)" stopOpacity="0.04" />
+          <stop offset="0%" stopColor="oklch(0.55 0.13 150)" stopOpacity="0.04" />
+          <stop offset="45%" stopColor="oklch(0.60 0.14 150)" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="oklch(0.55 0.13 150)" stopOpacity="0.04" />
         </linearGradient>
         <linearGradient id="rg-t2" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.04" />
-          <stop offset="45%" stopColor="oklch(0.65 0.14 75)" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="oklch(0.60 0.13 75)" stopOpacity="0.04" />
+          <stop offset="0%" stopColor="oklch(0.55 0.13 245)" stopOpacity="0.04" />
+          <stop offset="45%" stopColor="oklch(0.60 0.14 245)" stopOpacity="0.16" />
+          <stop offset="100%" stopColor="oklch(0.55 0.13 245)" stopOpacity="0.04" />
         </linearGradient>
         <linearGradient id="rg-t3" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.04" />
-          <stop offset="45%" stopColor="oklch(0.60 0.13 155)" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="oklch(0.55 0.12 155)" stopOpacity="0.04" />
+          <stop offset="0%" stopColor="oklch(0.65 0.14 100)" stopOpacity="0.05" />
+          <stop offset="45%" stopColor="oklch(0.72 0.15 100)" stopOpacity="0.17" />
+          <stop offset="100%" stopColor="oklch(0.65 0.14 100)" stopOpacity="0.05" />
         </linearGradient>
         <linearGradient id="rg-t4" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.05" />
-          <stop offset="45%" stopColor="oklch(0.70 0.14 90)" stopOpacity="0.17" />
-          <stop offset="100%" stopColor="oklch(0.62 0.13 90)" stopOpacity="0.05" />
+          <stop offset="0%" stopColor="oklch(0.55 0.16 27)" stopOpacity="0.05" />
+          <stop offset="45%" stopColor="oklch(0.60 0.18 27)" stopOpacity="0.17" />
+          <stop offset="100%" stopColor="oklch(0.55 0.16 27)" stopOpacity="0.05" />
         </linearGradient>
       </defs>
       <rect width={W} height={H} fill="url(#bgGlow)" />
@@ -274,13 +274,16 @@ export function TacticalMap({
         <ZoneColumn key={z.id} zone={z} idx={i} W={W} H={H} focusZone={focusZone} mode={territoryMode} sourceZones={sourceZones} />
       ))}
 
-      {/* Границы между территориями — вертикали от верхней грани до нижней */}
-      {sourceZones.slice(1).map((z) => {
+      {/* Границы между территориями — вертикальные пунктиры от верхней грани до нижней,
+          цвет границы = цвет территории слева от неё */}
+      {sourceZones.map((z, i) => {
+        if (i === 0) return null;
         const bx = z.x * W;
+        const left = REGION_TINTS[i - 1] ?? REGION_TINTS[0];
         return (
           <line key={`div-${z.id}`} x1={bx} y1={0} x2={bx} y2={H}
-            stroke="oklch(0.70 0.05 230)" strokeWidth="1.3"
-            strokeDasharray="9 9" opacity="0.4" style={{ pointerEvents: 'none' }} />
+            stroke={left.stroke} strokeWidth="1.5"
+            strokeDasharray="9 9" opacity="0.55" style={{ pointerEvents: 'none' }} />
         );
       })}
 
