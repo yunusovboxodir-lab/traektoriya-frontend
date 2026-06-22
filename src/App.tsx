@@ -16,8 +16,6 @@ import { lazyWithRetry } from './utils/lazyWithRetry';
 const LoginPage = lazyWithRetry(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 
 // Consolidated wrapper pages (tabs inside)
-// HomePage заменён DashboardPage в Tactical-стиле (Module 18, 2026-05-03).
-// HomePage оставлен в коде на случай отката, но не импортируется.
 const DashboardPage = lazyWithRetry(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
 const TeamHubPage = lazyWithRetry(() => import('./pages/TeamHubPage').then(m => ({ default: m.TeamHubPage })));
 const CompetenciesPage = lazyWithRetry(() => import('./pages/CompetenciesPage').then(m => ({ default: m.CompetenciesPage })));

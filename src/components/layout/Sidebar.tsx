@@ -288,10 +288,12 @@ export function Sidebar({
     pageKey: item.pageKey,
   }));
 
-  // Замороженные разделы: для админа — серые с замком, для остальных — скрыты
-  const FROZEN_PAGES = ['analytics', 'goals'];
-  // AI Студия: только admin и superadmin (НЕ commercial_dir)
-  const ADMIN_ONLY_PAGES = ['ai-studio'];
+  // Замороженные разделы: для админа — серые с замком, для остальных — скрыты.
+  // Цели и Аналитика разморожены (бэк+данные готовы) — 2026-06-22.
+  const FROZEN_PAGES: string[] = [];
+  // Только admin/superadmin: AI Студия + Планограмма (ShelfScan — отдельный
+  // замороженный продукт, скрыт от полевых ролей ТП/СВ/РМ).
+  const ADMIN_ONLY_PAGES = ['ai-studio', 'planogram'];
   const isSuperOrAdmin = userRole === 'superadmin' || userRole === 'admin';
 
   const visibleItems = NAV_ITEMS.filter((item) => {
