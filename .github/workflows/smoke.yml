@@ -1,0 +1,27 @@
+name: Smoke (prod API)
+
+# Пост-деплой смоук: проверяет здоровье БЭКЕНД-API прода (api.traektoriya.space).
+# Запускается на push в main (после деплоя), вручную (кнопка Run workflow)
+# и раз в 12 часов для мониторинга. Падает (красный X), если хоть один эндпоинт сломан.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 */12 * * *'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run API smoke
+        env:
+          # Пароль демо-админа — из GitHub Secret (fallback в скрипте = admin123)
+          SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
+        run: python scripts/smoke/qa_check.py
