@@ -24,6 +24,7 @@ const AIStudioPage = lazyWithRetry(() => import('./pages/AIStudioPage').then(m =
 // Standalone pages (unchanged)
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
 const TacticalLearningPage = lazyWithRetry(() => import('./pages/TacticalLearningPage').then(m => ({ default: m.TacticalLearningPage })));
+const HallOfFame2025Page = lazyWithRetry(() => import('./pages/HallOfFame2025Page').then(m => ({ default: m.HallOfFame2025Page })));
 const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
@@ -210,6 +211,15 @@ function AppRoutes() {
           <ProtectedRoute pageKey="learning">
             <LearningPage />
           </ProtectedRoute>
+        }
+      />
+      {/* Зал славы — Кубок 2025 (раздел Карты обучения, fullscreen, доступ как у обучения) */}
+      <Route
+        path="/learning/hall-of-fame"
+        element={
+          <FullscreenProtectedRoute pageKey="learning">
+            <HallOfFame2025Page />
+          </FullscreenProtectedRoute>
         }
       />
       {/* Старый маршрут — редирект на новый главный */}
