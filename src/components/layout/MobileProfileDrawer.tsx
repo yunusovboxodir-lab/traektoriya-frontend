@@ -32,8 +32,10 @@ const SECONDARY_LINKS: DrawerLink[] = [
   { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
   { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
   { icon: '📦', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
-  { icon: '📐', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
+  // Планограмма убрана из мобильного меню (PO 2026-06-25): заморожена, без frozen-стиля
+  // на мобайле прячем у всех; на десктопе админ видит её серой с замком (StatusBar).
   { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
+  // План обучения (training_plan) фильтруется политикой scopeStore — только Админ/Ком.дир/РМ.
 ];
 
 export function MobileProfileDrawer({ onClose }: Props) {

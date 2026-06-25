@@ -1580,3 +1580,8 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .divide-gray-100 > * + *,
 .tactical-root .divide-gray-200 > * + * { border-color: var(--line-soft) !important; }
 
+/* --- PowerBadge: на узких экранах прячем подпись тира (остаётся ⚡ + число) --- */
+@media (max-width: 560px) {
+  .power-badge-tier { display: none; }
+}
+

@@ -13,6 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLangStore, useT } from '../../stores/langStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
+import { PowerBadge } from './PowerBadge';
 
 const ROLE_HIERARCHY: Record<string, number> = {
   superadmin: 5,
@@ -49,7 +50,9 @@ const ADMIN_NAV_ITEMS_DEF = [
   { icon: '⚙️', labelKey: 'nav.settings',          path: '/admin/roles',        pageKey: 'admin-roles' },
 ] as const;
 
-const FROZEN_PAGES = ['analytics', 'goals'];
+// planogram — заморожена (PO 2026-06-25): админ видит её серой с замком,
+// остальным скрыта политикой scopeStore (ROLE_FORCE_DENY).
+const FROZEN_PAGES = ['analytics', 'goals', 'planogram'];
 const ADMIN_ONLY_PAGES = ['ai-studio'];
 
 export function StatusBar() {
@@ -197,6 +200,9 @@ export function StatusBar() {
       </div>
 
       <div className="sb-spacer" />
+
+      {/* «Мощь игрока» — компактный бейдж между логотипом и языком, всегда виден (PO 2026-06-25) */}
+      {user && <PowerBadge />}
 
       {/* СПРАВА: переключатель языка (theme-toggle убран — full dark) */}
       <div className="lang-toggle" role="group" aria-label="Язык">

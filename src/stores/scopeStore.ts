@@ -39,6 +39,22 @@ const PAGE_KEY_TO_PATH: Record<string, string> = {
 };
 
 /**
+ * Клиентская политика доступа поверх backend role-scopes (решение PO 2026-06-25).
+ * Функция возвращает true, если страницу нужно ПРИНУДИТЕЛЬНО скрыть для роли.
+ * Применяется в isPageAllowed → действует и в навигации (StatusBar/мобайл),
+ * и в защите роутов (ProtectedRoute).
+ *
+ *  - training_plan (План обучения): только Админ / Суперадмин / Ком.дир / РМ.
+ *  - planogram (Планограмма): только admin/superadmin (в UI у них — frozen);
+ *    остальным полностью скрыта (ShelfScan — отдельный замороженный продукт).
+ */
+const ROLE_FORCE_DENY: Record<string, (role: string | null) => boolean> = {
+  training_plan: (role) =>
+    !['superadmin', 'admin', 'commercial_dir', 'regional_manager'].includes(role || ''),
+  planogram: (role) => !['superadmin', 'admin'].includes(role || ''),
+};
+
+/**
  * Map legacy pageKeys to new consolidated pageKeys.
  * When backend returns old pageKeys like 'assessments', treat them as 'competencies'.
  */
@@ -111,6 +127,10 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
         .some((k) => allowedPages.includes(k));
     if (!baseAllowed) return false;
 
+    // 1.5) Клиентская ролевая политика (PO 2026-06-25): План обучения / Планограмма.
+    const denyFn = ROLE_FORCE_DENY[pageKey];
+    if (denyFn && denyFn(userRole)) return false;
+
     // 2) Прогрессивное раскрытие (UX-слой, только ТП, за флагом). OFF → no-op.
     if (isTierGated(pageKey, userRole, userTier)) return false;
 
@@ -118,11 +138,19 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
   },
 
   getFirstAllowedPath: () => {
-    const { allowedPages } = get();
+    const { allowedPages, isPageAllowed } = get();
     // null = not loaded → default to dashboard
     if (allowedPages === null || allowedPages.length === 0) return '/dashboard';
-    const firstKey = allowedPages[0];
-    return PAGE_KEY_TO_PATH[firstKey] || '/dashboard';
+    // ВАЖНО: возвращаем первую страницу, реально прошедшую isPageAllowed (с учётом
+    // клиентской политики ROLE_FORCE_DENY) — иначе редирект на запрещённую страницу
+    // (напр. ТП → training_plan) зацикливается с ProtectedRoute (чёрный мигающий экран).
+    for (const key of allowedPages) {
+      if (isPageAllowed(key)) {
+        const path = PAGE_KEY_TO_PATH[key];
+        if (path) return path;
+      }
+    }
+    return '/dashboard';
   },
 
   reset: () => set({ allowedPages: null, isLoaded: false, userRole: null, userTier: null }),
