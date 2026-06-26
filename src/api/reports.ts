@@ -1,11 +1,14 @@
 import { api } from './client';
 
+export type ReportType = 'bug' | 'idea' | 'question';
+
 export interface ScreenshotReport {
   id: string;
   user_id: string;
   user_name: string | null;
   user_role: string | null;
   user_region: string | null;
+  report_type: ReportType;
   comment: string;
   current_route: string | null;
   screen_name: string | null;
@@ -29,12 +32,14 @@ export const reportsApi = {
   submit: (data: {
     screenshot: Blob;
     comment: string;
+    reportType?: ReportType;
     currentRoute?: string;
     screenName?: string;
   }) => {
     const formData = new FormData();
     formData.append('screenshot', data.screenshot, 'screenshot.png');
     formData.append('comment', data.comment);
+    formData.append('report_type', data.reportType || 'bug');
     if (data.currentRoute) formData.append('current_route', data.currentRoute);
     if (data.screenName) formData.append('screen_name', data.screenName);
     // Don't set Content-Type manually — Axios + browser auto-add
@@ -42,7 +47,7 @@ export const reportsApi = {
     return api.post('/api/v1/reports/screenshot', formData);
   },
 
-  list: (params?: { skip?: number; limit?: number; status?: string; user_id?: string }) =>
+  list: (params?: { skip?: number; limit?: number; status?: string; report_type?: string; user_id?: string }) =>
     api.get<ScreenshotReportList>('/api/v1/reports/screenshots', { params }),
 
   getDetail: (id: string) =>
@@ -50,4 +55,14 @@ export const reportsApi = {
 
   updateStatus: (id: string, data: { status?: string; admin_comment?: string }) =>
     api.patch<ScreenshotReport>(`/api/v1/reports/screenshots/${id}`, data),
+
+  /** Создать Kanban-задачу из репорта (admin) → репорт становится reviewed */
+  createTask: (id: string, data?: { assignee_id?: string; priority?: string }) =>
+    api.post<{ task_id: string; report_status: string }>(
+      `/api/v1/reports/screenshots/${id}/task`, data || {},
+    ),
+
+  /** Удалить репорт (admin) */
+  delete: (id: string) =>
+    api.delete<{ ok: boolean }>(`/api/v1/reports/screenshots/${id}`),
 };

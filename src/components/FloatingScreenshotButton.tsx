@@ -75,13 +75,11 @@ export function FloatingScreenshotButton() {
     if (!screenshotBlob || !comment.trim()) return;
     setPhase('sending');
 
-    const tag = KINDS.find((k) => k.id === kind)?.tag ?? '';
-    const taggedComment = tag ? `[${tag}] ${comment.trim()}` : comment.trim();
-
     try {
       await reportsApi.submit({
         screenshot: screenshotBlob,
-        comment: taggedComment,
+        comment: comment.trim(),
+        reportType: kind,
         currentRoute: window.location.pathname,
         screenName: document.title,
       });
