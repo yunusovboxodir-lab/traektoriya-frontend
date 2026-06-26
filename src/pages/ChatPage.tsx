@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { chatApi, type ChatMessage, type ChatSource } from '../api/chat';
+import { feedbackApi } from '../api/feedback';
 import { useT, useLangStore } from '../stores/langStore';
 import { ConfidenceIndicator, AIFeedbackBar, toast } from '@/components/ui';
 
@@ -176,17 +177,12 @@ export function ChatPage() {
                           await chatApi.feedback(msg.id, type);
                         } catch { /* silent */ }
                       } else {
-                        // eslint-disable-next-line no-console
-                        console.log('[AI feedback flag]', { msgId: msg.id, comment });
-                        fetch('/api/v1/feedback', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            kind: 'ai_chat_flag',
-                            message_id: msg.id,
-                            comment,
-                          }),
-                          keepalive: true,
+                        // Флаг/жалоба на ответ AI — сохраняется в БД (authed клиент)
+                        feedbackApi.submit({
+                          kind: 'ai_chat_flag',
+                          feedback: 'flag',
+                          message_id: msg.id,
+                          comment,
                         }).catch(() => { /* silent */ });
                       }
                       toast.success('Спасибо за отзыв');

@@ -10,6 +10,7 @@ import {
 import { documentsApi, type DocumentResponse } from '../api/documents';
 import { PageHeader, AIBadge, ConfidenceIndicator, AIFeedbackBar, toast } from '@/components/ui';
 import { ragApi } from '../api/rag';
+import { feedbackApi } from '../api/feedback';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useT } from '../stores/langStore';
 
@@ -549,19 +550,13 @@ function SimpleGeneration() {
                 <AIFeedbackBar
                   responseId={lesson.title || 'lesson-' + Date.now()}
                   onFeedback={async (type, comment) => {
-                    // eslint-disable-next-line no-console
-                    console.log('[AI feedback]', { type, comment, lesson: lesson.title });
-                    fetch('/api/v1/feedback', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        kind: 'ai_lesson',
-                        feedback: type,
-                        comment,
-                        context: { lesson_title: lesson.title, is_grounded: lesson.is_grounded },
-                      }),
-                      keepalive: true,
-                    }).catch(() => { /* silent: endpoint в backend ещё не реализован */ });
+                    // Оценка сгенерированного урока — сохраняется в БД (authed клиент)
+                    feedbackApi.submit({
+                      kind: 'ai_lesson',
+                      feedback: type,
+                      comment,
+                      context: { lesson_title: lesson.title, is_grounded: lesson.is_grounded },
+                    }).catch(() => { /* silent */ });
                     toast.success('Спасибо за отзыв');
                   }}
                 />
