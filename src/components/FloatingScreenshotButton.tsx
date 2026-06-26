@@ -1,32 +1,48 @@
 import { useRef, useCallback, useState } from 'react';
-import { useT } from '../stores/langStore';
+import { Camera } from 'lucide-react';
+import { useT, useLangStore } from '../stores/langStore';
 import { reportsApi } from '../api/reports';
 
 type Phase = 'idle' | 'capturing' | 'preview' | 'sending' | 'sent' | 'error';
+type Kind = 'bug' | 'idea' | 'question';
 
 /**
- * Floating screenshot button — always visible in the bottom-right corner.
- * Flow: click → capture viewport → show preview modal → user adds comment → send to admin.
+ * FloatingScreenshotButton — единая кнопка обратной связи «Сообщить».
+ *
+ * Поток: клик → снимок экрана (html2canvas) → превью → тип (баг/идея/вопрос) + коммент
+ * → отправка админу (POST /reports/screenshot → БД screenshot_reports + MinIO).
+ * Админ разбирает в Аналитика → Репорты (статусы new/reviewed/resolved).
+ *
+ * P0 (2026-06-23): заменил иконку-ножницы на камеру + подпись, добавил адаптив под
+ * мобайл (над нижней навигацией), токены темы, селектор типа обращения.
  */
+const KINDS: { id: Kind; ru: string; uz: string; tag: string }[] = [
+  { id: 'bug', ru: 'Баг', uz: 'Xato', tag: 'Баг' },
+  { id: 'idea', ru: 'Идея', uz: "G'oya", tag: 'Идея' },
+  { id: 'question', ru: 'Вопрос', uz: 'Savol', tag: 'Вопрос' },
+];
+
 export function FloatingScreenshotButton() {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const [phase, setPhase] = useState<Phase>('idle');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [screenshotBlob, setScreenshotBlob] = useState<Blob | null>(null);
   const [comment, setComment] = useState('');
+  const [kind, setKind] = useState<Kind>('bug');
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   /* ------------------------------------------------------------------ */
-  /*  Step 1 — capture the viewport                                     */
+  /*  Step 1 — снимок viewport                                          */
   /* ------------------------------------------------------------------ */
   const captureScreenshot = useCallback(async () => {
     if (phase !== 'idle') return;
     setPhase('capturing');
 
     try {
-      const html2canvas = (await import('html2canvas')).default;
-
-      // Hide trigger button during capture
+      // html2canvas-pro: drop-in форк с поддержкой oklch/color-mix
+      // (обычный html2canvas падает на oklch-цветах дизайн-системы → захват не работал).
+      const html2canvas = (await import('html2canvas-pro')).default;
       if (buttonRef.current) buttonRef.current.style.display = 'none';
 
       const canvas = await html2canvas(document.body, {
@@ -36,13 +52,10 @@ export function FloatingScreenshotButton() {
         ignoreElements: (el) => el.getAttribute('data-screenshot-ignore') === 'true',
       });
 
-      // Restore button
       if (buttonRef.current) buttonRef.current.style.display = '';
 
-      // Generate preview URL and blob
       const dataUrl = canvas.toDataURL('image/png');
       setPreviewUrl(dataUrl);
-
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob((b) => resolve(b), 'image/png'),
       );
@@ -56,95 +69,93 @@ export function FloatingScreenshotButton() {
   }, [phase]);
 
   /* ------------------------------------------------------------------ */
-  /*  Step 2 — send to admin via Reports API                            */
+  /*  Step 2 — отправка админу                                          */
   /* ------------------------------------------------------------------ */
   const sendToAdmin = useCallback(async () => {
     if (!screenshotBlob || !comment.trim()) return;
     setPhase('sending');
 
+    const tag = KINDS.find((k) => k.id === kind)?.tag ?? '';
+    const taggedComment = tag ? `[${tag}] ${comment.trim()}` : comment.trim();
+
     try {
       await reportsApi.submit({
         screenshot: screenshotBlob,
-        comment: comment.trim(),
+        comment: taggedComment,
         currentRoute: window.location.pathname,
         screenName: document.title,
       });
       setPhase('sent');
-      // Auto-close after 2s
-      setTimeout(() => {
-        resetState();
-      }, 2000);
+      setTimeout(() => resetState(), 2000);
     } catch (err) {
       console.error('Failed to send screenshot report:', err);
       setPhase('error');
     }
-  }, [screenshotBlob, comment]);
+  }, [screenshotBlob, comment, kind]);
 
-  /* ------------------------------------------------------------------ */
-  /*  Reset helper                                                       */
-  /* ------------------------------------------------------------------ */
   const resetState = useCallback(() => {
     setPhase('idle');
     setPreviewUrl(null);
     setScreenshotBlob(null);
     setComment('');
+    setKind('bug');
   }, []);
+
+  const label = lang === 'uz' ? 'Xabar berish' : 'Сообщить';
 
   /* ------------------------------------------------------------------ */
   /*  Render                                                             */
   /* ------------------------------------------------------------------ */
   return (
     <>
-      {/* ---------- Trigger button ---------- */}
+      {/* ---------- Триггер: пилюля «Сообщить», адаптив под мобайл ---------- */}
       <button
         ref={buttonRef}
         onClick={captureScreenshot}
         disabled={phase !== 'idle'}
         data-screenshot-ignore="true"
-        className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-gray-700 hover:bg-gray-800
-                   text-white rounded-full shadow-lg hover:shadow-xl
-                   transition-all duration-200 flex items-center justify-center
-                   disabled:opacity-50 disabled:cursor-wait
-                   print:hidden"
-        aria-label={t('screenshot.button') || 'Скриншот'}
-        title={t('screenshot.title') || 'Скриншот экрана'}
+        className="fixed z-50 bottom-20 right-4 sm:bottom-6 sm:right-6
+                   inline-flex items-center gap-2 h-12 px-3 sm:px-4 rounded-full
+                   bg-bg-accent text-fg-on-accent shadow-3 hover:shadow-4 hover:bg-bg-accent-hover
+                   transition-all duration-base ease-standard
+                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border-focus
+                   disabled:opacity-60 disabled:cursor-wait font-medium text-sm print:hidden"
+        aria-label={label}
+        title={label}
       >
         {phase === 'capturing' ? (
-          <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="60 30" />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            className="w-5 h-5">
-            <circle cx="6" cy="6" r="3" />
-            <circle cx="6" cy="18" r="3" />
-            <line x1="20" y1="4" x2="8.12" y2="15.88" />
-            <line x1="14.47" y1="14.48" x2="20" y2="20" />
-            <line x1="8.12" y1="8.12" x2="12" y2="12" />
-          </svg>
+          <Camera size={18} aria-hidden="true" />
         )}
+        <span className="hidden sm:inline">{label}</span>
       </button>
 
-      {/* ---------- Preview Modal ---------- */}
+      {/* ---------- Превью + форма ---------- */}
       {(phase === 'preview' || phase === 'sending' || phase === 'sent' || phase === 'error') && (
         <div
           data-screenshot-ignore="true"
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm print:hidden p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget && phase !== 'sending') resetState();
           }}
         >
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95">
+          <div className="bg-bg-surface border border-border-default rounded-2xl shadow-4 w-full max-w-lg overflow-hidden">
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b bg-gray-50">
-              <h3 className="text-sm font-semibold text-gray-800">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-border-default">
+              <h3 className="text-sm font-semibold text-fg-default">
                 {phase === 'sent'
-                  ? (t('screenshot.sent') || '✅ Отправлено!')
-                  : (t('screenshot.preview') || 'Превью скриншота')}
+                  ? (t('screenshot.sent') || 'Отправлено!')
+                  : (lang === 'uz' ? 'Xabar berish' : 'Сообщить о проблеме или идее')}
               </h3>
               {phase !== 'sending' && phase !== 'sent' && (
-                <button onClick={resetState} className="text-gray-400 hover:text-gray-600 text-lg leading-none">
+                <button
+                  onClick={resetState}
+                  className="text-fg-muted hover:text-fg-default text-lg leading-none"
+                  aria-label={t('screenshot.cancel') || 'Отмена'}
+                >
                   ✕
                 </button>
               )}
@@ -152,71 +163,87 @@ export function FloatingScreenshotButton() {
 
             {/* Body */}
             <div className="p-4 space-y-3">
-              {/* Screenshot preview */}
               {previewUrl && (
-                <div className="border rounded-lg overflow-hidden bg-gray-100 max-h-60 overflow-y-auto">
+                <div className="border border-border-default rounded-lg overflow-hidden bg-bg-canvas max-h-52 overflow-y-auto">
                   <img src={previewUrl} alt="Screenshot preview" className="w-full" />
                 </div>
               )}
 
-              {/* Sent success */}
               {phase === 'sent' && (
                 <div className="text-center py-4">
                   <div className="text-4xl mb-2">✅</div>
-                  <p className="text-green-600 font-medium">
-                    {t('screenshot.sent') || 'Отправлено!'}
+                  <p className="text-status-success-fg font-medium">
+                    {t('screenshot.sent') || 'Отправлено админу!'}
                   </p>
                 </div>
               )}
 
-              {/* Error state */}
               {phase === 'error' && (
-                <div className="text-center py-2">
-                  <p className="text-red-500 text-sm">
-                    {t('screenshot.error') || 'Ошибка отправки'}
-                  </p>
-                </div>
+                <p className="text-center text-status-danger-fg text-sm py-1">
+                  {t('screenshot.error') || 'Ошибка отправки'}
+                </p>
               )}
 
-              {/* Comment textarea (not shown after sent) */}
               {(phase === 'preview' || phase === 'sending' || phase === 'error') && (
-                <textarea
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
-                  placeholder={t('screenshot.commentPlaceholder') || 'Опишите проблему или предложение...'}
-                  disabled={phase === 'sending'}
-                  className="w-full border rounded-lg px-3 py-2 text-sm resize-none h-20
-                             focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent
-                             disabled:bg-gray-50 disabled:text-gray-400
-                             placeholder:text-gray-400"
-                  autoFocus
-                />
+                <>
+                  {/* Тип обращения */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {KINDS.map((k) => (
+                      <button
+                        key={k.id}
+                        type="button"
+                        onClick={() => setKind(k.id)}
+                        disabled={phase === 'sending'}
+                        className={`px-2 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                          kind === k.id
+                            ? 'bg-bg-accent/10 border-border-accent text-fg-default'
+                            : 'border-border-default text-fg-muted hover:border-border-strong'
+                        }`}
+                      >
+                        {lang === 'uz' ? k.uz : k.ru}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Коммент */}
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder={t('screenshot.commentPlaceholder') || 'Опишите проблему или предложение...'}
+                    disabled={phase === 'sending'}
+                    className="w-full rounded-lg px-3 py-2 text-sm resize-none h-20
+                               bg-bg-canvas border border-border-default text-fg-default
+                               placeholder:text-fg-subtle
+                               focus:outline-none focus:border-border-focus focus:ring-2 focus:ring-border-focus
+                               disabled:opacity-60"
+                    autoFocus
+                  />
+                </>
               )}
             </div>
 
-            {/* Footer buttons (not shown after sent) */}
+            {/* Footer */}
             {phase !== 'sent' && (
               <div className="flex gap-2 px-4 pb-4">
                 <button
                   onClick={resetState}
                   disabled={phase === 'sending'}
-                  className="flex-1 px-4 py-2 text-sm rounded-lg border border-gray-300
-                             text-gray-600 hover:bg-gray-50 transition-colors
-                             disabled:opacity-50"
+                  className="flex-1 px-4 py-2 text-sm rounded-lg border border-border-default
+                             text-fg-muted hover:bg-bg-canvas transition-colors disabled:opacity-50"
                 >
                   {t('screenshot.cancel') || 'Отмена'}
                 </button>
                 <button
                   onClick={sendToAdmin}
                   disabled={phase === 'sending' || !comment.trim()}
-                  className="flex-1 px-4 py-2 text-sm rounded-lg font-medium text-white
-                             bg-blue-600 hover:bg-blue-700 transition-colors
+                  className="flex-1 px-4 py-2 text-sm rounded-lg font-medium
+                             bg-bg-accent text-fg-on-accent hover:bg-bg-accent-hover transition-colors
                              disabled:opacity-50 disabled:cursor-not-allowed
                              flex items-center justify-center gap-2"
                 >
                   {phase === 'sending' ? (
                     <>
-                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="60 30" />
                       </svg>
                       {t('screenshot.sending') || 'Отправка...'}

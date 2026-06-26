@@ -7,6 +7,7 @@ import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { MobileAdminGate } from './components/layout/MobileAdminGate';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
+import { FloatingScreenshotButton } from './components/FloatingScreenshotButton';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // ---------------------------------------------------------------------------
@@ -576,11 +577,23 @@ function AppRoutes() {
 // ===========================================
 // ГЛАВНЫЙ КОМПОНЕНТ ПРИЛОЖЕНИЯ
 // ===========================================
+/**
+ * Глобальная кнопка обратной связи «Сообщить» — на КАЖДОЙ авторизованной странице
+ * (и обычные ProtectedRoute, и fullscreen-роуты вроде дашборда/карты).
+ * Раньше монтировалась внутри TacticalLayout → отсутствовала на fullscreen-страницах.
+ */
+function GlobalFeedbackButton() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  if (!isAuthenticated) return null;
+  return <FloatingScreenshotButton />;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
         <AppRoutes />
+        <GlobalFeedbackButton />
         <ToastContainer />
       </BrowserRouter>
     </ErrorBoundary>
