@@ -26,6 +26,20 @@ interface AuthState {
   fetchUser: () => Promise<void>;
 }
 
+// Дублируем идентичность юзера в localStorage — нужно демо-режиму (api/demoData.ts),
+// чтобы читать employee_id без импорта authStore (иначе цикл client ↔ authStore).
+function persistUserIdentity(user: { id?: string; employee_id?: string; full_name?: string } | null) {
+  if (!user) {
+    localStorage.removeItem('employee_id');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('user_full_name');
+    return;
+  }
+  if (user.employee_id) localStorage.setItem('employee_id', user.employee_id);
+  if (user.id) localStorage.setItem('user_id', user.id);
+  if (user.full_name) localStorage.setItem('user_full_name', user.full_name);
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   accessToken: localStorage.getItem('accessToken'),
@@ -42,6 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       localStorage.setItem('accessToken', access_token);
       localStorage.setItem('refreshToken', refresh_token);
+      persistUserIdentity(user);
 
       set({
         user,
@@ -78,6 +93,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     } finally {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      persistUserIdentity(null);
       set({
         user: null,
         accessToken: null,
@@ -95,6 +111,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   fetchUser: async () => {
     try {
       const response = await authApi.me();
+      persistUserIdentity(response.data);
       set({ user: response.data });
       // Тир Мощи для прогрессивного раскрытия (роль из /me)
       useScopeStore.getState().fetchUserTier(response.data?.role);

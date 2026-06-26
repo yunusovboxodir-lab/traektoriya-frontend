@@ -1,4 +1,5 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
+import { isDemoSession, getDemoResponse } from './demoData';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.traektoriya.space';
 
@@ -15,6 +16,22 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   config.headers['Accept-Language'] = localStorage.getItem('language') || 'uz';
+
+  // ДЕМО-РЕЖИМ (только аккаунт seller1): подменяем ответы части эндпоинтов
+  // мок-данными прямо в браузере — запрос на сервер не уходит. Видит только
+  // seller1; на бэке/у других ничего не меняется. См. api/demoData.ts.
+  if (isDemoSession()) {
+    const mock = getDemoResponse(config.url, config.method);
+    if (mock !== undefined) {
+      config.adapter = async () => ({
+        data: mock,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config,
+      });
+    }
+  }
   return config;
 });
 

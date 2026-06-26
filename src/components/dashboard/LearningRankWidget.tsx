@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { learningApi } from '../../api/learning';
 import type { LeaderboardResponse, LeaderboardEntry, LeaderboardPeriod, LeaderboardRole } from '../../api/learning';
+import { DEMO_EMPLOYEE_ID } from '../../api/demoData';
 import { useAuthStore } from '../../stores/authStore';
 import { useT } from '../../stores/langStore';
 import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
@@ -116,7 +117,13 @@ export function LearningRankWidget() {
     );
   }
 
-  const { my_rank, total_in_group, my_progress, leaderboard } = data;
+  const { my_rank, total_in_group, my_progress } = data;
+  // Демо-аккаунт seller1 в рейтинге виден ТОЛЬКО себе. Для всех остальных
+  // (включая админа) он скрыт и не участвует в зачёте (PO 2026-06-25).
+  const viewerIsDemo = user?.employee_id === DEMO_EMPLOYEE_ID;
+  const leaderboard = viewerIsDemo
+    ? data.leaderboard
+    : data.leaderboard.filter((e) => e.employee_id !== DEMO_EMPLOYEE_ID);
   const myInTop3 = my_rank <= 3;
 
   // Разделение на пьедестал и список
