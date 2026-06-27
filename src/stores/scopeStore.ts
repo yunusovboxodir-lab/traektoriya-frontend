@@ -52,6 +52,10 @@ const ROLE_FORCE_DENY: Record<string, (role: string | null) => boolean> = {
   training_plan: (role) =>
     !['superadmin', 'admin', 'commercial_dir', 'regional_manager'].includes(role || ''),
   planogram: (role) => !['superadmin', 'admin'].includes(role || ''),
+  // goals (Цели): часть функций завязана на ShelfScan (тип shelf_quality), а он
+  // заморожен/будет отдельным продуктом → раздел полупустой. Прячем у всех кроме
+  // admin/superadmin до разморозки (PO 2026-06-28). Маршрут/код живы — вернуть легко.
+  goals: (role) => !['superadmin', 'admin'].includes(role || ''),
 };
 
 /**

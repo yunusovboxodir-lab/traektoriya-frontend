@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { goalsApi, type Goal } from '../../api/goals';
 import { useLangStore } from '../../stores/langStore';
 import { TacticalPanel } from '../tactical/shell';
+
+/**
+ * Куда ведёт квест по клику. Дневные квесты в основном про обучение
+ * («закрой раздел») → /learning; по категории можно уточнить цель.
+ * Авто-отметка «выполнено» — на бэке при реальном выполнении условия.
+ */
+function questTarget(q: Goal): string {
+  const cat = q.metadata?.category;
+  if (cat === 'tasks') return '/tasks';
+  if (cat === 'products') return '/products';
+  return '/learning';
+}
 
 /** Ташкентская «сегодня» (UTC+5) в формате YYYY-MM-DD. */
 function tashkentToday(): string {
@@ -12,6 +25,7 @@ function tashkentToday(): string {
 
 export function DailyQuestsWidget() {
   const lang = useLangStore((s) => s.lang);
+  const navigate = useNavigate();
   const [quests, setQuests] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,12 +60,16 @@ export function DailyQuestsWidget() {
           const completed = q.status === 'completed';
           const title = lang === 'uz' ? (q.metadata?.title_uz ?? q.title) : q.title;
           return (
-            <div
+            <button
               key={q.id}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 ring-1"
+              type="button"
+              onClick={completed ? undefined : () => navigate(questTarget(q))}
+              disabled={completed}
+              className="w-full text-left flex items-center gap-3 rounded-lg px-3 py-2.5 ring-1 transition-colors"
               style={{
                 background: completed ? 'var(--success-bg)' : 'var(--bg-elevated)',
                 borderColor: completed ? 'rgba(74,222,128,0.3)' : 'var(--border)',
+                cursor: completed ? 'default' : 'pointer',
               }}
             >
               <span className="text-lg shrink-0">{completed ? '✅' : (q.metadata?.icon ?? '⬜')}</span>
@@ -64,7 +82,10 @@ export function DailyQuestsWidget() {
               >
                 {title}
               </span>
-            </div>
+              {!completed && (
+                <span className="shrink-0" aria-hidden="true" style={{ color: 'var(--text-muted)' }}>›</span>
+              )}
+            </button>
           );
         })}
         {done === quests.length && (

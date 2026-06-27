@@ -507,15 +507,19 @@ export function TasksPage() {
               {t('tasks.generate.practical')}
             </button>
           )}
-          <button
-            onClick={() => setShowCreate(true)}
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            {t('tasks.newTask')}
-          </button>
+          {/* Создание задач — функция руководителя. ТП задачи исполняет, не создаёт
+              (баг видимости: кнопка была видна всем). PO 2026-06-28. */}
+          {isManager && (
+            <button
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm hover:shadow-md text-sm font-medium"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              {t('tasks.newTask')}
+            </button>
+          )}
         </div>
       </div>
 
