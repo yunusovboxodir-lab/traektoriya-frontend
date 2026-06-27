@@ -38,42 +38,50 @@ export function FloatingScreenshotButton() {
   const captureScreenshot = useCallback(async () => {
     if (phase !== 'idle') return;
     setPhase('capturing');
+    if (buttonRef.current) buttonRef.current.style.display = 'none';
 
+    // Не включать кнопку/модалку в снимок.
+    const skip = (n: unknown) =>
+      !(n instanceof Element && n.getAttribute('data-screenshot-ignore') === 'true');
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+    let blob: Blob | null = null;
     try {
-      // html2canvas-pro: drop-in форк с поддержкой oklch/color-mix
-      // (обычный html2canvas падает на oklch-цветах дизайн-системы → захват не работал).
-      const html2canvas = (await import('html2canvas-pro')).default;
-      if (buttonRef.current) buttonRef.current.style.display = 'none';
-
-      const canvas = await html2canvas(document.body, {
-        useCORS: true,
-        allowTaint: false,        // кросс-доменные картинки без CORS — пропускаем, не «портим» canvas
-        logging: false,
-        imageTimeout: 2500,        // не виснуть на медленных/недоступных картинках
+      // Основной путь — html-to-image: инлайнит ресурсы (не «портит» canvas
+      // кросс-доменными картинками, как html2canvas → SecurityError у РМ/ТП).
+      const { toBlob } = await import('html-to-image');
+      blob = await toBlob(document.body, {
         backgroundColor: '#0b1220',
-        scale: Math.min(window.devicePixelRatio || 1, 2),
-        ignoreElements: (el) => el.getAttribute('data-screenshot-ignore') === 'true',
+        cacheBust: true,
+        pixelRatio,
+        filter: skip,
       });
-
-      if (buttonRef.current) buttonRef.current.style.display = '';
-
-      const dataUrl = canvas.toDataURL('image/png');
-      setPreviewUrl(dataUrl);
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((b) => resolve(b), 'image/png'),
-      );
-      setScreenshotBlob(blob);
-      setPhase('preview');
-    } catch (err) {
-      // Захват экрана может упасть на «капризной» странице (tainted canvas от
-      // кросс-доменных картинок и т.п.). НЕ блокируем обратную связь — открываем
-      // форму без скриншота, чтобы пользователь всё равно мог сообщить.
-      console.error('Screenshot capture failed (открываю форму без скрина):', err);
-      if (buttonRef.current) buttonRef.current.style.display = '';
-      setPreviewUrl(null);
-      setScreenshotBlob(null);
-      setPhase('preview');
+    } catch (e1) {
+      // Фолбэк — html2canvas-pro (oklch-совместимый форк).
+      try {
+        const html2canvas = (await import('html2canvas-pro')).default;
+        const canvas = await html2canvas(document.body, {
+          useCORS: false,
+          allowTaint: false,
+          logging: false,
+          imageTimeout: 2500,
+          backgroundColor: '#0b1220',
+          scale: pixelRatio,
+          ignoreElements: (el) => el.getAttribute('data-screenshot-ignore') === 'true',
+        });
+        blob = await new Promise<Blob | null>((resolve) =>
+          canvas.toBlob((b) => resolve(b), 'image/png'),
+        );
+      } catch (e2) {
+        // Оба не смогли — НЕ блокируем фидбек: откроем форму без скрина.
+        console.error('Screenshot capture failed (открываю форму без скрина):', e1, e2);
+      }
     }
+
+    if (buttonRef.current) buttonRef.current.style.display = '';
+    setScreenshotBlob(blob);
+    setPreviewUrl(blob ? URL.createObjectURL(blob) : null);
+    setPhase('preview');  // форма открывается ВСЕГДА (со скрином или без)
   }, [phase]);
 
   /* ------------------------------------------------------------------ */
@@ -100,8 +108,11 @@ export function FloatingScreenshotButton() {
   }, [screenshotBlob, comment, kind]);
 
   const resetState = useCallback(() => {
+    setPreviewUrl((prev) => {
+      if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
+      return null;
+    });
     setPhase('idle');
-    setPreviewUrl(null);
     setScreenshotBlob(null);
     setComment('');
     setKind('bug');
