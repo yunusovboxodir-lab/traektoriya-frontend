@@ -17,6 +17,14 @@ api.interceptors.request.use((config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   config.headers['Accept-Language'] = localStorage.getItem('language') || 'uz';
 
+  // FormData (загрузка файла, напр. скриншот-репорт): убираем дефолтный
+  // Content-Type: application/json, иначе axios шлёт multipart как JSON →
+  // сервер не видит поля (422). Без заголовка браузер сам ставит
+  // multipart/form-data + boundary.
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type'];
+  }
+
   // ДЕМО-РЕЖИМ (только аккаунт seller1): подменяем ответы части эндпоинтов
   // мок-данными прямо в браузере — запрос на сервер не уходит. Видит только
   // seller1; на бэке/у других ничего не меняется. См. api/demoData.ts.
