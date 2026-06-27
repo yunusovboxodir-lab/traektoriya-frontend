@@ -30,14 +30,14 @@ export interface ScreenshotReportList {
 export const reportsApi = {
   /** Submit a screenshot report (any authenticated user) */
   submit: (data: {
-    screenshot: Blob;
+    screenshot?: Blob | null;
     comment: string;
     reportType?: ReportType;
     currentRoute?: string;
     screenName?: string;
   }) => {
     const formData = new FormData();
-    formData.append('screenshot', data.screenshot, 'screenshot.png');
+    if (data.screenshot) formData.append('screenshot', data.screenshot, 'screenshot.png');
     formData.append('comment', data.comment);
     formData.append('report_type', data.reportType || 'bug');
     if (data.currentRoute) formData.append('current_route', data.currentRoute);

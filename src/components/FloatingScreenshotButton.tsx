@@ -47,8 +47,11 @@ export function FloatingScreenshotButton() {
 
       const canvas = await html2canvas(document.body, {
         useCORS: true,
+        allowTaint: false,        // кросс-доменные картинки без CORS — пропускаем, не «портим» canvas
         logging: false,
-        scale: window.devicePixelRatio || 1,
+        imageTimeout: 2500,        // не виснуть на медленных/недоступных картинках
+        backgroundColor: '#0b1220',
+        scale: Math.min(window.devicePixelRatio || 1, 2),
         ignoreElements: (el) => el.getAttribute('data-screenshot-ignore') === 'true',
       });
 
@@ -62,9 +65,14 @@ export function FloatingScreenshotButton() {
       setScreenshotBlob(blob);
       setPhase('preview');
     } catch (err) {
-      console.error('Screenshot capture failed:', err);
+      // Захват экрана может упасть на «капризной» странице (tainted canvas от
+      // кросс-доменных картинок и т.п.). НЕ блокируем обратную связь — открываем
+      // форму без скриншота, чтобы пользователь всё равно мог сообщить.
+      console.error('Screenshot capture failed (открываю форму без скрина):', err);
       if (buttonRef.current) buttonRef.current.style.display = '';
-      setPhase('idle');
+      setPreviewUrl(null);
+      setScreenshotBlob(null);
+      setPhase('preview');
     }
   }, [phase]);
 
@@ -72,12 +80,12 @@ export function FloatingScreenshotButton() {
   /*  Step 2 — отправка админу                                          */
   /* ------------------------------------------------------------------ */
   const sendToAdmin = useCallback(async () => {
-    if (!screenshotBlob || !comment.trim()) return;
+    if (!comment.trim()) return;  // скриншот опционален — главное коммент
     setPhase('sending');
 
     try {
       await reportsApi.submit({
-        screenshot: screenshotBlob,
+        screenshot: screenshotBlob,  // может быть null — бэк примет без файла
         comment: comment.trim(),
         reportType: kind,
         currentRoute: window.location.pathname,
@@ -161,9 +169,15 @@ export function FloatingScreenshotButton() {
 
             {/* Body */}
             <div className="p-4 space-y-3">
-              {previewUrl && (
+              {previewUrl ? (
                 <div className="border border-border-default rounded-lg overflow-hidden bg-bg-canvas max-h-52 overflow-y-auto">
                   <img src={previewUrl} alt="Screenshot preview" className="w-full" />
+                </div>
+              ) : (phase === 'preview' || phase === 'sending' || phase === 'error') && (
+                <div className="border border-border-default rounded-lg bg-bg-canvas p-3 text-xs text-fg-muted">
+                  {lang === 'uz'
+                    ? 'Skrinshotni biriktirib boʻlmadi — muammoni matn bilan tasvirlang.'
+                    : '📷 Скриншот не приложился — опишите проблему текстом, мы всё равно получим.'}
                 </div>
               )}
 
