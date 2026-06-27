@@ -35,6 +35,8 @@ const SECONDARY_LINKS: DrawerLink[] = [
   // Планограмма убрана из мобильного меню (PO 2026-06-25): заморожена, без frozen-стиля
   // на мобайле прячем у всех; на десктопе админ видит её серой с замком (StatusBar).
   { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
+  // Обратная связь (репорты со скринами) — только админ (pageKey admin-roles), → вкладка reports.
+  { icon: '🗣️', labelKey: 'nav.feedback',     path: '/analytics?tab=reports', pageKey: 'admin-roles' },
   // План обучения (training_plan) фильтруется политикой scopeStore — только Админ/Ком.дир/РМ.
 ];
 
