@@ -34,17 +34,17 @@ const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
 const LEVEL_COLOR: Record<string, { color: string; bg: string }> = {
-  trainee: { color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+  trainee:     { color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
   practitioner: { color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
-  expert: { color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
-  master: { color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
+  expert:      { color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
+  master:      { color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
 };
 
-// Цвета медалей
+// Цвета медалей — бренд/семантика, корректны на обеих темах
 const PODIUM = {
   gold:   { bg: 'linear-gradient(135deg, #FBBF24 0%, #C8A84B 100%)', text: '#0a1929', glow: 'rgba(251,191,36,0.4)' },
   silver: { bg: 'linear-gradient(135deg, #E5E7EB 0%, #9CA3AF 100%)', text: '#0a1929', glow: 'rgba(229,231,235,0.3)' },
-  bronze: { bg: 'linear-gradient(135deg, #FB923C 0%, #C2410C 100%)', text: '#fff',     glow: 'rgba(251,146,60,0.4)' },
+  bronze: { bg: 'linear-gradient(135deg, #FB923C 0%, #C2410C 100%)', text: '#fff',    glow: 'rgba(251,146,60,0.4)' },
 };
 
 export function LearningRankWidget() {
@@ -94,7 +94,7 @@ export function LearningRankWidget() {
     return (
       <div
         className="rounded-2xl border p-6"
-        style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
         <div className="animate-pulse space-y-4">
           <div className="h-32 rounded-xl bg-white/5" />
@@ -110,9 +110,9 @@ export function LearningRankWidget() {
     return (
       <div
         className="rounded-2xl border p-6"
-        style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
-        <p className="text-sm text-white/55">{t('dashboard.leaderboard.loadError')}</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('dashboard.leaderboard.loadError')}</p>
       </div>
     );
   }
@@ -140,8 +140,8 @@ export function LearningRankWidget() {
     <div
       className="rounded-2xl border overflow-hidden transition-opacity"
       style={{
-        background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)',
-        borderColor: 'rgba(255,255,255,0.08)',
+        background: 'var(--bg-card)',
+        borderColor: 'var(--border)',
         opacity: loading ? 0.6 : 1,
       }}
     >
@@ -156,19 +156,19 @@ export function LearningRankWidget() {
         <div className="flex items-start justify-between flex-wrap gap-3 mb-3">
           <div>
             <h2
-              className="text-lg font-bold text-white flex items-center gap-2.5"
-              style={{ fontFamily: "'Unbounded',sans-serif" }}
+              className="text-lg font-bold flex items-center gap-2.5"
+              style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}
             >
               <span className="text-2xl">🏆</span>
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
-            <p className="text-[11px] text-white/55 mt-1">
+            <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
               Формула: <span className="text-emerald-300 font-semibold">50% обучение</span>
               {' + '}
               <span className="text-amber-300 font-semibold">30% активность</span>
               {' + '}
               <span className="text-blue-300 font-semibold">20% streak</span>
-              <span className="text-white/35 ml-1.5">· KPI 30% после CRM</span>
+              <span className="ml-1.5" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>· KPI 30% после CRM</span>
             </p>
           </div>
           <Link
@@ -183,7 +183,10 @@ export function LearningRankWidget() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Role selector — только admin */}
           {isAdmin && (
-            <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+            <div
+              className="inline-flex rounded-lg p-1"
+              style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
+            >
               {ROLE_OPTIONS.map((r) => (
                 <button
                   key={r.value}
@@ -192,10 +195,10 @@ export function LearningRankWidget() {
                   className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
                     selectedRole === r.value
                       ? 'bg-amber-400 text-[#0a1929]'
-                      : 'text-white/65 hover:text-white'
+                      : ''
                   }`}
+                  style={selectedRole !== r.value ? { color: 'var(--text-secondary)' } : undefined}
                   title={`Рейтинг ${r.label}`}
-                  style={{ fontFamily: "'Unbounded',sans-serif" }}
                 >
                   <span className="mr-1">{r.icon}</span>
                   {r.label}
@@ -205,7 +208,10 @@ export function LearningRankWidget() {
           )}
 
           {/* Period selector */}
-          <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+          <div
+            className="inline-flex rounded-lg p-1"
+            style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
+          >
             {PERIOD_OPTIONS.map((p) => (
               <button
                 key={p.value}
@@ -214,10 +220,10 @@ export function LearningRankWidget() {
                 className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
                   period === p.value
                     ? 'bg-amber-400 text-[#0a1929]'
-                    : 'text-white/65 hover:text-white'
+                    : ''
                 }`}
+                style={period !== p.value ? { color: 'var(--text-secondary)' } : undefined}
                 title={p.short}
-                style={{ fontFamily: "'Unbounded',sans-serif" }}
               >
                 {p.label}
               </button>
@@ -225,9 +231,9 @@ export function LearningRankWidget() {
           </div>
 
           {/* Контекст текущего выбора */}
-          <div className="text-[11px] text-white/45 ml-auto">
+          <div className="text-[11px] ml-auto" style={{ color: 'var(--text-muted)' }}>
             {data.formula?.period_days && (
-              <>За последние <strong className="text-white/70">{data.formula.period_days}</strong> дней</>
+              <>За последние <strong style={{ color: 'var(--text-secondary)' }}>{data.formula.period_days}</strong> дней</>
             )}
           </div>
         </div>
@@ -249,7 +255,7 @@ export function LearningRankWidget() {
                   height: 60,
                   fontFamily: "'Unbounded',sans-serif",
                   fontSize: 28,
-                  color: '#E5E7EB',
+                  color: '#E5E7EB', // серебряный цвет цифры — бренд медали, оставляем
                 }}
               >
                 2
@@ -268,7 +274,7 @@ export function LearningRankWidget() {
                   height: 90,
                   fontFamily: "'Unbounded',sans-serif",
                   fontSize: 36,
-                  color: '#FBBF24',
+                  color: '#FBBF24', // золотой цвет цифры — бренд медали, оставляем
                   boxShadow: '0 -8px 24px rgba(251,191,36,0.25)',
                 }}
               >
@@ -290,7 +296,7 @@ export function LearningRankWidget() {
                   height: 40,
                   fontFamily: "'Unbounded',sans-serif",
                   fontSize: 22,
-                  color: '#FB923C',
+                  color: '#FB923C', // бронзовый цвет цифры — бренд медали, оставляем
                 }}
               >
                 3
@@ -298,7 +304,7 @@ export function LearningRankWidget() {
             </div>
           </div>
 
-          {/* Линия пьедестала */}
+          {/* Линия пьедестала — золотой декор, оставляем */}
           <div
             className="h-1 rounded-full"
             style={{ background: 'linear-gradient(90deg, transparent, rgba(200,168,75,0.4), transparent)' }}
@@ -321,7 +327,7 @@ export function LearningRankWidget() {
                     background: 'rgba(200,168,75,0.15)',
                     border: '2px solid rgba(200,168,75,0.5)',
                     fontFamily: "'Unbounded',sans-serif",
-                    color: '#FBBF24',
+                    color: '#FBBF24', // золотой акцент — бренд, оставляем
                   }}
                 >
                   #{my_rank}
@@ -330,8 +336,8 @@ export function LearningRankWidget() {
                   <p className="text-[10px] uppercase tracking-widest text-amber-300/70" style={{ fontFamily: "'Unbounded',sans-serif" }}>
                     Твой ранг
                   </p>
-                  <p className="text-xl font-bold text-white" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-                    {my_rank} <span className="text-sm font-normal text-white/55">из {total_in_group}</span>
+                  <p className="text-xl font-bold" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}>
+                    {my_rank} <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>из {total_in_group}</span>
                   </p>
                 </div>
               </div>
@@ -346,9 +352,9 @@ export function LearningRankWidget() {
                 >
                   {levelName(my_progress.current_level)}
                 </span>
-                <div className="mt-1 flex items-center gap-3 text-xs text-white/55 justify-end">
-                  <span>Курсов: <strong className="text-white/85">{my_progress.total_courses_completed}</strong></span>
-                  <span>Балл: <strong className="text-white/85">{my_progress.avg_quiz_score}%</strong></span>
+                <div className="mt-1 flex items-center gap-3 text-xs justify-end" style={{ color: 'var(--text-muted)' }}>
+                  <span>Курсов: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.total_courses_completed}</strong></span>
+                  <span>Балл: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.avg_quiz_score}%</strong></span>
                   {my_progress.current_streak_days > 0 && (
                     <span className="text-orange-300">🔥 {my_progress.current_streak_days}д</span>
                   )}
@@ -363,8 +369,8 @@ export function LearningRankWidget() {
       {rest.length > 0 && (
         <div className="px-5 pb-5 sm:px-6">
           <p
-            className="mb-3 text-[10px] font-bold uppercase tracking-widest text-white/45"
-            style={{ fontFamily: "'Unbounded',sans-serif" }}
+            className="mb-3 text-[10px] font-bold uppercase tracking-widest"
+            style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}
           >
             Преследователи
           </p>
@@ -400,7 +406,7 @@ function PodiumPlayer({
 
   return (
     <div className="flex flex-col items-center text-center w-full" style={{ filter: entry.is_current_user ? 'drop-shadow(0 0 12px rgba(200,168,75,0.5))' : 'none' }}>
-      {/* Аватар-медаль */}
+      {/* Аватар-медаль — meta.bg и meta.text это бренд-цвета медалей, оставляем */}
       <div
         className="rounded-full flex items-center justify-center font-bold mb-1.5 relative"
         style={{
@@ -418,8 +424,9 @@ function PodiumPlayer({
       </div>
       {/* Имя */}
       <div
-        className="text-xs font-semibold text-white text-center w-full"
+        className="text-xs font-semibold text-center w-full"
         style={{
+          color: 'var(--text-primary)',
           maxWidth: '100%',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -446,10 +453,12 @@ function PodiumPlayer({
               className="text-base font-bold leading-none"
               style={{ fontFamily: "'Unbounded',sans-serif", color: meta.text === '#fff' ? '#fff' : '#0a1929' }}
             >
+              {/* meta.text === '#fff' — бронзовая медаль (тёмный фон), meta.text === '#0a1929' — золото/серебро.
+                  Здесь намеренно тёмный текст #0a1929 на светлых медалях (золото/серебро) — оставляем. */}
               <span style={{ color: '#FBBF24' }}>{Math.round(entry.total_score)}</span>
-              <span className="text-white/40 text-xs"> /100</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.75em' }}> /100</span>
             </div>
-            <div className="text-[9px] text-white/45 mt-0.5">
+            <div className="text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
               📚 {Math.round(entry.learning_score ?? 0)}
               <span className="mx-1">·</span>
               🔥 {Math.round(entry.activity_score ?? 0)}
@@ -458,7 +467,7 @@ function PodiumPlayer({
             </div>
           </>
         ) : (
-          <div className="text-[10px] text-white/55">
+          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
             {entry.courses_completed} курс · {entry.avg_quiz_score}%
           </div>
         )}
@@ -481,19 +490,26 @@ function LeaderboardRow({
     <div
       className="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors"
       style={{
-        background: isMe ? 'rgba(200,168,75,0.10)' : 'rgba(255,255,255,0.02)',
-        border: isMe ? '1px solid rgba(200,168,75,0.4)' : '1px solid rgba(255,255,255,0.04)',
+        background: isMe ? 'rgba(200,168,75,0.10)' : 'var(--bg-overlay)',
+        border: isMe ? '1px solid rgba(200,168,75,0.4)' : '1px solid var(--border)',
       }}
     >
       <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white/55"
-        style={{ background: 'rgba(255,255,255,0.05)', fontFamily: "'Unbounded',sans-serif" }}
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+        style={{
+          background: 'var(--bg-overlay)',
+          color: 'var(--text-muted)',
+          fontFamily: "'Unbounded',sans-serif",
+        }}
       >
         {entry.rank}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className={`truncate text-sm ${isMe ? 'font-bold text-amber-300' : 'font-medium text-white/85'}`}>
+        <p
+          className={`truncate text-sm ${isMe ? 'font-bold text-amber-300' : 'font-medium'}`}
+          style={!isMe ? { color: 'var(--text-primary)' } : undefined}
+        >
           {entry.full_name || entry.employee_id}
           {isMe && <span className="ml-1 text-xs text-amber-400/70">(вы)</span>}
         </p>
@@ -515,16 +531,16 @@ function LeaderboardRow({
             >
               {Math.round(entry.total_score)}
             </p>
-            <p className="text-[9px] text-white/40">
+            <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
               📚{Math.round(entry.learning_score ?? 0)} · 🔥{Math.round(entry.activity_score ?? 0)} · ⏱{Math.round(entry.streak_score ?? 0)}
             </p>
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold text-white/85" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+            <p className="text-sm font-semibold" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}>
               {entry.courses_completed}
             </p>
-            <p className="text-[10px] text-white/40">{entry.avg_quiz_score}%</p>
+            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>
           </>
         )}
       </div>

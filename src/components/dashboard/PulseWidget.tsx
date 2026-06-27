@@ -129,10 +129,10 @@ export function PulseWidget() {
 
   if (loading && !pulse) {
     return (
-      <div className="rounded-2xl p-12 border" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="rounded-2xl p-12 border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="animate-spin h-8 w-8 rounded-full border-2 border-amber-400 border-t-transparent" />
-          <div className="text-xs uppercase tracking-widest text-white/50">
+          <div className="text-xs uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
             {retryCount > 0
               ? (lang === 'uz' ? `Pulsi hisoblanmoqda… (${retryCount + 1}/3)` : `Считаем пульс… (${retryCount + 1}/3)`)
               : (lang === 'uz' ? 'Yuklanmoqda' : 'Загрузка')}
@@ -144,12 +144,12 @@ export function PulseWidget() {
 
   if (!pulse || !pulse.competencies || pulse.competencies.length === 0) {
     return (
-      <div className="rounded-2xl p-8 border text-center" style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}>
+      <div className="rounded-2xl p-8 border text-center" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
         <div className="text-4xl mb-3">📊</div>
-        <div className="text-base text-white/65 mb-1 font-semibold">
+        <div className="text-base mb-1 font-semibold" style={{ color: 'var(--text-secondary)' }}>
           {lang === 'uz' ? 'Pulsi hali tayyor emas' : 'Пульс ещё не рассчитан'}
         </div>
-        <div className="text-xs text-white/40 mb-4">
+        <div className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
           {lang === 'uz' ? 'Birinchi kursni tugating, statistik to\'planadi' : 'Пройди первый курс — статистика накопится'}
         </div>
         <button
@@ -198,14 +198,14 @@ export function PulseWidget() {
   return (
     <div
       className="rounded-2xl border overflow-hidden"
-      style={{ background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)', borderColor: 'rgba(255,255,255,0.08)' }}
+      style={{ background: 'linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-card) 100%)', borderColor: 'var(--border)' }}
     >
       {/* Hero header (gradient) */}
       <div
         className="px-5 py-3 sm:px-6 flex items-center justify-between flex-wrap gap-2"
         style={{
-          background: `linear-gradient(135deg, ${meta.bg}, rgba(17,36,61,0.4))`,
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          background: `linear-gradient(135deg, ${meta.bg}, var(--bg-overlay))`,
+          borderBottom: '1px solid var(--border)',
         }}
       >
         <div className="flex items-center gap-2.5">
@@ -218,13 +218,13 @@ export function PulseWidget() {
           </span>
         </div>
         {isAggregateView && (
-          <div className="flex items-center gap-2 text-[11px] text-white/55">
+          <div className="flex items-center gap-2 text-[11px]" style={{ color: 'var(--text-muted)' }}>
             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-widest"
               style={{ background: 'rgba(96,165,250,0.15)', color: '#60A5FA', fontFamily: "'Unbounded',sans-serif" }}
             >
-              👁 admin view
+              admin view
             </span>
-            <span>На основе <strong className="text-white/80">{aggregateMembers}</strong> сотрудников</span>
+            <span>На основе <strong style={{ color: 'var(--text-secondary)' }}>{aggregateMembers}</strong> сотрудников</span>
           </div>
         )}
       </div>
@@ -241,7 +241,7 @@ export function PulseWidget() {
               style={{ background: `radial-gradient(circle, ${meta.color}, transparent 70%)`, filter: 'blur(20px)' }}
             />
             <svg viewBox="0 0 220 220" className="relative w-full h-full">
-              <circle cx="110" cy="110" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+              <circle cx="110" cy="110" r={r} fill="none" stroke="var(--border)" strokeWidth="14" />
               {/* Сегменты уровней — деления */}
               {[25, 50, 75].map((p) => {
                 const angle = (p / 100) * 360 - 90;
@@ -250,7 +250,7 @@ export function PulseWidget() {
                 const y1 = 110 + Math.sin(rad) * (r - 7);
                 const x2 = 110 + Math.cos(rad) * (r + 7);
                 const y2 = 110 + Math.sin(rad) * (r + 7);
-                return <line key={p} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.2)" strokeWidth="1" />;
+                return <line key={p} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--border-strong)" strokeWidth="1" />;
               })}
               <circle
                 cx="110" cy="110" r={r}
@@ -264,10 +264,10 @@ export function PulseWidget() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-[10px] uppercase tracking-widest text-white/45 mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+              <div className="text-[10px] uppercase tracking-widest mb-1" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
                 Общий пульс
               </div>
-              <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 56, fontWeight: 800, color: '#fff', lineHeight: 1, textShadow: `0 0 20px ${meta.glow}` }}>
+              <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 56, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, textShadow: `0 0 20px ${meta.glow}` }}>
                 {overall}<span className="text-2xl opacity-60">%</span>
               </span>
             </div>
@@ -279,7 +279,7 @@ export function PulseWidget() {
             <span className="w-2 h-2 rounded-full" style={{ background: meta.color }} />
             {overallLevelName}
           </span>
-          <div className="text-xs text-white/55 text-center">
+          <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
             {meta.range} · {pulse.competencies.length} {lang === 'uz' ? 'kompetensiya' : 'компетенций'}
           </div>
         </div>
@@ -299,7 +299,7 @@ export function PulseWidget() {
               strokeColor={meta.color}
             />
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-2 text-[10px] text-white/55">
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-2 text-[10px]" style={{ color: 'var(--text-muted)' }}>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-3 h-0.5" style={{ background: meta.color }} />
               Твой пульс
@@ -342,7 +342,7 @@ export function PulseWidget() {
             className="mt-2 inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all"
             style={{
               background: 'linear-gradient(135deg, #C8A84B, #E5C76B)',
-              color: '#0a1929',
+              color: 'var(--text-inverse)',
               fontFamily: "'Unbounded',sans-serif",
               fontSize: 12,
               boxShadow: '0 4px 12px rgba(200,168,75,0.3)',
@@ -357,7 +357,7 @@ export function PulseWidget() {
       {top3Weak.length > 0 && (
         <div
           className="px-5 py-4 sm:px-6 border-t"
-          style={{ background: 'rgba(255,255,255,0.02)', borderTopColor: 'rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-overlay)', borderTopColor: 'var(--border)' }}
         >
           <div className="flex items-center justify-between mb-3">
             <div className="text-[10px] uppercase tracking-widest font-bold text-amber-400 flex items-center gap-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
@@ -382,23 +382,23 @@ export function PulseWidget() {
                   type="button"
                   onClick={() => navigate('/competencies')}
                   className="text-left rounded-lg border p-3 hover:bg-white/[0.03] hover:border-amber-400/30 transition-all"
-                  style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+                  style={{ borderColor: 'var(--border)' }}
                 >
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm text-white/85 truncate font-medium">
+                    <span className="text-sm truncate font-medium" style={{ color: 'var(--text-primary)' }}>
                       {lang === 'uz' && c.competency_name_uz ? c.competency_name_uz : c.competency_name}
                     </span>
                     <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 14, fontWeight: 800, color: cColor }}>
                       {cPct}%
                     </span>
                   </div>
-                  <div className="h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
+                  <div className="h-1.5 rounded-full overflow-hidden mb-2" style={{ background: 'var(--bg-overlay)' }}>
                     <div
                       className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${Math.max(cPct, 3)}%`, background: cColor, boxShadow: `0 0 6px ${cColor}80` }}
                     />
                   </div>
-                  <div className="text-[10px] text-white/40">
+                  <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
                     {c.courses_completed}/{c.courses_total} курсов · {LEVEL_META[cLvl].label}
                   </div>
                 </button>
@@ -424,7 +424,7 @@ function KpiTile({ label, value, color, icon }: { label: string; value: string; 
     >
       <div className="flex items-center gap-2 mb-1">
         <span className="text-base">{icon}</span>
-        <span className="text-[10px] uppercase tracking-widest text-white/45" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+        <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
           {label}
         </span>
       </div>

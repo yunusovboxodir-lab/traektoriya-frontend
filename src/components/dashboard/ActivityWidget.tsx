@@ -95,10 +95,10 @@ export function ActivityWidget() {
     return (
       <div
         className="rounded-2xl border p-6"
-        style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
         <div className="animate-pulse grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[1,2,3,4].map((i) => <div key={i} className="h-24 rounded-lg bg-white/5" />)}
+          {[1,2,3,4].map((i) => <div key={i} className="h-24 rounded-lg" style={{ background: 'var(--bg-overlay)' }} />)}
         </div>
       </div>
     );
@@ -108,9 +108,9 @@ export function ActivityWidget() {
     return (
       <div
         className="rounded-2xl border p-6 text-center"
-        style={{ background: 'rgba(17,36,61,0.5)', borderColor: 'rgba(255,255,255,0.08)' }}
+        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
-        <p className="text-sm text-white/55">Активность пока не накоплена</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Активность пока не накоплена</p>
       </div>
     );
   }
@@ -122,8 +122,8 @@ export function ActivityWidget() {
     <div
       className="rounded-2xl border overflow-hidden transition-opacity"
       style={{
-        background: 'linear-gradient(180deg, #11243d 0%, rgba(17,36,61,0.6) 100%)',
-        borderColor: 'rgba(255,255,255,0.08)',
+        background: 'var(--bg-card)',
+        borderColor: 'var(--border)',
         opacity: loading ? 0.6 : 1,
       }}
     >
@@ -131,16 +131,16 @@ export function ActivityWidget() {
       <div
         className="px-5 py-4 sm:px-6 border-b"
         style={{
-          borderColor: 'rgba(255,255,255,0.06)',
-          background: `linear-gradient(135deg, ${totalMeta.bg}, rgba(17,36,61,0.4))`,
+          borderColor: 'var(--border)',
+          background: `linear-gradient(135deg, ${totalMeta.bg}, var(--bg-surface))`,
         }}
       >
         <div className="flex items-start justify-between flex-wrap gap-3 mb-3">
           <div>
-            <div className="text-[10px] uppercase tracking-widest text-white/55 mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-              🔥 {lang === 'uz' ? 'Mening faolligim' : 'Моя активность'} · {PERIOD_DAYS[period]} дней
+            <div className="text-[10px] uppercase tracking-widest mb-1" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
+              {lang === 'uz' ? 'Mening faolligim' : 'Моя активность'} · {PERIOD_DAYS[period]} дней
             </div>
-            <div className="text-xs text-white/55">
+            <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
               Формула: <span className="text-emerald-300">50% обучение</span>
               {' + '}
               <span className="text-amber-300">30% активность</span>
@@ -150,7 +150,7 @@ export function ActivityWidget() {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-[10px] uppercase tracking-widest text-white/55" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+            <div className="text-[10px] uppercase tracking-widest" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
               Итоговый балл
             </div>
             <div
@@ -163,7 +163,7 @@ export function ActivityWidget() {
         </div>
 
         {/* Period selector */}
-        <div className="inline-flex bg-black/20 rounded-lg p-1 border border-white/10">
+        <div className="inline-flex rounded-lg p-1 border" style={{ background: 'var(--bg-overlay)', borderColor: 'var(--border)' }}>
           {PERIOD_OPTIONS.map((p) => (
             <button
               key={p.value}
@@ -171,10 +171,13 @@ export function ActivityWidget() {
               onClick={() => setPeriod(p.value)}
               className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
                 period === p.value
-                  ? 'bg-amber-400 text-[#0a1929]'
-                  : 'text-white/65 hover:text-white'
+                  ? 'bg-amber-400'
+                  : 'hover:opacity-100'
               }`}
-              style={{ fontFamily: "'Unbounded',sans-serif" }}
+              style={{
+                fontFamily: "'Unbounded',sans-serif",
+                color: period === p.value ? 'var(--text-inverse)' : 'var(--text-secondary)',
+              }}
             >
               {p.label}
             </button>
@@ -210,7 +213,7 @@ export function ActivityWidget() {
           value={data.achievements}
           unit="pts"
           icon="🎖"
-          color={data.achievements > 0 ? '#FBBF24' : 'rgba(255,255,255,0.4)'}
+          color={data.achievements > 0 ? '#FBBF24' : 'var(--text-muted)'}
           subtitle="за месяц"
           link="/goals"
         />
@@ -220,7 +223,7 @@ export function ActivityWidget() {
           value={data.streak_days}
           unit="дн"
           icon="🔥"
-          color={data.streak_days > 0 ? '#FB923C' : 'rgba(255,255,255,0.4)'}
+          color={data.streak_days > 0 ? '#FB923C' : 'var(--text-muted)'}
           subtitle="подряд"
           link="/learning"
         />
@@ -229,20 +232,20 @@ export function ActivityWidget() {
       {/* CRM-заглушка */}
       <div
         className="px-5 py-3 sm:px-6 border-t flex items-center justify-between flex-wrap gap-2"
-        style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}
+        style={{ borderColor: 'var(--border)', background: 'var(--bg-overlay)' }}
       >
         <div className="flex items-center gap-3 text-xs">
           <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest"
-            style={{ background: 'rgba(96,165,250,0.15)', color: '#60A5FA', fontFamily: "'Unbounded',sans-serif" }}
+            style={{ background: 'var(--info-bg)', color: 'var(--info)', fontFamily: "'Unbounded',sans-serif" }}
           >
             Скоро
           </span>
-          <span className="text-white/55">
-            <strong className="text-white/80">KPI продаж</strong> · вес <strong className="text-amber-300">+30%</strong>
+          <span style={{ color: 'var(--text-muted)' }}>
+            <strong style={{ color: 'var(--text-primary)' }}>KPI продаж</strong> · вес <strong className="text-amber-300">+30%</strong>
             <span className="ml-2 opacity-60">— после интеграции CRM Sales Doc</span>
           </span>
         </div>
-        <div className="text-[11px] text-white/35">
+        <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
           {t('common.dataIs') || 'Данные'} за последние 30 дней
         </div>
       </div>
@@ -266,17 +269,19 @@ function ActivityTile({
   return (
     <Link
       to={link}
-      className="rounded-xl border p-4 transition-all hover:bg-white/[0.04] hover:scale-[1.02]"
+      className="rounded-xl border p-4 transition-all hover:scale-[1.02]"
       style={{
-        background: `linear-gradient(135deg, ${color}10, transparent)`,
+        background: `linear-gradient(135deg, ${color}10, var(--bg-surface))`,
         borderColor: color + '30',
       }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = `linear-gradient(135deg, ${color}18, var(--bg-elevated))`; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = `linear-gradient(135deg, ${color}10, var(--bg-surface))`; }}
     >
       <div className="flex items-center gap-2 mb-2">
         <span className="text-xl">{icon}</span>
         <span
-          className="text-[10px] uppercase tracking-widest text-white/50"
-          style={{ fontFamily: "'Unbounded',sans-serif" }}
+          className="text-[10px] uppercase tracking-widest"
+          style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}
         >
           {label}
         </span>
@@ -288,9 +293,9 @@ function ActivityTile({
         >
           {value}
         </span>
-        <span className="text-xs text-white/45">{unit}</span>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{unit}</span>
       </div>
-      <div className="text-[10px] text-white/40">
+      <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
         {subtitle}
       </div>
     </Link>
