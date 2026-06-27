@@ -11,34 +11,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
 import { useT } from '../../stores/langStore';
+import {
+  mobileDrawerItems,
+  isAdminRole,
+  isSuperOrAdminRole,
+} from '../../config/navigation';
 
 interface Props {
   onClose: () => void;
 }
-
-interface DrawerLink {
-  icon: string;
-  labelKey: string;
-  path: string;
-  pageKey: string;
-  /** На каких ролях прятать (доп. фильтр поверх scope) */
-  hideForRoles?: string[];
-}
-
-const SECONDARY_LINKS: DrawerLink[] = [
-  { icon: '👥', labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
-  { icon: '🎯', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
-  { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
-  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
-  { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
-  { icon: '📦', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
-  // Планограмма убрана из мобильного меню (PO 2026-06-25): заморожена, без frozen-стиля
-  // на мобайле прячем у всех; на десктопе админ видит её серой с замком (StatusBar).
-  { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
-  // Обратная связь (репорты со скринами) — только админ (pageKey admin-roles), → вкладка reports.
-  { icon: '🗣️', labelKey: 'nav.feedback',     path: '/analytics?tab=reports', pageKey: 'admin-roles' },
-  // План обучения (training_plan) фильтруется политикой scopeStore — только Админ/Ком.дир/РМ.
-];
 
 export function MobileProfileDrawer({ onClose }: Props) {
   const navigate = useNavigate();
@@ -73,11 +54,13 @@ export function MobileProfileDrawer({ onClose }: Props) {
     navigate('/login');
   };
 
-  // Фильтруем ссылки по scope
-  const visibleLinks = SECONDARY_LINKS.filter(
-    (l) => isPageAllowed(l.pageKey)
-       && !(l.hideForRoles && user?.role && l.hideForRoles.includes(user.role)),
-  );
+  // Вторичные разделы — из единого реестра (всё, что не в нижних табах)
+  const role = user?.role;
+  const visibleLinks = mobileDrawerItems({
+    isPageAllowed,
+    isAdmin: isAdminRole(role),
+    isSuperOrAdmin: isSuperOrAdminRole(role),
+  });
 
   const userName = user?.full_name || '—';
   const userRole = user?.role ? t(`roles.${user.role}`) : '';

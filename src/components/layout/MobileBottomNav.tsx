@@ -12,24 +12,25 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useScopeStore } from '../../stores/scopeStore';
+import { useAuthStore } from '../../stores/authStore';
 import { useT } from '../../stores/langStore';
+import {
+  mobilePrimaryItems,
+  isAdminRole,
+  isSuperOrAdminRole,
+} from '../../config/navigation';
 import { MobileProfileDrawer } from './MobileProfileDrawer';
 
 interface NavTab {
   icon: string;
   labelKey: string;
   path?: string;
-  pageKey?: string;
   /** Если true — открывает drawer вместо navigate */
   isDrawer?: boolean;
 }
 
-const TABS: NavTab[] = [
-  { icon: '🏠', labelKey: 'nav.home',     path: '/dashboard', pageKey: 'dashboard' },
-  { icon: '📚', labelKey: 'nav.learning', path: '/learning',  pageKey: 'learning' },
-  { icon: '📋', labelKey: 'nav.tasks',    path: '/tasks',     pageKey: 'tasks' },
-  { icon: '👤', labelKey: 'nav.profile',  isDrawer: true },
-];
+// Кнопка-«Профиль» (4-й таб) — не раздел, а UI-контроль открытия drawer.
+const DRAWER_TAB: NavTab = { icon: '👤', labelKey: 'nav.profile', isDrawer: true };
 
 export function MobileBottomNav() {
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -37,9 +38,19 @@ export function MobileBottomNav() {
   const location = useLocation();
   const t = useT();
   const isPageAllowed = useScopeStore((s) => s.isPageAllowed);
+  const user = useAuthStore((s) => s.user);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (!isMobile) return null;
+
+  // Нижние табы — из единого реестра (mobilePrimary) + кнопка профиля.
+  const role = user?.role;
+  const primary = mobilePrimaryItems({
+    isPageAllowed,
+    isAdmin: isAdminRole(role),
+    isSuperOrAdmin: isSuperOrAdminRole(role),
+  });
+  const tabs: NavTab[] = [...primary, DRAWER_TAB];
 
   const isActive = (tab: NavTab) => {
     if (tab.isDrawer) return drawerOpen;
@@ -70,10 +81,11 @@ export function MobileBottomNav() {
           WebkitBackdropFilter: 'blur(12px)',
         }}
       >
-        <div className="grid grid-cols-4 max-w-md mx-auto">
-          {TABS.map((tab) => {
-            // Скрыть таб если у роли нет доступа (drawer всегда виден)
-            if (tab.pageKey && !isPageAllowed(tab.pageKey)) return null;
+        <div
+          className="grid max-w-md mx-auto"
+          style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}
+        >
+          {tabs.map((tab) => {
             const active = isActive(tab);
             return (
               <button

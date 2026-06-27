@@ -13,47 +13,17 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useLangStore, useT } from '../../stores/langStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
+import {
+  visibleDesktopItems,
+  isAdminRole,
+  isSuperOrAdminRole,
+} from '../../config/navigation';
 import { PowerBadge } from './PowerBadge';
 
-const ROLE_HIERARCHY: Record<string, number> = {
-  superadmin: 5,
-  commercial_dir: 4,
-  admin: 3,
-  regional_manager: 2,
-  supervisor: 2,
-  sales_rep: 1,
-};
-
-// Иконки разделов вместо «военных» кодов (UX-аудит 2026-05-03)
-const NAV_ITEMS_DEF = [
-  { icon: '🏠', labelKey: 'nav.home',         path: '/dashboard',     pageKey: 'dashboard' },
-  { icon: '📚', labelKey: 'nav.learning',     path: '/learning',      pageKey: 'learning' },
-  { icon: '📦', labelKey: 'nav.products',     path: '/products',      pageKey: 'products' },
-  { icon: '📋', labelKey: 'nav.tasks',        path: '/tasks',         pageKey: 'tasks' },
-  { icon: '👥', labelKey: 'nav.team',         path: '/team',          pageKey: 'team' },
-  { icon: '🎯', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
-  { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
-  { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
-  { icon: '📅', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
-  { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
-  { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
-] as const;
-
-// QW-6 (Sprint 0, 2026-05-16): добавлены ShelfCorrections и TranslationReview —
-// раньше доступны только по прямому URL (висячие маршруты, см. UI/UX-аудит S7).
-// Привязаны к admin-секции, т.к. это инструменты для admin/superadmin.
-// 2026-06-27: убраны из меню Словарь UZ / Модерация переводов (контур переводов
-// отключён → пусто) и Коррекция ShelfScan (ShelfScan заморожен). Маршруты/код живы,
-// вернём при разморозке. Добавлен прямой пункт «Обратная связь» → репорты со скринами.
-const ADMIN_NAV_ITEMS_DEF = [
-  { icon: '🗣️', labelKey: 'nav.feedback',  path: '/analytics?tab=reports', pageKey: 'analytics' },
-  { icon: '⚙️', labelKey: 'nav.settings',   path: '/admin/roles',           pageKey: 'admin-roles' },
-] as const;
-
-// FROZEN_PAGES пуст: убраны замки у Аналитики/Целей для админа (мешали — Аналитику
-// нельзя было открыть → не виден раздел Репортов). Планограмма убрана из меню выше.
-const FROZEN_PAGES: string[] = [];
-const ADMIN_ONLY_PAGES = ['ai-studio'];
+// Навигация (иконки/пути/гейтинг разделов) вынесена в единый реестр
+// src/config/navigation.ts — один источник для десктоп-дропдауна, нижних табов
+// и мобильного drawer (раньше конфиг был скопирован в трёх файлах). Здесь —
+// только отрисовка дропдауна; список и порядок берём из реестра.
 
 export function StatusBar() {
   const [now, setNow] = useState(new Date());
@@ -85,19 +55,11 @@ export function StatusBar() {
   const time = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
   const userRole = user?.role || 'sales_rep';
-  const isAdmin = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
-  const isSuperOrAdmin = userRole === 'superadmin' || userRole === 'admin';
+  const isAdmin = isAdminRole(userRole);
+  const isSuperOrAdmin = isSuperOrAdminRole(userRole);
 
-  // Фильтруем разделы по scope-правилам
-  const visibleItems = NAV_ITEMS_DEF.filter((item) => {
-    if (!isPageAllowed(item.pageKey)) return false;
-    if (ADMIN_ONLY_PAGES.includes(item.pageKey) && !isSuperOrAdmin) return false;
-    if (FROZEN_PAGES.includes(item.pageKey) && !isAdmin) return false;
-    return true;
-  });
-  const allItems = isAdmin
-    ? [...visibleItems, ...ADMIN_NAV_ITEMS_DEF]
-    : visibleItems;
+  // Видимые разделы — из единого реестра (main, затем admin-блок для админов)
+  const allItems = visibleDesktopItems({ isPageAllowed, isAdmin, isSuperOrAdmin });
 
   const isActive = (path: string) =>
     location.pathname === path || location.pathname.startsWith(path + '/');
@@ -154,7 +116,7 @@ export function StatusBar() {
               )}
 
               {allItems.map((item) => {
-                const frozen = FROZEN_PAGES.includes(item.pageKey);
+                const frozen = item.frozen ?? false;
                 const active = isActive(item.path);
                 return (
                   <button
