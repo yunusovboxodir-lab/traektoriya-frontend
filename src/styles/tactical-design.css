@@ -607,30 +607,30 @@ body::after {
 
 .bar-track {
   height: 8px;
-  background: oklch(0.20 0.02 250);
+  background: var(--bg-surface);
   border-radius: 1px;
   position: relative;
   overflow: hidden;
-  border: 1px solid oklch(0.28 0.03 240 / 0.6);
+  border: 1px solid var(--border);
 }
 .bar-fill {
   height: 100%;
   border-radius: 0;
   position: relative;
-  box-shadow: 0 0 12px oklch(0.78 0.15 75 / 0.6);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--brass) 60%, transparent);
   transition: width 0.4s;
 }
 .bar-fill::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, oklch(1 0 0 / 0.25), transparent 50%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 50%);
 }
 .bar-tick {
   position: absolute;
   top: 0; bottom: 0;
   width: 1px;
-  background: oklch(0 0 0 / 0.4);
+  background: var(--bg-overlay);
 }
 
 .streak-row {
@@ -689,7 +689,7 @@ body::after {
   gap: 6px;
 }
 .zone-chip {
-  background: oklch(0.18 0.02 250 / 0.5);
+  background: var(--bg-overlay);
   border: 1px solid var(--line-soft);
   color: var(--text-1);
   padding: 8px 10px;
@@ -736,7 +736,7 @@ body::after {
 .team-role { color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 9px; }
 .team-bar {
   height: 4px;
-  background: oklch(0.22 0.02 250);
+  background: var(--bg-surface);
   border-radius: 1px;
   overflow: hidden;
 }
@@ -905,11 +905,11 @@ body::after {
   border-radius: 2px;
   transition: 0.15s;
   cursor: pointer;
-  background: oklch(0.18 0.02 250 / 0.3);
+  background: var(--bg-overlay);
 }
 .rec-row:hover {
   border-color: var(--line);
-  background: oklch(0.22 0.03 240 / 0.5);
+  background: var(--bg-elevated);
 }
 .rec-rank {
   font-family: 'JetBrains Mono', monospace;
@@ -945,7 +945,7 @@ body::after {
 }
 .rec-launch {
   align-self: center;
-  background: oklch(0.20 0.04 220 / 0.6);
+  background: var(--bg-elevated);
   border: 1px solid var(--line);
   color: var(--cyan);
   width: 28px; height: 28px;

@@ -111,7 +111,7 @@ export function PowerBadge() {
           gap: 8,
           height: 30,
           padding: '0 10px',
-          background: 'oklch(0.20 0.03 240 / 0.45)',
+          background: 'var(--bg-card)',
           border: '1px solid var(--line)',
           borderRadius: 8,
           cursor: 'pointer',
@@ -165,7 +165,7 @@ export function PowerBadge() {
           </div>
 
           {/* Прогресс до следующего тира */}
-          <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: 4 }}>
+          <div style={{ height: 6, borderRadius: 3, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
             <div style={{ height: '100%', width: `${span}%`, background: next ? next.color : tier.color, transition: 'width 0.4s' }} />
           </div>
           <div style={{ fontSize: 10, color: 'var(--text-2, #8a93a3)', marginBottom: 12 }}>

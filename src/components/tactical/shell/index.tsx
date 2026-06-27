@@ -144,7 +144,7 @@ export function TacticalButton({
   const variantStyle: CSSProperties = {
     primary: {
       background: 'var(--brass)',
-      color: 'oklch(0.10 0.02 250)',
+      color: 'var(--text-inverse)',
       border: '1px solid var(--brass-deep)',
     },
     secondary: {
@@ -211,7 +211,7 @@ export function TacticalInput({ label, hint, error, style, ...props }: TacticalI
       <input
         {...props}
         style={{
-          background: 'oklch(0.10 0.02 250 / 0.5)',
+          background: 'var(--bg-card)',
           border: `1px solid ${error ? 'oklch(0.55 0.20 28)' : 'var(--line)'}`,
           borderRadius: 3,
           padding: '8px 12px',
@@ -258,7 +258,7 @@ export function TacticalSelect({ label, options, style, ...props }: TacticalSele
       <select
         {...props}
         style={{
-          background: 'oklch(0.10 0.02 250 / 0.5)',
+          background: 'var(--bg-card)',
           border: '1px solid var(--line)',
           borderRadius: 3,
           padding: '8px 12px',
@@ -271,7 +271,7 @@ export function TacticalSelect({ label, options, style, ...props }: TacticalSele
         }}
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value} style={{ background: '#0a0e14', color: '#fff' }}>
+          <option key={o.value} value={o.value} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
             {o.label}
           </option>
         ))}
@@ -378,7 +378,7 @@ export type BadgeVariant =
   | 'default' | 'info' | 'success' | 'warning' | 'danger' | 'brass';
 
 const BADGE_COLORS: Record<BadgeVariant, { bg: string; fg: string; border: string }> = {
-  default: { bg: 'oklch(0.20 0.02 250 / 0.6)', fg: 'var(--text-1)', border: 'var(--line)' },
+  default: { bg: 'var(--bg-elevated)',           fg: 'var(--text-1)', border: 'var(--line)' },
   info:    { bg: 'oklch(0.30 0.10 240 / 0.4)', fg: 'oklch(0.85 0.10 240)', border: 'oklch(0.45 0.10 240 / 0.5)' },
   success: { bg: 'oklch(0.28 0.10 145 / 0.4)', fg: 'oklch(0.85 0.13 145)', border: 'oklch(0.45 0.10 145 / 0.5)' },
   warning: { bg: 'oklch(0.30 0.12 80 / 0.4)',  fg: 'oklch(0.85 0.13 80)',  border: 'oklch(0.55 0.12 80 / 0.5)' },

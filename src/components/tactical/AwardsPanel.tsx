@@ -13,10 +13,10 @@ interface AwardData extends Omit<Award, 'name' | 'sub'> {
 }
 
 const AWARDS_DATA: AwardData[] = [
-  { code: 'AWD-01', glyph: '◆', name_ru: 'Стратег', name_uz: 'Strateg', sub_ru: 'Пройди 20 курсов · 17/20', sub_uz: '20 ta kurs · 17/20', color: 'oklch(0.78 0.15 220)' },
-  { code: 'AWD-02', glyph: '▲', name_ru: 'Тактик', name_uz: 'Taktik', sub_ru: 'Серия 10 дней · 5/10', sub_uz: '10 kun seriya · 5/10', color: 'oklch(0.82 0.15 75)' },
-  { code: 'AWD-03', glyph: '★', name_ru: 'Командир', name_uz: 'Qoʻmondon', sub_ru: 'Помоги команде · ✓', sub_uz: 'Jamoaga yordam · ✓', color: 'oklch(0.82 0.15 90)' },
-  { code: 'AWD-04', glyph: '◇', name_ru: 'Аналитик', name_uz: 'Tahlilchi', sub_ru: '20 ABCD-анализов', sub_uz: "20 ta ABCD-tahlil", color: 'oklch(0.50 0.02 250)', locked: true },
+  { code: 'AWD-01', glyph: '◆', name_ru: 'Стратег', name_uz: 'Strateg', sub_ru: 'Пройди 20 курсов · 17/20', sub_uz: '20 ta kurs · 17/20', color: 'var(--info)' },
+  { code: 'AWD-02', glyph: '▲', name_ru: 'Тактик', name_uz: 'Taktik', sub_ru: 'Серия 10 дней · 5/10', sub_uz: '10 kun seriya · 5/10', color: 'var(--brass)' },
+  { code: 'AWD-03', glyph: '★', name_ru: 'Командир', name_uz: 'Qoʻmondon', sub_ru: 'Помоги команде · ✓', sub_uz: 'Jamoaga yordam · ✓', color: 'var(--gold)' },
+  { code: 'AWD-04', glyph: '◇', name_ru: 'Аналитик', name_uz: 'Tahlilchi', sub_ru: '20 ABCD-анализов', sub_uz: "20 ta ABCD-tahlil", color: 'var(--text-muted)', locked: true },
 ];
 
 function AwardBadge({ code, glyph, name, sub, color, locked }: Award) {

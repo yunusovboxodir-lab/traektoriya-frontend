@@ -18,10 +18,10 @@ interface RecData {
 }
 
 const RECOMMENDATIONS: RecData[] = [
-  { code: 'PR-02', title_ru: 'ABCD-анализ', title_uz: 'ABCD-tahlil', sub_ru: 'дилерской базы', sub_uz: 'diler bazasi', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'oklch(0.78 0.15 220)', xp: 80 },
-  { code: 'PR-03', title_ru: 'Pricing', title_uz: 'Pricing', sub_ru: 'и маржинальность', sub_uz: 'va marjinallik', tag_ru: 'В ПРОЦЕССЕ', tag_uz: 'JARAYONDA', tagC: 'oklch(0.82 0.15 75)', xp: 120 },
-  { code: 'PR-05', title_ru: 'Контроль ДЗ', title_uz: 'DQ nazorati', sub_ru: 'и мотивация', sub_uz: 'va motivatsiya', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'oklch(0.78 0.15 220)', xp: 60 },
-  { code: 'EX-01', title_ru: 'Стратегия', title_uz: 'Strategiya', sub_ru: 'крупных сделок', sub_uz: "yirik bitimlar uchun", tag_ru: 'ПРИОРИТЕТ', tag_uz: 'PRIORITET', tagC: 'oklch(0.78 0.15 155)', xp: 200 },
+  { code: 'PR-02', title_ru: 'ABCD-анализ', title_uz: 'ABCD-tahlil', sub_ru: 'дилерской базы', sub_uz: 'diler bazasi', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'var(--info)', xp: 80 },
+  { code: 'PR-03', title_ru: 'Pricing', title_uz: 'Pricing', sub_ru: 'и маржинальность', sub_uz: 'va marjinallik', tag_ru: 'В ПРОЦЕССЕ', tag_uz: 'JARAYONDA', tagC: 'var(--brass)', xp: 120 },
+  { code: 'PR-05', title_ru: 'Контроль ДЗ', title_uz: 'DQ nazorati', sub_ru: 'и мотивация', sub_uz: 'va motivatsiya', tag_ru: 'НОВОЕ', tag_uz: 'YANGI', tagC: 'var(--info)', xp: 60 },
+  { code: 'EX-01', title_ru: 'Стратегия', title_uz: 'Strategiya', sub_ru: 'крупных сделок', sub_uz: "yirik bitimlar uchun", tag_ru: 'ПРИОРИТЕТ', tag_uz: 'PRIORITET', tagC: 'var(--success)', xp: 200 },
 ];
 
 export function RecsPanel() {

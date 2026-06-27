@@ -58,16 +58,30 @@ export function CompetenciesPage() {
   return (
     <div>
       {visibleTabs.length > 1 && (
-        <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 mb-6 w-fit">
+        <div
+          className="flex gap-1 rounded-xl p-1 mb-6 w-fit"
+          style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
+        >
           {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
-              className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-all ${
+              className="px-4 py-1.5 text-sm font-medium rounded-lg transition-all"
+              style={
                 activeTab === tab.id
-                  ? 'bg-amber-400 text-[#0a1929] font-semibold shadow-sm'
-                  : 'text-white/65 hover:text-white'
-              }`}
+                  ? { background: '#FBBF24', color: 'var(--text-inverse)', fontWeight: 600 }
+                  : { color: 'var(--text-muted)' }
+              }
+              onMouseEnter={(e) => {
+                if (activeTab !== tab.id) {
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-primary)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeTab !== tab.id) {
+                  (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+                }
+              }}
             >
               {t(tab.labelKey)}
             </button>

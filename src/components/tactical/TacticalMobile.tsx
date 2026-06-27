@@ -41,15 +41,15 @@ function _MobileTopBar_DEPRECATED() {
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '10px 16px 8px', flexShrink: 0,
-      background: 'oklch(0.08 0.02 250 / 0.92)',
+      background: 'var(--bg-card)',
       backdropFilter: 'blur(16px)',
-      borderBottom: '1px solid oklch(0.20 0.03 240 / 0.5)',
+      borderBottom: '1px solid var(--border)',
       position: 'sticky', top: 0, zIndex: 10,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
         <button
           style={{
-            background: 'transparent', border: 0, color: 'oklch(0.85 0.13 88)',
+            background: 'transparent', border: 0, color: 'var(--brass)',
             fontSize: 18, padding: 0, lineHeight: 1, cursor: 'pointer',
           }}
           aria-label="Меню"
@@ -64,14 +64,14 @@ function _MobileTopBar_DEPRECATED() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>TRAEKTORIYA</span>
           <span style={{
-            fontSize: 8, color: 'oklch(0.55 0.04 250)',
+            fontSize: 8, color: 'var(--text-muted)',
             letterSpacing: '0.1em', marginTop: 2,
           }}>{lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта'}</span>
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{
-          display: 'flex', border: '1px solid oklch(0.30 0.04 240 / 0.5)',
+          display: 'flex', border: '1px solid var(--border)',
           borderRadius: 7, overflow: 'hidden',
           fontSize: 9, fontWeight: 600, letterSpacing: '0.08em',
           fontFamily: "'JetBrains Mono', monospace",
@@ -80,8 +80,8 @@ function _MobileTopBar_DEPRECATED() {
             onClick={() => setLang('ru')}
             style={{
               padding: '4px 7px', border: 0, cursor: 'pointer',
-              background: lang === 'ru' ? 'oklch(0.28 0.10 220 / 0.4)' : 'transparent',
-              color: lang === 'ru' ? 'oklch(0.92 0.05 220)' : 'oklch(0.50 0.04 250)',
+              background: lang === 'ru' ? 'var(--bg-elevated)' : 'transparent',
+              color: lang === 'ru' ? 'var(--text-primary)' : 'var(--text-muted)',
               fontFamily: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit',
             }}
           >РУ</button>
@@ -89,14 +89,14 @@ function _MobileTopBar_DEPRECATED() {
             onClick={() => setLang('uz')}
             style={{
               padding: '4px 7px', border: 0, cursor: 'pointer',
-              background: lang === 'uz' ? 'oklch(0.28 0.10 220 / 0.4)' : 'transparent',
-              color: lang === 'uz' ? 'oklch(0.92 0.05 220)' : 'oklch(0.50 0.04 250)',
+              background: lang === 'uz' ? 'var(--bg-elevated)' : 'transparent',
+              color: lang === 'uz' ? 'var(--text-primary)' : 'var(--text-muted)',
               fontFamily: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit',
             }}
           >UZ</button>
         </div>
         <div style={{ position: 'relative' }}>
-          <span style={{ fontSize: 15, color: 'oklch(0.85 0.13 88)' }}>◷</span>
+          <span style={{ fontSize: 15, color: 'var(--brass)' }}>◷</span>
           <span style={{
             position: 'absolute', top: -2, right: -3, width: 6, height: 6,
             borderRadius: '50%', background: 'oklch(0.78 0.15 30)',
@@ -128,40 +128,40 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
     }}>
       <div style={{ position: 'relative', width: 46, height: 46, flexShrink: 0 }}>
         <svg viewBox="0 0 46 46" width="46" height="46">
-          <circle cx="23" cy="23" r="20" fill="none" stroke="oklch(0.20 0.03 240)" strokeWidth="2.5" />
+          <circle cx="23" cy="23" r="20" fill="none" stroke="var(--border)" strokeWidth="2.5" />
           <circle cx="23" cy="23" r="20" fill="none"
             stroke="url(#heroRing)" strokeWidth="2.5" strokeLinecap="round"
             strokeDasharray={`${(pct / 100) * 125.66} 125.66`}
             transform="rotate(-90 23 23)" />
           <defs>
             <linearGradient id="heroRing" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="oklch(0.85 0.13 88)" />
+              <stop offset="0%" stopColor="var(--brass)" />
               <stop offset="100%" stopColor="oklch(0.78 0.15 220)" />
             </linearGradient>
           </defs>
         </svg>
         <div style={{
           position: 'absolute', inset: 3, borderRadius: '50%',
-          background: 'linear-gradient(135deg, oklch(0.34 0.08 220), oklch(0.28 0.06 280))',
+          background: 'linear-gradient(135deg, var(--bg-elevated), var(--bg-card))',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
-          color: 'oklch(0.92 0.05 88)', letterSpacing: '0.04em',
-          border: '1px solid oklch(0.40 0.04 240)',
+          color: 'var(--brass)', letterSpacing: '0.04em',
+          border: '1px solid var(--border)',
         }}>{(name[0] || 'O').toUpperCase()}</div>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
           <span style={{
             fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
-            color: 'oklch(0.95 0.03 88)',
+            color: 'var(--text-primary)',
           }}>{name}</span>
           <span style={{
-            fontSize: 8, color: 'oklch(0.55 0.04 250)',
+            fontSize: 8, color: 'var(--text-muted)',
             fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
           }}>ТП · LVL {Math.floor(xp / 300)}</span>
         </div>
         <div style={{
-          fontSize: 9, color: 'oklch(0.60 0.04 250)',
+          fontSize: 9, color: 'var(--text-secondary)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginTop: 2,
         }}>
           {pct}% ПУТИ · {xp.toLocaleString('ru')} XP
@@ -191,8 +191,8 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
           fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
         }}>
           <span style={{ color: 'oklch(0.78 0.14 55)' }}>🔥{streak}</span>
-          <span style={{ color: 'oklch(0.55 0.04 250)' }}>·</span>
-          <span style={{ color: 'oklch(0.85 0.05 250)' }}>#{rank}</span>
+          <span style={{ color: 'var(--text-muted)' }}>·</span>
+          <span style={{ color: 'var(--text-primary)' }}>#{rank}</span>
         </div>
       </div>
     </div>
@@ -224,23 +224,23 @@ function DailyQuestBanner() {
       margin: '0 14px 10px', flexShrink: 0,
       display: 'flex', alignItems: 'center', gap: 10,
       padding: '9px 12px',
-      background: 'linear-gradient(90deg, oklch(0.18 0.06 220 / 0.7), oklch(0.16 0.04 240 / 0.5))',
+      background: 'var(--bg-card)',
       border: '1px solid oklch(0.45 0.10 220 / 0.4)',
-      borderLeft: '2px solid oklch(0.85 0.13 88)',
+      borderLeft: '2px solid var(--brass)',
       borderRadius: 8,
     }}>
       <svg width="20" height="20" viewBox="0 0 20 20" style={{ flexShrink: 0 }}>
-        <circle cx="10" cy="10" r="8" fill="none" stroke="oklch(0.85 0.13 88)" strokeWidth="1.4" />
-        <path d="M10 5 L10 10 L13 12" stroke="oklch(0.85 0.13 88)" strokeWidth="1.4"
+        <circle cx="10" cy="10" r="8" fill="none" stroke="var(--brass)" strokeWidth="1.4" />
+        <path d="M10 5 L10 10 L13 12" stroke="var(--brass)" strokeWidth="1.4"
           strokeLinecap="round" fill="none" />
       </svg>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontSize: 8, color: 'oklch(0.65 0.10 88)',
+          fontSize: 8, color: 'var(--brass)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em',
         }}>{lang === 'uz' ? 'KUNDALIK QUEST' : 'ЕЖЕДНЕВНЫЙ КВЕСТ'}</div>
         <div style={{
-          fontSize: 11, color: 'oklch(0.95 0.03 88)', marginTop: 1, fontWeight: 500,
+          fontSize: 11, color: 'var(--text-primary)', marginTop: 1, fontWeight: 500,
         }}>
           {lang === 'uz' ? 'Bugun 1 ta bo\'limni yoping' : 'Закрой 1 раздел сегодня'}
         </div>
@@ -249,11 +249,11 @@ function DailyQuestBanner() {
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
       }}>
         <span style={{
-          fontSize: 11, fontWeight: 700, color: 'oklch(0.85 0.13 88)',
+          fontSize: 11, fontWeight: 700, color: 'var(--brass)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.05em',
         }}>+50 XP</span>
         <span style={{
-          fontSize: 8, color: 'oklch(0.55 0.04 250)',
+          fontSize: 8, color: 'var(--text-muted)',
           fontFamily: "'JetBrains Mono', monospace",
         }}>{time}</span>
       </div>
@@ -429,9 +429,9 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
       display: 'flex', alignItems: 'center', gap: 10, width: '100%',
       padding: '10px 12px',
       background: selected
-        ? `linear-gradient(90deg, ${zone.accent}25, oklch(0.10 0.02 250 / 0.5))`
-        : 'oklch(0.11 0.02 250 / 0.7)',
-      border: `1px solid ${selected ? s.stroke : 'oklch(0.22 0.03 240 / 0.6)'}`,
+        ? `linear-gradient(90deg, ${zone.accent}25, var(--bg-surface))`
+        : 'var(--bg-card)',
+      border: `1px solid ${selected ? s.stroke : 'var(--border)'}`,
       borderLeft: `3px solid ${s.stroke || zone.accent}`,
       borderRadius: 9, cursor: 'pointer', textAlign: 'left',
       transition: 'background 0.18s, border-color 0.18s',
@@ -454,13 +454,13 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, lineHeight: 1.1 }}>
           <span style={{
-            fontSize: 8, color: 'oklch(0.55 0.04 250)',
+            fontSize: 8, color: 'var(--text-muted)',
             fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
             flexShrink: 0,
           }}>{v.code}</span>
           <span style={{
             fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
-            color: 'oklch(0.93 0.03 88)',
+            color: 'var(--text-primary)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
             {v.title}
@@ -469,7 +469,7 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5 }}>
           <div style={{
             flex: 1, height: 3, borderRadius: 3,
-            background: 'oklch(0.20 0.02 250)', overflow: 'hidden',
+            background: 'var(--bg-elevated)', overflow: 'hidden',
           }}>
             <div style={{
               width: `${pct}%`, height: '100%',
@@ -478,7 +478,7 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
             }} />
           </div>
           <span style={{
-            fontSize: 9, color: 'oklch(0.60 0.04 250)',
+            fontSize: 9, color: 'var(--text-secondary)',
             fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
           }}>
             {v.done}/{v.sections}
@@ -486,7 +486,7 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
         </div>
       </div>
       <span style={{
-        fontSize: 14, color: 'oklch(0.50 0.04 250)', flexShrink: 0,
+        fontSize: 14, color: 'var(--text-muted)', flexShrink: 0,
         opacity: v.state === 'locked' ? 0.4 : 1,
       }}>›</span>
     </button>
@@ -518,10 +518,10 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
             <div style={{
               position: 'sticky', top: 0, zIndex: 5,
               padding: '10px 16px 8px',
-              background: 'oklch(0.07 0.02 250 / 0.94)',
+              background: 'var(--bg-surface)',
               backdropFilter: 'blur(14px)',
               borderTop: `1px solid ${z.accent}30`,
-              borderBottom: '1px solid oklch(0.18 0.03 240 / 0.6)',
+              borderBottom: '1px solid var(--border)',
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
               <div style={{
@@ -539,7 +539,7 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                     letterSpacing: '0.18em', color: z.accent,
                   }}>{zLabel(z, lang)}</span>
                   <span style={{
-                    fontSize: 9, color: 'oklch(0.55 0.04 250)',
+                    fontSize: 9, color: 'var(--text-muted)',
                     fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
                   }}>
                     {villages.length} ПОСЁЛКОВ
@@ -547,7 +547,7 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                 </div>
                 <div style={{
                   height: 2, marginTop: 4, borderRadius: 2,
-                  background: 'oklch(0.16 0.02 250)', overflow: 'hidden',
+                  background: 'var(--bg-elevated)', overflow: 'hidden',
                 }}>
                   <div style={{
                     width: `${pct}%`, height: '100%',
@@ -556,7 +556,7 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                 </div>
               </div>
               <span style={{
-                fontSize: 10, fontWeight: 600, color: 'oklch(0.85 0.05 88)',
+                fontSize: 10, fontWeight: 600, color: 'var(--text-primary)',
                 fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
               }}>
                 {pct}%
@@ -590,7 +590,7 @@ function FriendsStrip() {
   return (
     <div style={{
       padding: '14px 16px 16px', flexShrink: 0,
-      borderTop: '1px solid oklch(0.18 0.03 240 / 0.6)',
+      borderTop: '1px solid var(--border)',
     }}>
       <div style={{
         display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
@@ -598,16 +598,16 @@ function FriendsStrip() {
       }}>
         <span style={{
           fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
-          color: 'oklch(0.55 0.04 250)', letterSpacing: '0.16em',
+          color: 'var(--text-muted)', letterSpacing: '0.16em',
         }}>{t('АКТИВНОСТЬ КОМАНДЫ', "JAMOA FAOLIYATI")}</span>
-        <span style={{ fontSize: 10, color: 'oklch(0.75 0.06 220)', fontWeight: 500 }}>{t('Все', 'Barchasi')} →</span>
+        <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 500 }}>{t('Все', 'Barchasi')} →</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {items.map((it, i) => (
           <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <div style={{
               width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-              background: `linear-gradient(135deg, ${it.tint}40, oklch(0.20 0.02 250))`,
+              background: `linear-gradient(135deg, ${it.tint}40, var(--bg-card))`,
               border: `1px solid ${it.tint}80`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: "'Cinzel', serif", fontSize: 11, fontWeight: 600,
@@ -617,13 +617,13 @@ function FriendsStrip() {
             </div>
             <div style={{
               flex: 1, minWidth: 0, fontSize: 11,
-              color: 'oklch(0.85 0.03 250)', lineHeight: 1.3,
+              color: 'var(--text-primary)', lineHeight: 1.3,
             }}>
-              <span style={{ color: 'oklch(0.95 0.03 88)', fontWeight: 500 }}>{it.name}</span>
-              <span style={{ color: 'oklch(0.65 0.04 250)' }}> {it.action}</span>
+              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{it.name}</span>
+              <span style={{ color: 'var(--text-secondary)' }}> {it.action}</span>
             </div>
             <span style={{
-              fontSize: 9, color: 'oklch(0.45 0.04 250)',
+              fontSize: 9, color: 'var(--text-muted)',
               fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
             }}>{it.when}</span>
           </div>
@@ -653,17 +653,17 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
     <>
       <div onClick={onClose} style={{
         position: 'fixed', inset: 0,
-        background: 'oklch(0.04 0.02 250 / 0.6)',
+        background: 'var(--scrim)',
         backdropFilter: 'blur(4px)', zIndex: 50,
         animation: 'fadeIn 0.2s ease',
       }} />
       <div style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 51,
-        background: 'linear-gradient(180deg, oklch(0.12 0.03 250 / 0.98), oklch(0.08 0.02 250 / 0.98))',
+        background: 'var(--bg-card)',
         borderTop: `2px solid ${zone.accent}`,
         borderTopLeftRadius: 18, borderTopRightRadius: 18,
         padding: '10px 18px calc(22px + env(safe-area-inset-bottom))',
-        boxShadow: '0 -12px 32px oklch(0.04 0.02 250 / 0.7)',
+        boxShadow: 'var(--shadow-md)',
         backdropFilter: 'blur(20px)',
         animation: 'slideUp 0.28s cubic-bezier(0.22, 0.36, 0, 1)',
         maxHeight: '72vh', overflowY: 'auto',
@@ -674,7 +674,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
         `}</style>
         <div style={{
           width: 36, height: 4, borderRadius: 2,
-          background: 'oklch(0.40 0.04 240)', margin: '0 auto 12px',
+          background: 'var(--border-strong)', margin: '0 auto 12px',
         }} />
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 14,
@@ -700,21 +700,21 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
             </div>
             <h2 style={{
               margin: 0, fontFamily: "'Cinzel', serif", fontSize: 20, fontWeight: 600,
-              color: 'oklch(0.95 0.03 88)', letterSpacing: '0.01em',
+              color: 'var(--text-primary)', letterSpacing: '0.01em',
             }}>
               {village.title}
             </h2>
           </div>
           <button onClick={onClose} style={{
             background: 'transparent', border: 0,
-            color: 'oklch(0.55 0.04 250)', fontSize: 20, cursor: 'pointer', padding: 0,
+            color: 'var(--text-muted)', fontSize: 20, cursor: 'pointer', padding: 0,
             lineHeight: 1,
           }}>×</button>
         </div>
 
         <div style={{ marginBottom: 14 }}>
           <div style={{
-            fontSize: 9, color: 'oklch(0.55 0.04 250)',
+            fontSize: 9, color: 'var(--text-muted)',
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: '0.14em', marginBottom: 8,
           }}>
@@ -769,7 +769,7 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
           </div>
           <div style={statCardStyle}>
             <div style={statLabelStyle}>{tt('НАГРАДА', 'MUKOFOT')}</div>
-            <div style={{ ...statValueStyle, color: 'oklch(0.85 0.13 88)' }}>
+            <div style={{ ...statValueStyle, color: 'var(--brass)' }}>
               +{totalXp - earnedXp} XP
             </div>
           </div>
@@ -788,11 +788,11 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
           style={{
             width: '100%', padding: 12,
             background: village.state === 'locked'
-              ? 'oklch(0.18 0.02 250 / 0.6)'
+              ? 'var(--bg-elevated)'
               : `linear-gradient(135deg, ${zone.accent}40, oklch(0.32 0.10 70 / 0.4))`,
-            border: `1px solid ${village.state === 'locked' ? 'oklch(0.30 0.04 240)' : zone.accent}`,
+            border: `1px solid ${village.state === 'locked' ? 'var(--border)' : zone.accent}`,
             borderRadius: 9,
-            color: village.state === 'locked' ? 'oklch(0.55 0.04 250)' : 'oklch(0.95 0.05 88)',
+            color: village.state === 'locked' ? 'var(--text-muted)' : 'var(--text-primary)',
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 11, fontWeight: 600, letterSpacing: '0.16em',
             cursor: village.state === 'locked' ? 'not-allowed' : 'pointer',
@@ -811,17 +811,17 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
 
 const statCardStyle: CSSProperties = {
   padding: '9px 11px',
-  background: 'oklch(0.10 0.02 250 / 0.7)',
-  border: '1px solid oklch(0.22 0.03 240 / 0.6)',
+  background: 'var(--bg-surface)',
+  border: '1px solid var(--border)',
   borderRadius: 7,
 };
 const statLabelStyle: CSSProperties = {
-  fontSize: 8, color: 'oklch(0.55 0.04 250)',
+  fontSize: 8, color: 'var(--text-muted)',
   fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em',
 };
 const statValueStyle: CSSProperties = {
   fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600,
-  color: 'oklch(0.95 0.03 88)', marginTop: 2,
+  color: 'var(--text-primary)', marginTop: 2,
 };
 
 // =============================================================================
@@ -843,8 +843,8 @@ function _MobileTabBar_DEPRECATED() {
     <div style={{
       display: 'flex', justifyContent: 'space-around',
       padding: '10px 12px 18px', flexShrink: 0,
-      background: 'oklch(0.06 0.02 250 / 0.95)',
-      borderTop: '1px solid oklch(0.20 0.03 240 / 0.6)',
+      background: 'var(--bg-surface)',
+      borderTop: '1px solid var(--border)',
       backdropFilter: 'blur(16px)',
       position: 'sticky', bottom: 0, zIndex: 10,
     }}>
@@ -855,7 +855,7 @@ function _MobileTabBar_DEPRECATED() {
           style={{
             background: 'transparent', border: 0,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-            color: it.active ? 'oklch(0.85 0.13 88)' : 'oklch(0.50 0.04 250)',
+            color: it.active ? 'var(--brass)' : 'var(--text-muted)',
             fontSize: 9, fontFamily: "'Inter', sans-serif", cursor: 'pointer',
             flex: 1, padding: 0,
           }}
@@ -934,10 +934,10 @@ export function TacticalMobile({
     <div style={{
       width: '100%', minHeight: '100vh',
       background:
-        'radial-gradient(at 30% 0%, oklch(0.22 0.06 230 / 0.5), transparent 55%), ' +
-        'radial-gradient(at 70% 100%, oklch(0.20 0.05 280 / 0.45), transparent 55%), ' +
-        'oklch(0.07 0.02 250)',
-      color: 'oklch(0.92 0.02 250)',
+        'radial-gradient(at 30% 0%, var(--bg-radial-1), transparent 55%), ' +
+        'radial-gradient(at 70% 100%, var(--bg-radial-2), transparent 55%), ' +
+        'var(--bg-primary)',
+      color: 'var(--text-primary)',
       fontFamily: "'Inter', system-ui, sans-serif",
       display: 'flex', flexDirection: 'column',
       position: 'relative',
@@ -953,8 +953,8 @@ export function TacticalMobile({
         {roleSelector && (
           <div style={{
             padding: '10px 16px',
-            background: 'oklch(0.10 0.02 250 / 0.85)',
-            borderBottom: '1px solid oklch(0.20 0.03 240 / 0.5)',
+            background: 'var(--bg-card)',
+            borderBottom: '1px solid var(--border)',
           }}>
             {roleSelector}
           </div>
@@ -969,7 +969,7 @@ export function TacticalMobile({
         />
         <DailyQuestBanner />
         {loading ? (
-          <div style={{ padding: 30, textAlign: 'center', color: 'oklch(0.55 0.04 250)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontSize: 11 }}>
+          <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontSize: 11 }}>
             {lang === 'uz' ? 'XARITA YUKLANMOQDA...' : 'ЗАГРУЗКА КАРТЫ...'}
           </div>
         ) : (

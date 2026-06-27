@@ -125,7 +125,7 @@ export function RadarChart({
               key={level}
               d={path}
               fill="none"
-              stroke="rgba(255,255,255,0.07)"
+              stroke="var(--border)"
               strokeWidth={level === 1 ? 1.2 : 0.5}
               strokeDasharray={level < 1 ? '2,2' : undefined}
             />
@@ -142,7 +142,7 @@ export function RadarChart({
               y1={cy}
               x2={end.x}
               y2={end.y}
-              stroke="rgba(255,255,255,0.06)"
+              stroke="var(--border)"
               strokeWidth={0.5}
             />
           );
@@ -155,7 +155,7 @@ export function RadarChart({
             x={cx}
             y={cy - level * maxR - 4}
             textAnchor="middle"
-            style={{ fontSize: '9px', fill: 'rgba(255,255,255,0.35)', fontWeight: 500 }}
+            style={{ fontSize: '9px', fill: 'var(--text-muted)', fontWeight: 500 }}
           >
             {Math.round(level * 100)}
           </text>
@@ -186,7 +186,7 @@ export function RadarChart({
               cx={p.x}
               cy={p.y}
               r={isHovered ? 7 : 5}
-              fill={isHovered ? '#C8A84B' : '#FFFFFF'}
+              fill={isHovered ? '#C8A84B' : 'var(--bg-elevated)'}
               stroke={isHovered ? '#C8A84B' : color}
               strokeWidth={isHovered ? 3 : 2}
               style={{
@@ -230,11 +230,11 @@ export function RadarChart({
                 dominantBaseline="central"
                 style={{
                   fontSize: '11px',
-                  fill: 'rgba(255,255,255,0.85)',
+                  fill: 'var(--text-primary)',
                   fontWeight: 600,
                   fontFamily: "'Inter','Golos Text',sans-serif",
                   paintOrder: 'stroke',
-                  stroke: '#0a1929',
+                  stroke: 'var(--bg-card)',
                   strokeWidth: 3,
                 }}
               >
@@ -248,11 +248,11 @@ export function RadarChart({
                   dominantBaseline="central"
                   style={{
                     fontSize: '11px',
-                    fill: 'rgba(255,255,255,0.85)',
+                    fill: 'var(--text-primary)',
                     fontWeight: 600,
                     fontFamily: "'Inter','Golos Text',sans-serif",
                     paintOrder: 'stroke',
-                    stroke: '#0a1929',
+                    stroke: 'var(--bg-card)',
                     strokeWidth: 3,
                   }}
                 >
@@ -271,7 +271,7 @@ export function RadarChart({
                     fill: valueColor,
                     fontWeight: 800,
                     paintOrder: 'stroke',
-                    stroke: '#0a1929',
+                    stroke: 'var(--bg-card)',
                     strokeWidth: 3,
                   }}
                 >
@@ -290,13 +290,13 @@ export function RadarChart({
             position: 'fixed',
             left: tooltipPos.x + 14,
             top: tooltipPos.y + 14,
-            background: '#0a1929',
+            background: 'var(--bg-elevated)',
             border: '1px solid #C8A84B',
             borderRadius: 8,
             padding: '10px 14px',
             fontSize: 12,
-            color: '#fff',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.6)',
+            color: 'var(--text-primary)',
+            boxShadow: 'var(--shadow-md)',
             zIndex: 9999,
             pointerEvents: 'none',
             maxWidth: 240,
@@ -313,7 +313,7 @@ export function RadarChart({
             {data[hoverIdx].label}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ color: 'rgba(255,255,255,0.55)' }}>Пульс</span>
+            <span style={{ color: 'var(--text-muted)' }}>Пульс</span>
             <strong style={{ color: LEVEL_COLORS[data[hoverIdx].level || levelByValue(data[hoverIdx].value)] }}>
               {Math.round(data[hoverIdx].value)}%
             </strong>
@@ -323,7 +323,7 @@ export function RadarChart({
             <div style={{
               marginTop: 8,
               paddingTop: 6,
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderTop: '1px solid var(--border)',
               fontSize: 11,
               color: '#E5C76B',
             }}>

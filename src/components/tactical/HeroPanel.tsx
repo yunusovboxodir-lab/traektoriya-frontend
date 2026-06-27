@@ -9,10 +9,10 @@ import type { MapZone } from './types';
 import { useLangStore } from '../../stores/langStore';
 
 const ZONE_TINTS = [
-  'oklch(0.76 0.15 150)', // T1 Стажёр — зелёный
-  'oklch(0.72 0.14 245)', // T2 Практик — синий
-  'oklch(0.86 0.15 100)', // T3 Эксперт — жёлтый
-  'oklch(0.70 0.18 27)',  // T4 Мастер — красный
+  'var(--level-1)', // T1 Стажёр — зелёный/золотой
+  'var(--level-2)', // T2 Практик — синий/бирюзовый
+  'var(--level-3)', // T3 Эксперт — фиолетовый
+  'var(--level-4)', // T4 Мастер — красный
 ];
 
 interface HeroPanelProps {
@@ -58,13 +58,13 @@ export function HeroPanel({
           <svg width="56" height="56" viewBox="0 0 56 56">
             <defs>
               <linearGradient id="av" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="oklch(0.45 0.10 220)" />
-                <stop offset="100%" stopColor="oklch(0.30 0.06 250)" />
+                <stop offset="0%" stopColor="var(--bg-elevated)" />
+                <stop offset="100%" stopColor="var(--bg-surface)" />
               </linearGradient>
             </defs>
-            <circle cx="28" cy="28" r="26" fill="url(#av)" stroke="oklch(0.7 0.10 220)" strokeWidth="1" />
-            <circle cx="28" cy="22" r="8" fill="oklch(0.85 0.04 220)" opacity="0.85" />
-            <path d="M 12 50 Q 28 36 44 50 L 44 56 L 12 56 Z" fill="oklch(0.85 0.04 220)" opacity="0.85" />
+            <circle cx="28" cy="28" r="26" fill="url(#av)" stroke="var(--border-strong)" strokeWidth="1" />
+            <circle cx="28" cy="22" r="8" fill="var(--text-secondary)" opacity="0.85" />
+            <path d="M 12 50 Q 28 36 44 50 L 44 56 L 12 56 Z" fill="var(--text-secondary)" opacity="0.85" />
           </svg>
           <div className="avatar-status" />
         </div>
@@ -80,10 +80,10 @@ export function HeroPanel({
       <div className="hero-rank">
         <RingProgress value={overallPct} label={t('ПРАКТИК', 'PRAKTIK')} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'oklch(0.55 0.02 250)' }}>{t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}</div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'oklch(0.82 0.15 75)' }}>{t('Практик', 'Praktik')}</div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'oklch(0.6 0.02 250)', marginTop: 2 }}>
-            {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'oklch(0.78 0.15 155)' }}>{t('Эксперт', 'Ekspert')}</span>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>{t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'var(--brass)' }}>{t('Практик', 'Praktik')}</div>
+          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
+            {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'var(--success)' }}>{t('Эксперт', 'Ekspert')}</span>
           </div>
         </div>
       </div>
@@ -115,10 +115,10 @@ export function HeroPanel({
       {/* Stats */}
       <div className="section-label">{t('СТАТИСТИКА', 'STATISTIKA')}</div>
       <Stat k={t('Всего курсов', 'Jami kurslar')} v={total} />
-      <Stat k={t('Пройдено', "O'tildi")} v={done} accent="oklch(0.78 0.15 155)" />
-      <Stat k={t('В процессе', 'Jarayonda')} v={inProgress} accent="oklch(0.82 0.15 75)" />
-      <Stat k={t('Доступно', 'Mavjud')} v={available} accent="oklch(0.78 0.15 220)" />
-      <Stat k={t('Заблокировано', 'Bloklangan')} v={locked} accent="oklch(0.50 0.02 250)" />
+      <Stat k={t('Пройдено', "O'tildi")} v={done} accent="var(--success)" />
+      <Stat k={t('В процессе', 'Jarayonda')} v={inProgress} accent="var(--brass)" />
+      <Stat k={t('Доступно', 'Mavjud')} v={available} accent="var(--info)" />
+      <Stat k={t('Заблокировано', 'Bloklangan')} v={locked} accent="var(--text-muted)" />
 
       <div className="divider" />
 

@@ -262,7 +262,7 @@ export function PulsePage() {
 
   if (view === 'team' && canViewTeam) {
     return (
-      <div className="space-y-5" style={{ color: '#fff' }}>
+      <div className="space-y-5" style={{ color: 'var(--text-primary)' }}>
         <PulseHeader
           title={lang === 'uz' ? 'Jamoa pulsi' : 'Пульс команды'}
           subtitle={`${headerName} · ${getRoleLabel(user?.role || '', lang)} · ${teamData?.members_count ?? 0} ${(teamData?.members_count ?? 0) === 1 ? 'подчинённый' : 'подчинённых'}`}
@@ -284,17 +284,17 @@ export function PulsePage() {
         ) : teamError ? (
           <div className="text-center py-20 text-red-400">{teamError}</div>
         ) : !teamData || teamData.members_count === 0 ? (
-          <div className="text-center py-20 text-white/55">
+          <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>
             <div className="text-5xl mb-4">👥</div>
             <p className="text-lg">У вас пока нет подчинённых для каскадного обзора</p>
-            <p className="text-sm mt-2 text-white/40">Нажмите «Я» чтобы вернуться к личному пульсу</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Нажмите «Я» чтобы вернуться к личному пульсу</p>
           </div>
         ) : (
           <TeamPulseView data={teamData} />
         )}
         {canViewTeam && (
-          <div className="text-center text-xs text-white/40 mt-2">
-            Подсказка: <kbd className="bg-white/10 border border-white/15 px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
+          <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+            Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
           </div>
         )}
       </div>
@@ -306,7 +306,7 @@ export function PulsePage() {
   // ============================================================================
 
   return (
-    <div className="space-y-5" style={{ color: '#fff' }}>
+    <div className="space-y-5" style={{ color: 'var(--text-primary)' }}>
 
       {/* ─── HEADER ─── */}
       <PulseHeader
@@ -345,12 +345,12 @@ export function PulsePage() {
               return (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.55)' }}>Курсы</span>
+                    <span style={{ color: 'var(--text-muted)' }}>Курсы</span>
                     <span>{comp.courses_completed}/{comp.courses_total}</span>
                   </div>
                   {comp.avg_quiz_score !== null && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                      <span style={{ color: 'rgba(255,255,255,0.55)' }}>Тесты</span>
+                      <span style={{ color: 'var(--text-muted)' }}>Тесты</span>
                       <span>{Math.round(comp.avg_quiz_score)}%</span>
                     </div>
                   )}
@@ -393,8 +393,8 @@ export function PulsePage() {
 
       {/* Подсказка с горячими клавишами */}
       {canViewTeam && (
-        <div className="text-center text-xs text-white/40 mt-2">
-          Подсказка: <kbd className="bg-white/10 border border-white/15 px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
+        <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
+          Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
         </div>
       )}
     </div>
@@ -414,25 +414,36 @@ function getRoleLabel(role: string, lang: string): string {
 // ─── Card ───────────────────────────────────────────────────────────────────
 
 function Card({ title, children, accent }: { title: string; children: React.ReactNode; accent?: 'gold' | 'red' | 'green' }) {
-  const accentBorder = accent === 'red'
-    ? 'border-red-500/25'
+  const accentBorderColor = accent === 'red'
+    ? 'rgba(239,68,68,0.25)'
     : accent === 'green'
-      ? 'border-emerald-500/25'
-      : 'border-white/10';
-  const accentBg = accent === 'red'
-    ? 'from-red-500/8 to-red-500/2'
+      ? 'rgba(74,222,128,0.25)'
+      : 'var(--border)';
+  const accentBgFrom = accent === 'red'
+    ? 'rgba(239,68,68,0.08)'
     : accent === 'green'
-      ? 'from-emerald-500/8 to-emerald-500/2'
-      : 'from-[#11243d] to-[#11243d]/60';
+      ? 'rgba(74,222,128,0.08)'
+      : 'var(--bg-card)';
+  const accentBgTo = accent === 'red'
+    ? 'rgba(239,68,68,0.02)'
+    : accent === 'green'
+      ? 'rgba(74,222,128,0.02)'
+      : 'var(--bg-surface)';
   return (
-    <div className={`rounded-2xl border ${accentBorder} bg-gradient-to-b ${accentBg} p-5`}>
+    <div
+      className="rounded-2xl p-5"
+      style={{
+        border: `1px solid ${accentBorderColor}`,
+        background: `linear-gradient(180deg, ${accentBgFrom}, ${accentBgTo})`,
+      }}
+    >
       <h3
         className="font-bold uppercase mb-4"
         style={{
           fontFamily: "'Unbounded',sans-serif",
           fontSize: 11,
           letterSpacing: '0.18em',
-          color: 'rgba(255,255,255,0.45)',
+          color: 'var(--text-muted)',
         }}
       >
         {title}
@@ -476,36 +487,47 @@ function PulseHeader({
             ★ Pulse
           </span>
         </div>
-        <h1 style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 28, fontWeight: 700, color: '#fff' }}>
+        <h1 style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 28, fontWeight: 700, color: 'var(--text-primary)' }}>
           {title}
         </h1>
-        <p className="text-sm text-white/60 mt-1">{subtitle}</p>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{subtitle}</p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
         {canViewTeam && (
-          <div className="inline-flex bg-white/5 border border-white/10 rounded-xl p-1">
+          <div
+            className="inline-flex rounded-xl p-1"
+            style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
+          >
             <button
               type="button"
               onClick={() => setView('me')}
               className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
                 view === 'me'
-                  ? 'bg-amber-400 text-[#0a1929] font-semibold'
-                  : 'text-white/70 hover:text-white'
+                  ? 'bg-amber-400 font-semibold'
+                  : ''
               }`}
+              style={view === 'me'
+                ? { color: 'var(--text-inverse)' }
+                : { color: 'var(--text-secondary)' }
+              }
             >
-              👤 Я
+              Я
             </button>
             <button
               type="button"
               onClick={() => setView('team')}
               className={`px-4 py-1.5 rounded-lg text-sm transition-all ${
                 view === 'team'
-                  ? 'bg-amber-400 text-[#0a1929] font-semibold'
-                  : 'text-white/70 hover:text-white'
+                  ? 'bg-amber-400 font-semibold'
+                  : ''
               }`}
+              style={view === 'team'
+                ? { color: 'var(--text-inverse)' }
+                : { color: 'var(--text-secondary)' }
+              }
             >
-              👥 Команда
+              Команда
             </button>
           </div>
         )}
@@ -515,11 +537,16 @@ function PulseHeader({
             <select
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
-              className="bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
-              style={{ colorScheme: 'dark' }}
+              className="rounded-xl px-3 py-2 text-sm"
+              style={{
+                background: 'var(--bg-overlay)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
+                colorScheme: 'dark light',
+              }}
             >
               {PULSE_ROLES.map((r) => (
-                <option key={r.value} value={r.value} style={{ color: '#000' }}>
+                <option key={r.value} value={r.value}>
                   {lang === 'uz' ? r.label.uz : r.label.ru}
                 </option>
               ))}
@@ -527,12 +554,17 @@ function PulseHeader({
             <select
               value={selectedUserId}
               onChange={(e) => setSelectedUserId(e.target.value)}
-              className="bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-sm text-white min-w-[180px]"
-              style={{ colorScheme: 'dark' }}
+              className="rounded-xl px-3 py-2 text-sm min-w-[180px]"
+              style={{
+                background: 'var(--bg-overlay)',
+                border: '1px solid var(--border)',
+                color: 'var(--text-primary)',
+                colorScheme: 'dark light',
+              }}
             >
-              <option value="" style={{ color: '#000' }}>Вся команда (среднее)</option>
+              <option value="">Вся команда (среднее)</option>
               {teamUsers.map((u) => (
-                <option key={u.id} value={u.id} style={{ color: '#000' }}>
+                <option key={u.id} value={u.id}>
                   {u.full_name || u.employee_id}
                 </option>
               ))}
@@ -557,7 +589,7 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
     <div className="flex flex-col items-center gap-3">
       <div className="relative w-[180px] h-[180px]">
         <svg viewBox="0 0 200 200" className="w-full h-full">
-          <circle cx="100" cy="100" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+          <circle cx="100" cy="100" r={r} fill="none" stroke="var(--border)" strokeWidth="14" />
           <circle
             cx="100" cy="100" r={r}
             fill="none"
@@ -570,7 +602,7 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: '#fff' }}>
+          <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
             {Math.round(pct)}<span className="text-lg opacity-60">%</span>
           </span>
         </div>
@@ -582,7 +614,7 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
         {meta.label} · {meta.range}
       </span>
-      <div className="text-xs text-white/55">
+      <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
         {Math.round(pulse.total_earned)} / {Math.round(pulse.total_max)} баллов · {pulse.competencies.length} компетенций
       </div>
     </div>
@@ -596,9 +628,9 @@ function Sparkline({ pulse }: { pulse: UserPulse }) {
   // Пока показываем заглушку «новый дашборд → нет истории» с приглашением вернуться позже.
   void pulse;
   return (
-    <div className="mt-4 pt-3 border-t border-white/10">
-      <div className="text-[11px] text-white/35 text-center">
-        ⏳ Тренд за 6 месяцев — скоро (после первого месяца замеров)
+    <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+      <div className="text-[11px] text-center" style={{ color: 'var(--text-muted)' }}>
+        Тренд за 6 месяцев — скоро (после первого месяца замеров)
       </div>
     </div>
   );
@@ -616,7 +648,7 @@ function Benchmark({ pulse }: { pulse: UserPulse }) {
   return (
     <div
       className="mt-3 px-3 py-2.5 rounded-md text-xs leading-snug border-l-4 border-amber-400"
-      style={{ background: 'rgba(200,168,75,0.06)', color: 'rgba(255,255,255,0.7)' }}
+      style={{ background: 'rgba(200,168,75,0.06)', color: 'var(--text-secondary)' }}
     >
       Средний РМ Узбекистана: <strong className="text-amber-300">{benchAvg}%</strong>
       <span className="mx-2">·</span>
@@ -646,7 +678,7 @@ function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
         />
         {/* Центральный overlay убран по запросу PO — дубль с левой карточкой «Общий пульс» */}
       </div>
-      <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs text-white/65">
+      <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
         <span className="inline-flex items-center gap-1.5">
           <span className="w-4 h-0.5 bg-blue-400" />
           Твой пульс
@@ -655,7 +687,7 @@ function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
           <span className="w-4 border-t-2 border-dashed border-amber-400" />
           Целевой профиль (70%)
         </span>
-        <span className="text-amber-300/70">💡 клик на точку — открыть курсы</span>
+        <span style={{ color: 'var(--warning)' }}>клик на точку — открыть курсы</span>
       </div>
     </div>
   );
@@ -677,14 +709,14 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
             className="grid items-center gap-3 px-3.5 py-2.5 rounded-lg border"
             style={{
               gridTemplateColumns: '12px 1fr auto',
-              background: 'rgba(255,255,255,0.02)',
-              borderColor: 'rgba(255,255,255,0.06)',
+              background: 'var(--bg-overlay)',
+              borderColor: 'var(--border)',
             }}
           >
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: meta.color }} />
             <div>
               <div className="text-sm font-medium">{meta.label}</div>
-              <div className="text-[11px] text-white/40">{meta.range}</div>
+              <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{meta.range}</div>
             </div>
             <div
               style={{
@@ -708,7 +740,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
           fontFamily: "'Unbounded',sans-serif",
           fontSize: 11,
           letterSpacing: '0.18em',
-          color: 'rgba(255,255,255,0.45)',
+          color: 'var(--text-muted)',
         }}
       >
         Покрытие уровней
@@ -721,12 +753,12 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
         ].map((p) => (
           <div key={p.key}>
             <div className="flex justify-between mb-1">
-              <span className="text-white/65">{p.label}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>{p.label}</span>
               <span style={{ color: LEVEL_META[p.key].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700, fontSize: 11 }}>
                 {p.count} / {total} · {Math.round(p.share)}%
               </span>
             </div>
-            <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${p.share}%`, background: LEVEL_META[p.key].color }}
@@ -801,7 +833,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
           <h3 style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 18, fontWeight: 700 }}>
             {lang === 'uz' && weakest.competency_name_uz ? weakest.competency_name_uz : weakest.competency_name}
           </h3>
-          <div className="text-xs text-white/50 mt-0.5">
+          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             Сейчас: <strong className="text-red-400">{Math.round(weakest.pulse_pct)}%</strong>
             {nextLvl && <> · до {nextLvl} осталось +{Math.ceil(gapToNext)} п.п.</>}
           </div>
@@ -813,8 +845,8 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
           <div className="animate-spin h-5 w-5 border-2 border-amber-400 border-t-transparent rounded-full" />
         </div>
       ) : actions.length === 0 ? (
-        <div className="text-center py-6 text-white/40 text-sm">
-          Все курсы по этой компетенции уже пройдены 🎉
+        <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>
+          Все курсы по этой компетенции уже пройдены
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -823,15 +855,17 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
               key={course.course_id}
               type="button"
               onClick={() => onCourseClick(weakest.competency_id)}
-              className="grid items-center gap-3 px-3.5 py-3 rounded-lg border bg-white/3 hover:bg-amber-500/5 hover:border-amber-400/40 hover:translate-x-0.5 transition-all text-left"
-              style={{ gridTemplateColumns: '32px 1fr auto', borderColor: 'rgba(255,255,255,0.06)' }}
+              className="grid items-center gap-3 px-3.5 py-3 rounded-lg border hover:bg-amber-500/5 hover:border-amber-400/40 hover:translate-x-0.5 transition-all text-left"
+              style={{ gridTemplateColumns: '32px 1fr auto', background: 'var(--bg-overlay)', borderColor: 'var(--border)' }}
             >
-              <span className="text-lg text-center">📚</span>
+              <svg className="w-5 h-5 mx-auto flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: 'var(--text-muted)' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
               <span>
                 <span className="text-sm leading-tight font-medium block">
                   {lang === 'uz' && course.title_uz ? course.title_uz : course.title_ru}
                 </span>
-                <span className="text-xs text-white/40 mt-0.5 block">
+                <span className="text-xs mt-0.5 block" style={{ color: 'var(--text-muted)' }}>
                   Уровень: {course.level} · вес {course.weight}
                 </span>
               </span>
@@ -870,12 +904,12 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
 
   return (
     <Card title="⚡ Быстрые победы">
-      <p className="text-xs text-white/65 mb-3.5 leading-snug">
+      <p className="text-xs mb-3.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
         Самые дешёвые переходы на следующий уровень — закрой одно действие → +1 в счётчик уровня.
       </p>
       {wins.length === 0 ? (
-        <div className="text-center py-6 text-white/40 text-sm">
-          Все компетенции на максимальном уровне 🏆
+        <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>
+          Все компетенции на максимальном уровне
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -885,13 +919,13 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
               type="button"
               onClick={() => onClick(comp.competency_id)}
               className="grid items-center gap-2.5 px-3.5 py-3 rounded-lg border bg-emerald-500/5 hover:bg-emerald-500/10 transition-all text-left"
-              style={{ gridTemplateColumns: '1fr auto', borderColor: 'rgba(74,222,128,0.18)' }}
+              style={{ gridTemplateColumns: '1fr auto', borderColor: 'rgba(74,222,128,0.25)' }}
             >
               <span>
                 <span className="text-sm leading-tight font-semibold block mb-0.5">
                   {comp.competency_name} · {Math.round(comp.pulse_pct)}% → {nextLevel}
                 </span>
-                <span className="text-xs text-white/40">
+                <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
                   {comp.courses_completed}/{comp.courses_total} курсов закрыто
                 </span>
               </span>
@@ -927,13 +961,13 @@ function OrbitalPanel({ pulse }: { pulse: UserPulse }) {
     <Card title="🪐 Твоя орбита">
       <div className="flex flex-col items-center text-center">
         <svg viewBox="0 0 180 130" className="w-44 h-32 my-2">
-          <ellipse cx="90" cy="65" rx="70" ry="35" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          <ellipse cx="90" cy="65" rx="40" ry="20" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-          <circle cx="160" cy="65" r="4" fill="rgba(255,255,255,0.5)" />
-          <circle cx="50" cy="55" r="5" fill="rgba(255,255,255,0.4)" />
+          <ellipse cx="90" cy="65" rx="70" ry="35" fill="none" stroke="var(--border)" strokeWidth="1" />
+          <ellipse cx="90" cy="65" rx="40" ry="20" fill="none" stroke="var(--border)" strokeWidth="1" />
+          <circle cx="160" cy="65" r="4" fill="var(--text-muted)" />
+          <circle cx="50" cy="55" r="5" fill="var(--text-muted)" />
           <circle cx="90" cy="65" r="9" fill="#C8A84B" />
         </svg>
-        <p className="text-xs text-white/65 leading-relaxed">
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Ты в <strong className="text-amber-300">{rankText}</strong> сотрудников этой роли.
           {pct < 76 && (
             <><br />До <strong className="text-amber-300">Мастера</strong> осталось +{Math.ceil(76 - pct)} п.п.</>
@@ -958,31 +992,34 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
   if (!comp) return null;
   return (
     <div
-      className="rounded-2xl border p-5"
+      className="rounded-2xl p-5"
       style={{
-        background: 'linear-gradient(180deg, #11243d, rgba(17,36,61,0.6))',
-        borderColor: 'rgba(200,168,75,0.4)',
+        background: `linear-gradient(180deg, var(--bg-card), var(--bg-surface))`,
+        border: '1px solid rgba(200,168,75,0.4)',
       }}
     >
       <div className="flex items-start justify-between mb-3">
         <div>
           <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-            🔍 Drill-down
+            Drill-down
           </div>
           <h3 className="text-lg font-bold" style={{ fontFamily: "'Unbounded',sans-serif" }}>
             {lang === 'uz' && comp.competency_name_uz ? comp.competency_name_uz : comp.competency_name}
           </h3>
-          <div className="text-xs text-white/55 mt-1">
+          <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             {Math.round(comp.pulse_pct)}% · {comp.courses_completed}/{comp.courses_total} курсов
           </div>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="text-white/50 hover:text-white p-1 -mr-2"
+          className="p-1 -mr-2 transition-colors"
+          style={{ color: 'var(--text-muted)' }}
           aria-label="Закрыть"
         >
-          ✕
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
         </button>
       </div>
 
@@ -991,7 +1028,7 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
           <div className="animate-spin h-6 w-6 border-2 border-amber-400 border-t-transparent rounded-full" />
         </div>
       ) : courses.length === 0 ? (
-        <div className="text-center py-6 text-white/40 text-sm">Курсы не привязаны к этой компетенции</div>
+        <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>Курсы не привязаны к этой компетенции</div>
       ) : (
         <div className="grid gap-1.5">
           {courses.map((c) => (
@@ -999,18 +1036,21 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
               key={c.course_id}
               className="flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm border"
               style={{
-                background: c.is_completed ? 'rgba(74,222,128,0.06)' : 'rgba(255,255,255,0.03)',
-                borderColor: c.is_completed ? 'rgba(74,222,128,0.2)' : 'rgba(255,255,255,0.06)',
+                background: c.is_completed ? 'rgba(74,222,128,0.06)' : 'var(--bg-overlay)',
+                borderColor: c.is_completed ? 'rgba(74,222,128,0.2)' : 'var(--border)',
               }}
             >
               <div className="flex items-center gap-2 flex-1 min-w-0">
-                <span className="text-base flex-shrink-0">{c.is_completed ? '✅' : '⬜'}</span>
-                <span className={`truncate ${c.is_completed ? 'text-white/55' : 'text-white/85'}`}>
+                {c.is_completed
+                  ? <svg className="w-4 h-4 flex-shrink-0 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  : <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ color: 'var(--text-muted)' }}><rect x="3" y="3" width="18" height="18" rx="2" /></svg>
+                }
+                <span className="truncate" style={{ color: c.is_completed ? 'var(--text-muted)' : 'var(--text-primary)' }}>
                   {lang === 'uz' && c.title_uz ? c.title_uz : c.title_ru}
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-white/45 flex-shrink-0">
-                <span className="px-2 py-0.5 bg-white/5 rounded font-mono">{c.level}</span>
+              <div className="flex items-center gap-3 text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
+                <span className="px-2 py-0.5 rounded font-mono" style={{ background: 'var(--bg-overlay)' }}>{c.level}</span>
                 <span>вес {c.weight}</span>
                 {c.quiz_score !== null && (
                   <span className="text-blue-400 font-semibold">{c.quiz_score}%</span>
@@ -1054,7 +1094,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
           <div className="flex flex-col items-center gap-3">
             <div className="relative w-[180px] h-[180px]">
               <svg viewBox="0 0 200 200" className="w-full h-full">
-                <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="14" />
+                <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" strokeWidth="14" />
                 <circle
                   cx="100" cy="100" r="80"
                   fill="none"
@@ -1066,7 +1106,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: '#fff' }}>
+                <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
                   {Math.round(data.avg_pulse)}<span className="text-lg opacity-60">%</span>
                 </span>
               </div>
@@ -1078,13 +1118,13 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
               <span className="w-1.5 h-1.5 rounded-full" style={{ background: LEVEL_META[teamLevel].color }} />
               {LEVEL_META[teamLevel].label} · команда
             </span>
-            <div className="text-xs text-white/55 text-center">
+            <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
               Среднее по {data.members_count} {data.members_count === 1 ? 'подчинённому' : 'подчинённым'}
             </div>
           </div>
 
-          <div className="mt-5 pt-4 border-t border-white/10">
-            <div className="text-[11px] uppercase tracking-widest text-white/45 mb-3" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+            <div className="text-[11px] uppercase tracking-widest mb-3" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
               Распределение
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -1114,7 +1154,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
               strokeColor="#C8A84B"
             />
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs text-white/65">
+          <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
             <span className="inline-flex items-center gap-1.5">
               <span className="w-4 h-0.5 bg-amber-400" />
               Средний по команде
@@ -1133,8 +1173,11 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
 
       {/* Полный список членов команды */}
       <div
-        className="rounded-2xl border border-white/10 p-5"
-        style={{ background: 'linear-gradient(180deg, #11243d, rgba(17,36,61,0.6))' }}
+        className="rounded-2xl p-5"
+        style={{
+          background: `linear-gradient(180deg, var(--bg-card), var(--bg-surface))`,
+          border: '1px solid var(--border)',
+        }}
       >
         <h3
           className="font-bold uppercase mb-4"
@@ -1142,10 +1185,10 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
             fontFamily: "'Unbounded',sans-serif",
             fontSize: 11,
             letterSpacing: '0.18em',
-            color: 'rgba(255,255,255,0.45)',
+            color: 'var(--text-muted)',
           }}
         >
-          👥 Все подчинённые ({data.members.length}) — отсортировано по пульсу
+          Все подчинённые ({data.members.length}) — отсортировано по пульсу
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
           {data.members.map((m, idx) => (
@@ -1172,8 +1215,8 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
         </div>
         {top.map((m, i) => (
           <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
-            <span className="w-6 text-center">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-            <span className="flex-1 truncate text-white/85">{m.full_name || m.employee_id}</span>
+            <span className="w-6 text-center font-bold" style={{ color: i === 0 ? '#C8A84B' : i === 1 ? '#9CA3AF' : '#C08A4A' }}>{i + 1}</span>
+            <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
             <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
               {Math.round(m.overall_pulse)}%
             </span>
@@ -1181,14 +1224,14 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
         ))}
       </div>
       {bottom.length > 0 && (
-        <div className="pt-3 border-t border-white/10">
-          <div className="text-[10px] uppercase tracking-widest text-red-300 mb-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
-            ⚠️ Нужна помощь
+        <div className="pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+          <div className="text-[10px] uppercase tracking-widest text-red-400 mb-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+            Нужна помощь
           </div>
           {bottom.map((m) => (
             <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
-              <span className="w-6 text-center text-white/40">↓</span>
-              <span className="flex-1 truncate text-white/85">{m.full_name || m.employee_id}</span>
+              <span className="w-6 text-center" style={{ color: 'var(--text-muted)' }}>↓</span>
+              <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
               <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
                 {Math.round(m.overall_pulse)}%
               </span>
@@ -1211,12 +1254,15 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
 
   return (
     <div
-      className="rounded-xl border p-4 transition-colors hover:bg-white/[0.03]"
-      style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.06)' }}
+      className="rounded-xl p-4 transition-colors"
+      style={{
+        background: 'var(--bg-overlay)',
+        border: '1px solid var(--border)',
+      }}
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
-          <div className="text-xs text-white/40 mb-0.5">#{rank} · {member.employee_id}</div>
+          <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)' }}>#{rank} · {member.employee_id}</div>
           <div className="font-semibold truncate">{member.full_name || member.employee_id}</div>
         </div>
         <div
@@ -1226,11 +1272,11 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
           <div className="text-2xl font-bold" style={{ color: meta.color }}>
             {Math.round(member.overall_pulse)}%
           </div>
-          <div className="text-[10px] uppercase tracking-wider text-white/45">{meta.label}</div>
+          <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{meta.label}</div>
         </div>
       </div>
 
-      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
+      <div className="h-1.5 rounded-full overflow-hidden mb-3" style={{ background: 'var(--bg-overlay)' }}>
         <div
           className="h-full rounded-full transition-all"
           style={{ width: `${member.overall_pulse}%`, background: meta.color }}
@@ -1239,13 +1285,13 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
 
       {weakest.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-white/35 mb-1.5" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <div className="text-[10px] uppercase tracking-widest mb-1.5" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
             Слабые места
           </div>
           <div className="flex flex-col gap-1 text-xs">
             {weakest.map((c) => (
               <div key={c.id} className="flex items-center justify-between">
-                <span className="text-white/70 truncate">{c.name}</span>
+                <span className="truncate" style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
                 <span style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
                   {Math.round(c.pct)}%
                 </span>
@@ -1273,25 +1319,32 @@ function EmptyPulse({
     <div className="space-y-4">
       {isAdmin && (
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="text-sm text-white/60">Роль:</span>
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Роль:</span>
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            className="bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-sm text-white"
-            style={{ colorScheme: 'dark' }}
+            className="rounded-xl px-3 py-2 text-sm"
+            style={{
+              background: 'var(--bg-overlay)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-primary)',
+              colorScheme: 'dark light',
+            }}
           >
             {PULSE_ROLES.map((r) => (
-              <option key={r.value} value={r.value} style={{ color: '#000' }}>
+              <option key={r.value} value={r.value}>
                 {lang === 'uz' ? r.label.uz : r.label.ru}
               </option>
             ))}
           </select>
         </div>
       )}
-      <div className="text-center py-20 text-white/50">
-        <div className="text-5xl mb-4">📊</div>
+      <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>
+        <svg className="w-12 h-12 mx-auto mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
         <p className="text-lg">{t('pulse.noData') || 'Данные пульса пока недоступны'}</p>
-        <p className="text-sm mt-2 text-white/35">{t('pulse.noDataHint') || 'Компетенции ещё не настроены для этой роли'}</p>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{t('pulse.noDataHint') || 'Компетенции ещё не настроены для этой роли'}</p>
       </div>
     </div>
   );
