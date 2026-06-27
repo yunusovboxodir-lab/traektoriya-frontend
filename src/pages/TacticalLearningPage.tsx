@@ -16,6 +16,7 @@ import { HeroPanel } from '../components/tactical/HeroPanel';
 // Вернуть когда будет реальная интеграция AI-рекомендаций и achievements.
 import { StatusBar } from '../components/tactical/StatusBar';
 import { TacticalMobile } from '../components/tactical/TacticalMobile';
+import { GuidesPanel } from '../components/onboarding/GuidesPanel';
 import type { MapNode, MapEdge, MapZone, TerritoryMode } from '../components/tactical/types';
 import { STATE_STYLES } from '../components/tactical/data';
 import { loadLearningMapData } from '../utils/mapLearningToNodes';
@@ -237,6 +238,7 @@ export function TacticalLearningPage() {
 
         {/* Центр: карта + детальная панель при выборе */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <GuidesPanel />
           <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
             {loading ? (
               <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>

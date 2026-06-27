@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as DEFAULT_EDGES } from './data';
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
 import { useLangStore } from '../../stores/langStore';
+import { GuidesPanel } from '../onboarding/GuidesPanel';
 
 const TERRITORY_NUMERAL: Record<string, string> = {
   stazher: 'I',
@@ -982,6 +983,7 @@ export function TacticalMobile({
               zones={Z}
               edges={E}
             />
+            <GuidesPanel />
             <TerritoryList
               selectedId={selectedId}
               setSelectedId={handleSelect}
