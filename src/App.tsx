@@ -8,6 +8,7 @@ import { MobileAdminGate } from './components/layout/MobileAdminGate';
 import { ToastContainer } from './components/ui/ToastContainer';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { FloatingScreenshotButton } from './components/FloatingScreenshotButton';
+import { SectionUnlockChest } from './components/onboarding/SectionUnlockChest';
 import { lazyWithRetry } from './utils/lazyWithRetry';
 
 // ---------------------------------------------------------------------------
@@ -594,6 +595,7 @@ export default function App() {
       <BrowserRouter>
         <AppRoutes />
         <GlobalFeedbackButton />
+        <SectionUnlockChest />
         <ToastContainer />
       </BrowserRouter>
     </ErrorBoundary>
