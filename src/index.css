@@ -63,6 +63,13 @@
   --danger:     #F87171; --danger-bg:  rgba(248, 113, 113, 0.10);
   --info:       #60A5FA; --info-bg:    rgba(96, 165, 250, 0.10);
 
+  /* ── Ранг-цвета лидерборда (как ТЕКСТ на цветном tint) ── */
+  /* В тёмной — ярко. В светлой переопределяются на тёмные (контраст ≥4.5). */
+  --rank-trainee:      #EF4444;  /* Стажёр */
+  --rank-practitioner: #FBBF24;  /* Практик */
+  --rank-expert:       #60A5FA;  /* Эксперт */
+  --rank-master:       #4ADE80;  /* Мастер */
+
   /* ── Типографика ── */
   --font-display: 'Unbounded', sans-serif;                            /* ТОЛЬКО h1, hero, stat-number */
   --font-body:    'Golos Text', 'Manrope', system-ui, sans-serif;      /* ВСЁ остальное */
@@ -127,6 +134,12 @@
   --warning: #9A4708; --warning-bg: rgba(180, 83, 9, 0.10);
   --danger:  #B23129; --danger-bg:  rgba(199, 68, 59, 0.10);
   --info:    #3F5C78; --info-bg:    rgba(63, 92, 120, 0.10);
+
+  /* Ранг-цвета как текст — тёмные варианты под светлый tint (≥4.5:1) */
+  --rank-trainee:      #B23129;
+  --rank-practitioner: #8A6210;
+  --rank-expert:       #1F5FD0;
+  --rank-master:       #15703A;
 
   /* Тени — мягче на светлом */
   --shadow-sm: 0 1px 3px rgba(40, 46, 54, 0.10);

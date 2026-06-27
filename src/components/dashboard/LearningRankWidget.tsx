@@ -33,11 +33,13 @@ const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string 
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
+// Цвет-как-текст через токены (тёмно в светлой теме, ярко в тёмной — контраст ≥4.5).
+// bg-tint оставляем ярким — текст теперь адаптируется.
 const LEVEL_COLOR: Record<string, { color: string; bg: string }> = {
-  trainee:     { color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
-  practitioner: { color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
-  expert:      { color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
-  master:      { color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
+  trainee:     { color: 'var(--rank-trainee)',      bg: 'rgba(239,68,68,0.15)' },
+  practitioner: { color: 'var(--rank-practitioner)', bg: 'rgba(251,191,36,0.15)' },
+  expert:      { color: 'var(--rank-expert)',       bg: 'rgba(96,165,250,0.15)' },
+  master:      { color: 'var(--rank-master)',       bg: 'rgba(74,222,128,0.15)' },
 };
 
 // Цвета медалей — бренд/семантика, корректны на обеих темах
@@ -163,17 +165,18 @@ export function LearningRankWidget() {
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
             <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
-              Формула: <span className="text-emerald-300 font-semibold">50% обучение</span>
+              Формула: <span className="font-semibold" style={{ color: 'var(--success)' }}>50% обучение</span>
               {' + '}
-              <span className="text-amber-300 font-semibold">30% активность</span>
+              <span className="font-semibold" style={{ color: 'var(--warning)' }}>30% активность</span>
               {' + '}
-              <span className="text-blue-300 font-semibold">20% streak</span>
+              <span className="font-semibold" style={{ color: 'var(--info)' }}>20% streak</span>
               <span className="ml-1.5" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>· KPI 30% после CRM</span>
             </p>
           </div>
           <Link
             to="/learning"
-            className="text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
+            className="text-xs font-medium transition-colors"
+            style={{ color: 'var(--color-rm)' }}
           >
             {t('dashboard.leaderboard.goToLearning') || 'К обучению'} →
           </Link>
@@ -274,7 +277,7 @@ export function LearningRankWidget() {
                   height: 90,
                   fontFamily: "'Unbounded',sans-serif",
                   fontSize: 36,
-                  color: '#FBBF24', // золотой цвет цифры — бренд медали, оставляем
+                  color: 'var(--color-rm)', // золотой цвет цифры — бренд медали, оставляем
                   boxShadow: '0 -8px 24px rgba(251,191,36,0.25)',
                 }}
               >
@@ -327,13 +330,13 @@ export function LearningRankWidget() {
                     background: 'rgba(200,168,75,0.15)',
                     border: '2px solid rgba(200,168,75,0.5)',
                     fontFamily: "'Unbounded',sans-serif",
-                    color: '#FBBF24', // золотой акцент — бренд, оставляем
+                    color: 'var(--color-rm)', // золотой акцент — бренд, оставляем
                   }}
                 >
                   #{my_rank}
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest text-amber-300/70" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+                  <p className="text-[10px] uppercase tracking-widest" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--color-rm)', opacity: 0.85 }}>
                     Твой ранг
                   </p>
                   <p className="text-xl font-bold" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}>
@@ -347,7 +350,7 @@ export function LearningRankWidget() {
                   style={{
                     background: LEVEL_COLOR[my_progress.current_level].bg,
                     color: LEVEL_COLOR[my_progress.current_level].color,
-                    borderColor: LEVEL_COLOR[my_progress.current_level].color + '40',
+                    borderColor: 'var(--border)',
                   }}
                 >
                   {levelName(my_progress.current_level)}
@@ -436,7 +439,7 @@ function PodiumPlayer({
         title={entry.full_name}
       >
         {entry.full_name || entry.employee_id}
-        {entry.is_current_user && <span className="text-amber-300 ml-1">★</span>}
+        {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>★</span>}
       </div>
       {/* Уровень */}
       <span
@@ -455,7 +458,7 @@ function PodiumPlayer({
             >
               {/* meta.text === '#fff' — бронзовая медаль (тёмный фон), meta.text === '#0a1929' — золото/серебро.
                   Здесь намеренно тёмный текст #0a1929 на светлых медалях (золото/серебро) — оставляем. */}
-              <span style={{ color: '#FBBF24' }}>{Math.round(entry.total_score)}</span>
+              <span style={{ color: 'var(--color-rm)' }}>{Math.round(entry.total_score)}</span>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.75em' }}> /100</span>
             </div>
             <div className="text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -507,11 +510,11 @@ function LeaderboardRow({
 
       <div className="min-w-0 flex-1">
         <p
-          className={`truncate text-sm ${isMe ? 'font-bold text-amber-300' : 'font-medium'}`}
-          style={!isMe ? { color: 'var(--text-primary)' } : undefined}
+          className={`truncate text-sm ${isMe ? 'font-bold' : 'font-medium'}`}
+          style={{ color: isMe ? 'var(--color-rm)' : 'var(--text-primary)' }}
         >
           {entry.full_name || entry.employee_id}
-          {isMe && <span className="ml-1 text-xs text-amber-400/70">(вы)</span>}
+          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)', opacity: 0.8 }}>(вы)</span>}
         </p>
         <span
           className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium"
@@ -525,8 +528,8 @@ function LeaderboardRow({
         {entry.total_score !== undefined ? (
           <>
             <p
-              className="text-base font-bold text-amber-300"
-              style={{ fontFamily: "'Unbounded',sans-serif" }}
+              className="text-base font-bold"
+              style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--color-rm)' }}
               title={`Обучение ${Math.round(entry.learning_score ?? 0)} · Активность ${Math.round(entry.activity_score ?? 0)} · Streak ${Math.round(entry.streak_score ?? 0)}`}
             >
               {Math.round(entry.total_score)}
