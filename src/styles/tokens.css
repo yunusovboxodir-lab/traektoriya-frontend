@@ -139,20 +139,21 @@
  * SEMANTIC — LIGHT theme (опция, переключается пользователем)
  * --------------------------------------------------------------------------- */
 [data-theme="light"] {
-  --color-bg-canvas:         var(--color-gray-50);
-  --color-bg-surface:        #FFFFFF;
+  /* «Пепел-холст» (владелец 2026-06-27) */
+  --color-bg-canvas:         #ECEDE8;   /* пепельный холст */
+  --color-bg-surface:        #FBFBF8;   /* карточки (тёплый почти-белый) */
   --color-bg-surface-raised: #FFFFFF;
-  --color-bg-muted:          var(--color-gray-100);
-  --color-bg-accent:         var(--color-gold-400);
+  --color-bg-muted:          #E4E5DF;
+  --color-bg-accent:         var(--color-gold-400);   /* золото = бренд/CTA */
   --color-bg-accent-hover:   var(--color-gold-500);
 
-  --color-fg-default:        var(--color-gray-900);
-  --color-fg-muted:          var(--color-gray-600);
-  --color-fg-subtle:         var(--color-gray-500);
+  --color-fg-default:        #1F2A33;   /* джинс-слейт */
+  --color-fg-muted:          #45525E;
+  --color-fg-subtle:         #5C6772;
   --color-fg-on-accent:      var(--color-gray-900);
 
-  --color-border-default:    var(--color-gray-200);
-  --color-border-strong:     var(--color-gray-300);
+  --color-border-default:    #DEE0D8;
+  --color-border-strong:     #C9CABF;
   --color-border-accent:     var(--color-gold-400);
   --color-border-focus:      var(--color-blue-500);
 

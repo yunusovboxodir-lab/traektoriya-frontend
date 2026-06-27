@@ -11,6 +11,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useLangStore, useT } from '../../stores/langStore';
+import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
 import {
@@ -30,6 +31,8 @@ export function StatusBar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const lang = useLangStore((s) => s.lang);
   const setLang = useLangStore((s) => s.setLang);
+  const theme = useThemeStore((s) => s.theme);
+  const toggleTheme = useThemeStore((s) => s.toggleTheme);
   const t = useT();
   const navigate = useNavigate();
   const location = useLocation();
@@ -166,7 +169,17 @@ export function StatusBar() {
       {/* «Мощь игрока» — компактный бейдж между логотипом и языком, всегда виден (PO 2026-06-25) */}
       {user && <PowerBadge />}
 
-      {/* СПРАВА: переключатель языка (theme-toggle убран — full dark) */}
+      {/* СПРАВА: переключатель темы + языка */}
+      <button
+        className="lang-opt"
+        onClick={toggleTheme}
+        aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+        title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+        style={{ marginRight: 10, fontSize: 14 }}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+
       <div className="lang-toggle" role="group" aria-label="Язык">
         <button
           className={'lang-opt' + (lang === 'ru' ? ' on' : '')}

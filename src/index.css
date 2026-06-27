@@ -84,6 +84,54 @@
   --transition-mid:  250ms ease;
 }
 
+/* ============================================================================
+   === СВЕТЛАЯ ТЕМА «Пепел-холст» (опция, владелец 2026-06-27) ===
+   Переопределяем ЛЕГАСИ-токены (выше), т.к. большинство компонентов используют
+   их напрямую (--bg-surface, --text-primary, --color-rm, --border…). Раньше
+   светлая правила только алиасы (--bg-0) в tactical-design.css → половина UI
+   оставалась тёмной. Палитра: пепельный холст + джинсовый акцент + золото бренда.
+   ============================================================================ */
+[data-theme="light"] {
+  /* Фоны — пепельный холст → почти белые карточки */
+  --bg-primary:  #ECEDE8;   /* холст страницы (пепел) */
+  --bg-surface:  #F4F5F1;   /* statusbar / поверхности */
+  --bg-card:     #FBFBF8;   /* карточки (тёплый почти-белый) */
+  --bg-elevated: #FFFFFF;   /* модалки, поповеры */
+  --bg-overlay:  rgba(0, 0, 0, 0.04);
+
+  /* Границы — мягкий пепел, фокус — джинсовый */
+  --border:        #DEE0D8;
+  --border-strong: #C9CABF;
+  --border-focus:  #3F5C78;
+
+  /* Текст — джинс-слейт (тёмный), контраст ≥4.5 на пепле */
+  --text-primary:   #1F2A33;
+  --text-secondary: #45525E;
+  --text-muted:     #5C6772;
+  --text-inverse:   #FBFBF8;
+
+  /* Роли — затемнены под светлый фон (золото бренда = --color-rm) */
+  --color-rm: #9A7B1E;  --color-rm-bg: rgba(154, 123, 30, 0.12);  --color-rm-border: rgba(154, 123, 30, 0.32);
+  --color-sv: #0E8C7E;  --color-sv-bg: rgba(14, 140, 126, 0.10);  --color-sv-border: rgba(14, 140, 126, 0.30);
+  --color-tp: #6D4FD0;  --color-tp-bg: rgba(109, 79, 208, 0.10);  --color-tp-border: rgba(109, 79, 208, 0.30);
+
+  /* Уровни обучения */
+  --level-1: #9A7B1E; --level-1-bg: rgba(154, 123, 30, 0.10);  /* Стажёр */
+  --level-2: #0E8C7E; --level-2-bg: rgba(14, 140, 126, 0.08);  /* Практик */
+  --level-3: #6D4FD0; --level-3-bg: rgba(109, 79, 208, 0.08);  /* Эксперт */
+  --level-4: #C7443B; --level-4-bg: rgba(199, 68, 59, 0.08);   /* Мастер */
+
+  /* Статусы (info = джинсовый) */
+  --success: #15803D; --success-bg: rgba(21, 128, 61, 0.10);
+  --warning: #B45309; --warning-bg: rgba(180, 83, 9, 0.10);
+  --danger:  #C7443B; --danger-bg:  rgba(199, 68, 59, 0.10);
+  --info:    #3F5C78; --info-bg:    rgba(63, 92, 120, 0.10);
+
+  /* Тени — мягче на светлом */
+  --shadow-sm: 0 1px 3px rgba(40, 46, 54, 0.10);
+  --shadow-md: 0 4px 16px rgba(40, 46, 54, 0.12);
+}
+
 /* Prevent pull-to-refresh in standalone PWA mode */
 html {
   overscroll-behavior: none;
