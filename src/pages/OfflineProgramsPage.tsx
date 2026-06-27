@@ -66,7 +66,7 @@ export function OfflineProgramsPage() {
           <SkeletonCard lines={3} />
         </div>
       )}
-      {error && <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">{error}</div>}
+      {error && <div className="rounded-lg p-4" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)' }}>{error}</div>}
 
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -107,18 +107,18 @@ function ProgramCard({ program, onClick }: { program: Program; onClick: () => vo
   return (
     <button
       onClick={onClick}
-      className="text-left bg-white border border-stone-200 rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
-      style={{ borderTopColor: program.theme_color, borderTopWidth: 4 }}
+      className="text-left rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderTopColor: program.theme_color, borderTopWidth: 4 }}
     >
       <div className="flex items-start gap-3 mb-3">
         <span className="text-4xl">{program.icon || '📋'}</span>
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-stone-800">{program.title}</h3>
-          {program.title_uz && <p className="text-xs text-stone-500 italic">{program.title_uz}</p>}
+          <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{program.title}</h3>
+          {program.title_uz && <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>{program.title_uz}</p>}
         </div>
       </div>
       {program.description && (
-        <p className="text-sm text-stone-600 mb-3 line-clamp-2">{program.description}</p>
+        <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{program.description}</p>
       )}
       <div className="flex flex-wrap gap-2 text-xs">
         <Tag label={program.target_role.toUpperCase()} />
@@ -126,8 +126,8 @@ function ProgramCard({ program, onClick }: { program: Program; onClick: () => vo
         <Tag label={`${program.num_questions} вопросов`} />
         <Tag label={`max ${program.max_score} б`} />
       </div>
-      <div className="mt-3 pt-3 border-t border-stone-100 text-xs text-stone-500">
-        Код: <code className="bg-stone-100 px-1.5 py-0.5 rounded">{program.code}</code>
+      <div className="mt-3 pt-3 text-xs" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+        Код: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)' }}>{program.code}</code>
       </div>
     </button>
   );
@@ -135,7 +135,7 @@ function ProgramCard({ program, onClick }: { program: Program; onClick: () => vo
 
 function Tag({ label }: { label: string }) {
   return (
-    <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded font-medium">
+    <span className="px-2 py-0.5 rounded font-medium" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
       {label}
     </span>
   );
@@ -174,9 +174,9 @@ function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCre
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-serif mb-4">Создать программу</h2>
-        {error && <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700 mb-3">{error}</div>}
+      <div className="rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
+        <h2 className="text-2xl font-serif mb-4" style={{ color: 'var(--text-primary)' }}>Создать программу</h2>
+        {error && <div className="rounded p-2 text-sm mb-3" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)' }}>{error}</div>}
 
         <div className="space-y-3">
           <Field label="Код (уникальный, латиницей)" value={code} onChange={setCode} placeholder="adkar | my_program" />
@@ -187,8 +187,8 @@ function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCre
             <Field label="Цвет (hex)" value={themeColor} onChange={setThemeColor} />
           </div>
           <div>
-            <label className="text-xs font-semibold text-stone-500 uppercase">Целевая роль</label>
-            <select className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm" value={targetRole}
+            <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Целевая роль</label>
+            <select className="w-full px-3 py-2 rounded-lg text-sm" value={targetRole}
               onChange={(e) => setTargetRole(e.target.value)}>
               <option value="sales_rep">Торговый представитель</option>
               <option value="supervisor">Супервайзер</option>
@@ -204,9 +204,10 @@ function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCre
         </div>
 
         <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 border border-stone-300 rounded-lg">Отмена</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2 rounded-lg" style={{ border: '1px solid var(--border)', color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Отмена</button>
           <button onClick={submit} disabled={busy || !code || !title}
-            className="flex-1 px-4 py-2 bg-stone-800 text-white rounded-lg disabled:bg-stone-400">
+            className="flex-1 px-4 py-2 rounded-lg disabled:opacity-40"
+            style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
             {busy ? 'Создание...' : 'Создать'}
           </button>
         </div>
@@ -220,8 +221,8 @@ function Field({ label, value, onChange, placeholder }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
-      <input className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+      <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{label}</label>
+      <input className="w-full px-3 py-2 rounded-lg text-sm"
         value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
@@ -232,8 +233,8 @@ function NumberField({ label, value, onChange }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
-      <input type="number" className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+      <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{label}</label>
+      <input type="number" className="w-full px-3 py-2 rounded-lg text-sm"
         value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </div>
   );

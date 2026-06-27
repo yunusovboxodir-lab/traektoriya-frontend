@@ -299,7 +299,7 @@ export function LearningPage() {
   if (view === 'map' && mapData) {
     return (
       <div>
-        <button onClick={goBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+        <button onClick={goBack} className="mb-4 text-sm flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
           &larr; {t('learning.backToModules')}
         </button>
         <LearningMap data={mapData} onOpenSection={openSection} />
@@ -425,27 +425,27 @@ function ModulesView({
                   {icon}
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">{bl(m.title, lang)}</h3>
+                  <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{bl(m.title, lang)}</h3>
                 </div>
               </div>
 
               {/* Stats */}
               {isAvailable ? (
-                <div className="flex items-center gap-4 text-sm text-gray-600">
+                <div className="flex items-center gap-4 text-sm" style={{ color: 'var(--text-secondary)' }}>
                   <span>{m.sections_count} {t('learning.sections')}</span>
                   <span className="text-gray-300">|</span>
                   <span>{m.courses_count} {t('learning.courses')}</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-400">{t('learning.soon')}</span>
+                  <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('learning.soon')}</span>
                   <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-500 rounded-full">{t('learning.inDevelopment')}</span>
                 </div>
               )}
 
               {/* Arrow for available modules */}
               {isAvailable && (
-                <div className="absolute top-6 right-6 text-gray-300 text-xl">&rsaquo;</div>
+                <div className="absolute top-6 right-6 text-xl" style={{ color: 'var(--text-muted)' }}>&rsaquo;</div>
               )}
             </div>
           );
@@ -497,34 +497,34 @@ function SectionView({
   return (
     <div className="max-w-3xl mx-auto">
       {/* Back */}
-      <button onClick={onBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 group">
+      <button onClick={onBack} className="mb-4 text-sm flex items-center gap-1.5 group" style={{ color: 'var(--text-muted)' }}>
         <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         {t('learning.backToMap')}
       </button>
 
       {/* Section Header Card */}
-      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 mb-6 text-white shadow-xl">
-        <h2 className="text-xl font-bold mb-1">
+      <div className="rounded-2xl p-6 mb-6 shadow-xl" style={{ background: 'linear-gradient(135deg, var(--bg-card), var(--bg-elevated))', border: '1px solid var(--border)' }}>
+        <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
           {bl(data.section.title, lang)}
-          {selectedLevel && <span className="text-slate-400 font-normal text-base ml-2">/ {LEVEL_LABELS[selectedLevel] || selectedLevel}</span>}
+          {selectedLevel && <span className="font-normal text-base ml-2" style={{ color: 'var(--text-muted)' }}>/ {LEVEL_LABELS[selectedLevel] || selectedLevel}</span>}
         </h2>
         {bl(data.section.description, lang) && (
-          <p className="text-slate-300 text-sm mb-4">{bl(data.section.description, lang)}</p>
+          <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>{bl(data.section.description, lang)}</p>
         )}
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between text-xs mb-1.5">
-              <span className="text-slate-400">{t('learning.progress')}</span>
-              <span className="text-white font-semibold">{progress.completed}/{progress.total}</span>
+              <span style={{ color: 'var(--text-muted)' }}>{t('learning.progress')}</span>
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{progress.completed}/{progress.total}</span>
             </div>
-            <div className="w-full bg-slate-700 rounded-full h-2">
+            <div className="w-full rounded-full h-2" style={{ background: 'var(--bg-overlay)' }}>
               <div
                 className="h-2 rounded-full bg-gradient-to-r from-blue-400 to-emerald-400 transition-all duration-500"
                 style={{ width: `${progress.percentage}%` }}
               />
             </div>
           </div>
-          <div className="text-2xl font-bold text-emerald-400 tabular-nums">
+          <div className="text-2xl font-bold tabular-nums text-emerald-400">
             {Math.round(progress.percentage)}%
           </div>
         </div>
@@ -580,14 +580,14 @@ function LevelBlock({
   const levelColor = LEVEL_COLORS[level.level] || '#666';
 
   return (
-    <div className={`rounded-2xl overflow-hidden border ${level.is_unlocked ? 'border-gray-200 bg-white shadow-sm' : 'border-gray-100 bg-gray-50'}`}>
+    <div className="rounded-2xl overflow-hidden shadow-sm" style={{ border: '1px solid var(--border)', background: level.is_unlocked ? 'var(--bg-card)' : 'var(--bg-surface)' }}>
       {/* Level header */}
-      <div className="flex items-center gap-3 px-5 py-3.5 border-b border-gray-100">
+      <div className="flex items-center gap-3 px-5 py-3.5" style={{ borderBottom: '1px solid var(--border)' }}>
         <div
           className="w-2.5 h-2.5 rounded-full ring-4 ring-opacity-20"
           style={{ backgroundColor: levelColor, boxShadow: `0 0 0 4px ${levelColor}33` }}
         />
-        <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wide">{bl(level.level_name, lang)}</h3>
+        <h3 className="font-bold text-sm uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>{bl(level.level_name, lang)}</h3>
         {level.is_completed && (
           <span className="ml-auto text-xs px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold flex items-center gap-1">
             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
@@ -595,7 +595,7 @@ function LevelBlock({
           </span>
         )}
         {!level.is_unlocked && level.unlock_message && (
-          <span className="ml-auto text-xs text-gray-400 flex items-center gap-1">
+          <span className="ml-auto text-xs flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             {level.unlock_message}
           </span>
@@ -633,7 +633,7 @@ function LevelBlock({
             ? visible.find((c) => c.status !== 'completed')?.id
             : undefined;
           return (
-            <div className="divide-y divide-gray-50">
+            <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
               {visible.map((course, idx) => (
                 <CourseRow
                   key={course.id}
@@ -649,7 +649,7 @@ function LevelBlock({
       ) : !level.is_unlocked ? (
         <div className="px-5 py-6 text-center">
           <div className="text-2xl mb-2 opacity-30">🔒</div>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             {level.courses_preview_count
               ? t('learning.coursesLater', { count: level.courses_preview_count })
               : t('learning.sectionLocked')}
@@ -681,9 +681,12 @@ function CourseRow({
   return (
     <div
       onClick={onClick}
-      className={`px-5 py-4 flex items-center gap-4 cursor-pointer transition-all duration-150 hover:bg-gray-50 active:scale-[0.99] ${
+      className={`px-5 py-4 flex items-center gap-4 cursor-pointer transition-all duration-150 active:scale-[0.99] ${
         isRecommended && !isCompleted ? 'bg-violet-50/50 hover:bg-violet-50' : ''
       }`}
+      style={!(isRecommended && !isCompleted) ? { '--row-hover': 'var(--bg-surface)' } as React.CSSProperties : {}}
+      onMouseEnter={e => { if (!(isRecommended && !isCompleted)) (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface)'; }}
+      onMouseLeave={e => { if (!(isRecommended && !isCompleted)) (e.currentTarget as HTMLElement).style.background = ''; }}
     >
       {/* Step number / status */}
       <div className={`
@@ -707,7 +710,7 @@ function CourseRow({
       {/* Course info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <p className={`font-medium text-[15px] leading-tight ${isCompleted ? 'text-gray-400' : 'text-gray-800'}`}>
+          <p className="font-medium text-[15px] leading-tight" style={{ color: isCompleted ? 'var(--text-muted)' : 'var(--text-primary)' }}>
             {bl(course.title, lang)}
           </p>
           {/* TRJ-042 Волна 3: «Рекомендуем» — якорь для новичка (см. LevelBlock). */}
@@ -716,7 +719,7 @@ function CourseRow({
           )}
         </div>
         <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <span className="text-xs text-gray-400 flex items-center gap-1">
+          <span className="text-xs flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             {course.duration_minutes} {t('learning.min')}
           </span>
@@ -734,7 +737,7 @@ function CourseRow({
       </div>
 
       {/* Arrow */}
-      <svg className="w-5 h-5 text-gray-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+      <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: 'var(--text-muted)' }}><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
     </div>
   );
 }
@@ -1161,12 +1164,12 @@ function CourseView({
   return (
     <div className="max-w-2xl mx-auto">
       {/* Back */}
-      <button onClick={onBack} className="mb-4 text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 group">
+      <button onClick={onBack} className="mb-4 text-sm flex items-center gap-1.5 group" style={{ color: 'var(--text-muted)' }}>
         <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         {t('learning.back')}
       </button>
 
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+      <div className="rounded-2xl shadow-lg overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {/* Course header with gradient */}
         <div className={`bg-gradient-to-r ${accent.bg} px-6 py-5 text-white`}>
           <div className="flex items-center justify-between mb-3">
@@ -1183,7 +1186,7 @@ function CourseView({
 
         {/* Step dots — new lesson_data flow vs legacy slides */}
         {(hasLessonData || isBlockV3) && (phase === 'lesson_data' || phase === 'quiz') && (
-          <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-3">
+          <div className="px-6 py-3 flex items-center gap-3" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center gap-2 flex-1">
               <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
                 phase === 'lesson_data' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'
@@ -1200,7 +1203,7 @@ function CourseView({
           </div>
         )}
         {!hasLessonData && (phase === 'slides' || phase === 'quiz') && (
-          <div className="px-6 py-3 border-b border-gray-100 flex items-center gap-2">
+          <div className="px-6 py-3 flex items-center gap-2" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex items-center gap-1.5 flex-1">
               {Array.from({ length: totalSlidePages }, (_, i) => (
                 <button
@@ -1211,8 +1214,9 @@ function CourseView({
                       ? 'w-6 h-2 bg-blue-500'
                       : i < currentSlide
                       ? 'w-2 h-2 bg-blue-300'
-                      : 'w-2 h-2 bg-gray-200'
+                      : 'w-2 h-2'
                   }`}
+                  style={i > currentSlide ? { background: 'var(--bg-overlay)' } : {}}
                 />
               ))}
             </div>
@@ -1224,13 +1228,13 @@ function CourseView({
 
         {/* Phase indicator for post-quiz phases */}
         {(phase === 'flashcards' || phase === 'field_task') && (
-          <div className="px-6 py-2.5 border-b border-gray-100 flex items-center gap-2">
+          <div className="px-6 py-2.5 flex items-center gap-2" style={{ borderBottom: '1px solid var(--border)' }}>
             <div className="flex gap-1.5">
               <span className="w-2 h-2 rounded-full bg-blue-400" title="Слайды" />
               <span className="w-2 h-2 rounded-full bg-blue-400" title="Квиз" />
               <span className={`w-2 h-2 rounded-full ${phase === 'flashcards' ? 'w-6 bg-blue-500' : 'bg-blue-400'}`} title="Карточки" />
               {hasFieldTask && (
-                <span className={`w-2 h-2 rounded-full ${phase === 'field_task' ? 'w-6 bg-blue-500' : 'bg-gray-200'}`} title="Задание" />
+                <span className={`w-2 h-2 rounded-full ${phase === 'field_task' ? 'w-6 bg-blue-500' : ''}`} style={phase !== 'field_task' ? { background: 'var(--bg-overlay)' } : {}} title="Задание" />
               )}
             </div>
           </div>
@@ -1241,7 +1245,7 @@ function CourseView({
           {/* ========= SLIDE ========= */}
           {phase === 'slides' && slides[currentSlide] && (
             <div className="animate-fadeIn">
-              <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <span className="w-1 h-6 rounded-full bg-gradient-to-b from-blue-500 to-indigo-500" />
                 {bl(slides[currentSlide].title, lang)}
               </h3>
@@ -1323,7 +1327,7 @@ function CourseView({
               {/* Score ring */}
               <div className="relative w-32 h-32 mx-auto mb-6">
                 <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="54" fill="none" stroke="#f1f5f9" strokeWidth="8" />
+                  <circle cx="60" cy="60" r="54" fill="none" stroke="var(--bg-overlay)" strokeWidth="8" />
                   <circle
                     cx="60" cy="60" r="54" fill="none"
                     stroke={completionResult.passed ? '#10b981' : '#f59e0b'}
@@ -1334,15 +1338,15 @@ function CourseView({
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-gray-900">{completionResult.quiz_score}%</span>
-                  <span className="text-xs text-gray-400">{t('learning.result')}</span>
+                  <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{completionResult.quiz_score}%</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('learning.result')}</span>
                 </div>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-1">
+              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
                 {completionResult.passed ? t('learning.greatJob') : t('learning.canBeBetter')}
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
                 {completionResult.passed ? t('learning.coursePassed') : t('learning.tryAgainCourse')}
               </p>
 
@@ -1383,8 +1387,8 @@ function CourseView({
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-emerald-100 flex items-center justify-center">
                 <svg className="w-8 h-8 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-1">{t('learning.materialDone')}</h3>
-              <p className="text-gray-500 mb-6">{t('learning.allSlidesDone')}</p>
+              <h3 className="text-xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{t('learning.materialDone')}</h3>
+              <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>{t('learning.allSlidesDone')}</p>
               <button
                 onClick={onBack}
                 className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
@@ -1397,7 +1401,7 @@ function CourseView({
 
         {/* Audio Player */}
         {phase === 'slides' && narration && narration.slides.length > 0 && (
-          <div className="px-6 py-3 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-blue-50/30">
+          <div className="px-6 py-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
             <div className="flex items-center gap-3">
               {/* Play/Pause button */}
               <button
@@ -1420,13 +1424,13 @@ function CourseView({
 
               {/* Progress bar */}
               <div className="flex-1 flex items-center gap-2">
-                <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
                   <div
                     className="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full transition-all duration-200"
                     style={{ width: `${audioProgress * 100}%` }}
                   />
                 </div>
-                <span className="text-xs text-gray-400 tabular-nums w-10 text-right">
+                <span className="text-xs tabular-nums w-10 text-right" style={{ color: 'var(--text-muted)' }}>
                   {audioDuration > 0 ? formatTime(audioDuration * audioProgress) : '0:00'}
                 </span>
               </div>
@@ -1443,7 +1447,7 @@ function CourseView({
 
         {/* Navigation */}
         {phase === 'slides' && (
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div className="px-6 py-4 flex items-center justify-between" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
             <button
               onClick={() => {
                 if (audioRef.current) { audioRef.current.pause(); setIsPlaying(false); }
@@ -1451,7 +1455,10 @@ function CourseView({
                 setCurrentSlide(Math.max(0, currentSlide - 1));
               }}
               disabled={currentSlide === 0}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all rounded-xl hover:bg-white"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all rounded-xl"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-card)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               {t('learning.back')}
@@ -1472,10 +1479,13 @@ function CourseView({
         )}
 
         {phase === 'quiz' && (
-          <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
+          <div className="px-6 py-4 flex items-center justify-between" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
             <button
               onClick={() => hasLessonData ? setLessonDataDone(false) : setCurrentSlide(slides.length - 1)}
-              className="flex items-center gap-1.5 px-4 py-2.5 text-sm text-gray-600 hover:text-gray-900 transition-all rounded-xl hover:bg-white"
+              className="flex items-center gap-1.5 px-4 py-2.5 text-sm transition-all rounded-xl"
+              style={{ color: 'var(--text-secondary)' }}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--bg-card)')}
+              onMouseLeave={e => (e.currentTarget.style.background = '')}
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
               {hasLessonData ? (lang === 'uz' ? 'Materialga' : 'К материалу') : t('learning.toSlides')}

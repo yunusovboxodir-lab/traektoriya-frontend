@@ -121,19 +121,22 @@ export function CaseCategoryEditPage() {
     <div className="max-w-2xl mx-auto p-6">
       <button
         onClick={() => navigate('/case-studio')}
-        className="text-sm text-stone-500 hover:text-stone-800 mb-4"
+        className="text-sm mb-4"
+        style={{ color: 'var(--text-muted)' }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-primary)')}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
       >
         ← К Кейсотеке
       </button>
 
-      <h1 className="text-2xl font-serif text-stone-800 mb-6">
+      <h1 className="text-2xl font-serif mb-6" style={{ color: 'var(--text-primary)' }}>
         {isNew ? 'Новая категория' : 'Редактировать категорию'}
       </h1>
 
-      <div className="bg-white border border-stone-200 rounded-lg p-6 space-y-5">
+      <div className="rounded-lg p-6 space-y-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {/* Code (только при создании) */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Код (slug, латиница)
           </label>
           <input
@@ -142,9 +145,10 @@ export function CaseCategoryEditPage() {
             onChange={(e) => setForm({ ...form, code: e.target.value })}
             disabled={!isNew}
             placeholder="obj_price"
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm font-mono disabled:bg-stone-50"
+            className="w-full rounded px-3 py-2 text-sm font-mono"
+            style={{ border: '1px solid var(--border)', background: isNew ? 'var(--bg-card)' : 'var(--bg-surface)', color: 'var(--text-primary)' }}
           />
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Уникальный идентификатор. После создания не меняется.
           </p>
         </div>
@@ -152,37 +156,42 @@ export function CaseCategoryEditPage() {
         {/* Названия */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Название RU</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Название RU</label>
             <input
               type="text"
               value={form.label_ru}
               onChange={(e) => setForm({ ...form, label_ru: e.target.value })}
-              className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+              className="w-full rounded px-3 py-2 text-sm"
+              style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Название UZ</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Название UZ</label>
             <input
               type="text"
               value={form.label_uz || ''}
               onChange={(e) => setForm({ ...form, label_uz: e.target.value })}
-              className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+              className="w-full rounded px-3 py-2 text-sm"
+              style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
             />
           </div>
         </div>
 
         {/* Иконка */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">Иконка</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Иконка</label>
           <div className="flex flex-wrap gap-1 mb-2">
             {PRESET_ICONS.map((ic) => (
               <button
                 key={ic}
                 type="button"
                 onClick={() => setForm({ ...form, icon: ic })}
-                className={`text-2xl p-1 rounded border ${
-                  form.icon === ic ? 'border-stone-800 bg-stone-100' : 'border-transparent hover:border-stone-300'
-                }`}
+                className="text-2xl p-1 rounded border transition-colors"
+                style={
+                  form.icon === ic
+                    ? { borderColor: 'var(--text-primary)', background: 'var(--bg-overlay)' }
+                    : { borderColor: 'transparent' }
+                }
               >
                 {ic}
               </button>
@@ -193,24 +202,23 @@ export function CaseCategoryEditPage() {
             value={form.icon || ''}
             onChange={(e) => setForm({ ...form, icon: e.target.value })}
             placeholder="Или свой эмодзи"
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            className="w-full rounded px-3 py-2 text-sm"
+            style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
             maxLength={4}
           />
         </div>
 
         {/* Цвет */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">Цвет</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Цвет</label>
           <div className="flex flex-wrap gap-1 mb-2">
             {PRESET_COLORS.map((col) => (
               <button
                 key={col}
                 type="button"
                 onClick={() => setForm({ ...form, color: col })}
-                className={`w-8 h-8 rounded border-2 ${
-                  form.color === col ? 'border-stone-800' : 'border-transparent'
-                }`}
-                style={{ backgroundColor: col }}
+                className="w-8 h-8 rounded border-2"
+                style={{ backgroundColor: col, borderColor: form.color === col ? 'var(--text-primary)' : 'transparent' }}
                 aria-label={col}
               />
             ))}
@@ -220,29 +228,31 @@ export function CaseCategoryEditPage() {
             value={form.color || ''}
             onChange={(e) => setForm({ ...form, color: e.target.value })}
             placeholder="#7a716a"
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm font-mono"
+            className="w-full rounded px-3 py-2 text-sm font-mono"
+            style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
           />
         </div>
 
         {/* Описание */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">Описание</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Описание</label>
           <textarea
             value={form.description || ''}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
             rows={3}
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            className="w-full rounded px-3 py-2 text-sm"
+            style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
           />
         </div>
 
         {/* Applicable roles */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
+          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
             Для каких ролей кейсы (target_role)
           </label>
           <div className="flex gap-3 flex-wrap">
             {ROLE_OPTIONS.map((r) => (
-              <label key={r.value} className="flex items-center gap-2 text-sm">
+              <label key={r.value} className="flex items-center gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
                 <input
                   type="checkbox"
                   checked={(form.applicable_roles || []).includes(r.value)}
@@ -253,14 +263,14 @@ export function CaseCategoryEditPage() {
               </label>
             ))}
           </div>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Если ничего не выбрано — категория доступна для всех ролей.
           </p>
         </div>
 
         {/* Order */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Порядок сортировки
           </label>
           <input
@@ -269,7 +279,8 @@ export function CaseCategoryEditPage() {
             onChange={(e) =>
               setForm({ ...form, order_index: parseInt(e.target.value, 10) || 0 })
             }
-            className="w-32 border border-stone-300 rounded px-3 py-2 text-sm"
+            className="w-32 rounded px-3 py-2 text-sm"
+            style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
           />
         </div>
 
@@ -283,7 +294,7 @@ export function CaseCategoryEditPage() {
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-sm font-medium text-stone-700">Активна</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Активна</span>
             </label>
           </div>
         )}
@@ -306,7 +317,8 @@ export function CaseCategoryEditPage() {
           <div className="flex gap-2 ml-auto">
             <button
               onClick={() => navigate('/case-studio')}
-              className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
+              className="px-4 py-2 rounded-lg"
+              style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
             >
               Отмена
             </button>

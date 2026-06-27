@@ -12,9 +12,9 @@ interface Props {
 }
 
 const inputCls =
-  'w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400';
+  'w-full px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400';
 
-const labelCls = 'text-xs font-semibold text-stone-500 uppercase tracking-wide';
+const labelCls = 'text-xs font-semibold uppercase tracking-wide';
 
 export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }: Props) {
   const renderFields = () => {
@@ -80,9 +80,9 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
               onChange={(v) => setColumns(Number(v) as 2 | 3 | 4)} />
             <div className="space-y-3 mt-3">
               {block.cards.map((card, i) => (
-                <div key={i} className="border border-stone-200 rounded-lg p-3 bg-stone-50">
+                <div key={i} className="rounded-lg p-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold text-stone-500">Карточка #{i + 1}</span>
+                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Карточка #{i + 1}</span>
                     <button type="button" onClick={() => removeCard(i)} className="text-xs text-red-600 hover:underline">
                       Удалить
                     </button>
@@ -104,7 +104,8 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
                 </div>
               ))}
               <button type="button" onClick={addCard}
-                className="w-full py-2 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-amber-400 hover:text-amber-700">
+                className="w-full py-2 border-2 border-dashed rounded-lg text-sm hover:border-amber-400 hover:text-amber-700"
+                style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
                 + Добавить карточку
               </button>
             </div>
@@ -193,9 +194,9 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
         return (
           <div className="space-y-3">
             {block.items.map((item, i) => (
-              <div key={i} className="border border-stone-200 rounded-lg p-3 bg-stone-50">
+              <div key={i} className="rounded-lg p-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-semibold text-stone-500">Шаг #{i + 1}</span>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Шаг #{i + 1}</span>
                   <button type="button" onClick={() => removeItem(i)} className="text-xs text-red-600 hover:underline">
                     Удалить
                   </button>
@@ -213,7 +214,8 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
               </div>
             ))}
             <button type="button" onClick={addItem}
-              className="w-full py-2 border-2 border-dashed border-stone-300 rounded-lg text-sm text-stone-600 hover:border-amber-400 hover:text-amber-700">
+              className="w-full py-2 border-2 border-dashed rounded-lg text-sm hover:border-amber-400 hover:text-amber-700"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
               + Добавить шаг
             </button>
           </div>
@@ -221,22 +223,22 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
       }
 
       default:
-        return <div className="text-sm text-red-600">Неизвестный тип блока</div>;
+        return <div className="text-sm" style={{ color: 'var(--danger)' }}>Неизвестный тип блока</div>;
     }
   };
 
   return (
-    <div className="border border-stone-300 rounded-xl bg-white p-4 mb-3">
+    <div className="rounded-xl p-4 mb-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
       <div className="flex justify-between items-center mb-3">
-        <span className="text-xs font-bold text-stone-700 uppercase tracking-wider">{blockTypeLabel(block.type)}</span>
+        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{blockTypeLabel(block.type)}</span>
         <div className="flex gap-1">
           {onMoveUp && (
-            <button type="button" onClick={onMoveUp} className="text-stone-400 hover:text-stone-700 px-2" title="Вверх">↑</button>
+            <button type="button" onClick={onMoveUp} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title="Вверх">↑</button>
           )}
           {onMoveDown && (
-            <button type="button" onClick={onMoveDown} className="text-stone-400 hover:text-stone-700 px-2" title="Вниз">↓</button>
+            <button type="button" onClick={onMoveDown} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title="Вниз">↓</button>
           )}
-          <button type="button" onClick={onRemove} className="text-red-500 hover:text-red-700 px-2" title="Удалить">🗑</button>
+          <button type="button" onClick={onRemove} className="px-2" style={{ color: 'var(--danger)' }} title="Удалить">X</button>
         </div>
       </div>
       <div className="space-y-2">{renderFields()}</div>
@@ -268,7 +270,7 @@ function TextField({ label, value, onChange, placeholder }: {
 }) {
   return (
     <div>
-      <label className={labelCls}>{label}</label>
+      <label className={labelCls} style={{ color: 'var(--text-muted)' }}>{label}</label>
       <input className={inputCls} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
@@ -279,7 +281,7 @@ function TextAreaField({ label, value, onChange }: {
 }) {
   return (
     <div>
-      <label className={labelCls}>{label}</label>
+      <label className={labelCls} style={{ color: 'var(--text-muted)' }}>{label}</label>
       <textarea className={`${inputCls} min-h-[60px]`} value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
@@ -291,7 +293,7 @@ function SelectField({ label, value, onChange, options }: {
 }) {
   return (
     <div>
-      <label className={labelCls}>{label}</label>
+      <label className={labelCls} style={{ color: 'var(--text-muted)' }}>{label}</label>
       <select className={inputCls} value={value} onChange={(e) => onChange(e.target.value)}>
         {options.map((o) => <option key={o.v} value={o.v}>{o.t}</option>)}
       </select>

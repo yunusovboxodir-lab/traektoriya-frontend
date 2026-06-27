@@ -41,11 +41,6 @@ const SPEAKER_LABELS: Record<string, string> = {
   other: 'Другой',
 };
 
-const TOP_MEDALS: Record<number, string> = {
-  1: '🥇',
-  2: '🥈',
-  3: '🥉',
-};
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -129,12 +124,15 @@ export function CaseStudioDetailPage() {
     <div className="max-w-4xl mx-auto p-6">
       <button
         onClick={() => navigate('/case-studio')}
-        className="text-sm text-stone-500 hover:text-stone-800 mb-4"
+        className="text-sm mb-4"
+        style={{ color: 'var(--text-muted)' }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-primary)')}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
       >
         ← К списку кейсов
       </button>
 
-      <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-6 mb-6">
+      <div className="rounded-lg p-6 mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="flex items-center gap-2 flex-wrap mb-3">
           {scenario.category && (
             <span
@@ -146,23 +144,23 @@ export function CaseStudioDetailPage() {
                       borderColor: `${scenario.category.color}40`,
                       color: scenario.category.color,
                     }
-                  : undefined
+                  : { background: 'var(--bg-surface)', borderColor: 'var(--border)', color: 'var(--text-secondary)' }
               }
             >
               {scenario.category.icon ? `${scenario.category.icon} ` : ''}
               {scenario.category.label_ru}
             </span>
           )}
-          <span className="px-2 py-0.5 text-xs rounded-full border bg-blue-50 text-blue-700 border-blue-200">
+          <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--info-bg)', color: 'var(--info)', borderColor: 'var(--info)' }}>
             Для роли: {ROLE_LABELS[scenario.target_role] || scenario.target_role}
           </span>
           {scenario.status === 'draft' && (
-            <span className="px-2 py-0.5 text-xs rounded-full border bg-stone-100 text-stone-700 border-stone-300">
+            <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--bg-overlay)', color: 'var(--text-secondary)', borderColor: 'var(--border)' }}>
               Черновик
             </span>
           )}
           {scenario.status === 'archived' && (
-            <span className="px-2 py-0.5 text-xs rounded-full border bg-amber-50 text-amber-700 border-amber-200">
+            <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--warning-bg)', color: 'var(--warning)', borderColor: 'var(--warning)' }}>
               В архиве
             </span>
           )}
@@ -171,25 +169,26 @@ export function CaseStudioDetailPage() {
         <div
           role="heading"
           aria-level={1}
-          className="text-2xl font-semibold mb-3 text-yellow-100"
+          className="text-2xl font-semibold mb-3"
+          style={{ color: 'var(--text-primary)' }}
         >
           {pickLang(scenario, lang, 'title')}
         </div>
-        <div className="text-sm text-zinc-400 mb-4">
+        <div className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
           {formatDate(scenario.created_at)} ·{' '}
           {scenario.ratings_count > 0 && <>★ {scenario.ratings_count} оценок · </>}
           {scenario.views_count} просмотров
         </div>
 
-        <div className="prose prose-invert max-w-none mb-4">
-          <h3 className="text-zinc-100 font-semibold text-base mb-2">{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</h3>
-          <p className="text-zinc-300 whitespace-pre-wrap leading-relaxed">{pickLang(scenario, lang, 'situation')}</p>
+        <div className="prose max-w-none mb-4">
+          <h3 className="font-semibold text-base mb-2" style={{ color: 'var(--text-primary)' }}>{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</h3>
+          <p className="whitespace-pre-wrap leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{pickLang(scenario, lang, 'situation')}</p>
         </div>
 
         {scenario.original_dialogue && scenario.original_dialogue.length > 0 && (
           <div className="mt-4">
-            <h3 className="text-zinc-100 font-semibold text-base mb-2">{lang === 'uz' ? 'Dialog' : 'Диалог'}</h3>
-            <div className="bg-zinc-900/60 border border-zinc-700 rounded-lg p-4">
+            <h3 className="font-semibold text-base mb-2" style={{ color: 'var(--text-primary)' }}>{lang === 'uz' ? 'Dialog' : 'Диалог'}</h3>
+            <div className="rounded-lg p-4" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
               {scenario.original_dialogue.map((line, idx) => (
                 <DialogueLineView key={idx} line={line} />
               ))}
@@ -219,7 +218,8 @@ export function CaseStudioDetailPage() {
                 await caseStudioApi.archiveScenario(scenario.id);
                 reload();
               }}
-              className="px-3 py-1.5 text-sm border border-zinc-600 text-zinc-200 rounded hover:bg-zinc-800"
+              className="px-3 py-1.5 text-sm rounded"
+              style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)' }}
             >
               {lang === 'uz' ? 'Arxivlash' : 'Архивировать'}
             </button>
@@ -235,7 +235,7 @@ export function CaseStudioDetailPage() {
               }}
               className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
             >
-              🗑 {lang === 'uz' ? 'Keysni o\'chirish' : 'Удалить кейс'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="inline mr-1"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>{lang === 'uz' ? 'Keysni o\'chirish' : 'Удалить кейс'}
             </button>
           </div>
         )}
@@ -246,7 +246,7 @@ export function CaseStudioDetailPage() {
               onClick={() => setShowAssignModal(true)}
               className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm font-medium"
             >
-              📌 {lang === 'uz' ? 'Komandaga vazifa qo\'yish' : 'Поставить задачу команде'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="inline mr-1"><path strokeLinecap="round" strokeLinejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>{lang === 'uz' ? 'Komandaga vazifa qo\'yish' : 'Поставить задачу команде'}
             </button>
           </div>
         )}
@@ -257,17 +257,18 @@ export function CaseStudioDetailPage() {
             onClick={() => !assigning && setShowAssignModal(false)}
           >
             <div
-              className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6"
+              className="rounded-xl shadow-xl w-full max-w-md mx-4 p-6"
+              style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 className="text-lg font-semibold mb-1">Поставить задачу команде</h3>
-              <p className="text-xs text-stone-500 mb-4">
+              <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Поставить задачу команде</h3>
+              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
                 Каждый получит задачу «Изучи кейс» в Kanban + TG-уведомление.
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Кому?</label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>Кому?</label>
                   <div className="space-y-1.5">
                     {[
                       { role: 'sales_rep', label: 'Торговые представители (ТП)' },
@@ -293,22 +294,24 @@ export function CaseStudioDetailPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-1">Срок (дней)</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Срок (дней)</label>
                     <input
                       type="number"
                       min={1}
                       max={90}
                       value={dueInDays}
                       onChange={(e) => setDueInDays(Math.max(1, Math.min(90, +e.target.value || 7)))}
-                      className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm"
+                      className="w-full rounded-lg px-2 py-1.5 text-sm"
+                      style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-1">Приоритет</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Приоритет</label>
                     <select
                       value={priority}
                       onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-                      className="w-full border border-stone-300 rounded-lg px-2 py-1.5 text-sm"
+                      className="w-full rounded-lg px-2 py-1.5 text-sm"
+                      style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', colorScheme: 'dark light' }}
                     >
                       <option value="low">Низкий</option>
                       <option value="medium">Средний</option>
@@ -322,7 +325,8 @@ export function CaseStudioDetailPage() {
                 <button
                   onClick={() => setShowAssignModal(false)}
                   disabled={assigning}
-                  className="px-4 py-2 text-sm border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50 disabled:opacity-50"
+                  className="px-4 py-2 text-sm rounded-lg disabled:opacity-50"
+                  style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
                 >
                   Отмена
                 </button>
@@ -340,7 +344,7 @@ export function CaseStudioDetailPage() {
 
         {/* Rating for scenario */}
         {scenario.status === 'published' && (
-          <div className="mt-6 pt-6 border-t border-stone-200">
+          <div className="mt-6 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
             <RatingControl
               targetType="scenario"
               targetId={scenario.id}
@@ -355,7 +359,7 @@ export function CaseStudioDetailPage() {
         <>
           <h2
             className="text-xl font-semibold mb-4"
-            style={{ color: '#fef9c3', WebkitTextFillColor: '#fef9c3', background: 'none' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             Решения ({scenario.solutions.length})
           </h2>
@@ -365,8 +369,8 @@ export function CaseStudioDetailPage() {
               <SolutionCard key={sol.id} solution={sol} onRated={reload} />
             ))}
             {scenario.solutions.length === 0 && (
-              <div className="bg-zinc-900/60 border border-zinc-700 rounded-lg p-6 text-center">
-                <p className="text-zinc-300">
+              <div className="rounded-lg p-6 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+                <p style={{ color: 'var(--text-secondary)' }}>
                   Пока нет решений. Будь первым — предложи свой подход ниже.
                 </p>
               </div>
@@ -390,11 +394,12 @@ function DialogueLineView({ line }: { line: DialogueLine }) {
   return (
     <div className={`flex gap-2 mb-2 ${isClient ? '' : 'justify-end'}`}>
       <div
-        className={`max-w-[80%] rounded-lg px-3 py-2 ${
+        className="max-w-[80%] rounded-lg px-3 py-2"
+        style={
           isClient
-            ? 'bg-white border border-stone-200 text-stone-800'
-            : 'bg-blue-50 border border-blue-100 text-blue-900'
-        }`}
+            ? { background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }
+            : { background: 'var(--info-bg)', border: '1px solid var(--info)', color: 'var(--text-primary)' }
+        }
       >
         <div className="text-xs font-medium mb-0.5 opacity-70">
           {line.speaker_name || SPEAKER_LABELS[line.speaker] || line.speaker}
@@ -419,47 +424,50 @@ function SolutionCard({
   const lang = useLangStore((s) => s.lang);
   return (
     <div
-      className={`bg-zinc-950/60 border rounded-lg p-5 ${
-        solution.is_etalon
-          ? 'border-amber-300 shadow-sm'
-          : 'border-zinc-700'
-      }`}
+      className="rounded-lg p-5"
+      style={{
+        background: 'var(--bg-card)',
+        border: solution.is_etalon ? '1px solid var(--warning)' : '1px solid var(--border)',
+        boxShadow: solution.is_etalon ? '0 0 0 1px rgba(200,168,75,0.15)' : undefined,
+      }}
     >
       <div className="flex items-center gap-2 flex-wrap mb-2">
         {solution.top_position && (
-          <span className="text-lg">{TOP_MEDALS[solution.top_position]}</span>
+          <span className="font-bold" style={{
+            color: solution.top_position === 1 ? '#C8A84B' : solution.top_position === 2 ? '#9CA3AF' : '#A0764A',
+          }}>{solution.top_position}</span>
         )}
         {solution.is_etalon && (
-          <span className="px-2 py-0.5 text-xs rounded-full border bg-amber-50 text-amber-800 border-amber-200">
+          <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--warning-bg)', color: 'var(--warning)', borderColor: 'var(--warning)' }}>
             Эталон TOP-{solution.top_position}
           </span>
         )}
         {solution.is_author_solution && (
-          <span className="px-2 py-0.5 text-xs rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200">
+          <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--success-bg)', color: 'var(--success)', borderColor: 'var(--success)' }}>
             От автора кейса
           </span>
         )}
-        <div className="ml-auto text-sm text-stone-500">
+        <div className="ml-auto text-sm" style={{ color: 'var(--text-muted)' }}>
           ★ {solution.avg_rating.toFixed(1)} ({solution.ratings_count})
         </div>
       </div>
 
-      <div className="prose prose-stone max-w-none mb-3">
-        <p className="text-zinc-300 whitespace-pre-wrap">{pickLang(solution, lang, 'text')}</p>
+      <div className="prose max-w-none mb-3">
+        <p className="whitespace-pre-wrap" style={{ color: 'var(--text-secondary)' }}>{pickLang(solution, lang, 'text')}</p>
       </div>
 
       {solution.solution_dialogue && solution.solution_dialogue.length > 0 && (
-        <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 mb-3">
-          <div className="text-xs font-medium text-stone-500 mb-1">Диалог:</div>
+        <div className="rounded-lg p-3 mb-3" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+          <div className="text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Диалог:</div>
           {solution.solution_dialogue.map((line, idx) => (
             <DialogueLineView key={idx} line={line} />
           ))}
         </div>
       )}
 
-      <div className="text-xs text-stone-400 mb-2">{formatDate(solution.created_at)}</div>
+      <div className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{formatDate(solution.created_at)}</div>
 
-      <div className="pt-2 border-t border-stone-100">
+      <div className="pt-2" style={{ borderTop: '1px solid var(--border)' }}>
         <RatingControl
           targetType="solution"
           targetId={solution.id}
@@ -514,7 +522,7 @@ function RatingControl({
   return (
     <div>
       <div className="flex items-center gap-3">
-        <span className="text-xs text-stone-500">
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
           {targetType === 'scenario' ? 'Оценить кейс:' : 'Оценить решение:'}
         </span>
         <div className="flex gap-0.5">
@@ -525,9 +533,8 @@ function RatingControl({
               onMouseEnter={() => setHover(star)}
               onMouseLeave={() => setHover(0)}
               onClick={() => handleRate(star)}
-              className={`text-xl transition-transform hover:scale-110 ${
-                star <= (hover || chosen || 0) ? 'text-amber-400' : 'text-stone-300'
-              }`}
+              className="text-xl transition-transform hover:scale-110"
+              style={{ color: star <= (hover || chosen || 0) ? '#FBBF24' : 'var(--text-muted)' }}
               aria-label={`${star} звёзд`}
             >
               ★
@@ -535,12 +542,13 @@ function RatingControl({
           ))}
         </div>
         {chosen && (
-          <span className="text-xs text-emerald-700">Спасибо за оценку! +5 XP</span>
+          <span className="text-xs" style={{ color: 'var(--success)' }}>Спасибо за оценку! +5 XP</span>
         )}
         {!showComment && !chosen && (
           <button
             onClick={() => setShowComment(true)}
-            className="text-xs text-stone-500 hover:text-stone-800 underline ml-2"
+            className="text-xs underline ml-2"
+            style={{ color: 'var(--text-muted)' }}
           >
             + Комментарий
           </button>
@@ -552,7 +560,8 @@ function RatingControl({
           onChange={(e) => setComment(e.target.value)}
           placeholder="Опционально: комментарий к оценке…"
           rows={2}
-          className="w-full mt-2 border border-stone-300 rounded px-3 py-2 text-sm"
+          className="w-full mt-2 rounded px-3 py-2 text-sm"
+          style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
         />
       )}
       {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
@@ -596,17 +605,18 @@ function SolutionForm({
   };
 
   return (
-    <div className="bg-zinc-950/60 border border-zinc-800 rounded-lg p-5">
-      <h3 className="text-yellow-50 font-semibold mb-3">{lang === 'uz' ? 'O\'z yechimingni taklif et' : 'Предложить своё решение'}</h3>
+    <div className="rounded-lg p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>{lang === 'uz' ? 'O\'z yechimingni taklif et' : 'Предложить своё решение'}</h3>
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Опиши свой подход к этой ситуации (минимум 20 символов)…"
         rows={6}
-        className="w-full border border-stone-300 rounded px-3 py-2 text-sm mb-2"
+        className="w-full rounded px-3 py-2 text-sm mb-2"
+        style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
       />
       <div className="flex justify-between items-center">
-        <span className="text-xs text-stone-500">+20 XP за предложение</span>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>+20 XP за предложение</span>
         <button
           onClick={handleSubmit}
           disabled={submitting || text.trim().length < 20}

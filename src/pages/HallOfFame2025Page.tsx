@@ -84,7 +84,7 @@ export function HallOfFame2025Page() {
                 marginLeft: 0,
                 color: i === cat ? 'var(--gold)' : 'var(--text-1)',
                 borderColor: i === cat ? 'var(--brass)' : 'var(--line)',
-                background: i === cat ? 'oklch(0.25 0.05 240 / 0.5)' : 'oklch(0.20 0.03 240 / 0.45)',
+                background: i === cat ? 'var(--bg-elevated)' : 'var(--bg-card)',
                 fontWeight: i === cat ? 700 : 600,
               }}
             >
@@ -171,7 +171,7 @@ function Row({ t }: { t: HofTeam }) {
       ))}
       <td style={{ fontFamily: MONO, fontWeight: 700, textAlign: 'center', color: tone(t.total), padding: '11px 12px', minWidth: 64 }}>
         {pct(t.total)}
-        <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,.08)', marginTop: 4, overflow: 'hidden' }}>
+        <div style={{ height: 5, borderRadius: 3, background: 'var(--bg-overlay)', marginTop: 4, overflow: 'hidden' }}>
           <div style={{ height: '100%', borderRadius: 3, width: `${t.total ?? 0}%`, background: tone(t.total) }} />
         </div>
       </td>
@@ -184,14 +184,14 @@ function th(label: string, align: 'left' | 'center' = 'left') {
     <th style={{
       fontFamily: MONO, fontSize: 10.5, letterSpacing: '.12em', textTransform: 'uppercase',
       color: 'var(--text-2)', textAlign: align, padding: 12, fontWeight: 600,
-      borderBottom: '1px solid var(--line)', background: 'oklch(0 0 0 / 0.18)',
+      borderBottom: '1px solid var(--line)', background: 'var(--bg-overlay)',
     }}>{label}</th>
   );
 }
 
 const btnStyle: React.CSSProperties = {
   marginLeft: 16,
-  background: 'oklch(0.20 0.03 240 / 0.45)',
+  background: 'var(--bg-card)',
   border: '1px solid var(--line)',
   borderRadius: 6,
   padding: '6px 12px',

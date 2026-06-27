@@ -150,7 +150,7 @@ export function OfflineMobileTestPage() {
   const phaseLabel = phase === 'pre' ? t.pre : t.post;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100 px-4 py-4 max-w-lg mx-auto">
+    <div className="min-h-screen px-4 py-4 max-w-lg mx-auto" style={{ background: 'linear-gradient(to bottom, var(--bg-surface), var(--bg-primary))' }}>
       {/* Top bar */}
       <div className="flex justify-between items-center mb-3">
         <div className="flex items-center gap-2">
@@ -158,12 +158,13 @@ export function OfflineMobileTestPage() {
             style={{ background: program?.theme_color || '#c9a961' }}>
             {program?.icon || 'N\''}
           </div>
-          <span className="text-xs text-stone-500 font-bold tracking-widest">{t.title}</span>
+          <span className="text-xs font-bold tracking-widest" style={{ color: 'var(--text-muted)' }}>{t.title}</span>
         </div>
-        <div className="flex bg-white/60 rounded-lg p-0.5 border border-stone-200">
+        <div className="flex rounded-lg p-0.5" style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}>
           {(['ru', 'uz'] as const).map((l) => (
             <button key={l} onClick={() => setLang(l)}
-              className={`px-3 py-1 text-xs font-bold rounded ${lang === l ? 'bg-stone-800 text-white' : 'text-stone-500'}`}>
+              className="px-3 py-1 text-xs font-bold rounded"
+              style={lang === l ? { background: 'var(--color-rm)', color: 'var(--text-inverse)' } : { color: 'var(--text-muted)' }}>
               {l.toUpperCase()}
             </button>
           ))}
@@ -184,30 +185,30 @@ export function OfflineMobileTestPage() {
 
       {/* Screens */}
       {screen === 'error' && (
-        <div className="bg-white border border-red-200 rounded-2xl p-5">
-          <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm">⚠️ {errorMsg}</div>
+        <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="p-3 rounded-lg text-sm" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>⚠️ {errorMsg}</div>
         </div>
       )}
 
       {screen === 'name' && info && program && (
         <>
-          <div className="bg-white border border-stone-200 rounded-2xl p-5 mb-4">
-            <h1 className="text-3xl font-serif text-stone-800 mb-2">
+          <div className="rounded-2xl p-5 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <h1 className="text-3xl font-serif mb-2" style={{ color: 'var(--text-primary)' }}>
               {lang === 'uz' && program.title_uz ? program.title_uz : program.title}
             </h1>
-            <p className="text-sm text-stone-500 mb-4">
+            <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
               {lang === 'uz' && program.description_uz ? program.description_uz : program.description}
             </p>
             <div className="mb-3">
-              <label className="text-xs font-semibold text-stone-500 uppercase tracking-wider mb-1 block">
+              <label className="text-xs font-semibold uppercase tracking-wider mb-1 block" style={{ color: 'var(--text-muted)' }}>
                 {t.nameLabel}
               </label>
               <input value={name} onChange={(e) => setName(e.target.value)}
                 placeholder={t.namePh}
-                className="w-full px-4 py-3 border border-stone-300 rounded-xl bg-stone-50 text-base focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                className="w-full px-4 py-3 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-amber-400" />
             </div>
-            <div className="bg-blue-50 text-blue-800 text-sm rounded-lg p-3 flex gap-2">
-              <span>💡</span>
+            <div className="text-sm rounded-lg p-3 flex gap-2" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
+              <span>i</span>
               <span>{t.info}</span>
             </div>
           </div>
@@ -221,25 +222,25 @@ export function OfflineMobileTestPage() {
       {screen === 'test' && info && program && (
         <>
           {/* Progress */}
-          <div className="sticky top-2 z-10 mb-3 bg-white border border-stone-200 rounded-xl px-4 py-3 flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+          <div className="sticky top-2 z-10 mb-3 rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-amber-700 rounded-full transition-all"
                 style={{ width: `${(Object.keys(answers).length / numQuestions) * 100}%` }}
               />
             </div>
-            <span className={`text-xs font-bold whitespace-nowrap ${allAnswered ? 'text-green-600' : 'text-stone-500'}`}>
+            <span className="text-xs font-bold whitespace-nowrap" style={{ color: allAnswered ? 'var(--success)' : 'var(--text-muted)' }}>
               {t.progress}: {Object.keys(answers).length}/{numQuestions}
             </span>
           </div>
 
           {questions.map((q, qi) => (
-            <div key={qi} className="bg-white border border-stone-200 rounded-2xl p-4 mb-3">
+            <div key={qi} className="rounded-2xl p-4 mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
               <div className="flex gap-2 mb-3">
-                <span className="w-7 h-7 rounded-lg bg-stone-100 text-stone-500 text-sm font-bold flex items-center justify-center flex-shrink-0">
+                <span className="w-7 h-7 rounded-lg text-sm font-bold flex items-center justify-center flex-shrink-0" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                   {qi + 1}
                 </span>
-                <h3 className="text-base font-bold text-stone-800 leading-tight">
+                <h3 className="text-base font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
                   {lang === 'uz' && q.question_uz ? q.question_uz : q.question}
                 </h3>
               </div>
@@ -248,11 +249,10 @@ export function OfflineMobileTestPage() {
                   const selected = answers[qi]?.opt === oi;
                   return (
                     <button key={oi} onClick={() => pick(qi, oi, o.score)}
-                      className={`w-full text-left text-sm px-4 py-3 rounded-xl border transition-all ${
-                        selected
-                          ? 'bg-stone-800 text-white border-stone-800'
-                          : 'bg-stone-50 text-stone-700 border-stone-200 active:scale-98'
-                      }`}>
+                      className="w-full text-left text-sm px-4 py-3 rounded-xl transition-all active:scale-95"
+                      style={selected
+                        ? { background: 'var(--color-rm)', color: 'var(--text-inverse)', border: '1px solid var(--color-rm)' }
+                        : { background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                       {lang === 'uz' && o.text_uz ? o.text_uz : o.text}
                     </button>
                   );
@@ -262,42 +262,43 @@ export function OfflineMobileTestPage() {
           ))}
 
           <button onClick={submit} disabled={!allAnswered}
-            className="w-full py-4 rounded-xl font-bold text-white bg-stone-800 disabled:bg-stone-300 active:scale-95 transition-transform">
+            className="w-full py-4 rounded-xl font-bold active:scale-95 transition-transform disabled:opacity-40"
+            style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
             {t.submit}
           </button>
         </>
       )}
 
       {screen === 'sending' && (
-        <div className="bg-white border border-stone-200 rounded-2xl p-10 text-center">
-          <div className="text-5xl mb-3">⏳</div>
-          <h3 className="text-xl font-bold text-stone-800">{t.sending}</h3>
+        <div className="rounded-2xl p-10 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="text-5xl mb-3">...</div>
+          <h3 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{t.sending}</h3>
         </div>
       )}
 
       {screen === 'result' && (
         <>
-          <div className="bg-gradient-to-br from-white to-stone-50 border border-stone-200 rounded-3xl p-8 text-center mb-3">
+          <div className="rounded-3xl p-8 text-center mb-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="text-6xl mb-2">
-              {resultPct >= 85 ? '🏆' : resultPct >= 65 ? '👍' : resultPct >= 40 ? '📚' : '🌱'}
+              {resultPct >= 85 ? '*' : resultPct >= 65 ? '+' : resultPct >= 40 ? '~' : '^'}
             </div>
-            <div className="text-7xl font-serif bg-gradient-to-br from-amber-700 to-stone-800 bg-clip-text text-transparent leading-none">
+            <div className="text-7xl font-serif leading-none" style={{ color: 'var(--color-rm)' }}>
               {resultPct}%
             </div>
-            <div className="text-sm text-stone-500 mt-2 mb-3">
+            <div className="text-sm mt-2 mb-3" style={{ color: 'var(--text-muted)' }}>
               {totalScore} / {maxScore}
             </div>
-            <div className="text-sm font-semibold text-stone-700">
+            <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>
               {resultPct >= 85 ? t.msg.top : resultPct >= 65 ? t.msg.good : resultPct >= 40 ? t.msg.mid : t.msg.low}
             </div>
           </div>
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-sm text-green-800">
+          <div className="rounded-xl p-4 text-sm" style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)' }}>
             {t.saved}
           </div>
         </>
       )}
 
-      <div className="text-center text-xs text-stone-400 tracking-widest font-semibold mt-6">
+      <div className="text-center text-xs tracking-widest font-semibold mt-6" style={{ color: 'var(--text-muted)' }}>
         N'MEDOV SALES ACADEMY • 2026
       </div>
     </div>

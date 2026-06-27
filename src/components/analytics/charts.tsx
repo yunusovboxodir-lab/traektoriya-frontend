@@ -42,10 +42,10 @@ export const BAR_COLORS = [
 export function SectionTitle({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
-      <h2 className="text-base font-semibold text-gray-800 whitespace-nowrap">
+      <h2 className="text-base font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>
         {title}
       </h2>
-      <div className="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent" />
+      <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, var(--border), transparent)' }} />
     </div>
   );
 }
@@ -56,7 +56,7 @@ export function SectionTitle({ title }: { title: string }) {
 
 export function StatCard({ card }: { card: StatCardDef }) {
   return (
-    <div className="relative overflow-hidden bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+    <div className="relative overflow-hidden rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
       <div
         className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradientFrom} ${card.gradientTo}`}
       />
@@ -70,7 +70,7 @@ export function StatCard({ card }: { card: StatCardDef }) {
       <div className={`text-xl sm:text-2xl font-bold ${card.textColor} tracking-tight`}>
         {card.value}
       </div>
-      <div className="text-sm text-gray-500 mt-0.5">{card.label}</div>
+      <div className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{card.label}</div>
     </div>
   );
 }
@@ -100,7 +100,7 @@ export function DonutChart({ total, filled }: { total: number; filled: number })
   return (
     <div className="relative inline-flex flex-col items-center">
       <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
-        <circle cx="90" cy="90" r={radius} fill="none" stroke="#f3f4f6" strokeWidth="16" />
+        <circle cx="90" cy="90" r={radius} fill="none" stroke="var(--bg-elevated)" strokeWidth="16" />
         <circle
           cx="90" cy="90" r={radius} fill="none" stroke="#8b5cf6" strokeWidth="16"
           strokeLinecap="round" strokeDasharray={circumference}
@@ -109,10 +109,10 @@ export function DonutChart({ total, filled }: { total: number; filled: number })
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-gray-900">{Math.round(pct * 100)}%</span>
-        <span className="text-xs text-gray-500">{t('analytics.hpv')}</span>
+        <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{Math.round(pct * 100)}%</span>
+        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('analytics.hpv')}</span>
       </div>
-      <p className="mt-3 text-sm text-gray-600">
+      <p className="mt-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
         {t('analytics.hpvOf', { filled, total })}
       </p>
     </div>
@@ -133,16 +133,16 @@ export function HorizontalBarChart({ categories }: { categories: CategoryBreakdo
         const barColor = BAR_COLORS[i % BAR_COLORS.length];
         return (
           <div key={cat.name} className="flex items-center gap-3">
-            <span className="text-xs sm:text-sm text-gray-600 w-20 sm:w-28 text-right shrink-0 truncate">
+            <span className="text-xs sm:text-sm w-20 sm:w-28 text-right shrink-0 truncate" style={{ color: 'var(--text-secondary)' }}>
               {cat.name}
             </span>
-            <div className="flex-1 h-6 bg-gray-100 rounded-md overflow-hidden">
+            <div className="flex-1 h-6 rounded-md overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
               <div
                 className={`h-full rounded-md ${barColor} transition-all duration-700 ease-out`}
                 style={{ width: `${widthPct}%` }}
               />
             </div>
-            <span className="text-sm font-semibold text-gray-700 w-6 text-right shrink-0">
+            <span className="text-sm font-semibold w-6 text-right shrink-0" style={{ color: 'var(--text-secondary)' }}>
               {cat.count}
             </span>
           </div>
@@ -164,12 +164,12 @@ export function MetricBar({
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900 mb-2">
+      <p className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
         {typeof value === 'number' ? Math.round(value) : value}
         {suffix}
       </p>
-      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
         <div
           className={`h-full rounded-full ${color} transition-all duration-500`}
           style={{ width: `${pct}%` }}
@@ -182,8 +182,8 @@ export function MetricBar({
 export function MetricValue({ label, value }: { label: string; value: number | string }) {
   return (
     <div>
-      <p className="text-sm text-gray-500 mb-1">{label}</p>
-      <p className="text-xl font-bold text-gray-900">{value}</p>
+      <p className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
+      <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{value}</p>
     </div>
   );
 }
@@ -207,24 +207,24 @@ export function LmsMetricCard({
   const achieved = value >= target;
 
   return (
-    <div className="relative overflow-hidden bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+    <div className="relative overflow-hidden rounded-xl p-5 shadow-sm" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.gradient}`} />
-      <p className="text-xs text-gray-500 mb-1">{label}</p>
+      <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
       <div className="flex items-baseline gap-1 mb-1">
         <span className={`text-2xl font-bold ${c.text}`}>
           {typeof value === 'number' ? Math.round(value) : value}
         </span>
         {suffix && <span className={`text-sm ${c.text}`}>{suffix}</span>}
       </div>
-      <p className="text-xs text-gray-400 mb-2">{desc}</p>
+      <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{desc}</p>
       <div className="flex items-center gap-2">
-        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
           <div
             className={`h-full rounded-full ${c.bar} transition-all duration-500`}
             style={{ width: `${Math.min((value / target) * 100, 100)}%` }}
           />
         </div>
-        <span className={`text-xs font-medium ${achieved ? 'text-emerald-600' : 'text-gray-400'}`}>
+        <span className={`text-xs font-medium ${achieved ? 'text-emerald-600' : ''}`} style={!achieved ? { color: 'var(--text-muted)' } : undefined}>
           {achieved ? 'OK' : `/${target}${suffix}`}
         </span>
       </div>

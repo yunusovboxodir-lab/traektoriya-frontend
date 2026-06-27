@@ -161,7 +161,7 @@ export function TacticalLearningPage() {
           onClick={() => navigate('/case-studio')}
           style={{
             marginLeft: 16,
-            background: 'oklch(0.20 0.03 240 / 0.45)',
+            background: 'var(--bg-overlay)',
             border: '1px solid var(--line)',
             borderRadius: 6,
             padding: '6px 12px',
@@ -176,22 +176,22 @@ export function TacticalLearningPage() {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--brass)';
-            e.currentTarget.style.background = 'oklch(0.25 0.05 240 / 0.6)';
+            e.currentTarget.style.background = 'var(--bg-elevated)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = 'var(--line)';
-            e.currentTarget.style.background = 'oklch(0.20 0.03 240 / 0.45)';
+            e.currentTarget.style.background = 'var(--bg-overlay)';
           }}
           title={lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
         >
-          🎯 {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+          {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
         </button>
         <button
           type="button"
           onClick={() => navigate('/learning/hall-of-fame')}
           style={{
             marginLeft: 12,
-            background: 'oklch(0.20 0.03 240 / 0.45)',
+            background: 'var(--bg-overlay)',
             border: '1px solid var(--line)',
             borderRadius: 6,
             padding: '6px 12px',
@@ -206,15 +206,15 @@ export function TacticalLearningPage() {
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = 'var(--brass)';
-            e.currentTarget.style.background = 'oklch(0.25 0.05 240 / 0.6)';
+            e.currentTarget.style.background = 'var(--bg-elevated)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.borderColor = 'var(--line)';
-            e.currentTarget.style.background = 'oklch(0.20 0.03 240 / 0.45)';
+            e.currentTarget.style.background = 'var(--bg-overlay)';
           }}
           title={lang === 'uz' ? "Shon-shuhrat zali · Kubok 2025" : 'Зал славы · Кубок 2025'}
         >
-          🏆 {lang === 'uz' ? 'Tarix 2025' : 'История 2025'}
+          {lang === 'uz' ? 'Tarix 2025' : 'История 2025'}
         </button>
         <div className="title-meta">
           <span><b>{totalCourses}</b> {lang === 'uz' ? 'KURSLAR' : 'КУРСОВ'}</span>
@@ -316,7 +316,7 @@ export function TacticalLearningPage() {
                         padding: '10px 12px',
                         border: '1px solid var(--line-soft)',
                         borderRadius: 6,
-                        background: 'oklch(0.20 0.03 240 / 0.4)',
+                        background: 'var(--bg-overlay)',
                         cursor: clickable ? 'pointer' : 'not-allowed',
                         textAlign: 'left',
                         font: 'inherit',
@@ -325,10 +325,10 @@ export function TacticalLearningPage() {
                         transition: 'background 0.15s, border-color 0.15s',
                       }}
                       onMouseEnter={(e) => {
-                        if (clickable) e.currentTarget.style.background = 'oklch(0.25 0.04 240 / 0.6)';
+                        if (clickable) e.currentTarget.style.background = 'var(--bg-elevated)';
                       }}
                       onMouseLeave={(e) => {
-                        if (clickable) e.currentTarget.style.background = 'oklch(0.20 0.03 240 / 0.4)';
+                        if (clickable) e.currentTarget.style.background = 'var(--bg-overlay)';
                       }}
                     >
                       <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: 1 }}>
@@ -407,7 +407,7 @@ function RoleSelector({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 8,
-        background: 'oklch(0.20 0.03 240 / 0.45)',
+        background: 'var(--bg-card)',
         border: '1px solid var(--line)',
         borderRadius: 6,
         padding: '6px 10px',
@@ -435,7 +435,7 @@ function RoleSelector({
         }}
       >
         {ROLES_WITH_COURSES.map((r) => (
-          <option key={r.value} value={r.value} style={{ background: '#0a0e14', color: '#fff' }}>
+          <option key={r.value} value={r.value} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
             {lang === 'uz' ? r.label_uz : r.label_ru}
           </option>
         ))}

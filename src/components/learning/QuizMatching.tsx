@@ -114,10 +114,10 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
 
   return (
     <div>
-      <p className="font-medium text-gray-800 mb-1 text-[15px]">
+      <p className="font-medium mb-1 text-[15px]" style={{ color: 'var(--text-primary)' }}>
         <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {bl(data.question, lang)}
       </p>
-      <p className="text-xs text-gray-400 mb-3">Нажмите элемент слева, затем справа, чтобы соединить пары</p>
+      <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>Нажмите элемент слева, затем справа, чтобы соединить пары</p>
 
       <div ref={containerRef} className="relative">
         {/* SVG lines */}
@@ -166,8 +166,9 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
                       ? 'bg-blue-100 border-blue-500 text-blue-700 shadow-md'
                       : isPaired && color
                       ? `${color.bg} ${color.border} ${color.text}`
-                      : 'bg-white border-gray-200 text-gray-700 hover:border-blue-300'
+                      : ''
                   } ${checked ? 'cursor-default' : ''}`}
+                  style={!itemStatus && !isActive && !(isPaired && color) ? { background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' } : {}}
                 >
                   {bl(item, lang)}
                 </div>
@@ -202,9 +203,10 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
                       : isPaired && color
                       ? `${color.bg} ${color.border} ${color.text}`
                       : selectedLeft !== null
-                      ? 'bg-white border-blue-200 text-gray-700 cursor-pointer hover:bg-blue-50 hover:border-blue-400'
-                      : 'bg-white border-gray-200 text-gray-700'
+                      ? 'border-blue-200 cursor-pointer hover:bg-blue-50 hover:border-blue-400'
+                      : ''
                   } ${checked ? 'cursor-default' : ''}`}
+                  style={!itemStatus && !(isPaired && color) && selectedLeft === null ? { background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' } : (!itemStatus && !(isPaired && color) && selectedLeft !== null ? { color: 'var(--text-primary)' } : {})}
                 >
                   {bl(item, lang)}
                 </div>
@@ -227,7 +229,10 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
           {pairs.length > 0 && (
             <button
               onClick={reset}
-              className="px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors"
+              className="px-4 py-2.5 text-sm rounded-xl transition-colors"
+              style={{ color: 'var(--text-muted)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
             >
               Сбросить
             </button>

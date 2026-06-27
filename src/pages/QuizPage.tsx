@@ -114,11 +114,11 @@ export function QuizPage() {
   // Если нет данных квиза
   if (!quizItem || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-md">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-surface)' }}>
+        <div className="rounded-2xl shadow-lg p-8 text-center max-w-md" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <div className="text-6xl mb-4">❓</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">{t('quiz.notFound')}</h2>
-          <p className="text-gray-500 mb-6">{t('quiz.notFoundDesc')}</p>
+          <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('quiz.notFound')}</h2>
+          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>{t('quiz.notFoundDesc')}</p>
           <Link to="/learning" className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition">
             📚 {t('quiz.toCourses')}
           </Link>
@@ -128,7 +128,7 @@ export function QuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: 'var(--bg-surface)' }}>
       {/* Шапка */}
       <header className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white shadow-lg">
         <div className="max-w-4xl mx-auto px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
@@ -156,9 +156,9 @@ export function QuizPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* =================== СТАРТОВЫЙ ЭКРАН =================== */}
         {stage === 'start' && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center max-w-lg mx-auto">
+          <div className="rounded-2xl shadow-lg p-8 text-center max-w-lg mx-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="text-6xl mb-4">📝</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">{quizItem.title}</h2>
+            <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{quizItem.title}</h2>
             <div className="flex flex-wrap justify-center gap-2 my-4">
               <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm">
                 📋 {t('quiz.questions', { count: questions.length })}
@@ -191,11 +191,11 @@ export function QuizPage() {
           <div>
             {/* Прогресс */}
             <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <div className="flex justify-between text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>
                 <span>{t('quiz.questionOf', { current: currentQ + 1, total: questions.length })}</span>
                 <span>{t('quiz.answeredOf', { answered: Object.keys(answers).length, total: questions.length })}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div className="w-full rounded-full h-2.5" style={{ background: 'var(--bg-overlay)' }}>
                 <div
                   className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
                   style={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
@@ -204,8 +204,8 @@ export function QuizPage() {
             </div>
 
             {/* Вопрос */}
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-6">
+            <div className="rounded-2xl shadow-lg p-8" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <h3 className="text-xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
                 {currentQ + 1}. {questions[currentQ].question}
               </h3>
 
@@ -221,10 +221,11 @@ export function QuizPage() {
                       className={`w-full text-left p-4 rounded-xl border-2 transition font-medium ${
                         isSelected
                           ? 'border-indigo-500 bg-indigo-50 text-indigo-800'
-                          : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50 text-gray-700'
+                          : ''
                       }`}
+                      style={!isSelected ? { borderColor: 'var(--border)', color: 'var(--text-primary)' } : {}}
                     >
-                      <span className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gray-100 mr-2 sm:mr-3 font-bold text-xs sm:text-sm">
+                      <span className="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg mr-2 sm:mr-3 font-bold text-xs sm:text-sm" style={{ background: 'var(--bg-overlay)', color: 'var(--text-secondary)' }}>
                         {letter}
                       </span>
                       {opt}
@@ -239,7 +240,8 @@ export function QuizPage() {
               <button
                 onClick={() => setCurrentQ(prev => Math.max(0, prev - 1))}
                 disabled={currentQ === 0}
-                className="flex-1 py-3 bg-white border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                className="flex-1 py-3 border-2 rounded-xl font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
+                style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               >
                 ← {t('quiz.prev')}
               </button>
@@ -272,8 +274,9 @@ export function QuizPage() {
                       ? 'bg-indigo-600 text-white'
                       : answers[i]
                         ? 'bg-green-200 text-green-800'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        : ''
                   }`}
+                  style={!(i === currentQ) && !answers[i] ? { background: 'var(--bg-overlay)', color: 'var(--text-secondary)' } : {}}
                 >
                   {i + 1}
                 </button>
@@ -286,10 +289,10 @@ export function QuizPage() {
         {stage === 'results' && (
           <div className="space-y-6">
             {/* Круг с результатом */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="rounded-2xl shadow-lg p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
               <div className="relative w-40 h-40 mx-auto mb-6">
                 <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 120 120">
-                  <circle cx="60" cy="60" r="50" fill="none" stroke="#e5e7eb" strokeWidth="10" />
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="var(--bg-overlay)" strokeWidth="10" />
                   <circle
                     cx="60" cy="60" r="50" fill="none"
                     stroke={score >= passingScore ? '#22c55e' : '#ef4444'}
@@ -298,7 +301,7 @@ export function QuizPage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-bold text-gray-800">{score}%</span>
+                  <span className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{score}%</span>
                 </div>
               </div>
 
@@ -306,19 +309,22 @@ export function QuizPage() {
                 {score >= passingScore ? '🎉 ' + t('quiz.passed') : '📖 ' + t('quiz.notPassed')}
               </h2>
 
-              <p className="text-gray-600 mt-2">
+              <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>
                 {t('quiz.youScored', { correct: questions.filter((q, i) => answers[i] === q.correct_answer).length, total: questions.length })}
                 {' '}({score}%)
               </p>
 
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
                 {t('quiz.timeTaken')}: {formatTime(Math.round((Date.now() - startTime) / 1000))}
               </p>
             </div>
 
             {/* Разбор ответов */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <h3 className="text-lg font-bold text-gray-800 mb-4">📋 {t('quiz.reviewTitle')}</h3>
+            <div className="rounded-2xl shadow-lg p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <h3 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+                <svg className="inline w-5 h-5 mr-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                {t('quiz.reviewTitle')}
+              </h3>
               <div className="space-y-4">
                 {questions.map((q, i) => {
                   const isCorrect = answers[i] === q.correct_answer;
@@ -327,15 +333,15 @@ export function QuizPage() {
                       <div className="flex items-start gap-3">
                         <span className="text-xl">{isCorrect ? '✅' : '❌'}</span>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-800">{i + 1}. {q.question}</p>
+                          <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{i + 1}. {q.question}</p>
                           <p className="text-sm mt-1">
-                            <span className="text-gray-500">{t('quiz.yourAnswer')} </span>
+                            <span style={{ color: 'var(--text-muted)' }}>{t('quiz.yourAnswer')} </span>
                             <span className={isCorrect ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
                               {answers[i] || t('quiz.noAnswer')}
                             </span>
                             {!isCorrect && (
                               <>
-                                <span className="text-gray-400 mx-2">|</span>
+                                <span className="mx-2" style={{ color: 'var(--text-muted)' }}>|</span>
                                 <span className="text-green-700 font-medium">{t('quiz.correctAnswer', { answer: q.correct_answer })}</span>
                               </>
                             )}
@@ -362,7 +368,8 @@ export function QuizPage() {
                   setCurrentQ(0);
                   setScore(0);
                 }}
-                className="flex-1 py-3 bg-white border-2 border-gray-200 rounded-xl font-medium text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-3 border-2 rounded-xl font-medium transition"
+                style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
               >
                 🔄 {t('quiz.retake')}
               </button>

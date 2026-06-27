@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type React from 'react';
 import type { LessonData, LessonDataQuizOption } from '../../api/learning';
 
 // ============================================================
@@ -45,12 +46,12 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
     <div className="space-y-4">
       {/* Header */}
       <div className="text-center mb-2">
-        <h3 className="text-base font-bold text-gray-800">{data.subtitle || data.title}</h3>
-        <p className="text-xs text-gray-400 mt-0.5">{data.brand}</p>
+        <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>{data.subtitle || data.title}</h3>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{data.brand}</p>
       </div>
 
       {/* Tab bar */}
-      <div className="flex gap-1.5 bg-gray-100 rounded-xl p-1">
+      <div className="flex gap-1.5 rounded-xl p-1" style={{ background: 'var(--bg-overlay)' }}>
         {availableTabs.map(tab => {
           const isActive = activeTab === tab.key;
           const isVisited = visitedTabs.has(tab.key);
@@ -58,13 +59,12 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-medium transition-all ${
-                isActive
-                  ? 'bg-white shadow-sm text-gray-900'
-                  : isVisited
-                  ? 'text-gray-600 hover:bg-white/50'
-                  : 'text-gray-400 hover:bg-white/50'
-              }`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-medium transition-all`}
+              style={{
+                background: isActive ? 'var(--bg-card)' : 'transparent',
+                boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
+                color: isActive ? 'var(--text-primary)' : isVisited ? 'var(--text-secondary)' : 'var(--text-muted)',
+              }}
             >
               <span className="text-sm">{tab.icon}</span>
               <span className="hidden sm:inline">{lang === 'uz' ? tab.labelUz : tab.label}</span>
@@ -196,7 +196,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
 
   return (
     <div className="space-y-4">
-      <h4 className="text-sm font-bold text-gray-800 text-center">{infographic.title}</h4>
+      <h4 className="text-sm font-bold text-center" style={{ color: 'var(--text-primary)' }}>{infographic.title}</h4>
 
       {/* Org tree */}
       {sortedLevels.length > 0 && (
@@ -217,7 +217,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
                     <span className="font-bold" style={{ color: node.color || accent }}>
                       {node.label}
                     </span>
-                    {node.name && <span className="text-gray-600 ml-1">{node.name}</span>}
+                    {node.name && <span className="ml-1" style={{ color: 'var(--text-secondary)' }}>{node.name}</span>}
                     {node.kpi != null && (
                       <span className={`ml-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
                         node.kpi >= 90 ? 'bg-emerald-100 text-emerald-700'
@@ -228,7 +228,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
                       </span>
                     )}
                   </div>
-                  {node.detail && <span className="text-gray-500">{node.detail}</span>}
+                  {node.detail && <span style={{ color: 'var(--text-muted)' }}>{node.detail}</span>}
                 </div>
               ))}
             </div>
@@ -252,7 +252,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
                 <p className={`text-xl font-bold ${textColors[i % 4]}`}>
                   {m.value}<span className="text-xs font-normal ml-0.5">{m.unit}</span>
                 </p>
-                <p className="text-[10px] text-gray-500 mt-0.5 leading-tight">{m.label}</p>
+                <p className="text-[10px] mt-0.5 leading-tight" style={{ color: 'var(--text-muted)' }}>{m.label}</p>
               </div>
             );
           })}
@@ -283,8 +283,8 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h4 className="text-sm font-bold text-gray-800">{dialogue.title}</h4>
-        <p className="text-xs text-gray-500 mt-0.5">{dialogue.scenario}</p>
+        <h4 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{dialogue.title}</h4>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{dialogue.scenario}</p>
       </div>
 
       {/* Exchange counter */}
@@ -294,17 +294,18 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
             key={i}
             onClick={() => setCurrentExchange(i)}
             className={`w-2 h-2 rounded-full transition-all ${
-              i === currentExchange ? 'w-6 bg-blue-500' : revealed.has(i) ? 'bg-blue-300' : 'bg-gray-200'
+              i === currentExchange ? 'w-6 bg-blue-500' : revealed.has(i) ? 'bg-blue-300' : ''
             }`}
+            style={i !== currentExchange && !revealed.has(i) ? { background: 'var(--bg-overlay)' } : {}}
           />
         ))}
-        <span className="text-xs text-gray-400 ml-2">{currentExchange + 1}/{dialogue.exchanges.length}</span>
+        <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>{currentExchange + 1}/{dialogue.exchanges.length}</span>
       </div>
 
       {/* Situation */}
-      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Ситуация</p>
-        <p className="text-sm text-gray-800 leading-relaxed">{exchange.situation}</p>
+      <div className="rounded-xl p-4" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Ситуация</p>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{exchange.situation}</p>
       </div>
 
       {!isRevealed ? (
@@ -350,7 +351,10 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
           {currentExchange < dialogue.exchanges.length - 1 && (
             <button
               onClick={() => setCurrentExchange(currentExchange + 1)}
-              className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+              style={{ background: 'var(--bg-overlay)', color: 'var(--text-primary)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
             >
               Следующая ситуация
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -397,8 +401,8 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h4 className="text-sm font-bold text-gray-800">{quiz.title}</h4>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <h4 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{quiz.title}</h4>
+        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
           {answeredCount}/{quiz.questions.length} | {correctCount} {correctCount === 1 ? 'correct' : 'correct'}
         </p>
       </div>
@@ -419,16 +423,17 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
                   ? 'w-6 bg-blue-500'
                   : isSelected
                   ? isCorrect ? 'bg-emerald-400' : 'bg-red-400'
-                  : 'bg-gray-200'
+                  : ''
               }`}
+              style={!(i === currentQ) && !isSelected ? { background: 'var(--bg-overlay)' } : {}}
             />
           );
         })}
       </div>
 
       {/* Question */}
-      <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-        <p className="text-sm text-gray-800 leading-relaxed font-medium">{question.text}</p>
+      <div className="rounded-xl p-4" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        <p className="text-sm leading-relaxed font-medium" style={{ color: 'var(--text-primary)' }}>{question.text}</p>
       </div>
 
       {/* Options */}
@@ -438,14 +443,18 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
           const isThis = selectedOption === opt.id;
           const isCorrectOpt = opt.correct;
 
-          let optionStyle = 'bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50';
+          let optionStyle = 'hover:border-blue-300 hover:bg-blue-50';
+          let optionInlineStyle: React.CSSProperties = !isAnswered ? { background: 'var(--bg-card)', borderColor: 'var(--border)' } : {};
           if (isAnswered) {
             if (isCorrectOpt) {
               optionStyle = 'bg-emerald-50 border-emerald-300';
+              optionInlineStyle = {};
             } else if (isThis && !isCorrectOpt) {
               optionStyle = 'bg-red-50 border-red-300';
+              optionInlineStyle = {};
             } else {
-              optionStyle = 'bg-gray-50 border-gray-200 opacity-60';
+              optionStyle = 'border-gray-200 opacity-60';
+              optionInlineStyle = { background: 'var(--bg-surface)' };
             }
           }
 
@@ -455,18 +464,20 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
               onClick={() => handleSelect(opt.id)}
               disabled={isAnswered}
               className={`w-full flex items-start gap-3 p-3 rounded-xl border transition-all text-left ${optionStyle}`}
+              style={optionInlineStyle}
             >
               <span className={`w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 mt-0.5 ${
                 isAnswered && isCorrectOpt
                   ? 'bg-emerald-500 text-white'
                   : isAnswered && isThis && !isCorrectOpt
                   ? 'bg-red-500 text-white'
-                  : 'bg-gray-100 text-gray-500'
-              }`}>
+                  : ''
+              }`}
+              style={!(isAnswered && (isCorrectOpt || isThis)) ? { background: 'var(--bg-overlay)', color: 'var(--text-muted)' } : {}}>
                 {isAnswered && isCorrectOpt ? '✓' : isAnswered && isThis && !isCorrectOpt ? '✗' : letters[i]}
               </span>
               <div className="flex-1">
-                <p className="text-sm text-gray-700 leading-relaxed">{opt.text}</p>
+                <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{opt.text}</p>
                 {isExplained && isAnswered && (isThis || isCorrectOpt) && opt.explanation && (
                   <p className={`text-xs mt-1.5 leading-relaxed ${isCorrectOpt ? 'text-emerald-600' : 'text-red-600'}`}>
                     {opt.explanation}
@@ -482,7 +493,10 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
       {isAnswered && currentQ < quiz.questions.length - 1 && (
         <button
           onClick={() => setCurrentQ(currentQ + 1)}
-          className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-xl text-sm font-medium hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
+          className="w-full py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2"
+          style={{ background: 'var(--bg-overlay)', color: 'var(--text-primary)' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)'; }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
         >
           Следующий вопрос
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

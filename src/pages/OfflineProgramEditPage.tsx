@@ -65,7 +65,7 @@ export function OfflineProgramEditPage() {
   }, [programId]);
 
   if (loading) return <div className="p-8"><SkeletonCard lines={4} /></div>;
-  if (error || !program) return <div className="p-8 text-red-700">{error || 'Программа не найдена'}</div>;
+  if (error || !program) return <div className="p-8" style={{ color: 'var(--danger)' }}>{error || 'Программа не найдена'}</div>;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -73,14 +73,14 @@ export function OfflineProgramEditPage() {
       <div className="flex justify-between items-start mb-6">
         <div>
           <button onClick={() => navigate('/activities/programs')}
-            className="text-sm text-stone-500 hover:text-stone-700 mb-2">
+            className="text-sm mb-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }}>
             ← К списку программ
           </button>
-          <h1 className="text-3xl font-serif text-stone-800 flex items-center gap-3">
+          <h1 className="text-3xl font-serif flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
             <span>{program.icon}</span>
             <span>{program.title}</span>
           </h1>
-          <code className="text-sm text-stone-500">code: {program.code}</code>
+          <code className="text-sm" style={{ color: 'var(--text-muted)' }}>code: {program.code}</code>
         </div>
         {savedAt && (
           <div className="text-xs text-green-700">
@@ -90,13 +90,14 @@ export function OfflineProgramEditPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-stone-200 mb-6">
+      <div className="mb-6" style={{ borderBottom: '1px solid var(--border)' }}>
         <nav className="flex gap-1">
           {(['meta', 'slides', 'questions', 'categories'] as Tab[]).map((t) => (
             <button key={t} onClick={() => setTab(t)}
               className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${
-                tab === t ? 'border-amber-500 text-stone-900' : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}>
+                tab === t ? 'border-amber-500' : 'border-transparent hover:opacity-80'
+              }`}
+              style={{ color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)' }}>
               {tabLabel(t)} {tabBadge(t, program)}
             </button>
           ))}
@@ -179,8 +180,8 @@ function MetaTab({ program, onSaved, saving, setSaving }: {
         <FieldText label="Иконка" value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} placeholder="🎯" />
         <FieldText label="Цвет темы" value={form.theme_color || ''} onChange={(theme_color) => setForm({ ...form, theme_color })} placeholder="#c9a961" />
         <div>
-          <label className="text-xs font-semibold text-stone-500 uppercase">Целевая роль</label>
-          <select className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+          <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Целевая роль</label>
+          <select className="w-full px-3 py-2 rounded-lg text-sm"
             value={form.target_role}
             onChange={(e) => setForm({ ...form, target_role: e.target.value })}>
             <option value="sales_rep">Торговый представитель</option>
@@ -191,7 +192,8 @@ function MetaTab({ program, onSaved, saving, setSaving }: {
         </div>
       </div>
       <button onClick={save} disabled={saving}
-        className="px-6 py-2 bg-stone-800 text-white rounded-lg disabled:bg-stone-400">
+        className="px-6 py-2 rounded-lg disabled:opacity-40"
+        style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
         {saving ? 'Сохранение...' : 'Сохранить'}
       </button>
     </div>
@@ -287,15 +289,17 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="grid grid-cols-12 gap-4">
       {/* Left: slide list */}
-      <div className="col-span-3 border border-stone-200 rounded-xl bg-stone-50 p-3 max-h-[70vh] overflow-y-auto">
+      <div className="col-span-3 rounded-xl p-3 max-h-[70vh] overflow-y-auto" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
         <div className="flex justify-between items-center mb-3">
-          <span className="font-semibold text-sm text-stone-700">Слайды</span>
+          <span className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>Слайды</span>
           <button onClick={addSlide} className="text-xs px-2 py-1 bg-amber-500 text-white rounded">+ Добавить</button>
         </div>
         {slides.map((s, i) => (
-          <div key={i} className={`flex items-center gap-1 mb-1 px-2 py-2 rounded-lg cursor-pointer ${
-            i === activeIdx ? 'bg-stone-800 text-white' : 'bg-white border border-stone-200 hover:border-amber-300'
-          }`} onClick={() => setActiveIdx(i)}>
+          <div key={i} className="flex items-center gap-1 mb-1 px-2 py-2 rounded-lg cursor-pointer"
+            style={i === activeIdx
+              ? { background: 'var(--color-rm)', color: 'var(--text-inverse)' }
+              : { background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+            onClick={() => setActiveIdx(i)}>
             <span className="text-xs font-bold w-6">{i + 1}</span>
             <span className="text-xs flex-1 truncate">{slideShortLabel(s)}</span>
             <button onClick={(e) => { e.stopPropagation(); moveSlide(i, i - 1); }} className="opacity-50 hover:opacity-100 px-1">↑</button>
@@ -304,8 +308,9 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
           </div>
         ))}
         <button onClick={save} disabled={saving}
-          className="w-full mt-3 px-3 py-2 bg-stone-800 text-white rounded-lg text-sm disabled:bg-stone-400">
-          {saving ? 'Сохранение...' : '💾 Сохранить все слайды'}
+          className="w-full mt-3 px-3 py-2 rounded-lg text-sm disabled:opacity-40"
+          style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
+          {saving ? 'Сохранение...' : 'Сохранить все слайды'}
         </button>
       </div>
 
@@ -315,16 +320,16 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
           <>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div>
-                <label className="text-xs font-semibold text-stone-500 uppercase">Тип слайда</label>
-                <select className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Тип слайда</label>
+                <select className="w-full px-3 py-2 rounded-lg text-sm"
                   value={active.slide_type}
                   onChange={(e) => updateActive({ slide_type: e.target.value as SlideType })}>
                   {SLIDE_TYPES.map((t) => <option key={t.v} value={t.v}>{t.t}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-stone-500 uppercase">Стиль фона (CSS)</label>
-                <input className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Стиль фона (CSS)</label>
+                <input className="w-full px-3 py-2 rounded-lg text-sm"
                   value={active.bg_style || ''}
                   onChange={(e) => updateActive({ bg_style: e.target.value })}
                   placeholder="linear-gradient(...)" />
@@ -332,7 +337,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
             </div>
 
             {/* Block editor list */}
-            <div className="border border-stone-200 rounded-xl bg-stone-50 p-3 max-h-[55vh] overflow-y-auto">
+            <div className="rounded-xl p-3 max-h-[55vh] overflow-y-auto" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
               {active.blocks.map((b, i) => (
                 <BlockEditor
                   key={i}
@@ -344,12 +349,13 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
                 />
               ))}
 
-              <div className="mt-2 pt-3 border-t border-stone-200">
-                <div className="text-xs font-semibold text-stone-500 mb-2">Добавить блок:</div>
+              <div className="mt-2 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Добавить блок:</div>
                 <div className="flex flex-wrap gap-2">
                   {BLOCK_TYPES.map((b) => (
                     <button key={b.v} onClick={() => addBlock(b.v)}
-                      className="text-xs px-3 py-1.5 bg-white border border-stone-300 rounded hover:border-amber-400 hover:bg-amber-50">
+                      className="text-xs px-3 py-1.5 rounded hover:border-amber-400"
+                      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                       {b.icon} {b.t}
                     </button>
                   ))}
@@ -358,30 +364,33 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
             </div>
           </>
         ) : (
-          <div className="text-stone-400 text-center py-12">Выберите или добавьте слайд</div>
+          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Выберите или добавьте слайд</div>
         )}
       </div>
 
       {/* Right: preview */}
       <div className="col-span-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-semibold text-stone-500">Превью</span>
-          <div className="flex gap-1 bg-stone-100 rounded p-0.5">
+          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Превью</span>
+          <div className="flex gap-1 rounded p-0.5" style={{ background: 'var(--bg-elevated)' }}>
             {(['ru', 'uz'] as const).map((l) => (
               <button key={l} onClick={() => setPreviewLang(l)}
-                className={`text-xs px-2 py-1 rounded ${previewLang === l ? 'bg-stone-800 text-white' : 'text-stone-500'}`}>
+                className="text-xs px-2 py-1 rounded"
+                style={previewLang === l
+                  ? { background: 'var(--color-rm)', color: 'var(--text-inverse)' }
+                  : { color: 'var(--text-muted)' }}>
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
         </div>
-        <div className="border border-stone-200 rounded-xl bg-white p-4 max-h-[65vh] overflow-y-auto"
-          style={active?.bg_style ? { background: active.bg_style } : undefined}>
+        <div className="rounded-xl p-4 max-h-[65vh] overflow-y-auto"
+          style={active?.bg_style ? { background: active.bg_style, border: '1px solid var(--border)' } : { background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           {active?.blocks.map((b, i) => (
             <BlockRenderer key={i} block={b} lang={previewLang} size="preview" />
           ))}
           {active && active.blocks.length === 0 && (
-            <div className="text-stone-400 text-center py-12 text-sm">Нет блоков. Добавьте слева.</div>
+            <div className="text-center py-12 text-sm" style={{ color: 'var(--text-muted)' }}>Нет блоков. Добавьте слева.</div>
           )}
         </div>
       </div>
@@ -450,20 +459,21 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
-        <p className="text-sm text-stone-600">Один тест проходит и в PRE и в POST. {questions.length} из {program.num_questions} в банке.</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Один тест проходит и в PRE и в POST. {questions.length} из {program.num_questions} в банке.</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-xs px-3 py-1.5 border border-stone-300 rounded hover:border-amber-400">+ Вопрос</button>
-          <button onClick={save} disabled={saving} className="px-4 py-2 bg-stone-800 text-white rounded-lg text-sm disabled:bg-stone-400">
-            {saving ? 'Сохранение...' : '💾 Сохранить вопросы'}
+          <button onClick={add} className="text-xs px-3 py-1.5 rounded hover:border-amber-400" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Вопрос</button>
+          <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
+            style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
+            {saving ? 'Сохранение...' : 'Сохранить вопросы'}
           </button>
         </div>
       </div>
 
       <div className="space-y-4">
         {questions.map((q, qi) => (
-          <div key={qi} className="border border-stone-200 rounded-xl p-4 bg-white">
+          <div key={qi} className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
             <div className="flex justify-between items-start mb-3">
-              <span className="text-xs font-bold text-stone-500">ВОПРОС #{qi + 1}</span>
+              <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>ВОПРОС #{qi + 1}</span>
               <button onClick={() => remove(qi)} className="text-xs text-red-600">Удалить</button>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -472,8 +482,8 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
             </div>
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div>
-                <label className="text-xs font-semibold text-stone-500 uppercase">Категория</label>
-                <select className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Категория</label>
+                <select className="w-full px-3 py-2 rounded-lg text-sm"
                   value={q.category || ''}
                   onChange={(e) => update(qi, { ...q, category: e.target.value || null })}>
                   <option value="">— без категории —</option>
@@ -483,15 +493,15 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
               <FieldNumber label="Макс. балл" value={q.max_score} onChange={(max_score) => update(qi, { ...q, max_score })} />
             </div>
             <div className="space-y-2">
-              <span className="text-xs font-semibold text-stone-500 uppercase">Опции (4 варианта, балл = 0..max)</span>
+              <span className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Опции (4 варианта, балл = 0..max)</span>
               {q.options.map((o, oi) => (
                 <div key={oi} className="grid grid-cols-12 gap-2 items-center">
-                  <span className="col-span-1 text-xs text-stone-400 text-center">{String.fromCharCode(65 + oi)}</span>
-                  <input className="col-span-5 px-2 py-1.5 border border-stone-300 rounded text-sm"
+                  <span className="col-span-1 text-xs text-center" style={{ color: 'var(--text-muted)' }}>{String.fromCharCode(65 + oi)}</span>
+                  <input className="col-span-5 px-2 py-1.5 rounded text-sm"
                     value={o.text} onChange={(e) => updateOpt(qi, oi, 'text', e.target.value)} placeholder="RU" />
-                  <input className="col-span-5 px-2 py-1.5 border border-stone-300 rounded text-sm"
+                  <input className="col-span-5 px-2 py-1.5 rounded text-sm"
                     value={o.text_uz || ''} onChange={(e) => updateOpt(qi, oi, 'text_uz', e.target.value)} placeholder="UZ" />
-                  <input type="number" className="col-span-1 px-2 py-1.5 border border-stone-300 rounded text-sm text-center"
+                  <input type="number" className="col-span-1 px-2 py-1.5 rounded text-sm text-center"
                     value={o.score} onChange={(e) => updateOpt(qi, oi, 'score', Number(e.target.value))} />
                 </div>
               ))}
@@ -541,27 +551,28 @@ function CategoriesTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="space-y-3">
       <div className="flex justify-between">
-        <p className="text-sm text-stone-600">Категории — для радар-диаграммы и breakdown (привязка через `Question.category`)</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Категории — для радар-диаграммы и breakdown (привязка через `Question.category`)</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-xs px-3 py-1.5 border border-stone-300 rounded">+ Категория</button>
-          <button onClick={save} disabled={saving} className="px-4 py-2 bg-stone-800 text-white rounded-lg text-sm disabled:bg-stone-400">
-            {saving ? 'Сохранение...' : '💾 Сохранить'}
+          <button onClick={add} className="text-xs px-3 py-1.5 rounded" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Категория</button>
+          <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
+            style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
+            {saving ? 'Сохранение...' : 'Сохранить'}
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
         {cats.map((c, i) => (
-          <div key={i} className="grid grid-cols-12 gap-2 items-center bg-white border border-stone-200 rounded-lg p-3">
-            <input className="col-span-2 px-2 py-1.5 border border-stone-300 rounded text-sm"
+          <div key={i} className="grid grid-cols-12 gap-2 items-center rounded-lg p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <input className="col-span-2 px-2 py-1.5 rounded text-sm"
               value={c.code} onChange={(e) => update(i, { ...c, code: e.target.value })} placeholder="код" />
-            <input className="col-span-3 px-2 py-1.5 border border-stone-300 rounded text-sm"
+            <input className="col-span-3 px-2 py-1.5 rounded text-sm"
               value={c.label} onChange={(e) => update(i, { ...c, label: e.target.value })} placeholder="Название (RU)" />
-            <input className="col-span-3 px-2 py-1.5 border border-stone-300 rounded text-sm"
+            <input className="col-span-3 px-2 py-1.5 rounded text-sm"
               value={c.label_uz || ''} onChange={(e) => update(i, { ...c, label_uz: e.target.value })} placeholder="Название (UZ)" />
-            <input type="color" className="col-span-1 h-9 border border-stone-300 rounded"
+            <input type="color" className="col-span-1 h-9 rounded"
               value={c.color} onChange={(e) => update(i, { ...c, color: e.target.value })} />
-            <input type="number" className="col-span-2 px-2 py-1.5 border border-stone-300 rounded text-sm"
+            <input type="number" className="col-span-2 px-2 py-1.5 rounded text-sm"
               value={c.order_index} onChange={(e) => update(i, { ...c, order_index: Number(e.target.value) })} />
             <button onClick={() => remove(i)} className="col-span-1 text-red-600 text-sm">×</button>
           </div>
@@ -580,8 +591,8 @@ function FieldText({ label, value, onChange, placeholder }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
-      <input className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+      <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{label}</label>
+      <input className="w-full px-3 py-2 rounded-lg text-sm"
         value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
@@ -592,8 +603,8 @@ function FieldTextArea({ label, value, onChange }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
-      <textarea className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm min-h-[60px]"
+      <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{label}</label>
+      <textarea className="w-full px-3 py-2 rounded-lg text-sm min-h-[60px]"
         value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
@@ -604,8 +615,8 @@ function FieldNumber({ label, value, onChange }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-stone-500 uppercase">{label}</label>
-      <input type="number" className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm"
+      <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{label}</label>
+      <input type="number" className="w-full px-3 py-2 rounded-lg text-sm"
         value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </div>
   );
