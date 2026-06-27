@@ -110,21 +110,22 @@
   --text-muted:     #5C6772;
   --text-inverse:   #FBFBF8;
 
-  /* Роли — затемнены под светлый фон (золото бренда = --color-rm) */
-  --color-rm: #9A7B1E;  --color-rm-bg: rgba(154, 123, 30, 0.12);  --color-rm-border: rgba(154, 123, 30, 0.32);
-  --color-sv: #0E8C7E;  --color-sv-bg: rgba(14, 140, 126, 0.10);  --color-sv-border: rgba(14, 140, 126, 0.30);
-  --color-tp: #6D4FD0;  --color-tp-bg: rgba(109, 79, 208, 0.10);  --color-tp-border: rgba(109, 79, 208, 0.30);
+  /* Роли — затемнены под светлый фон до контраста ≥4.5 (золото-как-текст было
+     #9A7B1E ≈3.4:1 → нечитаемо; углубили до #7E6320 ≈4.9:1). Бренд-золото = --color-rm. */
+  --color-rm: #7E6320;  --color-rm-bg: rgba(154, 123, 30, 0.12);  --color-rm-border: rgba(154, 123, 30, 0.32);
+  --color-sv: #0B7568;  --color-sv-bg: rgba(14, 140, 126, 0.10);  --color-sv-border: rgba(14, 140, 126, 0.30);
+  --color-tp: #5B3FBF;  --color-tp-bg: rgba(109, 79, 208, 0.10);  --color-tp-border: rgba(109, 79, 208, 0.30);
 
-  /* Уровни обучения */
-  --level-1: #9A7B1E; --level-1-bg: rgba(154, 123, 30, 0.10);  /* Стажёр */
-  --level-2: #0E8C7E; --level-2-bg: rgba(14, 140, 126, 0.08);  /* Практик */
-  --level-3: #6D4FD0; --level-3-bg: rgba(109, 79, 208, 0.08);  /* Эксперт */
-  --level-4: #C7443B; --level-4-bg: rgba(199, 68, 59, 0.08);   /* Мастер */
+  /* Уровни обучения (как текст — затемнены под контраст) */
+  --level-1: #7E6320; --level-1-bg: rgba(154, 123, 30, 0.10);  /* Стажёр */
+  --level-2: #0B7568; --level-2-bg: rgba(14, 140, 126, 0.08);  /* Практик */
+  --level-3: #5B3FBF; --level-3-bg: rgba(109, 79, 208, 0.08);  /* Эксперт */
+  --level-4: #B23129; --level-4-bg: rgba(199, 68, 59, 0.08);   /* Мастер */
 
-  /* Статусы (info = джинсовый) */
-  --success: #15803D; --success-bg: rgba(21, 128, 61, 0.10);
-  --warning: #B45309; --warning-bg: rgba(180, 83, 9, 0.10);
-  --danger:  #C7443B; --danger-bg:  rgba(199, 68, 59, 0.10);
+  /* Статусы (info = джинсовый) — затемнены под контраст ≥4.5 как текст */
+  --success: #15703A; --success-bg: rgba(21, 128, 61, 0.10);
+  --warning: #9A4708; --warning-bg: rgba(180, 83, 9, 0.10);
+  --danger:  #B23129; --danger-bg:  rgba(199, 68, 59, 0.10);
   --info:    #3F5C78; --info-bg:    rgba(63, 92, 120, 0.10);
 
   /* Тени — мягче на светлом */

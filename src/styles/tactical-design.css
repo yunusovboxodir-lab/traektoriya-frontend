@@ -80,21 +80,23 @@
 
   --text-0: oklch(0.20 0.025 250);
   --text-1: oklch(0.30 0.025 250);
-  /* UX-аудит 2026-05-03: text-2/3 затемнены для WCAG AA на светлом фоне.
-     Было 0.50/0.62 (~3:1 / ~2.5:1), нужно ≥4.5:1. */
+  /* text-2/3 под WCAG AA (≥4.5:1) на пепельном фоне. text-3 углублён 0.50→0.44
+     (было ~4:1 — пограничный/нечитаемый на холсте). */
   --text-2: oklch(0.40 0.025 250);
-  --text-3: oklch(0.50 0.025 250);
+  --text-3: oklch(0.44 0.025 250);
 
-  --cyan: oklch(0.55 0.14 78);
-  --brass: oklch(0.55 0.14 78);
-  --brass-deep: oklch(0.42 0.13 70);
-  --brass-light: oklch(0.72 0.13 82);
-  --amber: oklch(0.60 0.16 65);
-  --green: oklch(0.55 0.14 155);
-  --gold: oklch(0.62 0.14 85);
-  --teal: oklch(0.55 0.12 200);
-  --gray: oklch(0.55 0.02 250);
-  --danger: oklch(0.55 0.18 28);
+  /* Золото-как-текст было oklch(0.55…) ≈3:1 на пепле → нечитаемо. Привязываем
+     к затемнённому бренд-золоту --color-rm (#7E6320, ≈4.9:1), как в тёмной теме. */
+  --cyan: var(--color-rm);
+  --brass: var(--color-rm);
+  --brass-deep: oklch(0.36 0.11 70);
+  --brass-light: oklch(0.52 0.13 80);
+  --amber: var(--warning);
+  --green: var(--success);
+  --gold: var(--color-rm);
+  --teal: var(--color-sv);
+  --gray: var(--text-muted);
+  /* --danger уже задан в index.css [data-theme=light] (#B23129) — не дублируем */
 
   --glow-soft: 0 0 40px oklch(0.55 0.10 80 / 0.10);
   --panel-corner: oklch(0.55 0.14 78 / 0.55);
