@@ -262,14 +262,8 @@ function DailyQuestBanner() {
 }
 
 // =============================================================================
-// Pinch/pan map
+// Map (ФИКСИРОВАНА на мобилке — без зума и панорамирования, PO 2026-06-27)
 // =============================================================================
-interface Transform {
-  scale: number;
-  tx: number;
-  ty: number;
-}
-
 interface PinchMapProps {
   selectedId: string | null;
   setSelectedId: (id: string) => void;
@@ -279,14 +273,15 @@ interface PinchMapProps {
   edges: MapEdge[];
 }
 
-function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }: PinchMapProps) {
+function PinchMap({ selectedId, setSelectedId, nodes, zones, edges }: PinchMapProps) {
   const lang = useLangStore((s) => s.lang);
   const MAP_W = 1100, MAP_H = 580;
   const containerRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState({ w: 360, h: 220 });
-  const [transform, setTransform] = useState<Transform>({ scale: 1, tx: 0, ty: 0 });
+  // Карта фиксирована: рендерим целиком по fitScale (вписывается в контейнер).
+  // Зум/панорамирование/авто-зум к узлу убраны (PO 2026-06-27). Узел по-прежнему
+  // выбирается тапом (setSelectedId) — карта при этом не двигается.
   const fitScale = Math.min(box.w / MAP_W, box.h / MAP_H);
-  const minScale = 1, maxScale = 3.2;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -298,52 +293,6 @@ function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }:
     ro.observe(containerRef.current);
     return () => ro.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!focusNode) return;
-    const fx = focusNode.x * MAP_W, fy = focusNode.y * MAP_H + 80;
-    setTransform((t) => {
-      const sc = Math.max(t.scale, 1.4);
-      const cx = box.w / 2, cy = box.h / 2;
-      const tx = cx - fx * fitScale * sc;
-      const ty = cy - fy * fitScale * sc;
-      return { scale: sc, tx, ty };
-    });
-  }, [focusNode?.id, fitScale, box.w, box.h]);
-
-  const stateRef = useRef<{ touches: Touch[] | null; startT: Transform | null }>({ touches: null, startT: null });
-  const onTouchStart = (e: React.TouchEvent) => {
-    const ts = Array.from(e.touches);
-    stateRef.current = { touches: ts as unknown as Touch[], startT: { ...transform } };
-  };
-  const onTouchMove = (e: React.TouchEvent) => {
-    e.preventDefault();
-    const ts = Array.from(e.touches);
-    const st = stateRef.current;
-    if (!st.touches || !st.startT) return;
-    if (ts.length === 1 && st.touches.length === 1) {
-      const dx = ts[0].clientX - st.touches[0].clientX;
-      const dy = ts[0].clientY - st.touches[0].clientY;
-      setTransform((t) => ({ ...t, tx: st.startT!.tx + dx, ty: st.startT!.ty + dy }));
-    } else if (ts.length === 2 && st.touches.length === 2) {
-      const d0 = Math.hypot(
-        st.touches[0].clientX - st.touches[1].clientX,
-        st.touches[0].clientY - st.touches[1].clientY
-      );
-      const d1 = Math.hypot(ts[0].clientX - ts[1].clientX, ts[0].clientY - ts[1].clientY);
-      const ratio = d1 / Math.max(d0, 1);
-      const ns = Math.max(minScale, Math.min(maxScale, st.startT.scale * ratio));
-      setTransform((t) => ({ ...t, scale: ns }));
-    }
-  };
-  const onWheel = (e: React.WheelEvent) => {
-    const delta = -e.deltaY * 0.0015;
-    setTransform((t) => ({
-      ...t,
-      scale: Math.max(minScale, Math.min(maxScale, t.scale + delta * t.scale)),
-    }));
-  };
-  const fit = () => setTransform({ scale: 1, tx: 0, ty: 0 });
 
   const placed = useMemo(
     () => nodes.map((n) => ({ ...n, _px: n.x * MAP_W, _py: n.y * (MAP_H - 60) + 60 })),
@@ -364,17 +313,13 @@ function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }:
         background: 'oklch(0.10 0.02 250 / 0.6)',
         border: '1px solid oklch(0.30 0.04 240 / 0.5)',
         borderRadius: 12, overflow: 'hidden', flexShrink: 0,
-        touchAction: 'none',
+        // pan-y: страница скроллится вертикально, но карта не зумится/не двигается
+        touchAction: 'pan-y',
       }}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onWheel={onWheel}
     >
       <div style={{
         position: 'absolute', left: 0, top: 0,
-        transform: `translate(${transform.tx}px, ${transform.ty}px) scale(${transform.scale})`,
         transformOrigin: '0 0',
-        transition: stateRef.current?.touches ? 'none' : 'transform 0.4s cubic-bezier(0.22, 0.36, 0, 1)',
       }}>
         <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={renderedW} height={renderedH}
           style={{ display: 'block' }}>
@@ -461,38 +406,6 @@ function PinchMap({ selectedId, setSelectedId, focusNode, nodes, zones, edges }:
             );
           })}
         </svg>
-      </div>
-
-      <div style={{
-        position: 'absolute', right: 8, bottom: 8,
-        display: 'flex', flexDirection: 'column', gap: 4, zIndex: 2,
-      }}>
-        {([
-          ['＋', () => setTransform((t) => ({ ...t, scale: Math.min(maxScale, t.scale * 1.25) }))],
-          ['－', () => setTransform((t) => ({ ...t, scale: Math.max(minScale, t.scale / 1.25) }))],
-          ['⊕', fit],
-        ] as [string, () => void][]).map(([icon, fn], i) => (
-          <button key={i} onClick={fn} style={{
-            width: 28, height: 28, border: '1px solid oklch(0.30 0.04 240 / 0.6)',
-            borderRadius: 6,
-            background: 'oklch(0.10 0.02 250 / 0.85)',
-            color: 'oklch(0.85 0.05 240)',
-            fontSize: 13, fontWeight: 500, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backdropFilter: 'blur(8px)',
-          }}>{icon}</button>
-        ))}
-      </div>
-      <div style={{
-        position: 'absolute', left: 10, top: 10, fontSize: 8,
-        fontFamily: "'JetBrains Mono', monospace",
-        color: 'oklch(0.65 0.04 250)', letterSpacing: '0.12em',
-        background: 'oklch(0.10 0.02 250 / 0.7)',
-        padding: '3px 7px', borderRadius: 4,
-        border: '1px solid oklch(0.30 0.04 240 / 0.4)',
-        backdropFilter: 'blur(8px)',
-      }}>
-        ZOOM ×{transform.scale.toFixed(2)}
       </div>
     </div>
   );

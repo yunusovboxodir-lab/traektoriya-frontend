@@ -10,7 +10,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
-import { TacticalShell, TacticalPanel } from '../components/tactical/shell';
+import { TacticalShell } from '../components/tactical/shell';
 
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -29,13 +29,9 @@ export function DashboardPage() {
       subtitle={`${today}${operatorRole ? ` · ${operatorRole}` : ''}`}
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        {/* 1. Рейтинг сотрудников — Лига Чемпионов с total_score 50/30/20. Первым. */}
-        <TacticalPanel
-          label="RANK"
-          title={lang === 'uz' ? 'Xodimlar reytingi' : 'Рейтинг сотрудников'}
-        >
-          <LearningRankWidget />
-        </TacticalPanel>
+        {/* 1. Рейтинг сотрудников — виджет сам себе карточка с заголовком «Рейтинг обучения».
+            Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27). */}
+        <LearningRankWidget />
 
         {/* 2. Квесты дня — ежедневная петля (P1). Виджет сам рендерит панель и скрывается, если квестов нет. */}
         <DailyQuestsWidget />
