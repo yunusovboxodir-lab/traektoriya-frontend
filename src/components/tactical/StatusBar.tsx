@@ -34,7 +34,6 @@ const NAV_ITEMS_DEF = [
   { icon: '🎯', labelKey: 'nav.competencies', path: '/competencies',  pageKey: 'competencies' },
   { icon: '✨', labelKey: 'nav.aiStudio',     path: '/ai-studio',     pageKey: 'ai-studio' },
   { icon: '🏆', labelKey: 'nav.goals',        path: '/goals',         pageKey: 'goals' },
-  { icon: '📐', labelKey: 'nav.planogram',    path: '/planogram',     pageKey: 'planogram' },
   { icon: '📅', labelKey: 'nav.offline',      path: '/activities',    pageKey: 'offline' },
   { icon: '📊', labelKey: 'nav.analytics',    path: '/analytics',     pageKey: 'analytics' },
   { icon: '🎓', labelKey: 'nav.trainingPlan', path: '/training-plan', pageKey: 'training_plan' },
@@ -43,16 +42,17 @@ const NAV_ITEMS_DEF = [
 // QW-6 (Sprint 0, 2026-05-16): добавлены ShelfCorrections и TranslationReview —
 // раньше доступны только по прямому URL (висячие маршруты, см. UI/UX-аудит S7).
 // Привязаны к admin-секции, т.к. это инструменты для admin/superadmin.
+// 2026-06-27: убраны из меню Словарь UZ / Модерация переводов (контур переводов
+// отключён → пусто) и Коррекция ShelfScan (ShelfScan заморожен). Маршруты/код живы,
+// вернём при разморозке. Добавлен прямой пункт «Обратная связь» → репорты со скринами.
 const ADMIN_NAV_ITEMS_DEF = [
-  { icon: '🔤', labelKey: 'nav.dictionaryUZ',      path: '/dictionary-uz',      pageKey: 'dictionary-uz' },
-  { icon: '🛒', labelKey: 'nav.shelfCorrections',  path: '/shelf-corrections',  pageKey: 'admin-roles' },
-  { icon: '🌐', labelKey: 'nav.translationReview', path: '/translation-review', pageKey: 'admin-roles' },
-  { icon: '⚙️', labelKey: 'nav.settings',          path: '/admin/roles',        pageKey: 'admin-roles' },
+  { icon: '🗣️', labelKey: 'nav.feedback',  path: '/analytics?tab=reports', pageKey: 'analytics' },
+  { icon: '⚙️', labelKey: 'nav.settings',   path: '/admin/roles',           pageKey: 'admin-roles' },
 ] as const;
 
-// planogram — заморожена (PO 2026-06-25): админ видит её серой с замком,
-// остальным скрыта политикой scopeStore (ROLE_FORCE_DENY).
-const FROZEN_PAGES = ['analytics', 'goals', 'planogram'];
+// FROZEN_PAGES пуст: убраны замки у Аналитики/Целей для админа (мешали — Аналитику
+// нельзя было открыть → не виден раздел Репортов). Планограмма убрана из меню выше.
+const FROZEN_PAGES: string[] = [];
 const ADMIN_ONLY_PAGES = ['ai-studio'];
 
 export function StatusBar() {
