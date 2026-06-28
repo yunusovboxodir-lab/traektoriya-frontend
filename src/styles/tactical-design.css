@@ -104,6 +104,16 @@
   --top-shine: linear-gradient(90deg, transparent, oklch(0.55 0.14 78 / 0.50), transparent);
 }
 
+/* Светлая тема: золотой ГРАДИЕНТ-ТЕКСТ заголовка/логотипа был светлым (L 0.95→0.72)
+   → сливался с пеплом. Переопределяем на тёмное золото (читаемо, бренд сохранён). */
+[data-theme="light"] .title-row h1 {
+  background: linear-gradient(180deg, #8A6A20 0%, #5E4A16 100%);
+  text-shadow: none;
+}
+[data-theme="light"] .brand-name {
+  background: linear-gradient(180deg, #8A6A20 0%, #5E4A16 100%);
+}
+
 * { box-sizing: border-box; }
 
 html, body {

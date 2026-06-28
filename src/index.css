@@ -146,6 +146,49 @@
   --shadow-md: 0 4px 16px rgba(40, 46, 54, 0.12);
 }
 
+/* ============================================================================
+   СВЕТЛАЯ ТЕМА — глобальная коррекция ЯРКИХ Tailwind-классов текста.
+   Пастельные акценты (amber/emerald/blue/red-300/400 и т.п.) читаемы на тёмном,
+   но на пепельном фоне дают контраст ~1.5:1. Перекрываем их тёмными токенами
+   разом (одно место → все страницы). Только цвет ТЕКСТА; фоны/бордеры не трогаем.
+   ============================================================================ */
+[data-theme="light"] .text-amber-200,
+[data-theme="light"] .text-amber-300,
+[data-theme="light"] .text-amber-400,
+[data-theme="light"] .text-yellow-200,
+[data-theme="light"] .text-yellow-300,
+[data-theme="light"] .text-yellow-400 { color: #8A6A20 !important; }
+
+[data-theme="light"] .text-emerald-200,
+[data-theme="light"] .text-emerald-300,
+[data-theme="light"] .text-emerald-400,
+[data-theme="light"] .text-green-300,
+[data-theme="light"] .text-green-400,
+[data-theme="light"] .text-teal-300,
+[data-theme="light"] .text-teal-400 { color: var(--success) !important; }
+
+[data-theme="light"] .text-blue-200,
+[data-theme="light"] .text-blue-300,
+[data-theme="light"] .text-blue-400,
+[data-theme="light"] .text-sky-300,
+[data-theme="light"] .text-sky-400,
+[data-theme="light"] .text-cyan-300,
+[data-theme="light"] .text-cyan-400 { color: var(--info) !important; }
+
+[data-theme="light"] .text-red-300,
+[data-theme="light"] .text-red-400,
+[data-theme="light"] .text-rose-300,
+[data-theme="light"] .text-rose-400,
+[data-theme="light"] .text-orange-300,
+[data-theme="light"] .text-orange-400 { color: var(--danger) !important; }
+
+[data-theme="light"] .text-violet-300,
+[data-theme="light"] .text-violet-400,
+[data-theme="light"] .text-purple-300,
+[data-theme="light"] .text-purple-400,
+[data-theme="light"] .text-indigo-300,
+[data-theme="light"] .text-indigo-400 { color: var(--color-tp) !important; }
+
 /* Prevent pull-to-refresh in standalone PWA mode */
 html {
   overscroll-behavior: none;
