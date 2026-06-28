@@ -10,21 +10,27 @@
  *
  * Включение:
  *   - глобально (прод): env `VITE_PROGRESSIVE_DISCLOSURE='true'` в Vercel;
- *   - локально для теста: `localStorage['traektoriya-progressive']='on'` + reload.
- * По умолчанию ВЫКЛ — поведение идентично текущему (демо-safe).
+ *   - локально для теста: `localStorage['traektoriya-progressive']='on'|'off'` + reload.
+ * ВКЛЮЧЁН ПО УМОЛЧАНИЮ (владелец 2026-06-28). Глобально выключить:
+ *   - env `VITE_PROGRESSIVE_DISCLOSURE='false'` в Vercel, ИЛИ
+ *   - per-browser: `localStorage['traektoriya-progressive']='off'` (для эксперт-ревью).
  */
 
-function readLocalOverride(): boolean {
+function readLocalOverride(): 'on' | 'off' | null {
   try {
-    return typeof localStorage !== 'undefined'
-      && localStorage.getItem('traektoriya-progressive') === 'on';
-  } catch {
-    return false;
-  }
+    const v = typeof localStorage !== 'undefined'
+      ? localStorage.getItem('traektoriya-progressive')
+      : null;
+    if (v === 'on' || v === 'off') return v;
+  } catch { /* private mode */ }
+  return null;
 }
 
+const _localOverride = readLocalOverride();
 export const PROGRESSIVE_DISCLOSURE_ENABLED =
-  import.meta.env.VITE_PROGRESSIVE_DISCLOSURE === 'true' || readLocalOverride();
+  _localOverride === 'on' ? true
+  : _localOverride === 'off' ? false
+  : import.meta.env.VITE_PROGRESSIVE_DISCLOSURE !== 'false'; // по умолчанию ВКЛ
 
 export type Tier = 'bronze' | 'silver' | 'gold' | 'platinum';
 
