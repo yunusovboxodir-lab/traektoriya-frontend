@@ -15,6 +15,7 @@ import { useScopeStore } from '../../stores/scopeStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useLangStore } from '../../stores/langStore';
 import { NAV_REGISTRY } from '../../config/navigation';
+import { powerApi } from '../../api/power';
 import {
   PROGRESSIVE_DISCLOSURE_ENABLED,
   GATING_ROLES,
@@ -39,6 +40,15 @@ export function SectionUnlockChest() {
 
   const [pages, setPages] = useState<string[]>([]); // разделы для показа
   const [opened, setOpened] = useState(false);      // сундук открыт (анимация)
+  const [bonus, setBonus] = useState(0);            // начисленный бонус Мощи
+
+  // Открыть сундук: начисляем бонус Мощи за тир (идемпотентно на бэке).
+  const openChest = () => {
+    setOpened(true);
+    powerApi.claimTierBonus()
+      .then((r) => setBonus(r.data?.granted ?? 0))
+      .catch(() => { /* бонус необязателен для показа сундука */ });
+  };
 
   const role = user?.role;
   const userId = user?.id ?? user?.employee_id ?? 'anon';
@@ -81,7 +91,7 @@ export function SectionUnlockChest() {
 
   if (!pages.length) return null;
 
-  const close = () => setPages([]);
+  const close = () => { setPages([]); setOpened(false); setBonus(0); };
   const go = (pageKey: string) => {
     close();
     navigate(pathFor(pageKey));
@@ -142,7 +152,7 @@ export function SectionUnlockChest() {
                 : `Ты достиг уровня «${tierLabel}» — тебя ждёт награда`}
             </div>
             <button
-              onClick={() => setOpened(true)}
+              onClick={openChest}
               style={{
                 width: '100%', padding: '12px 16px', borderRadius: 'var(--radius-md)',
                 border: 'none', cursor: 'pointer',
@@ -164,6 +174,20 @@ export function SectionUnlockChest() {
                 ? (lang === 'uz' ? 'Yangi bo‘limlar ochildi!' : 'Открылись новые разделы!')
                 : (lang === 'uz' ? 'Yangi bo‘lim ochildi!' : 'Открылся новый раздел!')}
             </div>
+            {bonus > 0 && (
+              <div
+                className="chest-pop"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '5px 12px', borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-rm-bg)', border: '1px solid var(--color-rm-border)',
+                  color: 'var(--color-rm)', fontWeight: 700, fontSize: 14, marginBottom: 4,
+                }}
+              >
+                <span aria-hidden="true">⚡</span>
+                +{bonus} {lang === 'uz' ? 'Kuch' : 'Мощи'}
+              </div>
+            )}
             <div style={{
               display: 'flex', flexDirection: 'column', gap: 10,
               margin: '14px 0 18px', textAlign: 'left',

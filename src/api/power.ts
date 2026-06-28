@@ -23,8 +23,20 @@ export interface PowerResponse {
   period: string;
 }
 
+export interface TierBonusResponse {
+  granted: number;           // начислено Мощи этим вызовом
+  granted_tiers: string[];
+  new_power: number;
+  tier: string;
+}
+
 export const powerApi = {
   // Накопительная «Мощь ТП» текущего пользователя (read-only, все роли).
   getMyPower: (period?: string) =>
     api.get<PowerResponse>('/api/v1/power/my', { params: period ? { period } : {} }),
+
+  // Начислить разовый бонус Мощи за достигнутые тиры (идемпотентно). Зовётся
+  // при открытии сундука-разблокировки.
+  claimTierBonus: () =>
+    api.post<TierBonusResponse>('/api/v1/power/claim-tier-bonus'),
 };
