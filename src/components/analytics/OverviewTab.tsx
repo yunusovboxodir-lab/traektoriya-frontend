@@ -141,10 +141,32 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
   const byTerritory = learning?.by_territory ?? [];
   const byCourse = learning?.by_course ?? [];
 
+  // «Нет активности» — когда нет ни прохождений курсов, ни закрытых задач.
+  // Раньше пустые метрики (0) читались как «сломано»; показываем честную плашку.
+  const noActivity =
+    ov(overview, 'learning.total_completed') === 0 &&
+    ov(overview, 'tasks.completed') === 0;
+
   return (
     <>
       {/* Stat cards */}
       <SectionTitle title={t('analytics.overview')} />
+      {noActivity && (
+        <div
+          className="mb-6 rounded-xl px-4 py-3 text-sm flex items-start gap-2"
+          style={{
+            background: 'var(--info-bg)',
+            border: '1px solid var(--info)',
+            color: 'var(--text-secondary)',
+          }}
+        >
+          <span aria-hidden="true">ℹ️</span>
+          <span>
+            Метрики активности (прохождения курсов, оценки, закрытые задачи) пока пустые —
+            они наполнятся по мере работы сотрудников на платформе. Это не ошибка раздела.
+          </span>
+        </div>
+      )}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
         {statCards.map((card) => (
           <StatCard key={card.label} card={card} />
