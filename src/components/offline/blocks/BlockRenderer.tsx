@@ -50,12 +50,19 @@ const BORDER = '#252B3B';
 
 export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
   const isProjector = size === 'projector';
+  // В режиме проектора используем хардкоженную тёмную палитру (иммерсивный экран).
+  // В режиме превью (редактор) переключаемся на CSS-токены темы.
+  const textPrimary   = isProjector ? '#E8EAF0' : 'var(--text-primary)';
+  const textSecondary = isProjector ? '#9CA3AF' : 'var(--text-secondary)';
+  const cardBg        = isProjector ? CARD_BG : 'var(--bg-card)';
+  const elevatedBg    = isProjector ? ELEVATED_BG : 'var(--bg-elevated)';
+  const borderColor   = isProjector ? BORDER : 'var(--border)';
 
   switch (block.type) {
     case 'heading_h1':
       return (
         <h1
-          style={{ color: '#E8EAF0' }}
+          style={{ color: textPrimary }}
           className={`font-bold ${
             isProjector
               ? 'text-5xl md:text-6xl lg:text-7xl leading-tight'
@@ -69,7 +76,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
     case 'heading_h2':
       return (
         <h2
-          style={{ color: '#E8EAF0' }}
+          style={{ color: textPrimary }}
           className={`font-semibold ${
             isProjector ? 'text-3xl md:text-4xl lg:text-5xl' : 'text-2xl'
           } mb-3 ${ALIGN_CLASSES[block.align ?? 'left']}`}
@@ -81,7 +88,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
     case 'paragraph':
       return (
         <p
-          style={{ color: '#9CA3AF' }}
+          style={{ color: textSecondary }}
           className={`leading-relaxed ${
             isProjector ? 'text-xl md:text-2xl' : 'text-base'
           } mb-3 ${ALIGN_CLASSES[block.align ?? 'left']}`}
@@ -99,8 +106,8 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
               key={i}
               className="rounded-2xl p-5 transition-transform hover:scale-[1.02]"
               style={{
-                backgroundColor: CARD_BG,
-                border: `1px solid ${BORDER}`,
+                backgroundColor: cardBg,
+                border: `1px solid ${borderColor}`,
                 ...(card.color ? { borderTopColor: card.color, borderTopWidth: 4 } : {}),
               }}
             >
@@ -108,14 +115,14 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
                 <div className={`${isProjector ? 'text-4xl' : 'text-2xl'} mb-2`}>{card.icon}</div>
               )}
               <h4
-                style={{ color: '#E8EAF0' }}
+                style={{ color: textPrimary }}
                 className={`font-bold mb-1 ${isProjector ? 'text-xl' : 'text-base'}`}
               >
                 {pickLang(card.title, card.title_uz, lang)}
               </h4>
               {(card.body || card.body_uz) && (
                 <p
-                  style={{ color: '#9CA3AF' }}
+                  style={{ color: textSecondary }}
                   className={`${isProjector ? 'text-base' : 'text-sm'}`}
                 >
                   {pickLang(card.body, card.body_uz, lang)}
@@ -131,9 +138,9 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
       return (
         <blockquote
           style={{
-            backgroundColor: 'rgba(200, 168, 75, 0.08)',
+            backgroundColor: isProjector ? 'rgba(200, 168, 75, 0.08)' : 'var(--bg-elevated)',
             borderLeft: `4px solid ${GOLD}`,
-            color: '#E8EAF0',
+            color: textPrimary,
           }}
           className={`px-5 py-4 rounded-r-lg italic ${
             isProjector ? 'text-xl md:text-2xl' : 'text-base'
@@ -142,7 +149,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           «{pickLang(block.text, block.text_uz, lang)}»
           {block.author && (
             <footer
-              style={{ color: '#9CA3AF' }}
+              style={{ color: textSecondary }}
               className={`mt-2 not-italic ${isProjector ? 'text-base' : 'text-sm'}`}
             >
               — {block.author}
@@ -157,7 +164,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           <img src={block.url} alt={block.caption || ''} className="rounded-xl w-full" />
           {block.caption && (
             <figcaption
-              style={{ color: '#9CA3AF' }}
+              style={{ color: textSecondary }}
               className={`mt-2 text-center ${isProjector ? 'text-base' : 'text-sm'}`}
             >
               {block.caption}
@@ -185,19 +192,19 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div
             style={{
-              backgroundColor: 'rgba(74, 222, 128, 0.08)',
-              border: '1px solid rgba(74, 222, 128, 0.30)',
+              backgroundColor: isProjector ? 'rgba(74, 222, 128, 0.08)' : 'var(--success-bg)',
+              border: isProjector ? '1px solid rgba(74, 222, 128, 0.30)' : '1px solid var(--success)',
             }}
             className="rounded-xl p-5"
           >
             <h4
-              style={{ color: '#6EE7B7' }}
+              style={{ color: 'var(--success)' }}
               className={`font-bold mb-3 ${isProjector ? 'text-xl' : 'text-base'}`}
             >
               {block.left_title}
             </h4>
             <ul
-              style={{ color: '#E8EAF0' }}
+              style={{ color: textPrimary }}
               className={`space-y-1 ${isProjector ? 'text-lg' : 'text-sm'}`}
             >
               {block.left_items.map((item, i) => (
@@ -207,19 +214,19 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           </div>
           <div
             style={{
-              backgroundColor: 'rgba(248, 113, 113, 0.08)',
-              border: '1px solid rgba(248, 113, 113, 0.30)',
+              backgroundColor: isProjector ? 'rgba(248, 113, 113, 0.08)' : 'var(--danger-bg)',
+              border: isProjector ? '1px solid rgba(248, 113, 113, 0.30)' : '1px solid var(--danger)',
             }}
             className="rounded-xl p-5"
           >
             <h4
-              style={{ color: '#FCA5A5' }}
+              style={{ color: 'var(--danger)' }}
               className={`font-bold mb-3 ${isProjector ? 'text-xl' : 'text-base'}`}
             >
               {block.right_title}
             </h4>
             <ul
-              style={{ color: '#E8EAF0' }}
+              style={{ color: textPrimary }}
               className={`space-y-1 ${isProjector ? 'text-lg' : 'text-sm'}`}
             >
               {block.right_items.map((item, i) => (
@@ -245,14 +252,14 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
               </div>
               <div className="flex-1">
                 <h4
-                  style={{ color: '#E8EAF0' }}
+                  style={{ color: textPrimary }}
                   className={`font-bold ${isProjector ? 'text-xl' : 'text-base'}`}
                 >
                   {pickLang(item.title, item.title_uz, lang)}
                 </h4>
                 {(item.body || item.body_uz) && (
                   <p
-                    style={{ color: '#9CA3AF', whiteSpace: 'pre-line' }}
+                    style={{ color: textSecondary, whiteSpace: 'pre-line' }}
                     className={`${isProjector ? 'text-lg' : 'text-sm'}`}
                   >
                     {pickLang(item.body, item.body_uz, lang)}
@@ -274,7 +281,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
                 width: isProjector ? 96 : 64,
                 height: isProjector ? 96 : 64,
                 background: `linear-gradient(135deg, ${accent} 0%, #8a7332 100%)`,
-                boxShadow: `0 8px 32px ${accent}55`,
+                boxShadow: isProjector ? `0 8px 32px ${accent}55` : undefined,
               }}
               className={`rounded-2xl flex items-center justify-center mb-6 ${
                 isProjector ? 'text-5xl' : 'text-3xl'
@@ -284,7 +291,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
             </div>
           )}
           <h1
-            style={{ color: '#E8EAF0', letterSpacing: '-0.02em' }}
+            style={{ color: textPrimary, letterSpacing: '-0.02em' }}
             className={`font-bold text-center ${
               isProjector
                 ? 'text-6xl md:text-7xl lg:text-8xl leading-none'
@@ -299,7 +306,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           />
           {(block.subtitle || block.subtitle_uz) && (
             <p
-              style={{ color: '#9CA3AF' }}
+              style={{ color: textSecondary }}
               className={`text-center max-w-3xl ${
                 isProjector ? 'text-2xl md:text-3xl' : 'text-lg'
               } mb-3`}
@@ -309,7 +316,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           )}
           {(block.caption || block.caption_uz) && (
             <p
-              style={{ color: '#6B7280', letterSpacing: '0.2em' }}
+              style={{ color: textSecondary, letterSpacing: '0.2em' }}
               className={`uppercase font-semibold text-center ${
                 isProjector ? 'text-sm' : 'text-xs'
               }`}
@@ -325,7 +332,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
       const color = VARIANT_COLORS[block.variant || 'neutral'];
       return (
         <div
-          style={{ backgroundColor: ELEVATED_BG, border: `1px solid ${BORDER}` }}
+          style={{ backgroundColor: elevatedBg, border: `1px solid ${borderColor}` }}
           className={`rounded-2xl ${isProjector ? 'p-8' : 'p-5'} mb-3 text-center`}
         >
           <div
@@ -335,14 +342,14 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
             {block.value}
           </div>
           <div
-            style={{ color: '#E8EAF0' }}
+            style={{ color: textPrimary }}
             className={`font-semibold ${isProjector ? 'text-xl' : 'text-base'}`}
           >
             {pickLang(block.label, block.label_uz, lang)}
           </div>
           {(block.hint || block.hint_uz) && (
             <div
-              style={{ color: '#9CA3AF' }}
+              style={{ color: textSecondary }}
               className={`mt-2 ${isProjector ? 'text-base' : 'text-sm'}`}
             >
               {pickLang(block.hint, block.hint_uz, lang)}
@@ -361,7 +368,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
             return (
               <div
                 key={i}
-                style={{ backgroundColor: CARD_BG, border: `1px solid ${BORDER}`, borderTopColor: color, borderTopWidth: 4 }}
+                style={{ backgroundColor: cardBg, border: `1px solid ${borderColor}`, borderTopColor: color, borderTopWidth: 4 }}
                 className={`rounded-2xl ${isProjector ? 'p-6' : 'p-4'} text-center`}
               >
                 <div
@@ -371,14 +378,14 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
                   {item.value}
                 </div>
                 <div
-                  style={{ color: '#E8EAF0' }}
+                  style={{ color: textPrimary }}
                   className={`font-semibold ${isProjector ? 'text-base' : 'text-sm'}`}
                 >
                   {pickLang(item.label, item.label_uz, lang)}
                 </div>
                 {(item.hint || item.hint_uz) && (
                   <div
-                    style={{ color: '#9CA3AF' }}
+                    style={{ color: textSecondary }}
                     className={`mt-1 ${isProjector ? 'text-sm' : 'text-xs'}`}
                   >
                     {pickLang(item.hint, item.hint_uz, lang)}
@@ -394,7 +401,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
     case 'divider':
       return (
         <div className="flex items-center gap-3 my-6">
-          <div style={{ flex: 1, height: 1, backgroundColor: BORDER }} />
+          <div style={{ flex: 1, height: 1, backgroundColor: borderColor }} />
           {block.label && (
             <span
               style={{ color: GOLD, letterSpacing: '0.2em' }}
@@ -403,7 +410,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
               {block.label}
             </span>
           )}
-          <div style={{ flex: 1, height: 1, backgroundColor: BORDER }} />
+          <div style={{ flex: 1, height: 1, backgroundColor: borderColor }} />
         </div>
       );
 

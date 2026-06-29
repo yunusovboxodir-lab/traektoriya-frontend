@@ -24,14 +24,14 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
       {/* Track selector */}
       {tracks.length > 0 && (
         <div className="flex items-center gap-2 mb-6 flex-wrap">
-          <span className="text-xs text-gray-500 mr-1">{t('analytics.lms.trackLabel')}:</span>
+          <span className="text-xs mr-1" style={{ color: 'var(--text-muted)' }}>{t('analytics.lms.trackLabel')}:</span>
           <button
             onClick={() => onTrackChange('')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              !track
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shadow-sm"
+            style={!track
+              ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+              : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
+            }
           >
             {t('analytics.lms.trackAll')}
           </button>
@@ -39,11 +39,11 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
             <button
               key={tr.id}
               onClick={() => onTrackChange(tr.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                track === tr.id
-                  ? 'bg-indigo-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+              style={track === tr.id
+                ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+                : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
+              }
             >
               {tr.roles}
             </button>
@@ -96,44 +96,47 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
             {dashboard!.pain_clusters!.map((cluster) => (
               <div
                 key={cluster.id}
-                className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{cluster.icon}</span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-gray-900">{cluster.label}</span>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{cluster.label}</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                           {cluster.affected_users} {t('analytics.lms.people')}
                         </span>
                         {cluster.has_draft && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                          <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
                             {t('analytics.lms.aiDraft')}
                           </span>
                         )}
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          cluster.status === 'new' ? 'bg-yellow-100 text-yellow-700' :
-                          cluster.status === 'reviewed' ? 'bg-blue-100 text-blue-700' :
-                          'bg-green-100 text-green-700'
-                        }`}>
+                        <span className="text-xs px-2 py-0.5 rounded-full" style={
+                          cluster.status === 'new'
+                            ? { background: 'var(--warning-bg)', color: 'var(--warning)' }
+                            : cluster.status === 'reviewed'
+                            ? { background: 'var(--info-bg)', color: 'var(--info)' }
+                            : { background: 'var(--success-bg)', color: 'var(--success)' }
+                        }>
                           {cluster.status === 'new' ? t('analytics.lms.statusNew') :
                            cluster.status === 'reviewed' ? t('analytics.lms.statusReviewed') :
                            t('analytics.lms.statusPublished')}
                         </span>
                       </div>
-                      <span className="text-sm text-gray-500">
+                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
                         {cluster.count} {t('analytics.lms.mentions')}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {cluster.trend_vs_prev_week != null && (
-                      <span className={`text-sm font-medium ${
-                        cluster.trend_vs_prev_week > 0 ? 'text-red-600' :
-                        cluster.trend_vs_prev_week < 0 ? 'text-green-600' :
-                        'text-gray-400'
-                      }`}>
+                      <span className="text-sm font-medium" style={{
+                        color: cluster.trend_vs_prev_week > 0 ? 'var(--danger)' :
+                               cluster.trend_vs_prev_week < 0 ? 'var(--success)' :
+                               'var(--text-muted)',
+                      }}>
                         {cluster.trend_vs_prev_week > 0 ? '+' : ''}
                         {Math.round(cluster.trend_vs_prev_week)}%
                       </span>
@@ -143,7 +146,8 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
                         onClick={() => setExpandedCluster(
                           expandedCluster === cluster.id ? null : cluster.id
                         )}
-                        className="text-xs text-blue-600 hover:text-blue-800"
+                        className="text-xs"
+                        style={{ color: 'var(--info)' }}
                       >
                         {expandedCluster === cluster.id ? t('analytics.lms.hide') : t('analytics.lms.quotes')}
                       </button>
@@ -151,9 +155,9 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
                   </div>
                 </div>
                 {expandedCluster === cluster.id && cluster.top_quotes.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
+                  <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid var(--border)' }}>
                     {cluster.top_quotes.map((q, i) => (
-                      <p key={i} className="text-sm text-gray-600 italic pl-4 border-l-2 border-gray-200">
+                      <p key={i} className="text-sm italic pl-4 border-l-2 border-zinc-500" style={{ color: 'var(--text-secondary)' }}>
                         &laquo;{q}&raquo;
                       </p>
                     ))}
@@ -169,7 +173,7 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
       {(dashboard?.category_distribution?.length ?? 0) > 0 && (
         <>
           <SectionTitle title={t('analytics.lms.categoryDist')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
+          <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <HorizontalBarChart
               categories={dashboard!.category_distribution!.map((c) => ({
                 name: `${c.icon} ${c.label}`,
@@ -187,29 +191,29 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
             track === 'field_sales' ? ' ' + t('analytics.lms.trackFieldSalesShort') :
             track === 'sales_management' ? ' ' + t('analytics.lms.trackSalesMgmtShort') : ''
           }`} />
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-10 divide-y divide-gray-100">
+          <div className="rounded-xl shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             {dashboard!.reflections!.map((r, i) => (
-              <div key={i} className="p-4 flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
+              <div key={i} className="p-4 flex gap-3" style={i > 0 ? { borderTop: '1px solid var(--border)' } : {}}>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
                   {r.user_name.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-gray-900">{r.user_name}</span>
+                    <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{r.user_name}</span>
                     {r.category_label && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                      <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                         {r.category_label}
                       </span>
                     )}
                     {r.created_at && (
-                      <span className="text-xs text-gray-400 ml-auto">
+                      <span className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>
                         {new Date(r.created_at).toLocaleDateString('ru-RU', {
                           day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
                         })}
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">{r.answer}</p>
+                  <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{r.answer}</p>
                 </div>
               </div>
             ))}
@@ -220,9 +224,9 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
       {/* Empty state */}
       {!dashboard?.pain_clusters?.length && !dashboard?.reflections?.length && (
         <div className="text-center py-16">
-          <div className="text-4xl mb-3">📊</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('analytics.lms.emptyTitle')}</h3>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
+          <div className="text-4xl mb-3" style={{ color: 'var(--text-muted)' }}>—</div>
+          <h3 className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('analytics.lms.emptyTitle')}</h3>
+          <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
             {t('analytics.lms.emptyDesc')}
           </p>
         </div>

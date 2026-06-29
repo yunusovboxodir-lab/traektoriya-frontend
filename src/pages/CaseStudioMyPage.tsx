@@ -78,22 +78,23 @@ export function CaseStudioMyPage() {
     <div className="max-w-3xl mx-auto p-6">
       <button
         onClick={() => navigate('/case-studio')}
-        className="text-sm text-stone-600 hover:text-stone-900 mb-4"
+        className="text-sm mb-4"
+        style={{ color: 'var(--text-muted)' }}
       >
         ← К Кейсотеке
       </button>
 
-      <h1 className="text-2xl font-serif text-stone-800 mb-2">Мой XP в Кейсотеке</h1>
-      <p className="text-stone-600 mb-6">
+      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Мой XP в Кейсотеке</h1>
+      <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
         За что начисляются баллы — внизу страницы. Чем больше пишешь и оцениваешь, тем выше в лидерборде.
       </p>
 
       {/* Hero card with total XP */}
-      <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl p-6 mb-6 shadow-lg">
-        <div className="text-sm uppercase tracking-wider opacity-80 mb-1">Всего XP</div>
+      <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, var(--success), #0B7568)', color: 'var(--text-inverse)' }}>
+        <div className="text-sm uppercase tracking-wider mb-1" style={{ opacity: 0.8 }}>Всего XP</div>
         <div className="text-5xl font-bold mb-2">{stats.total_xp}</div>
         {myRank && (
-          <div className="text-sm opacity-90">
+          <div className="text-sm" style={{ opacity: 0.9 }}>
             Место в лидерборде: <strong>#{myRank}</strong> из {leaderboard.length}
           </div>
         )}
@@ -101,17 +102,17 @@ export function CaseStudioMyPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        <StatCard label="Создано кейсов" value={stats.scenarios_created} icon="📚" />
-        <StatCard label="Предложено решений" value={stats.solutions_added} icon="💡" />
-        <StatCard label="Поставлено оценок" value={stats.ratings_given} icon="⭐" />
-        <StatCard label="Решения в TOP-3" value={stats.top3_solutions} icon="🥇" />
-        <StatCard label="Популярные кейсы" value={stats.popular_scenarios} icon="🔥" />
-        <StatCard label="Всего действий" value={totalActions} icon="🎯" />
+        <StatCard label="Создано кейсов" value={stats.scenarios_created} />
+        <StatCard label="Предложено решений" value={stats.solutions_added} />
+        <StatCard label="Поставлено оценок" value={stats.ratings_given} />
+        <StatCard label="Решения в TOP-3" value={stats.top3_solutions} />
+        <StatCard label="Популярные кейсы" value={stats.popular_scenarios} />
+        <StatCard label="Всего действий" value={totalActions} />
       </div>
 
       {/* XP breakdown by action */}
-      <div className="bg-white border border-stone-200 rounded-lg p-5 mb-6">
-        <h2 className="font-medium text-stone-800 mb-4">Разбивка XP по действиям</h2>
+      <div className="rounded-lg p-5 mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+        <h2 className="font-medium mb-4" style={{ color: 'var(--text-primary)' }}>Разбивка XP по действиям</h2>
         <div className="space-y-2">
           {Object.keys(ACTION_LABELS).map((action) => {
             const xp = stats.by_action[action] || 0;
@@ -119,25 +120,26 @@ export function CaseStudioMyPage() {
             const points = ACTION_POINTS[action];
             const count = points > 0 ? Math.round(xp / points) : 0;
             return (
-              <div key={action} className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
+              <div key={action} className="flex items-center justify-between py-2 last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                 <div>
-                  <div className="text-sm font-medium text-stone-800">{ACTION_LABELS[action]}</div>
-                  <div className="text-xs text-stone-600">
+                  <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{ACTION_LABELS[action]}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {count}× × +{points} XP
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-medium text-emerald-700">+{xp}</div>
+                  <div className="text-lg font-medium" style={{ color: 'var(--success)' }}>+{xp}</div>
                 </div>
               </div>
             );
           })}
           {totalActions === 0 && (
-            <div className="text-center py-6 text-stone-600">
+            <div className="text-center py-6" style={{ color: 'var(--text-muted)' }}>
               <p className="mb-3">Пока нет ни одного действия.</p>
               <button
                 onClick={() => navigate('/case-studio/new')}
-                className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
+                className="px-4 py-2 rounded-lg text-sm font-medium"
+                style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-strong)' }}
               >
                 Создать первый кейс
               </button>
@@ -147,28 +149,28 @@ export function CaseStudioMyPage() {
       </div>
 
       {/* How to earn XP */}
-      <div className="bg-stone-50 border border-stone-200 rounded-lg p-5">
-        <h2 className="font-medium text-stone-800 mb-3">Как заработать XP</h2>
+      <div className="rounded-lg p-5" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
+        <h2 className="font-medium mb-3" style={{ color: 'var(--text-primary)' }}>Как заработать XP</h2>
         <ul className="space-y-2 text-sm">
           <li className="flex justify-between">
-            <span className="text-stone-700">📚 Создать кейс (status=published)</span>
-            <span className="font-medium text-emerald-700">+50 XP</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Создать кейс (status=published)</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>+50 XP</span>
           </li>
           <li className="flex justify-between">
-            <span className="text-stone-700">💡 Предложить решение (cap 5/неделю)</span>
-            <span className="font-medium text-emerald-700">+20 XP</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Предложить решение (cap 5/неделю)</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>+20 XP</span>
           </li>
           <li className="flex justify-between">
-            <span className="text-stone-700">⭐ Поставить оценку (cap 20/неделю)</span>
-            <span className="font-medium text-emerald-700">+5 XP</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Поставить оценку (cap 20/неделю)</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>+5 XP</span>
           </li>
           <li className="flex justify-between">
-            <span className="text-stone-700">🥇 Решение попало в TOP-3 (мин. 3 оценки)</span>
-            <span className="font-medium text-emerald-700">+100 XP бонус</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Решение попало в TOP-3 (мин. 3 оценки)</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>+100 XP бонус</span>
           </li>
           <li className="flex justify-between">
-            <span className="text-stone-700">🔥 Кейс собрал 50+ оценок</span>
-            <span className="font-medium text-emerald-700">+200 XP бонус</span>
+            <span style={{ color: 'var(--text-secondary)' }}>Кейс собрал 50+ оценок</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>+200 XP бонус</span>
           </li>
         </ul>
       </div>
@@ -179,17 +181,14 @@ export function CaseStudioMyPage() {
 function StatCard({
   label,
   value,
-  icon,
 }: {
   label: string;
   value: number;
-  icon: string;
 }) {
   return (
-    <div className="bg-white border border-stone-200 rounded-lg p-4 text-center">
-      <div className="text-2xl mb-1">{icon}</div>
-      <div className="text-2xl font-medium text-stone-800">{value}</div>
-      <div className="text-xs text-stone-600 mt-0.5">{label}</div>
+    <div className="rounded-lg p-4 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <div className="text-2xl font-medium" style={{ color: 'var(--text-primary)' }}>{value}</div>
+      <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{label}</div>
     </div>
   );
 }

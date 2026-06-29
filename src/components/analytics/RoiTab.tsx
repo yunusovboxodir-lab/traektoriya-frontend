@@ -23,11 +23,11 @@ function recentMonths(count: number): string[] {
   return out;
 }
 
-function fmtDelta(v: number | null): { text: string; cls: string } {
-  if (v === null) return { text: '—', cls: 'text-gray-400' };
+function fmtDelta(v: number | null): { text: string; color: string } {
+  if (v === null) return { text: '—', color: 'var(--text-muted)' };
   const sign = v > 0 ? '+' : '';
-  const cls = v > 0 ? 'text-emerald-600' : v < 0 ? 'text-red-600' : 'text-gray-500';
-  return { text: `${sign}${v}`, cls };
+  const color = v > 0 ? 'var(--success)' : v < 0 ? 'var(--danger)' : 'var(--text-muted)';
+  return { text: `${sign}${v}`, color };
 }
 
 function fmtNum(v: number | null, suffix = ''): string {
@@ -62,28 +62,28 @@ export function RoiTab() {
       label: t('analytics.roi.cardTrainings'),
       value: data.summary.trainings,
       gradientFrom: 'from-blue-500', gradientTo: 'to-blue-600',
-      bgLight: 'bg-blue-50', textColor: 'text-blue-600',
+      accentColor: 'var(--info)', accentBg: 'var(--info-bg)',
       icon: <GraduationCap size={20} />,
     },
     {
       label: t('analytics.roi.cardParticipants'),
       value: data.summary.participants,
       gradientFrom: 'from-purple-500', gradientTo: 'to-purple-600',
-      bgLight: 'bg-purple-50', textColor: 'text-purple-600',
+      accentColor: 'var(--color-tp)', accentBg: 'var(--color-tp-bg)',
       icon: <Users size={20} />,
     },
     {
       label: t('analytics.roi.cardAvgDelta'),
       value: fmtDelta(data.summary.avg_kpi_delta).text,
       gradientFrom: 'from-emerald-500', gradientTo: 'to-emerald-600',
-      bgLight: 'bg-emerald-50', textColor: 'text-emerald-600',
+      accentColor: 'var(--success)', accentBg: 'var(--success-bg)',
       icon: <TrendingUp size={20} />,
     },
     {
       label: t('analytics.roi.cardCoverage'),
       value: `${data.summary.participants_with_kpi}/${data.summary.participants}`,
       gradientFrom: 'from-amber-500', gradientTo: 'to-amber-600',
-      bgLight: 'bg-amber-50', textColor: 'text-amber-600',
+      accentColor: 'var(--warning)', accentBg: 'var(--warning-bg)',
       icon: <Target size={20} />,
     },
   ] : [];
@@ -92,13 +92,14 @@ export function RoiTab() {
     <div>
       {/* Селектор baseline-месяца */}
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <p className="text-sm text-gray-500">{t('analytics.roi.subtitle')}</p>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('analytics.roi.subtitle')}</p>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">{t('analytics.roi.monthLabel')}</span>
+          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('analytics.roi.monthLabel')}</span>
           <select
             value={baseline}
             onChange={(e) => setBaseline(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="rounded-lg px-3 py-1.5 text-sm focus:outline-none"
+            style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
           >
             {months.map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
@@ -107,15 +108,17 @@ export function RoiTab() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderBottomColor: 'var(--info)' }} />
         </div>
       ) : error ? (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="rounded-lg p-4" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)' }}>
+          <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
         </div>
       ) : !data || data.summary.trainings === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <GraduationCap size={48} className="mx-auto mb-3 text-gray-300" />
+        <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
+          <div className="mx-auto mb-3 w-12 h-12 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
+            <GraduationCap size={48} />
+          </div>
           <p className="text-sm">{t('analytics.roi.empty')}</p>
         </div>
       ) : (
@@ -129,10 +132,10 @@ export function RoiTab() {
           {data.programs.length > 0 && (
             <div className="mb-8">
               <SectionTitle title={t('analytics.roi.offlineTitle')} />
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden overflow-x-auto">
+              <div className="rounded-xl overflow-hidden overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 text-gray-600 text-xs">
+                    <tr className="text-xs" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                       <th className="text-left px-4 py-2">{t('analytics.roi.colProgram')}</th>
                       <th className="text-center px-4 py-2">{t('analytics.roi.colParticipants')}</th>
                       <th className="text-center px-4 py-2">{t('analytics.roi.colGrowth')}</th>
@@ -145,17 +148,17 @@ export function RoiTab() {
                     {data.programs.map((p: RoiProgramRow) => {
                       const d = fmtDelta(p.avg_kpi_delta);
                       return (
-                        <tr key={p.code || p.title} className="border-t border-gray-100">
-                          <td className="px-4 py-2 text-gray-900 font-medium">{p.title}</td>
-                          <td className="px-4 py-2 text-center text-gray-600">{p.participants}</td>
-                          <td className="px-4 py-2 text-center text-gray-600">
+                        <tr key={p.code || p.title} style={{ borderTop: '1px solid var(--border)' }}>
+                          <td className="px-4 py-2 font-medium" style={{ color: 'var(--text-primary)' }}>{p.title}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>{p.participants}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>
                             {p.avg_pre !== null && p.avg_post !== null
                               ? `${p.avg_pre}% → ${p.avg_post}%`
                               : '—'}
                           </td>
-                          <td className="px-4 py-2 text-center text-gray-600">{fmtNum(p.avg_kpi_baseline)}</td>
-                          <td className="px-4 py-2 text-center text-gray-600">{fmtNum(p.avg_kpi_next)}</td>
-                          <td className={`px-4 py-2 text-center font-semibold ${d.cls}`}>{d.text}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>{fmtNum(p.avg_kpi_baseline)}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>{fmtNum(p.avg_kpi_next)}</td>
+                          <td className="px-4 py-2 text-center font-semibold" style={{ color: d.color }}>{d.text}</td>
                         </tr>
                       );
                     })}
@@ -169,10 +172,10 @@ export function RoiTab() {
           {data.courses.length > 0 && (
             <div className="mb-8">
               <SectionTitle title={t('analytics.roi.onlineTitle')} />
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden overflow-x-auto">
+              <div className="rounded-xl overflow-hidden overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-gray-50 text-gray-600 text-xs">
+                    <tr className="text-xs" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                       <th className="text-left px-4 py-2">{t('analytics.roi.colCourseType')}</th>
                       <th className="text-center px-4 py-2">{t('analytics.roi.colCompletions')}</th>
                       <th className="text-center px-4 py-2">{t('analytics.roi.colQuiz')}</th>
@@ -183,11 +186,11 @@ export function RoiTab() {
                     {data.courses.map((c: RoiCourseRow) => {
                       const d = fmtDelta(c.avg_kpi_delta);
                       return (
-                        <tr key={c.section} className="border-t border-gray-100">
-                          <td className="px-4 py-2 text-gray-900 font-medium">{c.title}</td>
-                          <td className="px-4 py-2 text-center text-gray-600">{c.completions}</td>
-                          <td className="px-4 py-2 text-center text-gray-600">{fmtNum(c.avg_quiz, '%')}</td>
-                          <td className={`px-4 py-2 text-center font-semibold ${d.cls}`}>{d.text}</td>
+                        <tr key={c.section} style={{ borderTop: '1px solid var(--border)' }}>
+                          <td className="px-4 py-2 font-medium" style={{ color: 'var(--text-primary)' }}>{c.title}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>{c.completions}</td>
+                          <td className="px-4 py-2 text-center" style={{ color: 'var(--text-secondary)' }}>{fmtNum(c.avg_quiz, '%')}</td>
+                          <td className="px-4 py-2 text-center font-semibold" style={{ color: d.color }}>{d.text}</td>
                         </tr>
                       );
                     })}
@@ -198,7 +201,7 @@ export function RoiTab() {
           )}
 
           {/* Методологическая сноска */}
-          <p className="text-xs text-gray-400 mt-2">
+          <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
             {t('analytics.roi.note', { baseline: data.period.baseline, comparison: data.period.comparison })}
           </p>
         </>

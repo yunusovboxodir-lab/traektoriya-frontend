@@ -15,8 +15,13 @@ export interface StatCardDef {
   value: number | string;
   gradientFrom: string;
   gradientTo: string;
-  bgLight: string;
-  textColor: string;
+  /** Legacy Tailwind classes — kept for TS compat but overridden by accentColor/accentBg */
+  bgLight?: string;
+  textColor?: string;
+  /** CSS-var token for icon color (e.g. 'var(--info)') */
+  accentColor?: string;
+  /** CSS-var token for icon background (e.g. 'var(--info-bg)') */
+  accentBg?: string;
   icon: React.ReactNode;
 }
 
@@ -55,6 +60,8 @@ export function SectionTitle({ title }: { title: string }) {
 // ---------------------------------------------------------------------------
 
 export function StatCard({ card }: { card: StatCardDef }) {
+  const iconBg = card.accentBg ?? undefined;
+  const iconColor = card.accentColor ?? undefined;
   return (
     <div className="relative overflow-hidden rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
       <div
@@ -62,12 +69,13 @@ export function StatCard({ card }: { card: StatCardDef }) {
       />
       <div className="flex items-center justify-between mb-3">
         <div
-          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg ${card.bgLight} flex items-center justify-center ${card.textColor}`}
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
+          style={{ background: iconBg, color: iconColor }}
         >
           {card.icon}
         </div>
       </div>
-      <div className={`text-xl sm:text-2xl font-bold ${card.textColor} tracking-tight`}>
+      <div className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: iconColor }}>
         {card.value}
       </div>
       <div className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{card.label}</div>
@@ -197,11 +205,11 @@ export function LmsMetricCard({
 }: {
   label: string; value: number; suffix: string; target: number; color: string; desc: string;
 }) {
-  const colorMap: Record<string, { bg: string; text: string; bar: string; gradient: string }> = {
-    blue: { bg: 'bg-blue-50', text: 'text-blue-600', bar: 'bg-blue-500', gradient: 'from-blue-500 to-blue-600' },
-    emerald: { bg: 'bg-emerald-50', text: 'text-emerald-600', bar: 'bg-emerald-500', gradient: 'from-emerald-500 to-emerald-600' },
-    amber: { bg: 'bg-amber-50', text: 'text-amber-600', bar: 'bg-amber-500', gradient: 'from-amber-500 to-amber-600' },
-    purple: { bg: 'bg-purple-50', text: 'text-purple-600', bar: 'bg-purple-500', gradient: 'from-purple-500 to-purple-600' },
+  const colorMap: Record<string, { accentColor: string; bar: string; gradient: string }> = {
+    blue:    { accentColor: 'var(--info)',     bar: 'bg-blue-500',    gradient: 'from-blue-500 to-blue-600' },
+    emerald: { accentColor: 'var(--success)',  bar: 'bg-emerald-500', gradient: 'from-emerald-500 to-emerald-600' },
+    amber:   { accentColor: 'var(--warning)',  bar: 'bg-amber-500',   gradient: 'from-amber-500 to-amber-600' },
+    purple:  { accentColor: 'var(--color-tp)', bar: 'bg-purple-500',  gradient: 'from-purple-500 to-purple-600' },
   };
   const c = colorMap[color] || colorMap.blue;
   const achieved = value >= target;
@@ -211,10 +219,10 @@ export function LmsMetricCard({
       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.gradient}`} />
       <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className={`text-2xl font-bold ${c.text}`}>
+        <span className="text-2xl font-bold" style={{ color: c.accentColor }}>
           {typeof value === 'number' ? Math.round(value) : value}
         </span>
-        {suffix && <span className={`text-sm ${c.text}`}>{suffix}</span>}
+        {suffix && <span className="text-sm" style={{ color: c.accentColor }}>{suffix}</span>}
       </div>
       <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{desc}</p>
       <div className="flex items-center gap-2">
@@ -224,7 +232,7 @@ export function LmsMetricCard({
             style={{ width: `${Math.min((value / target) * 100, 100)}%` }}
           />
         </div>
-        <span className={`text-xs font-medium ${achieved ? 'text-emerald-600' : ''}`} style={!achieved ? { color: 'var(--text-muted)' } : undefined}>
+        <span className="text-xs font-medium" style={{ color: achieved ? 'var(--success)' : 'var(--text-muted)' }}>
           {achieved ? 'OK' : `/${target}${suffix}`}
         </span>
       </div>

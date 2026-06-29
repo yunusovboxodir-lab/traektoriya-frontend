@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useState, useMemo } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useLangStore } from '../stores/langStore';
@@ -13,18 +14,28 @@ import {
 // Constants
 // ---------------------------------------------------------------------------
 
-const LEVEL_LABELS: Record<number, { ru: string; uz: string; color: string }> = {
-  0: { ru: 'Нет', uz: 'Yo\'q', color: 'bg-gray-200 text-gray-600' },
-  1: { ru: 'Начальный', uz: 'Boshlang\'ich', color: 'bg-red-100 text-red-700' },
-  2: { ru: 'Базовый', uz: 'Asosiy', color: 'bg-orange-100 text-orange-700' },
-  3: { ru: 'Продвинутый', uz: 'Yuqori', color: 'bg-blue-100 text-blue-700' },
-  4: { ru: 'Экспертный', uz: 'Ekspert', color: 'bg-green-100 text-green-700' },
+const LEVEL_LABELS: Record<number, { ru: string; uz: string }> = {
+  0: { ru: 'Нет', uz: 'Yo\'q' },
+  1: { ru: 'Начальный', uz: 'Boshlang\'ich' },
+  2: { ru: 'Базовый', uz: 'Asosiy' },
+  3: { ru: 'Продвинутый', uz: 'Yuqori' },
+  4: { ru: 'Экспертный', uz: 'Ekspert' },
 };
 
-const WEIGHT_COLORS: Record<string, string> = {
-  critical: 'text-red-600',
-  important: 'text-orange-500',
-  nice_to_have: 'text-gray-400',
+// CSS-var based level badge styles
+const LEVEL_STYLE: Record<number, React.CSSProperties> = {
+  0: { background: 'var(--bg-elevated)', color: 'var(--text-muted)' },
+  1: { background: 'var(--danger-bg)', color: 'var(--danger)' },
+  2: { background: 'var(--warning-bg)', color: 'var(--warning)' },
+  3: { background: 'var(--info-bg)', color: 'var(--info)' },
+  4: { background: 'var(--success-bg)', color: 'var(--success)' },
+};
+
+// CSS-var based weight styles
+const WEIGHT_STYLE: Record<string, React.CSSProperties> = {
+  critical:    { color: 'var(--danger)' },
+  important:   { color: 'var(--warning)' },
+  nice_to_have: { color: 'var(--text-muted)' },
 };
 
 const WEIGHT_LABELS: Record<string, { ru: string; uz: string }> = {
@@ -46,16 +57,19 @@ const CATEGORY_LABELS: Record<string, { ru: string; uz: string }> = {
 // ---------------------------------------------------------------------------
 
 function GapBar({ gap, required }: { gap: number; required: number }) {
-  if (required === 0) return <span className="text-gray-400 text-sm">-</span>;
+  if (required === 0) return <span className="text-sm" style={{ color: 'var(--text-muted)' }}>-</span>;
   const pct = Math.max(0, Math.min(100, ((required - gap) / required) * 100));
   const barColor =
-    gap === 0 ? 'bg-green-500' : gap === 1 ? 'bg-yellow-400' : 'bg-red-500';
+    gap === 0 ? 'var(--success)' : gap === 1 ? 'var(--warning)' : 'var(--danger)';
   return (
     <div className="flex items-center gap-2 min-w-[120px]">
-      <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+      <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: barColor }}
+        />
       </div>
-      <span className="text-xs text-gray-500 w-8 text-right">{Math.round(pct)}%</span>
+      <span className="text-xs w-8 text-right" style={{ color: 'var(--text-muted)' }}>{Math.round(pct)}%</span>
     </div>
   );
 }
@@ -66,14 +80,24 @@ function LevelDots({ level, max = 4 }: { level: number; max?: number }) {
       {Array.from({ length: max }).map((_, i) => (
         <div
           key={i}
-          className={`w-2.5 h-2.5 rounded-full ${
-            i < level ? 'bg-blue-500' : 'bg-gray-200'
-          }`}
+          className="w-2.5 h-2.5 rounded-full transition-colors"
+          style={{ background: i < level ? 'var(--info)' : 'var(--bg-elevated)' }}
         />
       ))}
     </div>
   );
 }
+
+// Shared input style for this page
+const inputStyle: React.CSSProperties = {
+  background: 'var(--bg-surface)',
+  border: '1px solid var(--border)',
+  color: 'var(--text-primary)',
+  borderRadius: 8,
+  padding: '0.5rem 0.75rem',
+  fontSize: '0.875rem',
+  outline: 'none',
+};
 
 // ---------------------------------------------------------------------------
 // Component
@@ -183,11 +207,11 @@ export function CompetencyMatrixPage() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-64" />
-          <div className="h-4 bg-gray-200 rounded w-48" />
+          <div className="h-8 rounded w-64" style={{ background: 'var(--bg-elevated)' }} />
+          <div className="h-4 rounded w-48" style={{ background: 'var(--bg-elevated)' }} />
           <div className="space-y-3 mt-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-12 bg-gray-200 rounded" />
+              <div key={i} className="h-12 rounded" style={{ background: 'var(--bg-elevated)' }} />
             ))}
           </div>
         </div>
@@ -198,11 +222,12 @@ export function CompetencyMatrixPage() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-700">{error}</p>
+        <div className="rounded-lg p-4" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)' }}>
+          <p style={{ color: 'var(--danger)' }}>{error}</p>
           <button
             onClick={loadData}
-            className="mt-2 text-sm text-red-600 underline"
+            className="mt-2 text-sm underline"
+            style={{ color: 'var(--danger)' }}
           >
             {t('Повторить', 'Qayta urinish')}
           </button>
@@ -215,10 +240,10 @@ export function CompetencyMatrixPage() {
     <div className="p-6 max-w-[1400px] mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
           {t('Матрица компетенций', 'Kompetensiyalar matritsasi')}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
           {t(
             'GAP-анализ: сравнение требуемого и текущего уровня компетенций',
             'GAP-tahlil: talab qilingan va joriy kompetensiya darajasi taqqoslash',
@@ -231,21 +256,21 @@ export function CompetencyMatrixPage() {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setMode('personal')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              mode === 'personal'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition"
+            style={mode === 'personal'
+              ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+              : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
+            }
           >
             {t('Мои компетенции', 'Mening kompetensiyalarim')}
           </button>
           <button
             onClick={() => setMode('team')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
-              mode === 'team'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition"
+            style={mode === 'team'
+              ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+              : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
+            }
           >
             {t('Команда', 'Jamoa')}
           </button>
@@ -257,35 +282,35 @@ export function CompetencyMatrixPage() {
         <>
           {/* Summary cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl shadow-sm border p-4">
-              <p className="text-xs text-gray-400 uppercase">
+            <div className="rounded-xl shadow-sm p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="text-xs uppercase" style={{ color: 'var(--text-muted)' }}>
                 {t('Профиль', 'Profil')}
               </p>
-              <p className="text-lg font-semibold text-gray-800 mt-1">
+              <p className="text-lg font-semibold mt-1" style={{ color: 'var(--text-primary)' }}>
                 {userMatrix.position_title}
               </p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border p-4">
-              <p className="text-xs text-gray-400 uppercase">
+            <div className="rounded-xl shadow-sm p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="text-xs uppercase" style={{ color: 'var(--text-muted)' }}>
                 {t('Всего компетенций', 'Jami kompetensiyalar')}
               </p>
-              <p className="text-2xl font-bold text-gray-800 mt-1">
+              <p className="text-2xl font-bold mt-1" style={{ color: 'var(--text-primary)' }}>
                 {userMatrix.total_competencies}
               </p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border p-4">
-              <p className="text-xs text-gray-400 uppercase">
+            <div className="rounded-xl shadow-sm p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="text-xs uppercase" style={{ color: 'var(--text-muted)' }}>
                 {t('Пробелов (GAP)', 'Kamchiliklar (GAP)')}
               </p>
-              <p className="text-2xl font-bold text-red-600 mt-1">
+              <p className="text-2xl font-bold mt-1" style={{ color: 'var(--danger)' }}>
                 {userMatrix.gaps_count}
               </p>
             </div>
-            <div className="bg-white rounded-xl shadow-sm border p-4">
-              <p className="text-xs text-gray-400 uppercase">
+            <div className="rounded-xl shadow-sm p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+              <p className="text-xs uppercase" style={{ color: 'var(--text-muted)' }}>
                 {t('Средний GAP', "O'rtacha GAP")}
               </p>
-              <p className="text-2xl font-bold text-orange-500 mt-1">
+              <p className="text-2xl font-bold mt-1" style={{ color: 'var(--warning)' }}>
                 {userMatrix.avg_gap}
               </p>
             </div>
@@ -298,12 +323,13 @@ export function CompetencyMatrixPage() {
               placeholder={t('Поиск компетенции...', "Kompetensiya qidirish...")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1"
+              style={inputStyle}
             />
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={inputStyle}
             >
               {allCategories.map((c) => (
                 <option key={c} value={c}>
@@ -316,34 +342,34 @@ export function CompetencyMatrixPage() {
           </div>
 
           {/* Table */}
-          <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
+          <div className="rounded-xl shadow-sm overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left">
-                  <th className="px-4 py-3 font-medium text-gray-500">
+                <tr style={{ background: 'var(--bg-elevated)' }}>
+                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>
                     {t('Компетенция', 'Kompetensiya')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Категория', 'Kategoriya')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Норма', 'Norma')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Факт', 'Fakt')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     GAP
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500">
+                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>
                     {t('Прогресс', 'Progress')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Вес', "Og'irlik")}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody>
                 {filteredGaps.map((g) => (
                   <GapRow
                     key={g.competency_id}
@@ -366,7 +392,7 @@ export function CompetencyMatrixPage() {
                 ))}
                 {filteredGaps.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-4 py-8 text-center" style={{ color: 'var(--text-muted)' }}>
                       {t('Нет данных', "Ma'lumot yo'q")}
                     </td>
                   </tr>
@@ -381,37 +407,38 @@ export function CompetencyMatrixPage() {
       {mode === 'team' && teamMatrix && (
         <>
           <div className="mb-4">
-            <p className="text-sm text-gray-500">
-              {t('Профиль:', 'Profil:')} <strong>{teamMatrix.profile_title}</strong>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+              {t('Профиль:', 'Profil:')} <strong style={{ color: 'var(--text-primary)' }}>{teamMatrix.profile_title}</strong>
               {' · '}
               {teamMatrix.members_count} {t('сотрудников', 'xodim')}
             </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
+          <div className="rounded-xl shadow-sm overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left">
-                  <th className="px-4 py-3 font-medium text-gray-500">
+                <tr style={{ background: 'var(--bg-elevated)' }}>
+                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>
                     {t('Сотрудник', 'Xodim')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Всего', 'Jami')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Пробелы', 'Kamchilik')}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500 text-center">
+                  <th className="px-4 py-3 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                     {t('Ср. GAP', "O'rt. GAP")}
                   </th>
-                  <th className="px-4 py-3 font-medium text-gray-500" />
+                  <th className="px-4 py-3 font-medium" />
                 </tr>
               </thead>
-              <tbody className="divide-y">
+              <tbody>
                 {teamMatrix.members.map((m) => (
                   <tr
                     key={m.user_id}
-                    className="hover:bg-gray-50 cursor-pointer"
+                    className="cursor-pointer transition-colors"
+                    style={{ borderTop: '1px solid var(--border)' }}
                     onClick={() =>
                       setSelectedMember(
                         selectedMember === m.user_id ? null : m.user_id,
@@ -419,31 +446,33 @@ export function CompetencyMatrixPage() {
                     }
                   >
                     <td className="px-4 py-3">
-                      <p className="font-medium text-gray-800">
+                      <p className="font-medium" style={{ color: 'var(--text-primary)' }}>
                         {m.full_name || m.employee_id}
                       </p>
-                      <p className="text-xs text-gray-400">{m.employee_id}</p>
+                      <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{m.employee_id}</p>
                     </td>
-                    <td className="px-4 py-3 text-center">{m.total_competencies}</td>
+                    <td className="px-4 py-3 text-center" style={{ color: 'var(--text-secondary)' }}>{m.total_competencies}</td>
                     <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+                        style={
                           m.gaps_count === 0
-                            ? 'bg-green-100 text-green-700'
+                            ? { background: 'var(--success-bg)', color: 'var(--success)' }
                             : m.gaps_count <= 3
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-red-100 text-red-700'
-                        }`}
+                              ? { background: 'var(--warning-bg)', color: 'var(--warning)' }
+                              : { background: 'var(--danger-bg)', color: 'var(--danger)' }
+                        }
                       >
                         {m.gaps_count}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-center">{m.avg_gap}</td>
+                    <td className="px-4 py-3 text-center" style={{ color: 'var(--text-secondary)' }}>{m.avg_gap}</td>
                     <td className="px-4 py-3 text-right">
                       <svg
-                        className={`w-4 h-4 text-gray-400 transition-transform inline-block ${
+                        className={`w-4 h-4 transition-transform inline-block ${
                           selectedMember === m.user_id ? 'rotate-180' : ''
                         }`}
+                        style={{ color: 'var(--text-muted)' }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -467,35 +496,35 @@ export function CompetencyMatrixPage() {
             const member = teamMatrix.members.find((m) => m.user_id === selectedMember);
             if (!member) return null;
             return (
-              <div className="mt-4 bg-white rounded-xl shadow-sm border p-4">
-                <h3 className="font-semibold text-gray-800 mb-3">
+              <div className="mt-4 rounded-xl shadow-sm p-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+                <h3 className="font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>
                   {member.full_name || member.employee_id} — {t('Детальный GAP', 'Batafsil GAP')}
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="bg-gray-50 text-left">
-                        <th className="px-3 py-2 font-medium text-gray-500">
+                      <tr style={{ background: 'var(--bg-elevated)' }}>
+                        <th className="px-3 py-2 font-medium text-left" style={{ color: 'var(--text-muted)' }}>
                           {t('Компетенция', 'Kompetensiya')}
                         </th>
-                        <th className="px-3 py-2 font-medium text-gray-500 text-center">
+                        <th className="px-3 py-2 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                           {t('Норма', 'Norma')}
                         </th>
-                        <th className="px-3 py-2 font-medium text-gray-500 text-center">
+                        <th className="px-3 py-2 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                           {t('Факт', 'Fakt')}
                         </th>
-                        <th className="px-3 py-2 font-medium text-gray-500 text-center">
+                        <th className="px-3 py-2 font-medium text-center" style={{ color: 'var(--text-muted)' }}>
                           GAP
                         </th>
-                        <th className="px-3 py-2 font-medium text-gray-500">
+                        <th className="px-3 py-2 font-medium text-left" style={{ color: 'var(--text-muted)' }}>
                           {t('Прогресс', 'Progress')}
                         </th>
                         {isSupervisor && (
-                          <th className="px-3 py-2 font-medium text-gray-500" />
+                          <th className="px-3 py-2 font-medium" />
                         )}
                       </tr>
                     </thead>
-                    <tbody className="divide-y">
+                    <tbody>
                       {member.gaps.map((g) => (
                         <GapRow
                           key={g.competency_id}
@@ -529,15 +558,15 @@ export function CompetencyMatrixPage() {
       {/* ========== MANUAL ASSESS MODAL ========== */}
       {assessModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-1">
+          <div className="rounded-2xl shadow-xl w-full max-w-md p-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
               {t('Оценка компетенции', 'Kompetensiyani baholash')}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">{assessModal.competencyName}</p>
+            <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>{assessModal.competencyName}</p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
+                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {t('Уровень', 'Daraja')}
                 </label>
                 <div className="flex gap-2">
@@ -545,11 +574,11 @@ export function CompetencyMatrixPage() {
                     <button
                       key={lvl}
                       onClick={() => setAssessLevel(lvl)}
-                      className={`flex-1 py-2 rounded-lg text-xs font-medium transition ${
-                        assessLevel === lvl
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
+                      className="flex-1 py-2 rounded-lg text-xs font-medium transition"
+                      style={assessLevel === lvl
+                        ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+                        : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
+                      }
                     >
                       {lvl} — {LEVEL_LABELS[lvl]?.[lang] || ''}
                     </button>
@@ -558,14 +587,15 @@ export function CompetencyMatrixPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">
+                <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                   {t('Комментарий', 'Izoh')}
                 </label>
                 <textarea
                   value={assessNotes}
                   onChange={(e) => setAssessNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full focus:outline-none"
+                  style={{ ...inputStyle, resize: 'vertical' }}
                   placeholder={t('Необязательно', 'Ixtiyoriy')}
                 />
               </div>
@@ -577,14 +607,16 @@ export function CompetencyMatrixPage() {
                   setAssessModal(null);
                   setAssessNotes('');
                 }}
-                className="flex-1 px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+                className="flex-1 px-4 py-2 rounded-lg text-sm"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
               >
                 {t('Отмена', 'Bekor')}
               </button>
               <button
                 onClick={handleAssess}
                 disabled={assessing}
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+                className="flex-1 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={{ background: 'var(--info)', color: 'var(--text-inverse)' }}
               >
                 {assessing
                   ? t('Сохранение...', 'Saqlanmoqda...')
@@ -614,43 +646,50 @@ function GapRow({
   onAssess?: () => void;
 }) {
   return (
-    <tr className={`hover:bg-gray-50 ${g.gap > 0 ? '' : 'opacity-70'}`}>
+    <tr
+      className="transition-colors"
+      style={{
+        borderTop: '1px solid var(--border)',
+        opacity: g.gap > 0 ? 1 : 0.7,
+      }}
+    >
       <td className="px-4 py-3">
-        <p className="font-medium text-gray-800">{g.competency_name}</p>
+        <p className="font-medium" style={{ color: 'var(--text-primary)' }}>{g.competency_name}</p>
         {!compact && (
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
             {g.ksa_type} · {g.bloom_level}
           </p>
         )}
       </td>
       {!compact && (
         <td className="px-4 py-3 text-center">
-          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+          <span className="text-xs px-2 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
             {CATEGORY_LABELS[g.category]?.[lang] || g.category}
           </span>
         </td>
       )}
       <td className="px-4 py-3 text-center">
         <LevelDots level={g.required_level} />
-        <span className="text-xs text-gray-400 block mt-0.5">
+        <span className="text-xs block mt-0.5" style={{ color: 'var(--text-muted)' }}>
           {LEVEL_LABELS[g.required_level]?.[lang]}
         </span>
       </td>
       <td className="px-4 py-3 text-center">
         <LevelDots level={g.current_level} />
-        <span className="text-xs text-gray-400 block mt-0.5">
+        <span className="text-xs block mt-0.5" style={{ color: 'var(--text-muted)' }}>
           {LEVEL_LABELS[g.current_level]?.[lang]}
         </span>
       </td>
       <td className="px-4 py-3 text-center">
         <span
-          className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
+          className="inline-block px-2 py-0.5 rounded-full text-xs font-bold"
+          style={
             g.gap === 0
-              ? 'bg-green-100 text-green-700'
+              ? LEVEL_STYLE[4]
               : g.gap === 1
-                ? 'bg-yellow-100 text-yellow-700'
-                : 'bg-red-100 text-red-700'
-          }`}
+                ? LEVEL_STYLE[2]
+                : LEVEL_STYLE[1]
+          }
         >
           {g.gap > 0 ? `-${g.gap}` : '0'}
         </span>
@@ -660,7 +699,7 @@ function GapRow({
       </td>
       {!compact && (
         <td className="px-4 py-3 text-center">
-          <span className={`text-xs font-medium ${WEIGHT_COLORS[g.weight] || ''}`}>
+          <span className="text-xs font-medium" style={WEIGHT_STYLE[g.weight] || { color: 'var(--text-muted)' }}>
             {WEIGHT_LABELS[g.weight]?.[lang] || g.weight}
           </span>
         </td>
@@ -672,7 +711,8 @@ function GapRow({
               e.stopPropagation();
               onAssess();
             }}
-            className="text-xs text-blue-600 hover:text-blue-800"
+            className="text-xs"
+            style={{ color: 'var(--info)' }}
           >
             {lang === 'ru' ? 'Оценить' : 'Baholash'}
           </button>

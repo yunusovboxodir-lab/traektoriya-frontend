@@ -106,55 +106,56 @@ export function EffectivenessTab({ insights, dashboard, track }: Props) {
       {insights.length > 0 && (
         <>
           <SectionTitle title={t('analytics.eff.moduleEffectiveness')} />
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm mb-10 overflow-x-auto">
+          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.module')}</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.completion7d')}</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.avgScore')}</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.avgTime')}</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.delta')}</th>
+                <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+                  <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.module')}</th>
+                  <th className="text-right py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.completion7d')}</th>
+                  <th className="text-right py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.avgScore')}</th>
+                  <th className="text-right py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.avgTime')}</th>
+                  <th className="text-right py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.delta')}</th>
                 </tr>
               </thead>
               <tbody>
                 {insights.map((ins) => (
-                  <tr key={ins.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50">
+                  <tr key={ins.id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                     <td className="py-3 px-4">
-                      <div className="font-medium text-gray-900 truncate max-w-[250px]">
+                      <div className="font-medium truncate max-w-[250px]" style={{ color: 'var(--text-primary)' }}>
                         {ins.course_title}
                       </div>
                       {ins.cluster_category && (
-                        <span className="text-xs text-gray-400">{ins.cluster_category}</span>
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{ins.cluster_category}</span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right">
                       {ins.completion_rate_7d != null ? (
-                        <span className={`font-medium ${
-                          ins.completion_rate_7d >= 70 ? 'text-emerald-600' :
-                          ins.completion_rate_7d >= 40 ? 'text-amber-600' : 'text-red-600'
-                        }`}>
+                        <span className="font-medium" style={{
+                          color: ins.completion_rate_7d >= 70 ? 'var(--success)' :
+                                 ins.completion_rate_7d >= 40 ? 'var(--warning)' :
+                                 'var(--danger)',
+                        }}>
                           {Math.round(ins.completion_rate_7d)}%
                         </span>
-                      ) : <span className="text-gray-300">—</span>}
+                      ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
                     </td>
-                    <td className="py-3 px-4 text-right text-gray-600">
+                    <td className="py-3 px-4 text-right" style={{ color: 'var(--text-secondary)' }}>
                       {ins.stats?.avg_score != null ? `${Math.round(ins.stats.avg_score)}%` : '—'}
                     </td>
-                    <td className="py-3 px-4 text-right text-gray-600">
+                    <td className="py-3 px-4 text-right" style={{ color: 'var(--text-secondary)' }}>
                       {ins.stats?.avg_time_sec != null
                         ? `${Math.round(ins.stats.avg_time_sec / 60)} ${t('analytics.min')}`
                         : '—'}
                     </td>
                     <td className="py-3 px-4 text-right">
                       {ins.effectiveness_delta != null ? (
-                        <span className={`font-semibold ${
-                          ins.effectiveness_delta < 0 ? 'text-emerald-600' : 'text-red-600'
-                        }`}>
+                        <span className="font-semibold" style={{
+                          color: ins.effectiveness_delta < 0 ? 'var(--success)' : 'var(--danger)',
+                        }}>
                           {ins.effectiveness_delta > 0 ? '+' : ''}
                           {Math.round(ins.effectiveness_delta)}%
                         </span>
-                      ) : <span className="text-gray-300">—</span>}
+                      ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
                     </td>
                   </tr>
                 ))}
@@ -169,36 +170,36 @@ export function EffectivenessTab({ insights, dashboard, track }: Props) {
       {kpiSections.map((section) => (
         <div key={section.title} className="mb-6">
           {kpiSections.length > 1 && (
-            <h4 className="text-sm font-medium text-gray-700 mb-2 ml-1">{section.title}</h4>
+            <h4 className="text-sm font-medium mb-2 ml-1" style={{ color: 'var(--text-secondary)' }}>{section.title}</h4>
           )}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+          <div className="rounded-xl shadow-sm overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.cluster')}</th>
-                  <th className="text-left py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.linkedKpi')}</th>
-                  <th className="text-right py-3 px-4 text-gray-500 font-medium">{t('analytics.eff.formulaWeight')}</th>
+                <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+                  <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.cluster')}</th>
+                  <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.linkedKpi')}</th>
+                  <th className="text-right py-3 px-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.eff.formulaWeight')}</th>
                 </tr>
               </thead>
               <tbody>
                 {section.items.map((item) => {
                   const cluster = dashboard?.pain_clusters?.find(c => c.category === item.category);
                   return (
-                    <tr key={item.category} className="border-b border-gray-50 last:border-0">
+                    <tr key={item.category} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
                             {cluster?.label ?? item.label}
                           </span>
                           {cluster && (
-                            <span className="text-xs px-1.5 py-0.5 rounded bg-gray-100 text-gray-500">
+                            <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
                               {cluster.count}
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-600">{item.kpi}</td>
-                      <td className="py-3 px-4 text-right text-gray-500">{item.weight}</td>
+                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>{item.kpi}</td>
+                      <td className="py-3 px-4 text-right" style={{ color: 'var(--text-muted)' }}>{item.weight}</td>
                     </tr>
                   );
                 })}
@@ -210,20 +211,20 @@ export function EffectivenessTab({ insights, dashboard, track }: Props) {
       <div className="mb-10" />
 
       {/* ROI explanation */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-10">
-        <h4 className="text-sm font-semibold text-blue-900 mb-2">
+      <div className="rounded-xl p-5 mb-10" style={{ background: 'var(--info-bg)', border: '1px solid var(--info)' }}>
+        <h4 className="text-sm font-semibold mb-2" style={{ color: 'var(--info)' }}>
           {t('analytics.eff.roiTitle')}
         </h4>
-        <p className="text-sm text-blue-800">
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
           {t('analytics.eff.roiDesc')}
         </p>
       </div>
 
       {insights.length === 0 && (
         <div className="text-center py-16">
-          <div className="text-4xl mb-3">📈</div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">{t('analytics.eff.emptyTitle')}</h3>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
+          <div className="text-4xl mb-3" style={{ color: 'var(--text-muted)' }}>—</div>
+          <h3 className="text-lg font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{t('analytics.eff.emptyTitle')}</h3>
+          <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
             {t('analytics.eff.emptyDesc')}
           </p>
         </div>

@@ -189,6 +189,91 @@
 [data-theme="light"] .text-indigo-300,
 [data-theme="light"] .text-indigo-400 { color: var(--color-tp) !important; }
 
+/* ──────────────────────────────────────────────────────────────────────────
+   СВЕТЛАЯ ТЕМА — расширение ремапа на bg-* и border-*
+   Яркие пастельные фоны и бордеры 300-400 становятся почти невидимыми
+   на белом пепельном фоне. Приводим к readable-токенам.
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* bg-* 300–500: ярко-пастельные фоны → семантические bg-токены */
+[data-theme="light"] .bg-amber-300,
+[data-theme="light"] .bg-amber-400,
+[data-theme="light"] .bg-yellow-300,
+[data-theme="light"] .bg-yellow-400 { background-color: var(--warning-bg) !important; }
+
+[data-theme="light"] .bg-emerald-300,
+[data-theme="light"] .bg-emerald-400,
+[data-theme="light"] .bg-green-300,
+[data-theme="light"] .bg-green-400 { background-color: var(--success-bg) !important; }
+
+[data-theme="light"] .bg-blue-300,
+[data-theme="light"] .bg-blue-400,
+[data-theme="light"] .bg-sky-300,
+[data-theme="light"] .bg-sky-400,
+[data-theme="light"] .bg-cyan-300,
+[data-theme="light"] .bg-cyan-400 { background-color: var(--info-bg) !important; }
+
+[data-theme="light"] .bg-red-300,
+[data-theme="light"] .bg-red-400,
+[data-theme="light"] .bg-rose-300,
+[data-theme="light"] .bg-rose-400,
+[data-theme="light"] .bg-orange-300,
+[data-theme="light"] .bg-orange-400 { background-color: var(--danger-bg) !important; }
+
+[data-theme="light"] .bg-violet-300,
+[data-theme="light"] .bg-violet-400,
+[data-theme="light"] .bg-purple-300,
+[data-theme="light"] .bg-purple-400,
+[data-theme="light"] .bg-indigo-300,
+[data-theme="light"] .bg-indigo-400 { background-color: var(--color-tp-bg) !important; }
+
+/* border-* 300–400: пастельные бордеры → семантический border-токен */
+[data-theme="light"] .border-amber-300,
+[data-theme="light"] .border-amber-400,
+[data-theme="light"] .border-yellow-300,
+[data-theme="light"] .border-yellow-400 { border-color: var(--warning) !important; }
+
+[data-theme="light"] .border-emerald-300,
+[data-theme="light"] .border-emerald-400,
+[data-theme="light"] .border-green-300,
+[data-theme="light"] .border-green-400 { border-color: var(--success) !important; }
+
+[data-theme="light"] .border-blue-300,
+[data-theme="light"] .border-blue-400,
+[data-theme="light"] .border-sky-300,
+[data-theme="light"] .border-sky-400 { border-color: var(--info) !important; }
+
+[data-theme="light"] .border-red-300,
+[data-theme="light"] .border-red-400,
+[data-theme="light"] .border-rose-300,
+[data-theme="light"] .border-rose-400,
+[data-theme="light"] .border-orange-300,
+[data-theme="light"] .border-orange-400 { border-color: var(--danger) !important; }
+
+[data-theme="light"] .border-violet-300,
+[data-theme="light"] .border-violet-400,
+[data-theme="light"] .border-purple-300,
+[data-theme="light"] .border-purple-400,
+[data-theme="light"] .border-indigo-300,
+[data-theme="light"] .border-indigo-400 { border-color: var(--color-tp) !important; }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   СВЕТЛАЯ ТЕМА — градиент-заголовки guard
+   bg-clip-text + text-transparent выглядит нормально на тёмном фоне,
+   но на светлом пепле у некоторых градиентов «light-on-light» → нечитаемо.
+   В [data-theme="light"] принудительно окрашиваем в --text-primary,
+   выключая clip-эффект. Immersive-тёмные экраны (OfflinePresenter, /learning map)
+   не затронуты — они не имеют data-theme="light" на корневом элементе.
+   ────────────────────────────────────────────────────────────────────────── */
+[data-theme="light"] .gradient-heading,
+[data-theme="light"] [class*="bg-gradient"][class*="text-transparent"] {
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+}
+
 /* Prevent pull-to-refresh in standalone PWA mode */
 html {
   overscroll-behavior: none;

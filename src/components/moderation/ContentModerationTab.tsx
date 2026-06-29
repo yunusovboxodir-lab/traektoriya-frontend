@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { coursesApi, type ContentItem } from '../../api/courses';
 import { LessonEditor } from './LessonEditor';
@@ -21,13 +22,13 @@ const CONTENT_TYPE_OPTIONS = [
   { value: 'summary', label: 'Итог' },
 ];
 
-const STATUS_STYLES: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  generating: 'bg-blue-100 text-blue-700',
-  review: 'bg-yellow-100 text-yellow-700',
-  approved: 'bg-green-100 text-green-700',
-  published: 'bg-emerald-100 text-emerald-700',
-  rejected: 'bg-red-100 text-red-700',
+const STATUS_STYLE: Record<string, React.CSSProperties> = {
+  draft:      { background: 'var(--bg-elevated)',  color: 'var(--text-secondary)' },
+  generating: { background: 'var(--info-bg)',      color: 'var(--info)' },
+  review:     { background: 'var(--warning-bg)',   color: 'var(--warning)' },
+  approved:   { background: 'var(--success-bg)',   color: 'var(--success)' },
+  published:  { background: 'var(--success-bg)',   color: 'var(--success)' },
+  rejected:   { background: 'var(--danger-bg)',    color: 'var(--danger)' },
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -80,8 +81,8 @@ export function ContentModerationTab() {
       });
       setItems(resp.data.items);
       setTotal(resp.data.total);
-    } catch (err) {
-      console.error('Failed to load content items', err);
+    } catch {
+      // silent — UI shows empty state
     } finally {
       setLoading(false);
     }
@@ -106,11 +107,11 @@ export function ContentModerationTab() {
   return (
     <div>
       {/* Filters */}
-      <div className="bg-white rounded-xl border p-4 mb-4">
+      <div className="rounded-xl p-4 mb-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <div className="flex flex-wrap gap-3 items-end">
           {/* Search */}
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Поиск</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Поиск</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -118,11 +119,13 @@ export function ContentModerationTab() {
                 onChange={e => setSearchInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Поиск по названию..."
-                className="flex-1 border rounded-lg px-3 py-2 text-sm"
+                className="flex-1 rounded-lg px-3 py-2 text-sm focus:outline-none"
+                style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               />
               <button
                 onClick={handleSearch}
-                className="px-3 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200"
+                className="px-3 py-2 rounded-lg text-sm"
+                style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}
               >
                 Найти
               </button>
@@ -131,11 +134,12 @@ export function ContentModerationTab() {
 
           {/* Status filter */}
           <div className="w-40">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Статус</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Статус</label>
             <select
               value={statusFilter}
               onChange={e => { setStatusFilter(e.target.value); setPage(0); }}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
             >
               {STATUS_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -145,11 +149,12 @@ export function ContentModerationTab() {
 
           {/* Type filter */}
           <div className="w-36">
-            <label className="block text-xs font-medium text-gray-500 mb-1">Тип</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Тип</label>
             <select
               value={typeFilter}
               onChange={e => { setTypeFilter(e.target.value); setPage(0); }}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full rounded-lg px-3 py-2 text-sm focus:outline-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
             >
               {CONTENT_TYPE_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -161,11 +166,11 @@ export function ContentModerationTab() {
 
       {/* Stats bar */}
       <div className="flex items-center justify-between mb-3 px-1">
-        <p className="text-sm text-gray-500">
-          Найдено: <span className="font-medium text-gray-700">{total}</span> элементов
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+          Найдено: <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{total}</span> элементов
         </p>
         {totalPages > 1 && (
-          <p className="text-sm text-gray-400">
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Страница {page + 1} из {totalPages}
           </p>
         )}
@@ -173,29 +178,29 @@ export function ContentModerationTab() {
 
       {/* Table */}
       {loading ? (
-        <div className="bg-white rounded-xl border p-8 text-center">
-          <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
-          <p className="text-sm text-gray-400">Загрузка...</p>
+        <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full mx-auto mb-2" style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Загрузка...</p>
         </div>
       ) : items.length === 0 ? (
-        <div className="bg-white rounded-xl border p-8 text-center">
-          <div className="text-3xl mb-2">📭</div>
-          <p className="text-gray-500">Контент не найден</p>
-          <p className="text-sm text-gray-400 mt-1">Попробуйте изменить фильтры</p>
+        <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <div className="text-3xl mb-2" style={{ color: 'var(--text-muted)' }}>–</div>
+          <p style={{ color: 'var(--text-secondary)' }}>Контент не найден</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Попробуйте изменить фильтры</p>
         </div>
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-xl border overflow-hidden">
+          <div className="hidden md:block rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-left">
-                  <th className="px-4 py-3 font-medium text-gray-600">Название</th>
-                  <th className="px-4 py-3 font-medium text-gray-600 w-24">Тип</th>
-                  <th className="px-4 py-3 font-medium text-gray-600 w-28">Статус</th>
-                  <th className="px-4 py-3 font-medium text-gray-600 w-28">Сложность</th>
-                  <th className="px-4 py-3 font-medium text-gray-600 w-24">Медиа</th>
-                  <th className="px-4 py-3 font-medium text-gray-600 w-28">Обновлён</th>
+                <tr style={{ background: 'var(--bg-elevated)' }}>
+                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>Название</th>
+                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>Тип</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Статус</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Сложность</th>
+                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>Медиа</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Обновлён</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,41 +208,42 @@ export function ContentModerationTab() {
                   <tr
                     key={item.id}
                     onClick={() => setEditingItemId(item.id)}
-                    className="border-t hover:bg-blue-50/50 cursor-pointer transition-colors"
+                    className="cursor-pointer transition-colors"
+                    style={{ borderTop: '1px solid var(--border)' }}
                   >
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900 truncate max-w-xs">
+                      <div className="font-medium truncate max-w-xs" style={{ color: 'var(--text-primary)' }}>
                         {item.title}
                       </div>
                       {item.learning_objective && (
-                        <div className="text-xs text-gray-400 truncate max-w-xs mt-0.5">
+                        <div className="text-xs truncate max-w-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                           {item.learning_objective}
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-xs text-gray-600">
+                      <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                         {TYPE_LABELS[item.content_type] || item.content_type}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[item.status] || 'bg-gray-100 text-gray-600'}`}>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={STATUS_STYLE[item.status] || { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
                         {STATUS_LABELS[item.status] || item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-600">
+                    <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
                       {DIFFICULTY_LABELS[item.difficulty_level] || `Ур. ${item.difficulty_level}`}
                     </td>
                     <td className="px-4 py-3">
                       {item.media_urls && item.media_urls.length > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-xs text-blue-600">
-                          📎 {item.media_urls.length}
+                        <span className="inline-flex items-center gap-1 text-xs" style={{ color: 'var(--info)' }}>
+                          {item.media_urls.length} файл
                         </span>
                       ) : (
-                        <span className="text-xs text-gray-300">—</span>
+                        <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-xs text-gray-500">
+                    <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>
                       {formatDate(item.updated_at)}
                     </td>
                   </tr>
@@ -252,19 +258,20 @@ export function ContentModerationTab() {
               <div
                 key={item.id}
                 onClick={() => setEditingItemId(item.id)}
-                className="bg-white rounded-xl border p-4 cursor-pointer hover:shadow-sm transition-shadow"
+                className="rounded-xl p-4 cursor-pointer hover:shadow-sm transition-shadow"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-medium text-gray-900 text-sm flex-1">{item.title}</h3>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${STATUS_STYLES[item.status] || 'bg-gray-100 text-gray-600'}`}>
+                  <h3 className="font-medium text-sm flex-1" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0" style={STATUS_STYLE[item.status] || { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
                     {STATUS_LABELS[item.status] || item.status}
                   </span>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
+                <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
                   <span>{TYPE_LABELS[item.content_type] || item.content_type}</span>
                   <span>{DIFFICULTY_LABELS[item.difficulty_level]}</span>
                   {item.media_urls && item.media_urls.length > 0 && (
-                    <span className="text-blue-600">📎 {item.media_urls.length}</span>
+                    <span style={{ color: 'var(--info)' }}>{item.media_urls.length} файл</span>
                   )}
                   <span className="ml-auto">{formatDate(item.updated_at)}</span>
                 </div>
@@ -278,7 +285,8 @@ export function ContentModerationTab() {
               <button
                 disabled={page === 0}
                 onClick={() => setPage(p => p - 1)}
-                className="px-3 py-1.5 rounded-lg text-sm border disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
               >
                 Назад
               </button>
@@ -297,11 +305,11 @@ export function ContentModerationTab() {
                   <button
                     key={pageNum}
                     onClick={() => setPage(pageNum)}
-                    className={`w-8 h-8 rounded-lg text-sm ${
-                      page === pageNum
-                        ? 'bg-blue-600 text-white'
-                        : 'border hover:bg-gray-50 text-gray-600'
-                    }`}
+                    className="w-8 h-8 rounded-lg text-sm"
+                    style={page === pageNum
+                      ? { background: 'var(--info)', color: 'var(--text-inverse)' }
+                      : { border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }
+                    }
                   >
                     {pageNum + 1}
                   </button>
@@ -310,7 +318,8 @@ export function ContentModerationTab() {
               <button
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage(p => p + 1)}
-                className="px-3 py-1.5 rounded-lg text-sm border disabled:opacity-40 hover:bg-gray-50"
+                className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
               >
                 Вперёд
               </button>

@@ -13,6 +13,7 @@
  * Юзер может создавать кейсы только для своей роли или ниже.
  */
 import { useEffect, useMemo, useState } from 'react';
+import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
@@ -145,31 +146,42 @@ export function CaseStudioNewPage() {
     }
   };
 
+  const inputStyle: React.CSSProperties = {
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-primary)',
+    borderRadius: 6,
+    padding: '0.5rem 0.75rem',
+    fontSize: '0.875rem',
+    width: '100%',
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <button
         onClick={() => navigate('/case-studio')}
-        className="text-sm text-stone-500 hover:text-stone-800 mb-4"
+        className="text-sm mb-4"
+        style={{ color: 'var(--text-muted)' }}
       >
         ← К Кейсотеке
       </button>
 
-      <h1 className="text-2xl font-serif text-stone-800 mb-2">Создать кейс</h1>
-      <p className="text-stone-500 mb-6">
+      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Создать кейс</h1>
+      <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
         Опиши реальную ситуацию из практики. Чем конкретнее — тем полезнее команде.
         +50 XP за публикацию.
       </p>
 
-      <div className="bg-white border border-stone-200 rounded-lg p-6 space-y-5">
+      <div className="rounded-lg p-6 space-y-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {/* Target role */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Для какой роли этот кейс
           </label>
           <select
             value={targetRole}
             onChange={(e) => setTargetRole(e.target.value as CaseTargetRole)}
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            style={inputStyle}
           >
             {availableRoles.map((r) => (
               <option key={r.value} value={r.value}>
@@ -177,20 +189,20 @@ export function CaseStudioNewPage() {
               </option>
             ))}
           </select>
-          <p className="text-xs text-stone-500 mt-1">
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
             Кейсы видят только указанная роль и выше по иерархии.
           </p>
         </div>
 
         {/* Category */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Категория
           </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            style={inputStyle}
           >
             <option value="">— Выбери категорию —</option>
             {compatibleCategories.map((c) => (
@@ -201,7 +213,7 @@ export function CaseStudioNewPage() {
             ))}
           </select>
           {compatibleCategories.length === 0 && (
-            <p className="text-xs text-amber-700 mt-1">
+            <p className="text-xs mt-1" style={{ color: 'var(--warning)' }}>
               Для этой роли пока нет совместимых категорий. Сообщите админу.
             </p>
           )}
@@ -209,7 +221,7 @@ export function CaseStudioNewPage() {
 
         {/* Title */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Заголовок кейса
           </label>
           <input
@@ -217,15 +229,15 @@ export function CaseStudioNewPage() {
             value={titleRu}
             onChange={(e) => setTitleRu(e.target.value)}
             placeholder='Например: «ТП в Намангане встретил возражение по STROBAR»'
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            style={inputStyle}
             maxLength={500}
           />
-          <p className="text-xs text-stone-500 mt-1">{titleRu.length}/500</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{titleRu.length}/500</p>
         </div>
 
         {/* Situation */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
             Ситуация (контекст)
           </label>
           <textarea
@@ -233,14 +245,14 @@ export function CaseStudioNewPage() {
             onChange={(e) => setSituationRu(e.target.value)}
             placeholder="Где, кто участвует, что произошло до диалога. Чем конкретнее — тем лучше (имена, регион, бренды, цифры)."
             rows={6}
-            className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+            style={inputStyle}
           />
-          <p className="text-xs text-stone-500 mt-1">{situationRu.length} символов (мин. 20)</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{situationRu.length} символов (мин. 20)</p>
         </div>
 
         {/* Dialogue */}
         <div>
-          <label className="block text-sm font-medium text-stone-700 mb-2">
+          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
             Диалог (опционально)
           </label>
           <div className="space-y-2 mb-2">
@@ -249,7 +261,7 @@ export function CaseStudioNewPage() {
                 <select
                   value={line.speaker}
                   onChange={(e) => updateLine(idx, 'speaker', e.target.value)}
-                  className="border border-stone-300 rounded px-2 py-1.5 text-sm w-24"
+                  style={{ ...inputStyle, width: '6rem' }}
                 >
                   <option value="client">Клиент</option>
                   <option value="tp">ТП</option>
@@ -262,12 +274,13 @@ export function CaseStudioNewPage() {
                   value={line.text}
                   onChange={(e) => updateLine(idx, 'text', e.target.value)}
                   placeholder="Реплика…"
-                  className="flex-1 border border-stone-300 rounded px-3 py-1.5 text-sm"
+                  style={{ ...inputStyle, flex: 1 }}
                 />
                 {dialogue.length > 1 && (
                   <button
                     onClick={() => removeLine(idx)}
-                    className="text-stone-400 hover:text-red-600 px-2"
+                    className="px-2"
+                    style={{ color: 'var(--text-muted)' }}
                     aria-label="Удалить реплику"
                   >
                     ×
@@ -278,14 +291,15 @@ export function CaseStudioNewPage() {
           </div>
           <button
             onClick={addLine}
-            className="text-sm text-stone-600 hover:text-stone-900 underline"
+            className="text-sm underline"
+            style={{ color: 'var(--text-secondary)' }}
           >
             + Добавить реплику
           </button>
         </div>
 
         {/* Author solution */}
-        <div className="border-t border-stone-200 pt-5">
+        <div className="pt-5" style={{ borderTop: '1px solid var(--border)' }}>
           <label className="flex items-center gap-2 mb-3">
             <input
               type="checkbox"
@@ -293,7 +307,7 @@ export function CaseStudioNewPage() {
               onChange={(e) => setHasSolution(e.target.checked)}
               className="rounded"
             />
-            <span className="text-sm font-medium text-stone-700">
+            <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
               Приложить своё решение к кейсу
             </span>
           </label>
@@ -304,9 +318,9 @@ export function CaseStudioNewPage() {
                 onChange={(e) => setSolutionText(e.target.value)}
                 placeholder="Опиши, как ты решил эту ситуацию (или как стоит решать)..."
                 rows={5}
-                className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
+                style={inputStyle}
               />
-              <p className="text-xs text-stone-500 mt-1">
+              <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
                 {solutionText.length} символов (мин. 20). Твоё решение пойдёт в peer-review.
               </p>
             </>
@@ -314,7 +328,7 @@ export function CaseStudioNewPage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-700">
+          <div className="rounded p-3 text-sm" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)' }}>
             {error}
           </div>
         )}
@@ -322,14 +336,16 @@ export function CaseStudioNewPage() {
         <div className="flex justify-end gap-2 pt-2">
           <button
             onClick={() => navigate('/case-studio')}
-            className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
+            className="px-4 py-2 rounded-lg text-sm"
+            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
           >
             Отмена
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
-            className="px-5 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 disabled:opacity-50"
+            className="px-5 py-2 rounded-lg disabled:opacity-50 text-sm font-medium"
+            style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-strong)' }}
           >
             {submitting ? 'Публикую…' : 'Опубликовать кейс'}
           </button>
