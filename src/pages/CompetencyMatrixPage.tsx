@@ -9,6 +9,7 @@ import {
   type CompetencyGap,
   type ManualAssessInput,
 } from '../api/competencies';
+import { toast } from '@/components/ui';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -194,8 +195,10 @@ export function CompetencyMatrixPage() {
       setAssessModal(null);
       setAssessNotes('');
       loadData();
+      toast.success('Оценка сохранена');
     } catch {
-      // silent
+      toast.error('Не удалось сохранить оценку. Попробуйте ещё раз.');
+      // Модалка остаётся открытой — пользователь может повторить попытку
     } finally {
       setAssessing(false);
     }

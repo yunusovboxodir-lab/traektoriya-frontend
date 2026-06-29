@@ -19,6 +19,7 @@ import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
 import { useLangStore } from '../stores/langStore';
 import { pickLang } from '../utils/pickLang';
+import { toast } from '@/components/ui';
 import type {
   CaseScenarioDetail,
   CaseSolution,
@@ -105,16 +106,15 @@ export function CaseStudioDetailPage() {
       });
       const { created, assignee_count, skipped_quota } = res.data;
       const skipMsg = skipped_quota > 0
-        ? `\nПропущено ${skipped_quota} сотрудников — у них уже ≥3 активных задач.`
+        ? ` Пропущено ${skipped_quota} сотр. (≥3 активных задач).`
         : '';
-      alert(
-        `Создано задач: ${created} (для ${assignee_count} сотрудников).\n` +
-        `TG-уведомления отправлены автоматически.${skipMsg}`,
+      toast.success(
+        `Создано задач: ${created} для ${assignee_count} сотрудников. TG-уведомления отправлены.${skipMsg}`,
       );
       setShowAssignModal(false);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'не удалось создать задачи';
-      alert(`Ошибка: ${msg}`);
+      toast.error(`Ошибка: ${msg}`);
     } finally {
       setAssigning(false);
     }
@@ -201,8 +201,13 @@ export function CaseStudioDetailPage() {
           <div className="mt-6 flex gap-2">
             <button
               onClick={async () => {
-                await caseStudioApi.publishScenario(scenario.id);
-                reload();
+                try {
+                  await caseStudioApi.publishScenario(scenario.id);
+                  toast.success('Кейс опубликован');
+                  reload();
+                } catch {
+                  toast.error('Не удалось опубликовать кейс. Попробуйте ещё раз.');
+                }
               }}
               className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
             >
@@ -214,9 +219,13 @@ export function CaseStudioDetailPage() {
           <div className="mt-6 flex gap-2">
             <button
               onClick={async () => {
-                if (!confirm('Архивировать кейс?')) return;
-                await caseStudioApi.archiveScenario(scenario.id);
-                reload();
+                try {
+                  await caseStudioApi.archiveScenario(scenario.id);
+                  toast.success('Кейс перемещён в архив');
+                  reload();
+                } catch {
+                  toast.error('Не удалось архивировать кейс. Попробуйте ещё раз.');
+                }
               }}
               className="px-3 py-1.5 text-sm rounded"
               style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)' }}
@@ -229,9 +238,13 @@ export function CaseStudioDetailPage() {
           <div className="mt-3">
             <button
               onClick={async () => {
-                if (!confirm('Удалить кейс? Восстановить сможет только админ через БД.')) return;
-                await caseStudioApi.deleteScenario(scenario.id);
-                navigate('/case-studio');
+                try {
+                  await caseStudioApi.deleteScenario(scenario.id);
+                  toast.success('Кейс удалён');
+                  navigate('/case-studio');
+                } catch {
+                  toast.error('Не удалось удалить кейс. Попробуйте ещё раз.');
+                }
               }}
               className="px-3 py-1.5 text-sm border border-red-300 text-red-700 rounded hover:bg-red-50"
             >

@@ -13,6 +13,7 @@ import {
   ModalDescription,
   ModalBody,
   ModalFooter,
+  toast,
 } from '@/components/ui';
 import { Upload, RefreshCw, Pencil, Trash2 } from 'lucide-react';
 
@@ -606,6 +607,7 @@ export function KnowledgeBasePage() {
         results.push({ name: file.name, ok: true });
       } catch {
         results.push({ name: file.name, ok: false });
+        toast.error(`Не удалось загрузить файл «${file.name}»`);
       }
     }
 
@@ -631,7 +633,7 @@ export function KnowledgeBasePage() {
     try {
       await ragApi.processDocument(docId, { force_reprocess: true });
     } catch {
-      // Reindex failed — will refresh anyway
+      toast.error('Не удалось переиндексировать документ. Попробуйте позже.');
     } finally {
       setReindexingIds((prev) => {
         const next = new Set(prev);
@@ -653,7 +655,7 @@ export function KnowledgeBasePage() {
         loadDocuments(0);
         loadStats();
       } catch {
-        // Delete failed silently
+        toast.error('Не удалось удалить документ. Попробуйте ещё раз.');
       }
     },
     [loadDocuments, loadStats],
@@ -705,7 +707,7 @@ export function KnowledgeBasePage() {
       loadDocuments(0);
       loadCategories();
     } catch {
-      // Error silently
+      toast.error('Не удалось обновить документы. Попробуйте ещё раз.');
     } finally {
       setIsBulkUpdating(false);
     }
@@ -724,7 +726,7 @@ export function KnowledgeBasePage() {
       loadStats();
       loadCategories();
     } catch {
-      // Error silently
+      toast.error('Не удалось удалить выбранные документы. Попробуйте ещё раз.');
     } finally {
       setIsBulkUpdating(false);
     }

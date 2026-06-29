@@ -13,6 +13,7 @@ import { ragApi } from '../api/rag';
 import { feedbackApi } from '../api/feedback';
 import { lazyWithRetry } from '../utils/lazyWithRetry';
 import { useT } from '../stores/langStore';
+import { renderMarkdown } from '@/lib/renderMarkdown';
 
 const ContentModerationTab = lazyWithRetry(() =>
   import('../components/moderation/ContentModerationTab').then(m => ({ default: m.ContentModerationTab }))
@@ -28,18 +29,6 @@ const ContentKanbanTab = lazyWithRetry(() =>
 // Helpers
 // ===========================================================================
 
-function renderMarkdown(text: string): string {
-  return text
-    .replace(/### (.+)/g, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
-    .replace(/## (.+)/g, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
-    .replace(/# (.+)/g, '<h1 class="text-2xl font-bold mt-6 mb-3">$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^(\d+)\. (.+)/gm, '<li class="ml-4 list-decimal">$2</li>')
-    .replace(/\n\n/g, '<br/><br/>')
-    .replace(/\n/g, '<br/>');
-}
 
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + ' Б';

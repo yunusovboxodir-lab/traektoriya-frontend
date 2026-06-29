@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { coursesApi, type ContentItem } from '../../api/courses';
 import { QuizEditor } from './QuizEditor';
 import { MediaManager } from './MediaManager';
+import { renderMarkdown } from '@/lib/renderMarkdown';
 
 interface LessonEditorProps {
   itemId: string;
@@ -24,18 +25,6 @@ const STATUS_OPTIONS = [
   { value: 'rejected', label: 'Отклонён' },
 ];
 
-function renderMarkdown(text: string): string {
-  return text
-    .replace(/### (.+)/g, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>')
-    .replace(/## (.+)/g, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>')
-    .replace(/# (.+)/g, '<h1 class="text-2xl font-bold mt-6 mb-3">$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/^- (.+)/gm, '<li class="ml-4 list-disc">$1</li>')
-    .replace(/^(\d+)\. (.+)/gm, '<li class="ml-4 list-decimal">$2</li>')
-    .replace(/\n\n/g, '<br/><br/>')
-    .replace(/\n/g, '<br/>');
-}
 
 export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
   const [item, setItem] = useState<ContentItem | null>(null);

@@ -30,7 +30,7 @@ import type {
   TargetRole,
   TrainingRequest,
 } from '../types/trainingPlan';
-import { SkeletonCard, SkeletonTableRow } from '@/components/ui';
+import { SkeletonCard, SkeletonTableRow, toast } from '@/components/ui';
 
 type Tab = 'calendar' | 'requests' | 'field-trips';
 type Lang = 'ru' | 'uz';
@@ -668,26 +668,40 @@ function RequestCard({
   lang: Lang;
 }) {
   const [busy, setBusy] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectComment, setRejectComment] = useState('');
 
-  const decide = async (decision: 'approved' | 'rejected') => {
+  const submitDecision = async (decision: 'approved' | 'rejected', comment?: string) => {
     if (busy) return;
-    const comment = window.prompt(
-      decision === 'approved'
-        ? lang === 'uz' ? "Tasdiqlash izohi (ixtiyoriy)" : 'Комментарий к утверждению (опц.)'
-        : lang === 'uz' ? "Rad etish sababi" : 'Причина отклонения',
-      '',
-    );
-    if (decision === 'rejected' && !comment) return;
     setBusy(true);
     try {
       const fn = decision === 'approved' ? trainingPlanApi.approveRequest : trainingPlanApi.rejectRequest;
       await fn(request.id, { decision, comment });
+      if (decision === 'approved') {
+        toast.success(lang === 'uz' ? 'Ariza tasdiqlandi' : 'Заявка утверждена');
+      } else {
+        toast.success(lang === 'uz' ? 'Ariza rad etildi' : 'Заявка отклонена');
+      }
       onChange();
-    } catch (e) {
-      alert(`${lang === 'uz' ? 'Xato' : 'Ошибка'}: ${(e as Error).message}`);
+    } catch (e: unknown) {
+      const msg = (e as { message?: string })?.message || (lang === 'uz' ? 'Xato yuz berdi' : 'Произошла ошибка');
+      toast.error(msg);
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleApprove = () => submitDecision('approved');
+
+  const handleRejectSubmit = () => {
+    const comment = rejectComment.trim();
+    if (!comment) {
+      toast.warning(lang === 'uz' ? 'Rad etish sababini kiriting' : 'Укажите причину отклонения');
+      return;
+    }
+    setShowRejectModal(false);
+    setRejectComment('');
+    submitDecision('rejected', comment);
   };
 
   return (
@@ -734,7 +748,7 @@ function RequestCard({
           <div className="flex flex-col gap-2">
             <button
               disabled={busy}
-              onClick={() => decide('approved')}
+              onClick={handleApprove}
               className="px-3 py-1.5 text-xs rounded disabled:opacity-50 font-medium"
               style={{ background: 'var(--success)', color: 'var(--text-inverse)' }}
             >
@@ -742,7 +756,7 @@ function RequestCard({
             </button>
             <button
               disabled={busy}
-              onClick={() => decide('rejected')}
+              onClick={() => setShowRejectModal(true)}
               className="px-3 py-1.5 text-xs rounded disabled:opacity-50 font-medium"
               style={{ background: 'var(--danger)', color: 'var(--text-inverse)' }}
             >
@@ -751,6 +765,54 @@ function RequestCard({
           </div>
         )}
       </div>
+
+      {/* Reject reason modal */}
+      {showRejectModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => { setShowRejectModal(false); setRejectComment(''); }}
+        >
+          <div
+            className="rounded-xl shadow-xl w-full max-w-sm mx-4 p-5"
+            style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+              {lang === 'uz' ? 'Rad etish sababi' : 'Причина отклонения'}
+            </h3>
+            <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
+              {lang === 'uz'
+                ? 'Rad etish sababini kiriting — arizachiga ko\'rsatiladi.'
+                : 'Укажите причину — она будет показана подавшему заявку.'}
+            </p>
+            <textarea
+              autoFocus
+              value={rejectComment}
+              onChange={(e) => setRejectComment(e.target.value)}
+              rows={3}
+              className="w-full rounded-lg px-3 py-2 text-sm resize-none"
+              style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
+              placeholder={lang === 'uz' ? 'Masalan: mavzu xato tanlangan…' : 'Например: тема выбрана неверно…'}
+            />
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => { setShowRejectModal(false); setRejectComment(''); }}
+                className="px-4 py-1.5 text-sm rounded-lg"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+              >
+                {lang === 'uz' ? 'Bekor qilish' : 'Отмена'}
+              </button>
+              <button
+                onClick={handleRejectSubmit}
+                className="px-4 py-1.5 text-sm rounded-lg font-medium"
+                style={{ background: 'var(--danger)', color: 'var(--text-inverse)' }}
+              >
+                {lang === 'uz' ? 'Rad etish' : 'Отклонить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
