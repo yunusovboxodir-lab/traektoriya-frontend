@@ -171,16 +171,16 @@ export function StatusBar() {
 
       {/* СПРАВА: переключатель темы + языка */}
       <button
-        className="lang-opt"
+        className="lang-opt sb-theme-btn"
         onClick={toggleTheme}
         aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
         title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-        style={{ marginRight: 10, fontSize: 14 }}
+        style={{ marginRight: 6, fontSize: 14, flexShrink: 0 }}
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
 
-      <div className="lang-toggle" role="group" aria-label="Язык">
+      <div className="lang-toggle" role="group" aria-label="Язык" style={{ flexShrink: 0 }}>
         <button
           className={'lang-opt' + (lang === 'ru' ? ' on' : '')}
           onClick={() => setLang('ru')}

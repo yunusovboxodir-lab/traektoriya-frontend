@@ -140,7 +140,7 @@ export function HorizontalBarChart({ categories }: { categories: CategoryBreakdo
         const widthPct = (cat.count / maxValue) * 100;
         const barColor = BAR_COLORS[i % BAR_COLORS.length];
         return (
-          <div key={cat.name} className="flex items-center gap-3">
+          <div key={`${cat.name}-${i}`} className="flex items-center gap-3">
             <span className="text-xs sm:text-sm w-20 sm:w-28 text-right shrink-0 truncate" style={{ color: 'var(--text-secondary)' }}>
               {cat.name}
             </span>

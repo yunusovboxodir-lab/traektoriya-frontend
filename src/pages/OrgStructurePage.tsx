@@ -186,6 +186,7 @@ function RegionForm({ region, onClose, onSaved }: { region?: Region; onClose: ()
 // ---------------------------------------------------------------------------
 
 function DealersSection() {
+  const t = useT();
   const [dealers, setDealers] = useState<Dealer[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,21 +203,21 @@ function DealersSection() {
       setDealers(dRes.data?.items ?? []);
       setRegions(rRes.data?.items ?? []);
     } catch {
-      toast.error('Ошибка загрузки дилеров');
+      toast.error(t('org.errors.loadDealers') || 'Ошибка загрузки дилеров');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { load(); }, [load]);
 
   const toggleActive = async (d: Dealer) => {
     try {
       await teamApi.updateDealer(d.id, { is_active: !d.is_active });
-      toast.success(d.is_active ? 'Дилер выключен' : 'Дилер включён');
+      toast.success(d.is_active ? (t('org.status.deactivated') || 'Дилер выключен') : (t('org.status.activated') || 'Дилер включён'));
       load();
     } catch {
-      toast.error('Не удалось изменить статус');
+      toast.error(t('org.errors.changeStatus') || 'Не удалось изменить статус');
     }
   };
 
@@ -231,14 +232,14 @@ function DealersSection() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-500">{dealers.length} дилер(ов)</p>
+        <p className="text-sm text-gray-500">{dealers.length} {t('org.dealers.count') || 'дилер(ов)'}</p>
         <Button size="sm" leftIcon={<Plus size={16} />} onClick={() => setShowCreate(true)} disabled={regions.length === 0}>
-          Добавить дилера
+          {t('org.dealers.add') || 'Добавить дилера'}
         </Button>
       </div>
 
       {regions.length === 0 && !loading && (
-        <p className="text-xs text-amber-600">Сначала добавьте хотя бы один регион в соседней вкладке.</p>
+        <p className="text-xs text-amber-600">{t('org.dealers.noRegion') || 'Сначала добавьте хотя бы один регион в соседней вкладке.'}</p>
       )}
 
       {loading ? (
@@ -246,7 +247,7 @@ function DealersSection() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
       ) : dealers.length === 0 ? (
-        <EmptyState icon={<Building2 size={48} />} title="Дилеров пока нет" description="Добавьте первого дилера." />
+        <EmptyState icon={<Building2 size={48} />} title={t('org.dealers.empty') || 'Дилеров пока нет'} description={t('org.dealers.emptyDesc') || 'Добавьте первого дилера.'} />
       ) : (
         <div className="space-y-4">
           {Array.from(byRegion.entries()).map(([regionName, list]) => (
@@ -261,7 +262,7 @@ function DealersSection() {
                       <td className="px-4 py-2 text-gray-900 font-medium">{d.name}</td>
                       <td className="px-4 py-2 text-center w-32">
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${d.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                          {d.is_active ? 'Активен' : 'Выключен'}
+                          {d.is_active ? (t('org.status.active') || 'Активен') : (t('org.status.inactive') || 'Выключен')}
                         </span>
                       </td>
                       <td className="px-4 py-2 w-24">
@@ -347,6 +348,7 @@ function DealerForm({ dealer, regions, onClose, onSaved }: { dealer?: Dealer; re
 // ---------------------------------------------------------------------------
 
 function SupervisorsSection() {
+  const t = useT();
   const [teams, setTeams] = useState<Team[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
@@ -362,35 +364,35 @@ function SupervisorsSection() {
       setTeams(tRes.data?.items ?? []);
       setRegions(rRes.data?.items ?? []);
     } catch {
-      toast.error('Ошибка загрузки супервайзеров');
+      toast.error(t('org.errors.loadSupervisors') || 'Ошибка загрузки супервайзеров');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { load(); }, [load]);
 
-  const toggleActive = async (t: Team) => {
+  const toggleActive = async (team: Team) => {
     try {
-      await teamApi.updateTeam(t.id, { is_active: !t.is_active });
-      toast.success(t.is_active ? 'Супервайзер выключен' : 'Супервайзер включён');
+      await teamApi.updateTeam(team.id, { is_active: !team.is_active });
+      toast.success(team.is_active ? (t('org.status.deactivated') || 'Супервайзер выключен') : (t('org.status.activated') || 'Супервайзер включён'));
       load();
     } catch {
-      toast.error('Не удалось изменить статус');
+      toast.error(t('org.errors.changeStatus') || 'Не удалось изменить статус');
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-500">{teams.length} супервайзер(ов)</p>
+        <p className="text-sm text-gray-500">{teams.length} {t('org.supervisors.count') || 'супервайзер(ов)'}</p>
         <Button size="sm" leftIcon={<Plus size={16} />} onClick={() => setShowCreate(true)} disabled={regions.length === 0}>
-          Добавить супервайзера
+          {t('org.supervisors.add') || 'Добавить супервайзера'}
         </Button>
       </div>
 
       {regions.length === 0 && !loading && (
-        <p className="text-xs text-amber-600">Сначала добавьте регионы и дилеров.</p>
+        <p className="text-xs text-amber-600">{t('org.supervisors.noRegion') || 'Сначала добавьте регионы и дилеров.'}</p>
       )}
 
       {loading ? (
@@ -398,35 +400,35 @@ function SupervisorsSection() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
       ) : teams.length === 0 ? (
-        <EmptyState icon={<UserCog size={48} />} title="Супервайзеров пока нет" description="Добавьте первого супервайзера." />
+        <EmptyState icon={<UserCog size={48} />} title={t('org.supervisors.empty') || 'Супервайзеров пока нет'} description={t('org.supervisors.emptyDesc') || 'Добавьте первого супервайзера.'} />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-gray-600 text-xs">
-                <th className="text-left px-4 py-2">Супервайзер</th>
-                <th className="text-left px-4 py-2">Дилер</th>
-                <th className="text-left px-4 py-2">Регион</th>
-                <th className="text-center px-4 py-2">ТП</th>
-                <th className="text-center px-4 py-2">Статус</th>
-                <th className="text-right px-4 py-2">Действия</th>
+                <th className="text-left px-4 py-2">{t('org.col.supervisor') || 'Супервайзер'}</th>
+                <th className="text-left px-4 py-2">{t('org.col.dealer') || 'Дилер'}</th>
+                <th className="text-left px-4 py-2">{t('org.col.region') || 'Регион'}</th>
+                <th className="text-center px-4 py-2">{t('org.col.salesReps') || 'ТП'}</th>
+                <th className="text-center px-4 py-2">{t('org.col.status') || 'Статус'}</th>
+                <th className="text-right px-4 py-2">{t('org.col.actions') || 'Действия'}</th>
               </tr>
             </thead>
             <tbody>
-              {teams.map((t) => (
-                <tr key={t.id} className="border-t border-gray-100">
-                  <td className="px-4 py-2 text-gray-900 font-medium">{t.supervisor_name || t.name}</td>
-                  <td className="px-4 py-2 text-gray-600">{t.dealer_name || '—'}</td>
-                  <td className="px-4 py-2 text-gray-600">{t.region_name || '—'}</td>
-                  <td className="px-4 py-2 text-center text-gray-600">{t.member_count ?? 0}</td>
+              {teams.map((team) => (
+                <tr key={team.id} className="border-t border-gray-100">
+                  <td className="px-4 py-2 text-gray-900 font-medium">{team.supervisor_name || team.name}</td>
+                  <td className="px-4 py-2 text-gray-600">{team.dealer_name || '—'}</td>
+                  <td className="px-4 py-2 text-gray-600">{team.region_name || '—'}</td>
+                  <td className="px-4 py-2 text-center text-gray-600">{team.member_count ?? 0}</td>
                   <td className="px-4 py-2 text-center">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${t.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {t.is_active ? 'Активен' : 'Выключен'}
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${team.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      {team.is_active ? (t('org.status.active') || 'Активен') : (t('org.status.inactive') || 'Выключен')}
                     </span>
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => toggleActive(t)} className="text-gray-500 hover:text-amber-600" title={t.is_active ? 'Выключить' : 'Включить'}>
+                      <button onClick={() => toggleActive(team)} className="text-gray-500 hover:text-amber-600" title={team.is_active ? 'Выключить' : 'Включить'}>
                         <Power size={16} />
                       </button>
                     </div>

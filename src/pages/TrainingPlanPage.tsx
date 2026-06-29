@@ -110,9 +110,22 @@ const STATUS_BADGE_STYLE: Record<EventStatus, React.CSSProperties> = {
   cancelled:   { background: 'var(--danger-bg)',  color: 'var(--danger)',  border: '1px solid var(--danger)' },
   rescheduled: { background: 'var(--warning-bg)', color: 'var(--warning)', border: '1px solid var(--warning)' },
 };
-const STATUS_ICON: Record<EventStatus, string> = {
-  planned: 'К', confirmed: 'П', in_progress: 'И', completed: 'З', cancelled: 'О', rescheduled: 'Пр',
-};
+// SVG-иконки статусов (заменяют однобуквенные артефакты «З Завершено», «И Идёт» и т.д.)
+function StatusIcon({ status }: { status: EventStatus }) {
+  const s = 10;
+  if (status === 'completed')
+    return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5"/></svg>;
+  if (status === 'in_progress')
+    return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+  if (status === 'confirmed')
+    return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>;
+  if (status === 'cancelled')
+    return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+  if (status === 'rescheduled')
+    return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>;
+  // planned
+  return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+}
 
 // Канальные цвета — семантические (синий/оранжевый/фиолетовый), работают в обоих темах
 // border-l оставляем через Tailwind (цвет левой полосы, не текст — контраст не требуется)
@@ -487,7 +500,6 @@ function CalendarTab({ lang }: { lang: Lang }) {
                   const ch = eventChannel(e.event_type);
                   const chCol = CHANNEL_COLORS[ch];
                   const stStyle = STATUS_BADGE_STYLE[e.status];
-                  const stIcon = STATUS_ICON[e.status];
                   return (
                     <button
                       key={e.id}
@@ -531,8 +543,9 @@ function CalendarTab({ lang }: { lang: Lang }) {
                         )}
                       </div>
                       <div className="p-2.5">
-                        <span className="text-[10px] px-2 py-0.5 rounded font-mono" style={stStyle}>
-                          {stIcon} {statusLabel(e.status, lang)}
+                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded font-mono" style={stStyle}>
+                          <StatusIcon status={e.status} />
+                          {statusLabel(e.status, lang)}
                         </span>
                       </div>
                     </button>

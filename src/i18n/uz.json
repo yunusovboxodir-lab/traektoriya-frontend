@@ -1213,5 +1213,50 @@
     "finish": "Yakunlash ✓",
     "next": "Keyingi →",
     "narration": "Dars ovozi"
+  },
+  "org": {
+    "col": {
+      "name": "Nomi",
+      "country": "Mamlakat",
+      "status": "Holat",
+      "actions": "Amallar",
+      "dealer": "Diler",
+      "region": "Viloyat",
+      "supervisor": "Supervisor",
+      "salesReps": "TP"
+    },
+    "status": {
+      "active": "Faol",
+      "inactive": "O'chirilgan",
+      "activated": "Yoqildi",
+      "deactivated": "O'chirildi"
+    },
+    "regions": {
+      "count": "viloyat",
+      "add": "Viloyat qo'shish",
+      "empty": "Viloyatlar hali yo'q",
+      "emptyDesc": "Birinchi viloyatni qo'shing."
+    },
+    "dealers": {
+      "count": "diler",
+      "add": "Diler qo'shish",
+      "empty": "Dilerlar hali yo'q",
+      "emptyDesc": "Birinchi dilerni qo'shing.",
+      "noRegion": "Avval yonidagi bo'limda kamida bitta viloyat qo'shing."
+    },
+    "supervisors": {
+      "count": "supervisor",
+      "add": "Supervisor qo'shish",
+      "empty": "Supervisorlar hali yo'q",
+      "emptyDesc": "Birinchi supervisorni qo'shing.",
+      "noRegion": "Avval viloyatlar va dilerlarni qo'shing."
+    },
+    "errors": {
+      "loadRegions": "Viloyatlarni yuklashda xato",
+      "loadDealers": "Dilerlarni yuklashda xato",
+      "loadSupervisors": "Supervisorlarni yuklashda xato",
+      "changeStatus": "Holatni o'zgartirib bo'lmadi",
+      "saveFailed": "Saqlab bo'lmadi"
+    }
   }
 }

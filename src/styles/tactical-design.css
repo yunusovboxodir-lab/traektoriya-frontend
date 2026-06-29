@@ -181,6 +181,8 @@ body::after {
   letter-spacing: 0.12em;
   position: relative;
   z-index: 10;
+  /* предотвращаем горизонтальный скролл на мобильных */
+  overflow: hidden;
 }
 .sb-mod {
   display: flex; align-items: baseline; gap: 12px;
@@ -1595,6 +1597,17 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   /* StatusBar: иконки только */
   .tactical-root .lang-toggle .lang-opt { padding: 4px 8px; font-size: 11px; }
   .tactical-root .brand-tag { display: none; }
+
+  /* === МОБИЛЬНЫЙ STATUSBAR (≤480px): не вылезать за вьюпорт === */
+  /* Убираем большой gap, чтобы правая группа (тема+язык) не выходила за край */
+  .tactical-root .statusbar {
+    gap: 6px;
+    padding: 0 10px;
+  }
+  /* PowerBadge tier-лейбл: скрываем слово «Бронза/Золото» оставляем только число */
+  .tactical-root .statusbar .power-badge-tier { display: none; }
+  /* Кнопка темы — убираем инлайн-margin-right */
+  .tactical-root .statusbar .sb-theme-btn { margin-right: 0 !important; }
 }
 
 /* --- divide-* (полосы между строками) --- */
