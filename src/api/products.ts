@@ -2,16 +2,16 @@ import { api } from './client';
 import { localGetProducts, localGetProduct } from '../data/products-source';
 
 /**
- * PRE-LAUNCH MOCK (2026-05-04):
- * Когда true — все методы getProducts / getProduct читают данные из
- * src/data/products.json (138 SKU N'Medov), не дёргая backend.
- * Создание/редактирование/удаление в этом режиме отключены — данные
- * редактируются через push в src/data/products.json + Vercel-деплой.
+ * ИСТОЧНИК ТОВАРОВ (обновлено 2026-06-29, аудит):
+ * false — каталог идёт на backend (источник истины nmedov_skus_final.json,
+ *         114 SKU / 17 брендов). Add/Edit/Delete снова рабочие.
+ * true  — устаревший LOCAL-mock из src/data/products.json (138 SKU/18 брендов,
+ *         рассинхрон с каноном) — больше НЕ используем.
  *
- * Чтобы вернуться на Postgres-API: поставить false. Backend-таблица
- * products не трогалась — старые данные на месте.
+ * ⚠️ Прод-БД должна быть засеяна из nmedov_skus_final.json, иначе каталог пуст.
+ *    Seed-скрипт: traektoriya-rag-backend (готовится отдельно).
  */
-const USE_LOCAL_PRODUCTS = true;
+const USE_LOCAL_PRODUCTS = false;
 
 export interface Product {
   id: string;
