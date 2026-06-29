@@ -132,8 +132,12 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
     if (!baseAllowed) return false;
 
     // 1.5) Клиентская ролевая политика (PO 2026-06-25): План обучения / Планограмма.
+    // Пока роль не загружена (userRole === null) — НЕ применяем force-deny, иначе
+    // прямой заход/F5 на training_plan/goals/planogram редиректит даже разрешённые
+    // роли (гонка: ProtectedRoute проверяет доступ до загрузки роли). После загрузки
+    // правило применяется штатно. Бэк всё равно гейтит данные.
     const denyFn = ROLE_FORCE_DENY[pageKey];
-    if (denyFn && denyFn(userRole)) return false;
+    if (userRole !== null && denyFn && denyFn(userRole)) return false;
 
     // 2) Прогрессивное раскрытие (UX-слой, только ТП, за флагом). OFF → no-op.
     if (isTierGated(pageKey, userRole, userTier)) return false;
