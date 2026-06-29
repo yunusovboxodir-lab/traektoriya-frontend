@@ -33,7 +33,6 @@ const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ d
 const PlanogramPage = lazyWithRetry(() => import('./pages/PlanogramPage').then(m => ({ default: m.PlanogramPage })));
 const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
-const QuizPage = lazyWithRetry(() => import('./pages/QuizPage').then(m => ({ default: m.QuizPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => ({ default: m.OfflinePage })));
@@ -226,15 +225,6 @@ function AppRoutes() {
       />
       {/* Старый маршрут — редирект на новый главный */}
       <Route path="/learning/tactical" element={<Navigate to="/learning" replace />} />
-      {/* Старый full-list-вид (модули → разделы → курсы) — оставлен как fallback */}
-      <Route
-        path="/learning/legacy"
-        element={
-          <ProtectedRoute pageKey="learning">
-            <LearningPage />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Товары — Tactical UI (Module 18 Sprint 1, 2026-05-03) */}
       <Route
@@ -530,15 +520,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Квиз/Тест */}
-      <Route
-        path="/quiz/:contentItemId"
-        element={
-          <ProtectedRoute>
-            <QuizPage />
-          </ProtectedRoute>
-        }
-      />
 
       {/* ==========================================
           REDIRECTS — обратная совместимость

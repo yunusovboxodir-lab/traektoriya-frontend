@@ -334,9 +334,10 @@ export function TeamPage() {
                             {
                               label: t('common.actions.contact'),
                               icon: <Mail size={14} />,
-                              // TODO: implement member contact action (email/telegram)
-                              onSelect: () =>
-                                console.log('[TODO] contact team member', m.id),
+                              // TODO: реализовать контакт (email/telegram) — пока нет UI
+                              onSelect: () => {
+                                /* скоро */
+                              },
                             },
                             {
                               label: t('common.actions.assignCourse'),

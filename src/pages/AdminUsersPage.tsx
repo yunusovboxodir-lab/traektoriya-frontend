@@ -486,15 +486,13 @@ export function AdminUsersPage() {
                             label: t('common.actions.openProfile'),
                             icon: <Eye size={14} />,
                             // TODO: implement user profile page navigation
-                            onSelect: () =>
-                              console.log('[TODO] open user profile', user.id),
+                            onSelect: () => { /* скоро */ },
                           },
                           {
                             label: t('common.actions.editRole'),
                             icon: <Pencil size={14} />,
-                            // TODO: implement edit-role modal (нет UI для смены роли в AdminUsersPage)
-                            onSelect: () =>
-                              console.log('[TODO] edit user role', user.id, user.role),
+                            // TODO: implement edit-role modal
+                            onSelect: () => { /* скоро */ },
                           },
                           { separator: true },
                           {
@@ -503,8 +501,7 @@ export function AdminUsersPage() {
                             destructive: true,
                             disabled: !user.is_active,
                             // TODO: implement user deactivation endpoint
-                            onSelect: () =>
-                              console.log('[TODO] deactivate user', user.id),
+                            onSelect: () => { /* скоро */ },
                           },
                         ]}
                       />

@@ -348,11 +348,6 @@ export const generationApi = {
       timeout: GENERATION_TIMEOUT,
     }),
 
-  // Generate lesson from topic text — V1 (legacy, for fallback)
-  generateLessonFromTextV1: (data: GenerateLessonFromTextRequest) =>
-    api.post<GenerateLessonResponse>('/api/v1/generate/lesson-from-text', data, {
-      timeout: GENERATION_TIMEOUT,
-    }),
 
   // Extract competencies from uploaded document
   extractCompetencies: (data: ExtractCompetenciesRequest) =>
@@ -366,11 +361,6 @@ export const generationApi = {
       timeout: GENERATION_TIMEOUT,
     }),
 
-  // Generate lesson from competency ID — V1 (legacy, for fallback)
-  generateLessonFromCompetencyV1: (data: GenerateLessonFromCompetencyRequest) =>
-    api.post<GenerateLessonResponse>('/api/v1/generate/lesson', data, {
-      timeout: GENERATION_TIMEOUT,
-    }),
 
   // Get generation service status
   getStatus: () => api.get('/api/v1/generate/status'),

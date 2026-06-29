@@ -491,15 +491,13 @@ function TeamTab({
                           label: t('common.actions.openProfile'),
                           icon: <Eye size={14} />,
                           // TODO: implement agent profile navigation
-                          onSelect: () =>
-                            console.log('[TODO] open agent profile', agent.id),
+                          onSelect: () => { /* скоро */ },
                         },
                         {
                           label: t('common.actions.contact'),
                           icon: <Mail size={14} />,
                           // TODO: implement agent contact action (email/telegram)
-                          onSelect: () =>
-                            console.log('[TODO] contact agent', agent.id),
+                          onSelect: () => { /* скоро */ },
                         },
                       ]}
                     />

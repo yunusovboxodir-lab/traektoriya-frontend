@@ -6,7 +6,6 @@ import {
   LEVEL_NAMES_UZ,
   LEVEL_COLORS,
   MODULE_ICONS,
-  type LearningMapResponse,
   type LearningModule,
   type SectionCoursesResponse,
   type CourseDetailResponse,
@@ -23,8 +22,6 @@ import { bl } from '../utils/bilingual';
 import { emitPulseInvalidate } from '../utils/pulseEvents';
 import { PageHeader, EmptyState, Button, Badge } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
-import { LearningMap } from '../components/learning/LearningMap';
-import { VillageView } from '../components/learning/VillageView';
 import { KpiChipsFromTitle } from '../components/learning/KpiChip';
 import { QuizRenderer, calculateQuizScore, allQuestionsAnswered, type QuizQuestion } from '../components/learning/QuizRenderer';
 import { FlashcardsView } from '../components/learning/FlashcardsView';
@@ -53,12 +50,12 @@ export function LearningPage() {
   const [view, setView] = useState<View>('modules');
   const [modules, setModules] = useState<LearningModule[]>([]);
   const [selectedRole, setSelectedRole] = useState('sales_rep');
-  const [mapData, setMapData] = useState<LearningMapResponse | null>(null);
-  const [sectionData, setSectionData] = useState<SectionCoursesResponse | null>(null);
+  // mapData удалена (аудит 2026-06-28: LearningMap-компонент удалён, state не нужен)
+  const [sectionData] = useState<SectionCoursesResponse | null>(null);
   const [courseData, setCourseData] = useState<CourseDetailResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
+  const [selectedLevel] = useState<string | null>(null);
 
   // Quiz state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -95,13 +92,12 @@ export function LearningPage() {
     loadModules();
   }, [loadModules, routeCourseId]);
 
-  // Load map for a specific role
+  // Load map for a specific role (используется для обновления счётчиков)
   const loadMap = useCallback(async (role?: string) => {
     const targetRole = role || selectedRole;
     try {
       setIsLoading(true);
-      const resp = await learningApi.getMap(targetRole);
-      setMapData(resp.data);
+      await learningApi.getMap(targetRole);
       setError('');
     } catch {
       setError(t('learning.errors.map'));
@@ -117,23 +113,7 @@ export function LearningPage() {
     setView('map');
   };
 
-  // Open section (village or regular), optionally filtered to specific level
-  const openSection = async (sectionId: string, isVillage = false, level?: string) => {
-    try {
-      setIsLoading(true);
-      const resp = await learningApi.getSectionCourses(sectionId);
-      setSectionData(resp.data);
-      setSelectedLevel(level || null);
-      // Route village sections to VillageView, regular to SectionView
-      const isVillageSection = isVillage || resp.data.section.is_village;
-      setView(isVillageSection ? 'village' : 'section');
-      setError('');
-    } catch {
-      setError(t('learning.errors.section'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // openSection удалена (аудит 2026-06-28: LearningMap и VillageView удалены)
 
   // Авто-открытие курса по ID из URL (вход через /learning/course/:courseId)
   useEffect(() => {
@@ -295,27 +275,14 @@ export function LearningPage() {
     return <ModulesView modules={modules} onSelectModule={selectModule} />;
   }
 
-  // ======== VIEW: MAP ========
-  if (view === 'map' && mapData) {
-    return (
-      <div>
-        <button onClick={goBack} className="mb-4 text-sm flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-          &larr; {t('learning.backToModules')}
-        </button>
-        <LearningMap data={mapData} onOpenSection={openSection} />
-      </div>
-    );
+  // ======== VIEW: MAP ======== (легаси-компонент удалён, редирект на /learning)
+  if (view === 'map') {
+    return null;
   }
 
-  // ======== VIEW: VILLAGE ========
-  if (view === 'village' && sectionData) {
-    return (
-      <VillageView
-        data={sectionData}
-        onBack={goBack}
-        onOpenCourse={openCourse}
-      />
-    );
+  // ======== VIEW: VILLAGE ======== (легаси-компонент удалён)
+  if (view === 'village') {
+    return null;
   }
 
   // ======== VIEW: SECTION ========
