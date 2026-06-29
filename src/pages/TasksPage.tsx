@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormResponse } from '../api/tasks';
+import { usersApi, type UserListItem } from '../api/users';
 import { useAuthStore } from '../stores/authStore';
 import { TacticalShell } from '../components/tactical/shell';
 import { useT, useLangStore } from '../stores/langStore';
@@ -28,13 +29,13 @@ const PRIORITY_LABEL_KEYS: Record<string, string> = {
   low: 'tasks.priority.low',
 };
 
-const SOURCE_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  shelfscan_ai: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'ShelfScan AI' },
-  shelfscan: { bg: 'bg-indigo-50', text: 'text-indigo-700', label: 'ShelfScan' },
-  learning_module: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Обучение' },
-  crm: { bg: 'bg-teal-50', text: 'text-teal-700', label: 'CRM' },
-  manual: { bg: 'bg-gray-50', text: 'text-gray-600', label: 'Вручную' },
-  field_task: { bg: 'bg-purple-50', text: 'text-purple-700', label: 'Полевое задание' },
+const SOURCE_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
+  shelfscan_ai: { bg: 'bg-indigo-50', text: 'text-indigo-700', labelKey: 'tasks.source.shelfscanAi' },
+  shelfscan: { bg: 'bg-indigo-50', text: 'text-indigo-700', labelKey: 'tasks.source.shelfscan' },
+  learning_module: { bg: 'bg-purple-50', text: 'text-purple-700', labelKey: 'tasks.source.learning' },
+  crm: { bg: 'bg-teal-50', text: 'text-teal-700', labelKey: 'tasks.source.crm' },
+  manual: { bg: 'bg-gray-50', text: 'text-gray-600', labelKey: 'tasks.source.manual' },
+  field_task: { bg: 'bg-purple-50', text: 'text-purple-700', labelKey: 'tasks.source.fieldTask' },
 };
 
 function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task; onStatusChange: (id: string, status: string) => void; onCardClick: (task: Task) => void; isManager: boolean }) {
@@ -79,7 +80,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
           if (!sourceStyle) return null;
           return (
             <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
-              {sourceStyle.label}
+              {t(sourceStyle.labelKey) || sourceStyle.labelKey}
             </span>
           );
         })()}
@@ -195,7 +196,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
               )}
               {sourceStyle && (
                 <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
-                  {sourceStyle.label}
+                  {t(sourceStyle.labelKey) || sourceStyle.labelKey}
                 </span>
               )}
             </div>
@@ -350,6 +351,8 @@ export function TasksPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [newPriority, setNewPriority] = useState('medium');
+  const [newAssigneeId, setNewAssigneeId] = useState('');
+  const [subordinates, setSubordinates] = useState<UserListItem[]>([]);
   const [creating, setCreating] = useState(false);
 
   // Generate tasks
@@ -390,6 +393,14 @@ export function TasksPage() {
   useEffect(() => {
     loadData();
   }, [scope]);
+
+  // Загружаем список подчинённых (только для руководителей)
+  useEffect(() => {
+    if (!isManager) return;
+    usersApi.list({ role: 'sales_rep', is_active: true, limit: 200 })
+      .then((res) => setSubordinates(res.data?.items ?? []))
+      .catch(() => setSubordinates([]));
+  }, [isManager]);
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     try {
@@ -434,10 +445,12 @@ export function TasksPage() {
         description: newDesc.trim() || undefined,
         priority: newPriority,
         status: 'todo',
+        ...(newAssigneeId ? { assignee_id: newAssigneeId } : {}),
       } as Partial<Task>);
       setNewTitle('');
       setNewDesc('');
       setNewPriority('medium');
+      setNewAssigneeId('');
       setShowCreate(false);
       await loadData();
     } catch {
@@ -632,6 +645,22 @@ export function TasksPage() {
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 />
               </div>
+              {/* Исполнитель (только для руководителей, поле опционально) */}
+              {isManager && subordinates.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('tasks.create.assigneeLabel') || 'Исполнитель'}</label>
+                  <select
+                    value={newAssigneeId}
+                    onChange={(e) => setNewAssigneeId(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  >
+                    <option value="">{t('tasks.create.assigneePlaceholder') || 'Без исполнителя'}</option>
+                    {subordinates.map((u) => (
+                      <option key={u.id} value={u.id}>{u.full_name || u.employee_id}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('tasks.create.priorityLabel')}</label>
                 <div className="flex gap-2">
@@ -657,7 +686,7 @@ export function TasksPage() {
             </div>
             <div className="flex gap-3 justify-end mt-6">
               <button
-                onClick={() => setShowCreate(false)}
+                onClick={() => { setShowCreate(false); setNewAssigneeId(''); }}
                 className="px-4 py-2.5 text-sm text-gray-600 hover:text-gray-800 font-medium rounded-xl hover:bg-gray-100 transition-colors"
               >
                 {t('tasks.create.cancel')}

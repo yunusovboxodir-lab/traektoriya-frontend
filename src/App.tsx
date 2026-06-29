@@ -164,8 +164,10 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageLoader />}>
     <Routes>
-      {/* Dev: Character preview (temp) */}
-      <Route path="/dev/characters" element={<CharacterPreview />} />
+      {/* Dev-only: Character preview (скрыто в проде) */}
+      {import.meta.env.DEV && (
+        <Route path="/dev/characters" element={<CharacterPreview />} />
+      )}
 
       {/* Лендинг — статическая страница public/landing.html (Vercel rewrite /landing).
           React-маршрут больше не нужен: SmartRedirect делает hard-redirect на /landing. */}

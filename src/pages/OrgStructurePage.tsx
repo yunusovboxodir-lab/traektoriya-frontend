@@ -11,6 +11,7 @@ import { usersApi } from '../api/users';
 import type { Region, Dealer, Team } from '../api/team';
 import { toast } from '../stores/toastStore';
 import { Button, EmptyState } from '@/components/ui';
+import { useT } from '../stores/langStore';
 import { MapPin, Building2, UserCog, Plus, Pencil, Power, X as XIcon } from 'lucide-react';
 
 type Section = 'regions' | 'dealers' | 'supervisors';
@@ -43,6 +44,7 @@ const inputCls =
 // ---------------------------------------------------------------------------
 
 function RegionsSection() {
+  const t = useT();
   const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Region | null>(null);
@@ -54,30 +56,30 @@ function RegionsSection() {
       const res = await teamApi.getRegions(true);
       setRegions(res.data?.items ?? []);
     } catch {
-      toast.error('Ошибка загрузки регионов');
+      toast.error(t('org.errors.loadRegions') || 'Ошибка загрузки регионов');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => { load(); }, [load]);
 
   const toggleActive = async (r: Region) => {
     try {
       await teamApi.updateRegion(r.id, { is_active: !r.is_active });
-      toast.success(r.is_active ? 'Регион выключен' : 'Регион включён');
+      toast.success(r.is_active ? (t('org.status.deactivated') || 'Регион выключен') : (t('org.status.activated') || 'Регион включён'));
       load();
     } catch {
-      toast.error('Не удалось изменить статус');
+      toast.error(t('org.errors.changeStatus') || 'Не удалось изменить статус');
     }
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <p className="text-sm text-gray-500">{regions.length} регион(ов)</p>
+        <p className="text-sm text-gray-500">{regions.length} {t('org.regions.count') || 'регион(ов)'}</p>
         <Button size="sm" leftIcon={<Plus size={16} />} onClick={() => setShowCreate(true)}>
-          Добавить регион
+          {t('org.regions.add') || 'Добавить регион'}
         </Button>
       </div>
 
@@ -86,16 +88,16 @@ function RegionsSection() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
         </div>
       ) : regions.length === 0 ? (
-        <EmptyState icon={<MapPin size={48} />} title="Регионов пока нет" description="Добавьте первый регион." />
+        <EmptyState icon={<MapPin size={48} />} title={t('org.regions.empty') || 'Регионов пока нет'} description={t('org.regions.emptyDesc') || 'Добавьте первый регион.'} />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 text-gray-600 text-xs">
-                <th className="text-left px-4 py-2">Название</th>
-                <th className="text-left px-4 py-2">Страна</th>
-                <th className="text-center px-4 py-2">Статус</th>
-                <th className="text-right px-4 py-2">Действия</th>
+                <th className="text-left px-4 py-2">{t('org.col.name') || 'Название'}</th>
+                <th className="text-left px-4 py-2">{t('org.col.country') || 'Страна'}</th>
+                <th className="text-center px-4 py-2">{t('org.col.status') || 'Статус'}</th>
+                <th className="text-right px-4 py-2">{t('org.col.actions') || 'Действия'}</th>
               </tr>
             </thead>
             <tbody>
@@ -105,7 +107,7 @@ function RegionsSection() {
                   <td className="px-4 py-2 text-gray-600">{r.country}</td>
                   <td className="px-4 py-2 text-center">
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {r.is_active ? 'Активен' : 'Выключен'}
+                      {r.is_active ? (t('org.status.active') || 'Активен') : (t('org.status.inactive') || 'Выключен')}
                     </span>
                   </td>
                   <td className="px-4 py-2">
@@ -470,6 +472,8 @@ function SupervisorForm({ regions, onClose, onSaved }: { regions: Region[]; onCl
     e.preventDefault();
     if (!regionId || !dealerId || !fullName.trim() || !login.trim() || password.length < 8) return;
     setSaving(true);
+    let createdEmployeeId: string | undefined;
+    let createdUserId: string | undefined;
     try {
       // 1. Создаём пользователя-супервайзера
       const userRes = await usersApi.create({
@@ -480,14 +484,30 @@ function SupervisorForm({ regions, onClose, onSaved }: { regions: Region[]; onCl
         region: region?.name,
         phone: phone.trim() || undefined,
       });
-      const supervisorId = userRes.data?.id;
+      createdEmployeeId = userRes.data?.employee_id;
+      createdUserId = userRes.data?.id;
       // 2. Создаём команду с привязкой к дилеру
-      await teamApi.createTeam({
-        name: fullName.trim(),
-        dealer_id: dealerId,
-        region_id: regionId,
-        supervisor_id: supervisorId,
-      });
+      try {
+        await teamApi.createTeam({
+          name: fullName.trim(),
+          dealer_id: dealerId,
+          region_id: regionId,
+          supervisor_id: createdUserId,
+        });
+      } catch (teamErr: unknown) {
+        // Rollback best-effort: деактивируем созданного пользователя чтобы не плодить сирот
+        if (createdEmployeeId) {
+          try {
+            await usersApi.updateProfile(createdEmployeeId, { is_active: false });
+          } catch {
+            // rollback best-effort
+          }
+        }
+        const detail = (teamErr as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+        toast.error(detail || 'Не удалось создать команду. Пользователь деактивирован.');
+        setSaving(false);
+        return;
+      }
       toast.success('Супервайзер создан');
       onSaved();
       onClose();

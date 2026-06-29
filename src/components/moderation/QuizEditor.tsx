@@ -46,6 +46,13 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
   const [showNewForm, setShowNewForm] = useState(false);
   const [error, setError] = useState('');
 
+  // Edit question state (inline edit при разворачивании)
+  const [editQuestion, setEditQuestion] = useState('');
+  const [editOptions, setEditOptions] = useState<Array<{ id: string; text: string }>>([]);
+  const [editCorrect, setEditCorrect] = useState<string | string[]>('');
+  const [editExplanation, setEditExplanation] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
   // New question form state
   const [newType, setNewType] = useState('multiple_choice');
   const [newQuestion, setNewQuestion] = useState('');
@@ -80,6 +87,33 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
     setNewPoints(1);
     setNewDifficulty(2);
     setShowNewForm(false);
+  };
+
+  // Заполнить форму редактирования из данных вопроса
+  const initEditFromQuestion = (q: QuizQuestion) => {
+    setEditQuestion(q.question);
+    setEditOptions(q.options ? q.options.map(o => ({ id: o.id, text: o.text })) : []);
+    setEditCorrect(q.correct_answer as string | string[]);
+    setEditExplanation(q.explanation || '');
+  };
+
+  const handleUpdate = async (q: QuizQuestion) => {
+    if (!editQuestion.trim()) return;
+    setEditSaving(true);
+    setError('');
+    try {
+      await coursesApi.updateQuestion(q.id, {
+        question: editQuestion.trim(),
+        options: editOptions.filter(o => o.text.trim()),
+        correct_answer: editCorrect,
+        explanation: editExplanation || undefined,
+      });
+      await fetchQuestions();
+    } catch {
+      setError('Не удалось сохранить изменения');
+    } finally {
+      setEditSaving(false);
+    }
   };
 
   const handleCreate = async () => {
@@ -185,7 +219,14 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                       opacity: q.is_active ? 1 : 0.5,
                       background: 'var(--bg-surface)',
                     }}
-                    onClick={() => setExpandedId(expandedId === q.id ? null : q.id)}
+                    onClick={() => {
+                      if (expandedId === q.id) {
+                        setExpandedId(null);
+                      } else {
+                        setExpandedId(q.id);
+                        initEditFromQuestion(q);
+                      }
+                    }}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <span className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>#{idx + 1}</span>
@@ -220,41 +261,74 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                   </div>
 
                   {expandedId === q.id && (
-                    <div className="px-4 pb-4 space-y-2" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
+                    <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
                       <div className="pt-3">
-                        <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Вопрос:</p>
-                        <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{q.question}</p>
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Текст вопроса</label>
+                        <textarea
+                          rows={2}
+                          value={editQuestion}
+                          onChange={(e) => setEditQuestion(e.target.value)}
+                          style={{ ...fieldStyle, resize: 'vertical' }}
+                        />
                       </div>
-                      {q.options && q.options.length > 0 && (
+                      {editOptions.length > 0 && (
                         <div>
-                          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Варианты:</p>
-                          {q.options.map(opt => {
-                            const isCorrect = Array.isArray(q.correct_answer)
-                              ? (q.correct_answer as string[]).includes(opt.id)
-                              : q.correct_answer === opt.id;
+                          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Варианты ответов</p>
+                          {editOptions.map((opt, i) => {
+                            const isCorrect = Array.isArray(editCorrect)
+                              ? (editCorrect as string[]).includes(opt.id)
+                              : editCorrect === opt.id;
                             return (
-                              <div
-                                key={opt.id}
-                                className="text-sm px-3 py-1.5 rounded mb-1"
-                                style={isCorrect
-                                  ? { background: 'var(--success-bg)', color: 'var(--success)', fontWeight: 500 }
-                                  : { background: 'var(--bg-card)', color: 'var(--text-secondary)' }
-                                }
-                              >
-                                <span className="font-mono mr-2">{opt.id.toUpperCase()}.</span>
-                                {opt.text}
-                                {isCorrect && ' ✓'}
+                              <div key={opt.id} className="flex items-center gap-2 mb-1">
+                                <input
+                                  type="checkbox"
+                                  checked={isCorrect}
+                                  onChange={() => {
+                                    if (Array.isArray(editCorrect)) {
+                                      setEditCorrect(
+                                        isCorrect
+                                          ? (editCorrect as string[]).filter((x) => x !== opt.id)
+                                          : [...(editCorrect as string[]), opt.id],
+                                      );
+                                    } else {
+                                      setEditCorrect(opt.id);
+                                    }
+                                  }}
+                                  className="flex-shrink-0"
+                                />
+                                <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{opt.id.toUpperCase()}.</span>
+                                <input
+                                  value={opt.text}
+                                  onChange={(e) => {
+                                    const updated = editOptions.map((o, j) => j === i ? { ...o, text: e.target.value } : o);
+                                    setEditOptions(updated);
+                                  }}
+                                  style={{ ...fieldStyle, padding: '0.25rem 0.5rem' }}
+                                />
                               </div>
                             );
                           })}
                         </div>
                       )}
-                      {q.explanation && (
-                        <div>
-                          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Пояснение:</p>
-                          <p className="text-sm italic" style={{ color: 'var(--text-secondary)' }}>{q.explanation}</p>
-                        </div>
-                      )}
+                      <div>
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Пояснение</label>
+                        <input
+                          value={editExplanation}
+                          onChange={(e) => setEditExplanation(e.target.value)}
+                          style={fieldStyle}
+                          placeholder="Необязательно"
+                        />
+                      </div>
+                      <div className="flex justify-end pt-1">
+                        <button
+                          onClick={() => handleUpdate(q)}
+                          disabled={editSaving || !editQuestion.trim()}
+                          className="px-3 py-1.5 rounded-lg text-sm font-medium disabled:opacity-50"
+                          style={{ background: 'var(--info)', color: '#fff' }}
+                        >
+                          {editSaving ? 'Сохранение...' : 'Сохранить'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

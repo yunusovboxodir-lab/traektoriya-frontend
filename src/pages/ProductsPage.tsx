@@ -3,9 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { productsApi, type Product } from '../api/products';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
-// Используем BRAND_TABS_LOCAL из data/products-source — список из 18 брендов
-// shelfscan-каталога с правильным sku_count, вместо хардкод-config 12 брендов.
-import { BRAND_TABS_LOCAL as BRAND_TABS } from '../data/products-source';
 import { TacticalShell } from '../components/tactical/shell';
 import { ProductFormModal } from '../components/products/ProductFormModal';
 import { DeleteConfirmModal } from '../components/products/DeleteConfirmModal';
@@ -53,20 +50,22 @@ export function ProductsPage() {
     return new Intl.NumberFormat(lang === 'uz' ? 'uz-UZ' : 'ru-RU').format(v) + ' ' + t('products.currency');
   };
 
-  const currentBrand = selectedTab >= 0 ? BRAND_TABS[selectedTab] : null;
-  const isAllTab = selectedTab === -1;
-
-  // Products count per brand (for tab badges)
-  const brandCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    BRAND_TABS.forEach((b) => counts.set(b.brandKey, 0));
+  // Бренд-табы строятся динамически из реальных данных API (distinct по brand)
+  const dynamicBrandTabs = useMemo(() => {
+    const brandCounts = new Map<string, number>();
     products.forEach((p) => {
-      if (p.brand && counts.has(p.brand)) {
-        counts.set(p.brand, (counts.get(p.brand) || 0) + 1);
+      if (p.brand) {
+        brandCounts.set(p.brand, (brandCounts.get(p.brand) || 0) + 1);
       }
     });
-    return counts;
+    // Сортируем по количеству товаров (убывание), потом по алфавиту
+    return Array.from(brandCounts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([brand, count]) => ({ brandKey: brand, label: brand, count }));
   }, [products]);
+
+  const currentBrand = selectedTab >= 0 ? (dynamicBrandTabs[selectedTab] ?? null) : null;
+  const isAllTab = selectedTab === -1;
 
   // Filter products for current tab
   const filtered = useMemo(() => {
@@ -84,14 +83,14 @@ export function ProductsPage() {
       );
     }
     return result;
-  }, [products, selectedTab, search, currentBrand?.brandKey, isAllTab]);
+  }, [products, isAllTab, search, currentBrand?.brandKey]);
 
-  // Group products by brand (for "All" tab), ordered by BRAND_TABS
+  // Group products by brand (for "All" tab), ordered by dynamicBrandTabs
   const groupedByBrand = useMemo(() => {
     if (!isAllTab) return null;
-    const brandOrder = BRAND_TABS.map((b) => b.brandKey);
+    const brandOrder = dynamicBrandTabs.map((b) => b.brandKey);
     const groups = new Map<string, typeof filtered>();
-    // Initialize in BRAND_TABS order
+    // Initialize in dynamicBrandTabs order
     brandOrder.forEach((key) => groups.set(key, []));
     filtered.forEach((p) => {
       const brand = p.brand || 'Другое';
@@ -105,10 +104,7 @@ export function ProductsPage() {
     return groups;
   }, [filtered, isAllTab]);
 
-  // Placeholder count (only when not searching)
-  const placeholderCount = search.trim() || isAllTab
-    ? 0
-    : Math.max(0, (currentBrand?.expectedSKU || 0) - filtered.length);
+  // (placeholder slots removed — now using real counts from API)
 
   // -- Loading skeleton --
   if (loading) {
@@ -156,7 +152,7 @@ export function ProductsPage() {
       title={t('products.title')}
       subtitle={isAllTab
         ? `${products.length} SKU`
-        : t('products.skuCount', { brand: currentBrand!.label, count: filtered.length, total: currentBrand!.expectedSKU })}
+        : `${currentBrand?.label ?? ''}: ${filtered.length} SKU`}
     >
       {/* Page header — дубль title убран, остался только toolbar справа */}
       <div className="flex items-center justify-end gap-3 mb-5">
@@ -229,28 +225,23 @@ export function ProductsPage() {
             {products.length}
           </span>
         </button>
-        {BRAND_TABS.map((brand, idx) => {
-          const count = brandCounts.get(brand.brandKey) || 0;
-          return (
-            <button
-              key={brand.brandKey}
-              type="button"
-              onClick={() => { setSelectedTab(idx); setSearch(''); }}
-              className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                selectedTab === idx
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : count === 0
-                    ? 'bg-gray-50 text-gray-400 hover:bg-gray-100'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {brand.label}
-              <span className={`ml-1.5 text-xs ${selectedTab === idx ? 'text-blue-200' : 'text-gray-400'}`}>
-                {count}/{brand.expectedSKU}
-              </span>
-            </button>
-          );
-        })}
+        {dynamicBrandTabs.map((brand, idx) => (
+          <button
+            key={brand.brandKey}
+            type="button"
+            onClick={() => { setSelectedTab(idx); setSearch(''); }}
+            className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+              selectedTab === idx
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {brand.label}
+            <span className={`ml-1.5 text-xs ${selectedTab === idx ? 'text-blue-200' : 'text-gray-400'}`}>
+              {brand.count}
+            </span>
+          </button>
+        ))}
       </div>
 
       {/* Search */}
@@ -406,31 +397,6 @@ export function ProductsPage() {
             </div>
           ))}
 
-          {/* Placeholder cards ("СКОРО БУДЕТ") */}
-          {Array.from({ length: placeholderCount }).map((_, idx) => (
-            <div
-              key={`placeholder-${idx}`}
-              className="bg-gray-50/50 rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center p-8 min-h-[260px]"
-            >
-              <svg className="w-12 h-12 text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                <path d="M3.27 6.96L12 12.01l8.73-5.05" />
-                <path d="M12 22.08V12" />
-              </svg>
-              <span className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
-                {t('products.comingSoon')}
-              </span>
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(true)}
-                  className="mt-3 text-xs text-blue-500 hover:text-blue-700 font-medium"
-                >
-                  {t('products.addProduct')}
-                </button>
-              )}
-            </div>
-          ))}
         </div>
       )}
 
@@ -513,29 +479,11 @@ export function ProductsPage() {
             </div>
           ) : null}
 
-          {/* Table placeholder note */}
-          {placeholderCount > 0 && (
-            <div className="mt-4 px-4 py-3 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center">
-              <span className="text-sm text-gray-400">
-                {t('products.expecting', { count: placeholderCount })}{' '}
-                <span className="font-medium">{currentBrand?.label}</span>
-              </span>
-              {isAdmin && (
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(true)}
-                  className="ml-3 text-sm text-blue-500 hover:text-blue-700 font-medium"
-                >
-                  {t('products.addProduct')}
-                </button>
-              )}
-            </div>
-          )}
         </>
       )}
 
       {/* Empty state (when search finds nothing) */}
-      {filtered.length === 0 && placeholderCount === 0 && (
+      {filtered.length === 0 && (
         <div className="text-center py-16">
           <p className="text-gray-500 text-lg font-medium">{t('products.nothingFound')}</p>
           <button

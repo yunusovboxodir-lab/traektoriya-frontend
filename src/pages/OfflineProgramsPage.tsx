@@ -7,7 +7,8 @@ import { offlineProgramsApi } from '../api/offlinePrograms';
 import { useT } from '../stores/langStore';
 import type { Program } from '../types/offlineProgram';
 import { PageHeader, SkeletonCard, EmptyState, Button } from '@/components/ui';
-import { FileText, Plus } from 'lucide-react';
+import { toast } from '../stores/toastStore';
+import { FileText, Plus, Trash2 } from 'lucide-react';
 
 export function OfflineProgramsPage() {
   const t = useT();
@@ -16,6 +17,8 @@ export function OfflineProgramsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [deletingProgram, setDeletingProgram] = useState<Program | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -33,6 +36,22 @@ export function OfflineProgramsPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const handleDelete = async () => {
+    if (!deletingProgram) return;
+    setDeleting(true);
+    try {
+      await offlineProgramsApi.remove(deletingProgram.id);
+      toast.success('Программа удалена');
+      setDeletingProgram(null);
+      load();
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      toast.error(err.response?.data?.detail || 'Не удалось удалить программу');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -71,7 +90,12 @@ export function OfflineProgramsPage() {
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {programs.map((p) => (
-            <ProgramCard key={p.id} program={p} onClick={() => navigate(`/activities/programs/${p.id}/edit`)} />
+            <ProgramCard
+              key={p.id}
+              program={p}
+              onClick={() => navigate(`/activities/programs/${p.id}/edit`)}
+              onDelete={() => setDeletingProgram(p)}
+            />
           ))}
           {programs.length === 0 && (
             <div className="col-span-full">
@@ -99,37 +123,83 @@ export function OfflineProgramsPage() {
           }}
         />
       )}
+
+      {/* Модалка подтверждения удаления */}
+      {deletingProgram && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !deleting && setDeletingProgram(null)}>
+          <div className="rounded-2xl max-w-sm w-full p-6" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }} onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Удалить программу?</h2>
+            <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>
+              «{deletingProgram.title}» будет удалена безвозвратно.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setDeletingProgram(null)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg text-sm"
+                style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'var(--bg-card)' }}
+              >
+                Отмена
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
+                style={{ background: 'var(--danger)', color: '#fff' }}
+              >
+                {deleting ? 'Удаление...' : 'Удалить'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-function ProgramCard({ program, onClick }: { program: Program; onClick: () => void }) {
+function ProgramCard({ program, onClick, onDelete }: { program: Program; onClick: () => void; onDelete: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      className="text-left rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all"
+    <div
+      className="rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all relative"
       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)', borderTopColor: program.theme_color, borderTopWidth: 4 }}
     >
-      <div className="flex items-start gap-3 mb-3">
-        <span className="text-4xl">{program.icon || '📋'}</span>
-        <div className="flex-1">
-          <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{program.title}</h3>
-          {program.title_uz && <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>{program.title_uz}</p>}
+      {/* Кнопка удаления */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        className="absolute top-3 right-3 p-1.5 rounded-lg transition-colors"
+        style={{ color: 'var(--text-muted)' }}
+        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--danger-bg)'; }}
+        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+        title="Удалить программу"
+      >
+        <Trash2 size={14} />
+      </button>
+
+      <button
+        onClick={onClick}
+        className="text-left w-full"
+      >
+        <div className="flex items-start gap-3 mb-3 pr-6">
+          <span className="text-4xl">{program.icon || '?'}</span>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{program.title}</h3>
+            {program.title_uz && <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>{program.title_uz}</p>}
+          </div>
         </div>
-      </div>
-      {program.description && (
-        <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{program.description}</p>
-      )}
-      <div className="flex flex-wrap gap-2 text-xs">
-        <Tag label={program.target_role.toUpperCase()} />
-        <Tag label={`${program.duration_minutes} мин`} />
-        <Tag label={`${program.num_questions} вопросов`} />
-        <Tag label={`max ${program.max_score} б`} />
-      </div>
-      <div className="mt-3 pt-3 text-xs" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-        Код: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)' }}>{program.code}</code>
-      </div>
-    </button>
+        {program.description && (
+          <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>{program.description}</p>
+        )}
+        <div className="flex flex-wrap gap-2 text-xs">
+          <Tag label={program.target_role.toUpperCase()} />
+          <Tag label={`${program.duration_minutes} мин`} />
+          <Tag label={`${program.num_questions} вопросов`} />
+          <Tag label={`max ${program.max_score} б`} />
+        </div>
+        <div className="mt-3 pt-3 text-xs" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+          Код: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)' }}>{program.code}</code>
+        </div>
+      </button>
+    </div>
   );
 }
 

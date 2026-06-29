@@ -13,6 +13,7 @@ import {
 } from '@dnd-kit/core';
 import { api } from '../../api/client';
 import { toast } from '../../stores/toastStore';
+import { LessonEditor } from './LessonEditor';
 
 // ───────────────────────────────────────
 // Types
@@ -222,6 +223,7 @@ export function ContentKanbanTab() {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [activeItem, setActiveItem] = useState<ContentItem | null>(null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -321,9 +323,8 @@ export function ContentKanbanTab() {
   };
 
   // ─── Card click handler ─────────────────
-  const handleCardClick = (_item: ContentItem) => {
-    // Could navigate to an editor; for now just show a toast
-    toast.info(`Элемент: ${_item.title}`);
+  const handleCardClick = (item: ContentItem) => {
+    setEditingItemId(item.id);
   };
 
   // ─── Loading ───────────────────────────
@@ -405,6 +406,18 @@ export function ContentKanbanTab() {
           </DragOverlay>
         </DndContext>
       </div>
+
+      {/* Редактор урока по клику на карточку */}
+      {editingItemId && (
+        <LessonEditor
+          itemId={editingItemId}
+          onClose={() => setEditingItemId(null)}
+          onSaved={() => {
+            setEditingItemId(null);
+            loadData();
+          }}
+        />
+      )}
     </div>
   );
 }
