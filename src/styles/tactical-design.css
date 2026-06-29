@@ -108,10 +108,18 @@
    → сливался с пеплом. Переопределяем на тёмное золото (читаемо, бренд сохранён). */
 [data-theme="light"] .title-row h1 {
   background: linear-gradient(180deg, #8A6A20 0%, #5E4A16 100%);
+  /* shorthand 'background' сбрасывает background-clip → возвращаем clip:text,
+     иначе градиент заливает весь блок, а текст прозрачный = сплошной брус */
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
   text-shadow: none;
 }
 [data-theme="light"] .brand-name {
   background: linear-gradient(180deg, #8A6A20 0%, #5E4A16 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 * { box-sizing: border-box; }

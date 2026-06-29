@@ -36,9 +36,18 @@ export function ProductsPage() {
     try {
       setLoading(true);
       setError(null);
-      const res = await productsApi.getProducts(0, 100);
-      const data = res.data;
-      setProducts(Array.isArray(data) ? data : data.items ?? []);
+      // API отдаёт максимум 100 за запрос → грузим страницами, пока не кончатся
+      // (иначе каталог обрезался на 100 из 114, бренд-табы недосчитывали SKU)
+      const PAGE = 100;
+      const all: Product[] = [];
+      for (let skip = 0; skip <= 5000; skip += PAGE) {
+        const res = await productsApi.getProducts(skip, PAGE);
+        const data = res.data;
+        const batch: Product[] = Array.isArray(data) ? data : data.items ?? [];
+        all.push(...batch);
+        if (batch.length < PAGE) break;
+      }
+      setProducts(all);
     } catch {
       setError(t('products.loadError'));
     } finally {
