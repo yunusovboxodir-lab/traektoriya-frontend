@@ -143,8 +143,9 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
 
   getFirstAllowedPath: () => {
     const { allowedPages, isPageAllowed } = get();
-    // null = not loaded → default to dashboard
-    if (allowedPages === null || allowedPages.length === 0) return '/dashboard';
+    // null = not loaded → /learning (доступен с дня 1; /dashboard загейчен на silver-тир
+    // прогрессивным раскрытием → редирект туда зацикливался у новых пользователей)
+    if (allowedPages === null || allowedPages.length === 0) return '/learning';
     // ВАЖНО: возвращаем первую страницу, реально прошедшую isPageAllowed (с учётом
     // клиентской политики ROLE_FORCE_DENY) — иначе редирект на запрещённую страницу
     // (напр. ТП → training_plan) зацикливается с ProtectedRoute (чёрный мигающий экран).
@@ -154,7 +155,7 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
         if (path) return path;
       }
     }
-    return '/dashboard';
+    return '/learning';
   },
 
   reset: () => set({ allowedPages: null, isLoaded: false, userRole: null, userTier: null }),

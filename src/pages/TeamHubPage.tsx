@@ -13,10 +13,12 @@ import { OrgStructurePage } from './OrgStructurePage';
 
 type TeamTab = 'members' | 'management' | 'admin' | 'structure';
 
+// RBAC (api-conventions): commercial_dir > regional_manager > admin > supervisor.
+// Был баг: regional_manager(2) < admin(3) → РМ не видел вкладки Состав/Структура/Админ.
 const ROLE_HIERARCHY: Record<string, number> = {
-  superadmin: 5,
-  commercial_dir: 4,
-  regional_manager: 2,
+  superadmin: 6,
+  commercial_dir: 5,
+  regional_manager: 4,
   admin: 3,
   supervisor: 2,
   sales_rep: 1,

@@ -477,7 +477,9 @@ export function TasksPage() {
               </button>
             )}
           </div>
-          {/* Generate learning tasks */}
+          {/* Генерация обучения — только руководитель (бэк generate-learning требует supervisor+;
+              у ТП кнопка давала 403. Аудит 2026-06-28). */}
+          {isManager && (
           <button
             onClick={() => handleGenerate('learning')}
             disabled={!!generating}
@@ -491,6 +493,7 @@ export function TasksPage() {
             )}
             {t('tasks.generate.learning')}
           </button>
+          )}
           {/* Generate practical tasks */}
           {isManager && (
             <button
