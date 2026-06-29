@@ -7,6 +7,7 @@ import { Panel, Stat, ProgressBar, RingProgress } from './Panel';
 import { ZONES as DEFAULT_ZONES } from './data';
 import type { MapZone } from './types';
 import { useLangStore } from '../../stores/langStore';
+import { DemoBadge } from '../DemoBadge';
 
 const ZONE_TINTS = [
   'var(--level-1)', // T1 Стажёр — зелёный/золотой
@@ -80,7 +81,10 @@ export function HeroPanel({
       <div className="hero-rank">
         <RingProgress value={overallPct} label={t('ПРАКТИК', 'PRAKTIK')} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>{t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>
+            {t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}
+            <DemoBadge />
+          </div>
           <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'var(--brass)' }}>{t('Практик', 'Praktik')}</div>
           <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
             {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'var(--success)' }}>{t('Эксперт', 'Ekspert')}</span>
@@ -94,8 +98,9 @@ export function HeroPanel({
 
       <div className="divider" />
 
-      {/* Streak */}
-      <div className="streak-row">
+      {/* Streak — демо-данные (серия/время/рейтинг захардкожены) */}
+      <div className="streak-row" style={{ position: 'relative' }}>
+        <DemoBadge style={{ position: 'absolute', top: 0, right: 0 }} />
         <div>
           <div className="metric-label">{t('СЕРИЯ', 'SERIYA')}</div>
           <div className="metric-val"><span className="streak-icon">▲</span>5 <span className="metric-unit">{t('дн.', 'kun')}</span></div>

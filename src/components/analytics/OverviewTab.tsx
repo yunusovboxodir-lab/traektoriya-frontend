@@ -13,16 +13,6 @@ import type { StatCardDef } from './charts';
 // Constants
 // ---------------------------------------------------------------------------
 
-const FALLBACK_CATEGORIES: CategoryBreakdown[] = [
-  { name: 'Молочные', count: 6 },
-  { name: 'Соки', count: 6 },
-  { name: 'Кондитерские', count: 5 },
-  { name: 'Бакалея', count: 5 },
-  { name: 'Консервы', count: 4 },
-  { name: 'Детское', count: 3 },
-  { name: 'Напитки', count: 1 },
-];
-
 const ROLE_LABELS: Record<string, string> = {
   superadmin: 'Суперадмин',
   commercial_dir: 'Комм. директор',
@@ -74,8 +64,8 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       value: ov(overview, 'users.total') || '---',
       gradientFrom: 'from-blue-500',
       gradientTo: 'to-blue-600',
-      bgLight: 'bg-blue-50',
-      textColor: 'text-blue-600',
+      accentColor: 'var(--info)',
+      accentBg: 'var(--info-bg)',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -90,8 +80,8 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       value: ov(overview, 'courses.total') || '---',
       gradientFrom: 'from-emerald-500',
       gradientTo: 'to-emerald-600',
-      bgLight: 'bg-emerald-50',
-      textColor: 'text-emerald-600',
+      accentColor: 'var(--success)',
+      accentBg: 'var(--success-bg)',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
@@ -104,8 +94,8 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       value: ov(overview, 'tasks.total') || '---',
       gradientFrom: 'from-amber-500',
       gradientTo: 'to-amber-600',
-      bgLight: 'bg-amber-50',
-      textColor: 'text-amber-600',
+      accentColor: 'var(--warning)',
+      accentBg: 'var(--warning-bg)',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
@@ -119,8 +109,8 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       value: ov(overview, 'products.total') || '---',
       gradientFrom: 'from-purple-500',
       gradientTo: 'to-purple-600',
-      bgLight: 'bg-purple-50',
-      textColor: 'text-purple-600',
+      accentColor: 'var(--color-tp)',
+      accentBg: 'var(--color-tp-bg)',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -131,10 +121,11 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
     },
   ];
 
+  // Только реальные данные с бэкенда; без данных — блок «Категории» не рендерится.
   const categories: CategoryBreakdown[] =
     productStats?.categories_breakdown && productStats.categories_breakdown.length > 0
       ? productStats.categories_breakdown
-      : FALLBACK_CATEGORIES;
+      : [];
 
   const byProduct = productStats?.by_product ?? [];
   const popularProducts = productStats?.popular_products ?? byProduct.slice(0, 10);
@@ -177,61 +168,62 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {leaderboard.length > 0 && (
         <>
           <SectionTitle title={t('analytics.leaderboard')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium w-8">#</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium">{t('analytics.name')}</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium hidden sm:table-cell">{t('analytics.role')}</th>
-                    <th className="text-left py-2 pr-4 text-gray-500 font-medium hidden md:table-cell">{t('analytics.region')}</th>
-                    <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.tasksCompleted')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leaderboard.map((entry, idx) => (
-                    <tr key={entry.user_id} className="border-b border-gray-50 last:border-0">
-                      <td className="py-2.5 pr-4">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
-                          idx === 0 ? 'bg-amber-100 text-amber-700' :
-                          idx === 1 ? 'bg-gray-100 text-gray-600' :
-                          idx === 2 ? 'bg-orange-100 text-orange-700' :
-                          'text-gray-400'
-                        }`}>
-                          {idx + 1}
-                        </span>
-                      </td>
-                      <td className="py-2.5 pr-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
-                            {entry.full_name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 truncate max-w-[150px]">{entry.full_name}</div>
-                            <div className="text-xs text-gray-400">{entry.employee_id}</div>
-                          </div>
+          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                  <th className="text-left py-2 pr-4 font-medium w-8" style={{ color: 'var(--text-muted)' }}>#</th>
+                  <th className="text-left py-2 pr-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.name')}</th>
+                  <th className="text-left py-2 pr-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.role')}</th>
+                  <th className="text-left py-2 pr-4 font-medium hidden md:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.region')}</th>
+                  <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.tasksCompleted')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard.map((entry, idx) => (
+                  <tr key={entry.user_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td className="py-2.5 pr-4">
+                      <span
+                        className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                        style={
+                          idx === 0 ? { background: 'rgba(251,191,36,0.15)', color: 'var(--warning)' } :
+                          idx === 1 ? { background: 'var(--bg-overlay)', color: 'var(--text-muted)' } :
+                          idx === 2 ? { background: 'rgba(251,146,60,0.15)', color: '#FB923C' } :
+                          { color: 'var(--text-muted)' }
+                        }
+                      >
+                        {idx + 1}
+                      </span>
+                    </td>
+                    <td className="py-2.5 pr-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
+                          {entry.full_name.charAt(0).toUpperCase()}
                         </div>
-                      </td>
-                      <td className="py-2.5 pr-4 hidden sm:table-cell">
-                        <span className="text-xs text-gray-500">{ROLE_LABELS[entry.role] ?? entry.role}</span>
-                      </td>
-                      <td className="py-2.5 pr-4 hidden md:table-cell">
-                        <span className="text-xs text-gray-500">{entry.region ?? '—'}</span>
-                      </td>
-                      <td className="py-2.5 text-right">
-                        <span className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900">
-                          {entry.tasks_completed}
-                          <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                            <path d="M9 12l2 2 4-4" />
-                          </svg>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <div>
+                          <div className="font-medium truncate max-w-[150px]" style={{ color: 'var(--text-primary)' }}>{entry.full_name}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{entry.employee_id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-2.5 pr-4 hidden sm:table-cell">
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[entry.role] ?? entry.role}</span>
+                    </td>
+                    <td className="py-2.5 pr-4 hidden md:table-cell">
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{entry.region ?? '—'}</span>
+                    </td>
+                    <td className="py-2.5 text-right">
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
+                        {entry.tasks_completed}
+                        <svg className="w-3.5 h-3.5" style={{ color: 'var(--success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                          <path d="M9 12l2 2 4-4" />
+                        </svg>
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </>
       )}
@@ -240,7 +232,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {learning && (
         <>
           <SectionTitle title={t('analytics.learningMetrics')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
+          <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <MetricBar
                 label={t('analytics.completion')}
@@ -267,7 +259,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             </div>
 
             {learning.time_stats && (
-              <div className="grid grid-cols-2 gap-4 mb-6 pt-4 border-t border-gray-100">
+              <div className="grid grid-cols-2 gap-4 mb-6 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <MetricValue
                   label={t('analytics.avgLessonTime')}
                   value={`${learning.time_stats.avg_time_per_lesson ?? 0} ${t('analytics.min')}`}
@@ -280,8 +272,8 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             )}
 
             {byTerritory.length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
+              <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
                   {t('analytics.byTerritory')}
                 </h3>
                 <HorizontalBarChart
@@ -294,25 +286,25 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             )}
 
             {byCourse.length > 0 && (
-              <div className="pt-4 mt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
+              <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
                   {t('analytics.byCourse')}
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-2 text-gray-500 font-medium">{t('analytics.courseName')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.enrolled')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.completed')}</th>
+                      <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.courseName')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.enrolled')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.completed')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {byCourse.map((c) => (
-                        <tr key={c.course_id} className="border-b border-gray-50 last:border-0">
-                          <td className="py-2 text-gray-900 truncate max-w-[200px]">{c.title}</td>
-                          <td className="py-2 text-right text-gray-600">{c.enrolled}</td>
-                          <td className="py-2 text-right text-gray-600">{c.completed}</td>
+                        <tr key={c.course_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{c.title}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.enrolled}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.completed}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -328,7 +320,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {productStats && (
         <>
           <SectionTitle title={t('analytics.productKnowledge')} />
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mb-10">
+          <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <MetricValue
                 label={t('analytics.totalProducts')}
@@ -350,10 +342,10 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                 value={productStats.tests_completed ?? productStats.test_stats?.total_attempts ?? 0}
               />
             </div>
-            <div className="border-t border-gray-100 mb-8" />
+            <div className="mb-8" style={{ borderTop: '1px solid var(--border)' }} />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <div className="flex flex-col items-center">
-                <h3 className="text-sm font-medium text-gray-700 mb-4">
+                <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
                   {t('analytics.hpvCoverage')}
                 </h3>
                 <DonutChart
@@ -361,44 +353,46 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                   filled={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
                 />
               </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-4">
-                  {t('analytics.categories')}
-                </h3>
-                <HorizontalBarChart categories={categories} />
-              </div>
+              {categories.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
+                    {t('analytics.categories')}
+                  </h3>
+                  <HorizontalBarChart categories={categories} />
+                </div>
+              )}
             </div>
 
             {popularProducts.length > 0 && (
-              <div className="pt-4 border-t border-gray-100">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
+              <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
                   {t('analytics.productDetails')}
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100">
-                        <th className="text-left py-2 text-gray-500 font-medium">{t('analytics.productName')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.attempts')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.passRate')}</th>
-                        <th className="text-right py-2 text-gray-500 font-medium">{t('analytics.avgScore')}</th>
+                      <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.productName')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.attempts')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.passRate')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.avgScore')}</th>
                       </tr>
                     </thead>
                     <tbody>
                       {popularProducts.map((p) => (
-                        <tr key={p.product_id} className="border-b border-gray-50 last:border-0">
-                          <td className="py-2 text-gray-900 truncate max-w-[200px]">{p.name}</td>
-                          <td className="py-2 text-right text-gray-600">{p.attempts}</td>
+                        <tr key={p.product_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{p.name}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{p.attempts}</td>
                           <td className="py-2 text-right">
-                            <span className={`font-medium ${
-                              p.pass_rate >= 80 ? 'text-emerald-600' :
-                              p.pass_rate >= 50 ? 'text-amber-600' :
-                              'text-red-600'
-                            }`}>
+                            <span className="font-medium" style={{
+                              color: p.pass_rate >= 80 ? 'var(--success)' :
+                                     p.pass_rate >= 50 ? 'var(--warning)' :
+                                     'var(--danger)',
+                            }}>
                               {p.pass_rate}%
                             </span>
                           </td>
-                          <td className="py-2 text-right text-gray-600">{p.avg_score}%</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{p.avg_score}%</td>
                         </tr>
                       ))}
                     </tbody>

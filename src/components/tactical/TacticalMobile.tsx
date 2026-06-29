@@ -19,6 +19,7 @@ import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as 
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
 import { useLangStore } from '../../stores/langStore';
 import { GuidesPanel } from '../onboarding/GuidesPanel';
+import { DemoBadge } from '../DemoBadge';
 
 const TERRITORY_NUMERAL: Record<string, string> = {
   stazher: 'I',
@@ -172,6 +173,8 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
         display: 'flex', flexDirection: 'column',
         alignItems: 'flex-end', gap: 3, flexShrink: 0,
       }}>
+        {/* xp, streak, league, rank — демо-данные */}
+        <DemoBadge style={{ marginBottom: 2 }} />
         <div style={{
           display: 'flex', alignItems: 'center', gap: 5,
           padding: '3px 7px', borderRadius: 99,
@@ -253,6 +256,8 @@ function DailyQuestBanner() {
           fontSize: 11, fontWeight: 700, color: 'var(--brass)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.05em',
         }}>+50 XP</span>
+        {/* Бонус +50XP — фейковая заглушка */}
+        <DemoBadge />
         <span style={{
           fontSize: 8, color: 'var(--text-muted)',
           fontFamily: "'JetBrains Mono', monospace",
@@ -598,9 +603,14 @@ function FriendsStrip() {
         marginBottom: 10,
       }}>
         <span style={{
+          display: 'flex', alignItems: 'center', gap: 6,
           fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
           color: 'var(--text-muted)', letterSpacing: '0.16em',
-        }}>{t('АКТИВНОСТЬ КОМАНДЫ', "JAMOA FAOLIYATI")}</span>
+        }}>
+          {t('АКТИВНОСТЬ КОМАНДЫ', "JAMOA FAOLIYATI")}
+          {/* Друзья (Аиша/Тимур/Лейла) — демо-мок */}
+          <DemoBadge />
+        </span>
         <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 500 }}>{t('Все', 'Barchasi')} →</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -836,7 +846,7 @@ function _MobileTabBar_DEPRECATED() {
   const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   const items: { l: string; i: string; active?: boolean; route?: string }[] = [
     { l: t('Карта', 'Xarita'), i: '◈', active: true },
-    { l: t('Курсы', 'Kurslar'), i: '▤', route: '/learning/legacy' },
+    { l: t('Курсы', 'Kurslar'), i: '▤', route: '/learning' },
     { l: t('Команда', 'Jamoa'), i: '☷', route: '/team' },
     { l: t('Профиль', 'Profil'), i: '◉', route: '/dashboard' },
   ];
