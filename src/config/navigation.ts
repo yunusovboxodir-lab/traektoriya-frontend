@@ -38,6 +38,14 @@ export interface NavDestination {
  * Единый реестр. Порядок = порядок показа на десктопе (StatusBar): сначала main,
  * затем admin-блок. На мобайле: mobilePrimary → нижние табы, остальное → drawer.
  */
+/**
+ * Флаг витрины «Здоровье платформы» (движок самоулучшения).
+ * false → пункт СКРЫТ из меню (но маршрут /engine-health доступен прямым URL).
+ * Держим false до go-live: бэкенд-эндпоинты /engine-health/* ещё не задеплоены,
+ * и до реального потока витрина всё равно пуста. После запуска — поставить true.
+ */
+const ENGINE_HEALTH_NAV_ENABLED = false;
+
 export const NAV_REGISTRY: NavDestination[] = [
   { pageKey: 'dashboard',     path: '/dashboard',             labelKey: 'nav.home',         icon: '🏠', group: 'main', mobilePrimary: true },
   { pageKey: 'learning',      path: '/learning',              labelKey: 'nav.learning',     icon: '📚', group: 'main', mobilePrimary: true },
@@ -54,6 +62,11 @@ export const NAV_REGISTRY: NavDestination[] = [
   // Обратная связь — репорты со скринами (вкладка reports в Аналитике).
   { pageKey: 'analytics',     path: '/analytics?tab=reports', labelKey: 'nav.feedback',     icon: '🗣️', group: 'admin' },
   { pageKey: 'admin-roles',   path: '/admin/roles',           labelKey: 'nav.settings',     icon: '⚙️', group: 'admin' },
+  // Здоровье платформы — витрина движка самоулучшения (гейтинг как у ролей).
+  // Скрыта из меню до go-live (флаг выше). Маршрут /engine-health работает по прямому URL.
+  ...(ENGINE_HEALTH_NAV_ENABLED
+    ? [{ pageKey: 'admin-roles', path: '/engine-health', labelKey: 'nav.engineHealth', icon: '🩺', group: 'admin' } as NavDestination]
+    : []),
 ];
 
 /** Иерархия ролей (для isAdmin/isSuperOrAdmin). */

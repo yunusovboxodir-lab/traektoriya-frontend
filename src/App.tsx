@@ -56,6 +56,7 @@ const FieldTripNewPage = lazyWithRetry(() => import('./pages/FieldTripNewPage').
 const CalendarEventNewPage = lazyWithRetry(() => import('./pages/CalendarEventNewPage').then(m => ({ default: m.CalendarEventNewPage })));
 const CalendarEventDetailPage = lazyWithRetry(() => import('./pages/CalendarEventDetailPage').then(m => ({ default: m.CalendarEventDetailPage })));
 const CharacterPreview = lazyWithRetry(() => import('./components/learning/blocks/CharacterPreview').then(m => ({ default: m.CharacterPreview })));
+const EngineHealthPage = lazyWithRetry(() => import('./pages/EngineHealthPage').then(m => ({ default: m.EngineHealthPage })));
 
 // ===========================================
 // ЗАЩИЩЁННЫЙ РОУТ С LAYOUT
@@ -470,6 +471,16 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="admin-roles">
             <RolesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Здоровье платформы — витрина движка самоулучшения (admin+) */}
+      <Route
+        path="/engine-health"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <EngineHealthPage />
           </ProtectedRoute>
         }
       />
