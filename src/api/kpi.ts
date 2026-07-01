@@ -81,6 +81,58 @@ export interface KPIRecord {
   is_closed?: boolean;
 }
 
+// ---------------------------------------------------------------------------
+// Типы Чемпионата-2026 (Scoring v2.0, Этап 3)
+// ---------------------------------------------------------------------------
+
+/**
+ * Лидер чемпионата — место в лиге по перцентилю закрытого периода.
+ */
+export interface ChampionshipLeader {
+  rank: number;
+  user_id: string;
+  full_name: string;
+  employee_id: string;
+  role: string;
+  /** KPI_final закрытого периода. */
+  kpi_final: number;
+  /** Перцентиль внутри лиги (100 = лучший). */
+  percentile: number;
+}
+
+/**
+ * Участник категории «Лучший прирост» — рост KPI к прошлому закрытому периоду.
+ */
+export interface ChampionshipImproved {
+  user_id: string;
+  full_name: string;
+  employee_id: string;
+  role: string;
+  /** Прирост KPI (kpi_final текущий − прошлый). */
+  delta: number;
+  /** KPI прошлого периода. */
+  from: number;
+  /** KPI текущего периода. */
+  to: number;
+}
+
+/**
+ * Ответ GET /api/v1/kpi/championship.
+ * period может быть null если ещё нет закрытых периодов.
+ */
+export interface ChampionshipResponse {
+  period: string | null;
+  previous_period: string | null;
+  league: string;
+  ranked_by: string;
+  closed: boolean;
+  computed_at: string | null;
+  leaders: ChampionshipLeader[];
+  most_improved: ChampionshipImproved[];
+  /** Присутствует при пустом результате (нет закрытых периодов). */
+  note?: string;
+}
+
 export const kpiApi = {
   getMyKPI: (period?: string) =>
     api.get('/api/v1/kpi/my', { params: period ? { period } : {} }),
@@ -109,4 +161,12 @@ export const kpiApi = {
 
   getBoostTips: () =>
     api.get('/api/v1/kpi/boost-tips'),
+
+  /**
+   * Чемпионат-2026 (Scoring v2.0, Этап 3).
+   * Ранжирование по перцентилю внутри лиги по ЗАКРЫТЫМ периодам.
+   * + категория «Лучший прирост» (рост к прошлому закрытому периоду).
+   */
+  getChampionship: (params?: { period?: string; role?: string; limit?: number }) =>
+    api.get<ChampionshipResponse>('/api/v1/kpi/championship', { params }),
 };

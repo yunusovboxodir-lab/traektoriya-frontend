@@ -189,9 +189,39 @@ export function TacticalLearningPage() {
         </button>
         <button
           type="button"
-          onClick={() => navigate('/learning/hall-of-fame')}
+          onClick={() => navigate('/learning/championship-2026')}
           style={{
             marginLeft: 12,
+            background: 'var(--bg-overlay)',
+            border: '1px solid var(--line)',
+            borderRadius: 6,
+            padding: '6px 12px',
+            color: 'var(--gold, #f2c660)',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = 'var(--gold, #f2c660)';
+            e.currentTarget.style.background = 'var(--bg-elevated)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = 'var(--line)';
+            e.currentTarget.style.background = 'var(--bg-overlay)';
+          }}
+          title={lang === 'uz' ? "Chempionat 2026 · jonli natijalari" : 'Чемпионат 2026 · живые результаты'}
+        >
+          {lang === 'uz' ? 'Chempionat 2026' : 'Чемпионат 2026'}
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/learning/hall-of-fame')}
+          style={{
+            marginLeft: 8,
             background: 'var(--bg-overlay)',
             border: '1px solid var(--line)',
             borderRadius: 6,

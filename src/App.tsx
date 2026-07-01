@@ -27,6 +27,7 @@ const AIStudioPage = lazyWithRetry(() => import('./pages/AIStudioPage').then(m =
 const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m => ({ default: m.LearningPage })));
 const TacticalLearningPage = lazyWithRetry(() => import('./pages/TacticalLearningPage').then(m => ({ default: m.TacticalLearningPage })));
 const HallOfFame2025Page = lazyWithRetry(() => import('./pages/HallOfFame2025Page').then(m => ({ default: m.HallOfFame2025Page })));
+const Championship2026Page = lazyWithRetry(() => import('./pages/Championship2026Page').then(m => ({ default: m.Championship2026Page })));
 const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
@@ -223,6 +224,15 @@ function AppRoutes() {
         element={
           <FullscreenProtectedRoute pageKey="learning">
             <HallOfFame2025Page />
+          </FullscreenProtectedRoute>
+        }
+      />
+      {/* Чемпионат 2026 — живые данные, Scoring v2.0 Этап 3 */}
+      <Route
+        path="/learning/championship-2026"
+        element={
+          <FullscreenProtectedRoute pageKey="learning">
+            <Championship2026Page />
           </FullscreenProtectedRoute>
         }
       />
