@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { kpiApi } from '../../api/kpi';
+import type { KPIBreakdown } from '../../api/kpi';
 import type { OverviewData, LearningMetrics, ProductStats, LeaderboardEntry } from './types';
 
 // ---------------------------------------------------------------------------
@@ -14,15 +15,25 @@ interface TeamRating {
   member_count?: number;
 }
 
+/**
+ * KpiEntry — запись из /api/v1/kpi/leaderboard/top.
+ * Обратно совместима: ai_score/lms_score/crm_score — мост к старой формуле.
+ * Новое поле breakdown — детализация 4 компонентов (Scoring v2.0, Этап 2).
+ */
 interface KpiEntry {
   user_id: string;
   full_name: string;
   role: string;
   total_kpi: number;
+  /** Прокси Sales (обратная совместимость). */
   ai_score: number;
+  /** Learning (обратная совместимость). */
   lms_score: number;
+  /** Execution (обратная совместимость). */
   crm_score: number;
   rank: number;
+  /** Детализация v2.0 (может отсутствовать для старых записей). */
+  breakdown?: KPIBreakdown;
 }
 
 interface PrintReportProps {
@@ -196,40 +207,62 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
               <div className="text-center py-8 text-gray-400 text-sm">Загрузка KPI данных...</div>
             ) : kpiLeaderboard.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
                   <span className="w-1 h-5 bg-blue-600 rounded-full inline-block" />
                   KPI Лидерборд — Топ {Math.min(kpiLeaderboard.length, 10)}
                 </h2>
+                {/* Подпись формулы (Scoring v2.0) */}
+                <p className="text-xs text-gray-400 mb-3">
+                  Формула: Продажи 40% + Исполнение 30% + Обучение 20% + Дисциплина 10%
+                  {' '}· <span className="text-amber-500">пред.</span> = предварительно (прокси до CRM)
+                </p>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 text-left">
                       <th className="py-2 px-3 font-semibold text-gray-600 w-10">#</th>
                       <th className="py-2 px-3 font-semibold text-gray-600">Сотрудник</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600">Должность</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">AI (40%)</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">LMS (30%)</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">CRM (30%)</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600">Роль</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">
+                        Продажи (40%)
+                        <span className="ml-1 text-[10px] font-normal text-amber-500">пред.</span>
+                      </th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">Исполнение (30%)</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">Обучение (20%)</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">
+                        Дисциплина (10%)
+                        <span className="ml-1 text-[10px] font-normal text-amber-500">пред.</span>
+                      </th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-right">KPI</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {kpiLeaderboard.slice(0, 10).map((entry, i) => (
-                      <tr key={entry.user_id} className={`border-b border-gray-100 ${i < 3 ? 'bg-amber-50/40' : ''}`}>
-                        <td className="py-2 px-3 font-bold text-gray-500">
-                          {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : entry.rank || i + 1}
-                        </td>
-                        <td className="py-2 px-3 font-medium text-gray-800">{entry.full_name}</td>
-                        <td className="py-2 px-3 text-gray-500">{roleLabel(entry.role)}</td>
-                        <td className="py-2 px-3 text-center">{Math.round(entry.ai_score || 0)}</td>
-                        <td className="py-2 px-3 text-center">{Math.round(entry.lms_score || 0)}</td>
-                        <td className="py-2 px-3 text-center">{Math.round(entry.crm_score || 0)}</td>
-                        <td className="py-2 px-3 text-right">
-                          <span className={`font-bold ${entry.total_kpi >= 80 ? 'text-green-600' : entry.total_kpi >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {Math.round(entry.total_kpi)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {kpiLeaderboard.slice(0, 10).map((entry, i) => {
+                      // Берём компоненты из breakdown, если доступны (Этап 2).
+                      // Fallback — мост через старые колонки (Этап 1).
+                      const bd = entry.breakdown;
+                      const sales      = bd?.components?.sales      ?? entry.ai_score  ?? 0;
+                      const execution  = bd?.components?.execution  ?? entry.crm_score ?? 0;
+                      const learning   = bd?.components?.learning   ?? entry.lms_score ?? 0;
+                      const discipline = bd?.components?.discipline ?? 0;
+                      return (
+                        <tr key={entry.user_id} className={`border-b border-gray-100 ${i < 3 ? 'bg-amber-50/40' : ''}`}>
+                          <td className="py-2 px-3 font-bold text-gray-500">
+                            {i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : entry.rank || i + 1}
+                          </td>
+                          <td className="py-2 px-3 font-medium text-gray-800">{entry.full_name}</td>
+                          <td className="py-2 px-3 text-gray-500">{roleLabel(entry.role)}</td>
+                          <td className="py-2 px-3 text-center text-gray-700">{Math.round(sales)}</td>
+                          <td className="py-2 px-3 text-center text-gray-700">{Math.round(execution)}</td>
+                          <td className="py-2 px-3 text-center text-gray-700">{Math.round(learning)}</td>
+                          <td className="py-2 px-3 text-center text-gray-700">{Math.round(discipline)}</td>
+                          <td className="py-2 px-3 text-right">
+                            <span className={`font-bold ${entry.total_kpi >= 80 ? 'text-green-600' : entry.total_kpi >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
+                              {Math.round(entry.total_kpi)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

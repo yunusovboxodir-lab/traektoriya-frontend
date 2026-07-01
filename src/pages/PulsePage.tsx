@@ -29,6 +29,7 @@ import {
 } from '../api/competencies';
 import { RadarChart, type RadarDataPoint } from '../components/competencies/RadarChart';
 import { api } from '../api/client';
+import { KPIBreakdownCard } from '../components/kpi/KPIBreakdownCard';
 
 // ============================================================================
 // Constants
@@ -360,8 +361,11 @@ export function PulsePage() {
           />
         </Card>
 
-        {/* COL 3: Уровень + Покрытие */}
+        {/* COL 3: KPI периода + Уровень компетенций */}
         <div className="flex flex-col gap-5">
+          {/* KPI разбивка по 4 компонентам (Scoring v2.0, Этап 2) */}
+          <KPIBreakdownCard />
+
           <Card title="Уровень компетенций">
             <LevelDistribution counts={levelCounts} total={pulse.competencies.length} />
           </Card>
