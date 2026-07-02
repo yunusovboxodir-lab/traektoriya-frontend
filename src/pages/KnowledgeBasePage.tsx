@@ -106,11 +106,11 @@ function IconDocument({ className = 'w-5 h-5' }: { className?: string }) {
 
 function FileTypeIcon({ fileType }: { fileType: string }) {
   const ext = fileType?.toLowerCase() || '';
-  let colorClass = 'text-gray-400';
-  if (ext.includes('pdf')) colorClass = 'text-red-500';
-  else if (ext.includes('doc')) colorClass = 'text-blue-500';
-  else if (ext.includes('txt')) colorClass = 'text-gray-500';
-  else if (ext.includes('zip')) colorClass = 'text-yellow-500';
+  let colorClass = 'text-fg-subtle';
+  if (ext.includes('pdf')) colorClass = 'text-status-danger-fg';
+  else if (ext.includes('doc')) colorClass = 'text-status-info-fg';
+  else if (ext.includes('txt')) colorClass = 'text-fg-subtle';
+  else if (ext.includes('zip')) colorClass = 'text-status-warning-fg';
 
   return <IconDocument className={`w-5 h-5 ${colorClass}`} />;
 }
@@ -120,33 +120,33 @@ function StatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'uploaded':
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-warning-bg text-status-warning-fg">
           {t('kb.statuses.uploaded')}
         </span>
       );
     case 'processing':
     case 'extracting_text':
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 animate-pulse">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-info-bg text-status-info-fg animate-pulse">
           {t('kb.statuses.processing')}
         </span>
       );
     case 'processed':
     case 'completed':
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success-bg text-status-success-fg">
           {t('kb.statuses.processed')}
         </span>
       );
     case 'failed':
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger-bg text-status-danger-fg">
           {t('kb.statuses.failed')}
         </span>
       );
     default:
       return (
-        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-bg-muted text-fg-muted">
           {status}
         </span>
       );
@@ -163,14 +163,14 @@ function StatCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5">
+    <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-4 sm:p-5">
       <div className="flex items-center gap-3">
-        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
+        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-status-info-bg flex items-center justify-center text-status-info-fg">
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-2xl font-bold text-gray-900 leading-tight">{value}</p>
-          <p className="text-xs text-gray-500 mt-0.5 truncate">{label}</p>
+          <p className="text-2xl font-bold text-fg-default leading-tight">{value}</p>
+          <p className="text-xs text-fg-subtle mt-0.5 truncate">{label}</p>
         </div>
       </div>
     </div>
@@ -211,17 +211,17 @@ function FolderSidebar({
   };
 
   return (
-    <nav className="bg-white rounded-xl border border-gray-200 shadow-sm p-2 space-y-0.5">
+    <nav className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-2 space-y-0.5">
       {/* Все */}
       <button
         type="button"
         onClick={() => { setActiveFilter(null); setActiveCategory(null); }}
         className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-          !activeFilter ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-gray-50 text-gray-700'
+          !activeFilter ? 'bg-bg-accent text-fg-on-accent font-medium' : 'hover:bg-bg-muted text-fg-muted'
         }`}
       >
         <span>📂 Все</span>
-        <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full text-gray-600">
+        <span className="text-xs bg-bg-muted px-1.5 py-0.5 rounded-full text-fg-muted">
           {documents.length}
         </span>
       </button>
@@ -239,22 +239,22 @@ function FolderSidebar({
               type="button"
               onClick={() => { setActiveFilter(type); setActiveCategory(null); toggleType(type); }}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                isActive ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-gray-50 text-gray-700'
+                isActive ? 'bg-bg-accent text-fg-on-accent font-medium' : 'hover:bg-bg-muted text-fg-muted'
               }`}
             >
               <span>{TYPE_ICONS[type]} {DOC_TYPE_LABELS[type]}</span>
               <div className="flex items-center gap-1">
-                <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full text-gray-600">
+                <span className="text-xs bg-bg-muted px-1.5 py-0.5 rounded-full text-fg-muted">
                   {count}
                 </span>
                 {cats.length > 0 && (
-                  <span className="text-gray-400 text-xs">{isOpen ? '▾' : '▸'}</span>
+                  <span className="text-fg-subtle text-xs">{isOpen ? '▾' : '▸'}</span>
                 )}
               </div>
             </button>
 
             {isOpen && cats.length > 0 && (
-              <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-gray-100 pl-2">
+              <div className="ml-3 mt-0.5 space-y-0.5 border-l-2 border-border-default pl-2">
                 {cats.map((cat) => {
                   const catCount = documents.filter(
                     (d) => (d.document_type || 'other') === type && d.category === cat,
@@ -266,12 +266,12 @@ function FolderSidebar({
                       onClick={() => { setActiveFilter(type); setActiveCategory(cat); }}
                       className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
                         activeCategory === cat
-                          ? 'bg-blue-50 text-blue-700 font-medium'
-                          : 'hover:bg-gray-50 text-gray-600'
+                          ? 'bg-bg-accent text-fg-on-accent font-medium'
+                          : 'hover:bg-bg-muted text-fg-muted'
                       }`}
                     >
                       <span className="truncate">{cat}</span>
-                      <span className="text-gray-400">{catCount}</span>
+                      <span className="text-fg-subtle">{catCount}</span>
                     </button>
                   );
                 })}
@@ -311,13 +311,13 @@ function SmartFilterBar({
     <div className="flex flex-wrap gap-2 items-center mb-3">
       {/* Search */}
       <div className="relative flex-1 min-w-[160px]">
-        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-fg-subtle text-sm">🔍</span>
         <input
           type="text"
           placeholder="Поиск по имени..."
           value={searchQuery}
           onChange={(e) => onSearch(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="w-full pl-8 pr-3 py-2 border border-border-default rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-border-focus bg-bg-surface"
         />
       </div>
 
@@ -328,7 +328,7 @@ function SmartFilterBar({
           const [s, d] = e.target.value.split('_');
           onSort(s as 'date' | 'name' | 'size', d as 'asc' | 'desc');
         }}
-        className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border border-border-default rounded-lg px-3 py-2 text-sm bg-bg-surface focus:outline-none focus:ring-2 focus:ring-border-focus"
       >
         <option value="date_desc">Дата ↓</option>
         <option value="date_asc">Дата ↑</option>
@@ -342,7 +342,7 @@ function SmartFilterBar({
       <select
         value={statusFilter || ''}
         onChange={(e) => onStatus(e.target.value || null)}
-        className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border border-border-default rounded-lg px-3 py-2 text-sm bg-bg-surface focus:outline-none focus:ring-2 focus:ring-border-focus"
       >
         <option value="">Все статусы</option>
         <option value="processed">✅ Готово</option>
@@ -351,7 +351,7 @@ function SmartFilterBar({
       </select>
 
       {/* Count */}
-      <span className="text-sm text-gray-400 whitespace-nowrap">{resultCount} файлов</span>
+      <span className="text-sm text-fg-subtle whitespace-nowrap">{resultCount} файлов</span>
     </div>
   );
 }
@@ -736,7 +736,7 @@ export function KnowledgeBasePage() {
   if (isLoading && documents.length === 0 && !error) {
     return (
       <div className="flex justify-center py-20">
-        <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-border-default border-t-bg-accent rounded-full animate-spin" />
       </div>
     );
   }
@@ -745,14 +745,14 @@ export function KnowledgeBasePage() {
   if (error && documents.length === 0) {
     return (
       <div className="max-w-xl mx-auto mt-12">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="bg-status-danger-bg border border-border-default rounded-lg p-4">
+          <p className="text-status-danger-fg text-sm">{error}</p>
           <button
             onClick={() => {
               loadDocuments(0);
               loadStats();
             }}
-            className="text-red-600 underline text-sm mt-1"
+            className="text-status-danger-fg underline text-sm mt-1"
           >
             {t('kb.tryAgain')}
           </button>
@@ -853,15 +853,15 @@ export function KnowledgeBasePage() {
           />
           {/* ---- Bulk Action Bar ---- */}
           {selectedIds.size > 0 && (
-            <div className="mb-3 flex items-center gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-              <span className="text-sm font-medium text-blue-800">
+            <div className="mb-3 flex items-center gap-3 bg-bg-muted border border-border-accent rounded-xl px-4 py-3">
+              <span className="text-sm font-medium text-fg-default">
                 {t('kb.selected', { count: selectedIds.size })} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
               </span>
               <div className="flex items-center gap-2 ml-auto">
                 <button
                   type="button"
                   onClick={() => { setShowBulkEdit(true); setBulkDocType(''); setBulkCategory(''); setBulkCategoryClear(false); }}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover rounded-lg transition-colors"
                 >
                   {t('kb.changeTypePosition')}
                 </button>
@@ -871,14 +871,14 @@ export function KnowledgeBasePage() {
                       type="button"
                       onClick={handleBulkDelete}
                       disabled={isBulkUpdating}
-                      className="px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {isBulkUpdating ? t('kb.deleting') : t('kb.yesDelete')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setBulkDeleteConfirm(false)}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded-lg transition-colors"
                     >
                       {t('kb.cancel')}
                     </button>
@@ -887,7 +887,7 @@ export function KnowledgeBasePage() {
                   <button
                     type="button"
                     onClick={() => setBulkDeleteConfirm(true)}
-                    className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium text-status-danger-fg bg-status-danger-bg hover:bg-status-danger-bg rounded-lg transition-colors"
                   >
                     {t('kb.delete')}
                   </button>
@@ -895,7 +895,7 @@ export function KnowledgeBasePage() {
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="p-1.5 text-fg-subtle hover:text-fg-default transition-colors"
                   title="Снять выделение"
                 >
                   <IconX className="w-4 h-4" />
@@ -907,18 +907,18 @@ export function KnowledgeBasePage() {
           {/* ---- Bulk Edit Modal ---- */}
           {showBulkEdit && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowBulkEdit(false)}>
-              <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <div className="bg-bg-surface rounded-xl shadow-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold text-fg-default mb-4">
                   {t('kb.bulkEdit', { count: selectedIds.size })}
                 </h3>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('kb.docType')}</label>
+                    <label className="block text-sm font-medium text-fg-muted mb-1">{t('kb.docType')}</label>
                     <select
                       value={bulkDocType}
                       onChange={(e) => setBulkDocType(e.target.value)}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-border-focus bg-bg-surface"
                     >
                       <option value="">{t('kb.noChange')}</option>
                       {Object.keys(DOC_TYPE_LABELS).map((key) => (
@@ -928,7 +928,7 @@ export function KnowledgeBasePage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('kb.positionLabel')}</label>
+                    <label className="block text-sm font-medium text-fg-muted mb-1">{t('kb.positionLabel')}</label>
                     <input
                       type="text"
                       list="bulk-category-suggestions"
@@ -936,19 +936,19 @@ export function KnowledgeBasePage() {
                       onChange={(e) => { setBulkCategory(e.target.value); setBulkCategoryClear(false); }}
                       disabled={bulkCategoryClear}
                       placeholder={t('kb.positionPlaceholder')}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white disabled:bg-gray-100 disabled:text-gray-400"
+                      className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-border-focus bg-bg-surface disabled:bg-bg-muted disabled:text-fg-subtle"
                     />
                     <datalist id="bulk-category-suggestions">
                       {categories.map((cat) => (
                         <option key={cat} value={cat} />
                       ))}
                     </datalist>
-                    <label className="flex items-center gap-2 mt-2 text-sm text-gray-600 cursor-pointer">
+                    <label className="flex items-center gap-2 mt-2 text-sm text-fg-muted cursor-pointer">
                       <input
                         type="checkbox"
                         checked={bulkCategoryClear}
                         onChange={(e) => { setBulkCategoryClear(e.target.checked); if (e.target.checked) setBulkCategory(''); }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-border-strong accent-bg-accent focus:ring-border-focus"
                       />
                       {t('kb.clearPosition')}
                     </label>
@@ -959,7 +959,7 @@ export function KnowledgeBasePage() {
                   <button
                     type="button"
                     onClick={() => setShowBulkEdit(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded-lg transition-colors"
                   >
                     {t('kb.cancel')}
                   </button>
@@ -967,7 +967,7 @@ export function KnowledgeBasePage() {
                     type="button"
                     onClick={handleBulkUpdate}
                     disabled={isBulkUpdating || (!bulkDocType && !bulkCategory.trim() && !bulkCategoryClear)}
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-lg transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
                   >
                     {isBulkUpdating ? t('kb.saving') : t('kb.save')}
                   </button>
@@ -976,73 +976,73 @@ export function KnowledgeBasePage() {
             </div>
           )}
 
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm overflow-hidden">
             {/* Table - Desktop */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
+                  <tr className="bg-bg-muted border-b border-border-default">
                     <th className="w-10 px-3 py-3">
                       <input
                         type="checkbox"
                         checked={displayedDocs.length > 0 && selectedIds.size === displayedDocs.length}
                         onChange={toggleSelectAll}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        className="rounded border-border-strong accent-bg-accent focus:ring-border-focus"
                       />
                     </th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.document')}</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.type')}</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.position')}</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.size')}</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.status')}</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.date')}</th>
-                    <th className="text-right px-4 py-3 font-medium text-gray-600">{t('kb.tableHeaders.actions')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.document')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.type')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.position')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.size')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.status')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.date')}</th>
+                    <th className="text-right px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.actions')}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-border-default">
                   {displayedDocs.map((doc) => (
-                    <tr key={doc.id} className={`hover:bg-gray-50 transition-colors ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
+                    <tr key={doc.id} className={`hover:bg-bg-muted transition-colors ${selectedIds.has(doc.id) ? 'bg-bg-muted' : ''}`}>
                       <td className="px-3 py-3">
                         <input
                           type="checkbox"
                           checked={selectedIds.has(doc.id)}
                           onChange={() => toggleSelect(doc.id)}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-border-strong accent-bg-accent focus:ring-border-focus"
                         />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 min-w-0">
                           <FileTypeIcon fileType={doc.file_type} />
-                          <span className="truncate max-w-[200px] text-gray-900" title={doc.original_filename}>
+                          <span className="truncate max-w-[200px] text-fg-default" title={doc.original_filename}>
                             {doc.original_filename}
                           </span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         {doc.document_type ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-bg-muted text-fg-muted">
                             {t('kb.docTypes.' + doc.document_type) || doc.document_type}
                           </span>
                         ) : (
-                          <span className="text-gray-400 text-xs">--</span>
+                          <span className="text-fg-subtle text-xs">--</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         {doc.category ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-bg-muted text-role-sales">
                             {doc.category}
                           </span>
                         ) : (
-                          <span className="text-gray-400 text-xs">--</span>
+                          <span className="text-fg-subtle text-xs">--</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-fg-muted whitespace-nowrap">
                         {formatFileSize(doc.file_size)}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={doc.status} />
                       </td>
-                      <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-fg-muted whitespace-nowrap">
                         {formatDate(doc.created_at)}
                       </td>
                       <td className="px-4 py-3">
@@ -1052,14 +1052,14 @@ export function KnowledgeBasePage() {
                               <button
                                 type="button"
                                 onClick={() => handleDelete(doc.id)}
-                                className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
+                                className="px-2 py-1 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
                               >
                                 {t('kb.yes')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                                className="px-2 py-1 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
                               >
                                 {t('kb.no')}
                               </button>
@@ -1111,25 +1111,25 @@ export function KnowledgeBasePage() {
             </div>
 
             {/* Card list - Mobile */}
-            <div className="sm:hidden divide-y divide-gray-100">
+            <div className="sm:hidden divide-y divide-border-default">
               {displayedDocs.map((doc) => (
-                <div key={doc.id} className={`p-4 ${selectedIds.has(doc.id) ? 'bg-blue-50/50' : ''}`}>
+                <div key={doc.id} className={`p-4 ${selectedIds.has(doc.id) ? 'bg-bg-muted' : ''}`}>
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(doc.id)}
                         onChange={() => toggleSelect(doc.id)}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+                        className="rounded border-border-strong accent-bg-accent focus:ring-border-focus flex-shrink-0"
                       />
                       <FileTypeIcon fileType={doc.file_type} />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate" title={doc.original_filename}>
+                        <p className="text-sm font-medium text-fg-default truncate" title={doc.original_filename}>
                           {doc.original_filename}
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {doc.document_type && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-bg-muted text-fg-muted">
                               {t('kb.docTypes.' + doc.document_type) || doc.document_type}
                             </span>
                           )}
@@ -1143,14 +1143,14 @@ export function KnowledgeBasePage() {
                           <button
                             type="button"
                             onClick={() => handleDelete(doc.id)}
-                            className="px-2 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
+                            className="px-2 py-1 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
                           >
                             {t('kb.yes')}
                           </button>
                           <button
                             type="button"
                             onClick={() => setDeleteConfirmId(null)}
-                            className="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded transition-colors"
+                            className="px-2 py-1 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
                           >
                             {t('kb.no')}
                           </button>
@@ -1193,7 +1193,7 @@ export function KnowledgeBasePage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                  <div className="flex items-center gap-3 mt-2 text-xs text-fg-subtle">
                     <span>{formatFileSize(doc.file_size)}</span>
                     <span>{formatDate(doc.created_at)}</span>
                   </div>
@@ -1204,11 +1204,11 @@ export function KnowledgeBasePage() {
             {/* Empty state */}
             {!isLoading && displayedDocs.length === 0 && (
               <div className="text-center py-16 px-4">
-                <IconDocument className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg font-medium">
+                <IconDocument className="w-16 h-16 text-fg-subtle mx-auto mb-4" />
+                <p className="text-fg-subtle text-lg font-medium">
                   {t('kb.emptyTitle')}
                 </p>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-fg-subtle text-sm mt-1">
                   {t('kb.emptyDesc')}
                 </p>
               </div>
@@ -1217,17 +1217,17 @@ export function KnowledgeBasePage() {
             {/* Loading indicator (for pagination) */}
             {isLoading && documents.length > 0 && (
               <div className="flex justify-center py-6">
-                <div className="w-6 h-6 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                <div className="w-6 h-6 border-3 border-border-default border-t-bg-accent rounded-full animate-spin" />
               </div>
             )}
 
             {/* Pagination */}
             {!isLoading && hasMore && (
-              <div className="px-4 py-4 border-t border-gray-100">
+              <div className="px-4 py-4 border-t border-border-default">
                 <button
                   type="button"
                   onClick={handleLoadMore}
-                  className="w-full py-2.5 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                  className="w-full py-2.5 text-sm font-medium text-bg-accent hover:text-bg-accent-hover bg-bg-muted hover:bg-bg-surface-raised rounded-lg transition-colors"
                 >
                   {t('kb.showMore', { count: total - documents.length })}
                 </button>
@@ -1236,8 +1236,8 @@ export function KnowledgeBasePage() {
 
             {/* Document count footer */}
             {displayedDocs.length > 0 && (
-              <div className="px-4 py-3 border-t border-gray-100 bg-gray-50">
-                <p className="text-xs text-gray-500">
+              <div className="px-4 py-3 border-t border-border-default bg-bg-muted">
+                <p className="text-xs text-fg-subtle">
                   {t('kb.shown', { shown: displayedDocs.length, total })}
                 </p>
               </div>
@@ -1264,14 +1264,14 @@ export function KnowledgeBasePage() {
           <ModalBody>
             {/* Document type selector */}
             <div>
-              <label htmlFor="upload-doc-type" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="upload-doc-type" className="block text-sm font-medium text-fg-muted mb-1">
                 {t('kb.docType')}
               </label>
               <select
                 id="upload-doc-type"
                 value={uploadDocType}
                 onChange={(e) => setUploadDocType(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-transparent bg-bg-surface"
               >
                 {Object.keys(DOC_TYPE_LABELS).map((key) => (
                   <option key={key} value={key}>
@@ -1283,7 +1283,7 @@ export function KnowledgeBasePage() {
 
             {/* Category / Position selector */}
             <div>
-              <label htmlFor="upload-category" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="upload-category" className="block text-sm font-medium text-fg-muted mb-1">
                 {t('kb.positionLabel')}
               </label>
               <input
@@ -1293,14 +1293,14 @@ export function KnowledgeBasePage() {
                 value={uploadCategory}
                 onChange={(e) => setUploadCategory(e.target.value)}
                 placeholder={t('kb.positionPlaceholder')}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-transparent bg-bg-surface"
               />
               <datalist id="category-suggestions">
                 {categories.map((cat) => (
                   <option key={cat} value={cat} />
                 ))}
               </datalist>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-fg-subtle mt-1">
                 {t('kb.positionHint')}
               </p>
             </div>
@@ -1313,17 +1313,17 @@ export function KnowledgeBasePage() {
               onClick={() => fileInputRef.current?.click()}
               className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-8 cursor-pointer transition-colors ${
                 isDragOver
-                  ? 'border-blue-400 bg-blue-50'
-                  : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+                  ? 'border-border-accent bg-bg-muted'
+                  : 'border-border-strong bg-bg-muted hover:border-border-accent hover:bg-bg-surface-raised'
               }`}
             >
               <IconUploadCloud
-                className={`w-10 h-10 mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`}
+                className={`w-10 h-10 mb-2 ${isDragOver ? 'text-bg-accent' : 'text-fg-subtle'}`}
               />
-              <p className="text-sm text-gray-600 text-center">
+              <p className="text-sm text-fg-muted text-center">
                 {t('kb.dragDrop')}
               </p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-fg-subtle mt-1">
                 PDF, DOCX, DOC, TXT, ZIP
               </p>
               <input
@@ -1339,7 +1339,7 @@ export function KnowledgeBasePage() {
             {/* Selected files list */}
             {selectedFiles.length > 0 && (
               <div className="space-y-2">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                <p className="text-xs font-medium text-fg-subtle uppercase tracking-wide">
                   {t('kb.selectedFiles', { count: selectedFiles.length })}{' '}
                   {pluralize(selectedFiles.length, 'файл', 'файла', 'файлов')}
                 </p>
@@ -1347,19 +1347,19 @@ export function KnowledgeBasePage() {
                   {selectedFiles.map((file, idx) => (
                     <li
                       key={`${file.name}-${idx}`}
-                      className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2"
+                      className="flex items-center justify-between bg-bg-muted rounded-lg px-3 py-2"
                     >
                       <div className="flex items-center gap-2 min-w-0">
                         <FileTypeIcon fileType={file.name.split('.').pop() || ''} />
                         <div className="min-w-0">
-                          <p className="text-sm text-gray-800 truncate">{file.name}</p>
-                          <p className="text-xs text-gray-400">{formatFileSize(file.size)}</p>
+                          <p className="text-sm text-fg-default truncate">{file.name}</p>
+                          <p className="text-xs text-fg-subtle">{formatFileSize(file.size)}</p>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(idx)}
-                        className="flex-shrink-0 p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        className="flex-shrink-0 p-1 text-fg-subtle hover:text-status-danger-fg transition-colors"
                         aria-label={t('kb.removeFile')}
                       >
                         <IconX className="w-4 h-4" />
@@ -1377,7 +1377,7 @@ export function KnowledgeBasePage() {
                   <div
                     key={idx}
                     className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg ${
-                      r.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                      r.ok ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-danger-bg text-status-danger-fg'
                     }`}
                   >
                     {r.ok ? (
