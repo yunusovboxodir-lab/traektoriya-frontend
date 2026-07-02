@@ -5,7 +5,7 @@ import type {
 } from '../../api/learning';
 import { learningApi } from '../../api/learning';
 import { bl } from '../../utils/bilingual';
-import { useToastStore } from '../../stores/toastStore';
+import { toast } from '@/components/ui';
 
 // ============================================================
 // BLOCK CARD VIEW — Admin card view for v3 BlockLessonData
@@ -39,7 +39,6 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
   const [localData, setLocalData] = useState<BlockLessonData>(() => structuredClone(data));
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const addToast = useToastStore((s) => s.addToast);
 
   // Deep-update a block at given index
   const updateBlock = useCallback((blockIdx: number, updatedBlock: LessonBlock) => {
@@ -58,14 +57,14 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
       await learningApi.updateLessonData(courseId, localData);
       setHasChanges(false);
       onDataUpdate?.(localData);
-      addToast('success', lang === 'uz' ? 'Saqlandi' : 'Сохранено');
+      toast.success(lang === 'uz' ? 'Saqlandi' : 'Сохранено');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Ошибка сохранения';
-      addToast('error', msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
-  }, [courseId, localData, onDataUpdate, addToast, lang]);
+  }, [courseId, localData, onDataUpdate, lang]);
 
   // Discard changes
   const handleDiscard = useCallback(() => {

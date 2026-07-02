@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
-import { useToastStore } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { shelfApi, type ShelfAnalysis, type ShelfAnalysisDetail } from '../api/shelf';
 
 // ---------------------------------------------------------------------------
@@ -118,8 +118,6 @@ interface CorrectionModalProps {
 }
 
 function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModalProps) {
-  const addToast = useToastStore(s => s.addToast);
-
   const [detail, setDetail] = useState<ShelfAnalysisDetail | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(true);
 
@@ -157,7 +155,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
   const handleSave = async () => {
     const scoreNum = parseInt(correctedScore, 10);
     if (isNaN(scoreNum) || scoreNum < 0 || scoreNum > 100) {
-      addToast('error', 'Оценка должна быть от 0 до 100');
+      toast.error('Оценка должна быть от 0 до 100');
       return;
     }
     setSaving(true);
@@ -167,7 +165,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
         corrected_brands: correctedBrands.length > 0 ? correctedBrands : undefined,
         feedback: feedback.trim() || undefined,
       });
-      addToast('success', t('shelfCorrections.successMsg'));
+      toast.success(t('shelfCorrections.successMsg'));
       onSaved({
         ...analysis,
         corrected_score: scoreNum,
@@ -177,7 +175,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
       });
       onClose();
     } catch {
-      addToast('error', 'Ошибка сохранения коррекции');
+      toast.error('Ошибка сохранения коррекции');
     } finally {
       setSaving(false);
     }
@@ -411,7 +409,6 @@ export function ShelfCorrectionPage() {
   const user = useAuthStore(s => s.user);
   const t = useT();
   const lang = useLangStore(s => s.lang);
-  const addToast = useToastStore(s => s.addToast);
 
   const [analyses, setAnalyses] = useState<ShelfAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
@@ -431,7 +428,7 @@ export function ShelfCorrectionPage() {
     setLoading(true);
     shelfApi.list({ limit: 100 })
       .then(res => setAnalyses(res.data.items))
-      .catch(() => addToast('error', 'Ошибка загрузки анализов'))
+      .catch(() => toast.error('Ошибка загрузки анализов'))
       .finally(() => setLoading(false));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -7,7 +7,7 @@ import { offlineProgramsApi } from '../api/offlinePrograms';
 import { useT } from '../stores/langStore';
 import type { Program } from '../types/offlineProgram';
 import { PageHeader, SkeletonCard, EmptyState, Button } from '@/components/ui';
-import { toast } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { FileText, Plus, Trash2 } from 'lucide-react';
 
 export function OfflineProgramsPage() {

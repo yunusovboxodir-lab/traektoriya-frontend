@@ -15,7 +15,7 @@ import {
   type FieldTask,
   type NarrationResponse,
 } from '../api/learning';
-import { useToastStore } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { bl } from '../utils/bilingual';
@@ -69,8 +69,6 @@ export function LearningPage() {
   const [lessonDataDone, setLessonDataDone] = useState(false);
   const [blocksDone, setBlocksDone] = useState(false);
   const [startTime] = useState(Date.now());
-
-  const addToast = useToastStore((s) => s.addToast);
 
   // Load modules list
   const loadModules = useCallback(async () => {
@@ -198,22 +196,22 @@ export function LearningPage() {
       setTimeout(() => emitPulseInvalidate(), 500);
 
       if (resp.data.level_up) {
-        addToast('success', resp.data.level_up.message);
+        toast.success(resp.data.level_up.message);
       } else if (resp.data.passed) {
-        addToast('success', t('learning.coursePassed') + ` (${score}%)`);
+        toast.success(t('learning.coursePassed') + ` (${score}%)`);
       } else {
-        addToast('warning', `${t('learning.tryAgainCourse')} (${score}%)`);
+        toast.warning(`${t('learning.tryAgainCourse')} (${score}%)`);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : t('learning.errors.submit');
       if (typeof err === 'object' && err !== null && 'response' in err) {
         const resp = (err as { response?: { status?: number } }).response;
         if (resp?.status === 409) {
-          addToast('info', t('learning.errors.alreadyCompleted'));
+          toast.info(t('learning.errors.alreadyCompleted'));
           return;
         }
       }
-      addToast('error', msg);
+      toast.error(msg);
     } finally {
       setIsSubmittingQuiz(false);
     }

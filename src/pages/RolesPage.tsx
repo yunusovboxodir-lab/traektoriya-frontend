@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { roleScopesApi, type PageInfo } from '../api/roleScopes';
-import { toast } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { useT } from '../stores/langStore';
 import {
   PageHeader,

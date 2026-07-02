@@ -5,7 +5,7 @@ import { useScopeStore } from './stores/scopeStore';
 import { TacticalLayout } from './components/layout';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { MobileAdminGate } from './components/layout/MobileAdminGate';
-import { ToastContainer } from './components/ui/ToastContainer';
+import { ToastContainer } from './components/ui';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { FloatingScreenshotButton } from './components/FloatingScreenshotButton';
 import { SectionUnlockChest } from './components/onboarding/SectionUnlockChest';

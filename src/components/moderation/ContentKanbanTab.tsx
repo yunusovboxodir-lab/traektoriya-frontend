@@ -12,7 +12,7 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { api } from '../../api/client';
-import { toast } from '../../stores/toastStore';
+import { toast } from '@/components/ui';
 import { LessonEditor } from './LessonEditor';
 
 // ───────────────────────────────────────

@@ -9,7 +9,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { teamApi } from '../api/team';
 import { usersApi } from '../api/users';
 import type { Region, Dealer, Team } from '../api/team';
-import { toast } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { Button, EmptyState } from '@/components/ui';
 import { useT } from '../stores/langStore';
 import { MapPin, Building2, UserCog, Plus, Pencil, Power, X as XIcon } from 'lucide-react';

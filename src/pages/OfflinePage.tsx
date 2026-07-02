@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useT } from '../stores/langStore';
-import { toast } from '../stores/toastStore';
+import { toast } from '@/components/ui';
 import { offlineApi } from '../api/offline';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import { teamApi } from '../api/team';

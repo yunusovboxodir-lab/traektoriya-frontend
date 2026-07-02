@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { productsApi, type Product } from '../../api/products';
 import { BRAND_TABS } from '../../config/brands';
-import { toast } from '../../stores/toastStore';
+import { toast } from '@/components/ui';
 
 interface Props {
   product: Product | null; // null = create mode
