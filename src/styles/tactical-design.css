@@ -301,8 +301,11 @@ body::after {
   letter-spacing: 0.12em;
   position: relative;
   z-index: 10;
-  /* предотвращаем горизонтальный скролл на мобильных */
-  overflow: hidden;
+  /* Горизонтальный скролл на мобильных гасим clip'ом ТОЛЬКО по X.
+     НЕ overflow: hidden — он обрезал ВСЁ выпадающее из шапки (поповер Мощи,
+     дропдаун меню «проваливались за карту» — репорт владельца 2026-07-02). */
+  overflow-x: clip;
+  overflow-y: visible;
 }
 .sb-mod {
   display: flex; align-items: baseline; gap: 12px;
