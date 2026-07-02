@@ -36,10 +36,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const PROGRAM_COLORS: Record<string, string> = {
-  DSPM: 'bg-blue-100 text-blue-800',
-  '7 Qadam': 'bg-green-100 text-green-800',
-  '7Qadam': 'bg-green-100 text-green-800',
-  Custom: 'bg-gray-100 text-gray-800',
+  DSPM: 'bg-status-info-bg text-status-info-fg',
+  '7 Qadam': 'bg-status-success-bg text-status-success-fg',
+  '7Qadam': 'bg-status-success-bg text-status-success-fg',
+  Custom: 'bg-bg-muted text-fg-default',
 };
 
 // ---------------------------------------------------------------------------
@@ -153,22 +153,22 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-bg-surface rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-lg font-semibold mb-1">Создать сессию</h2>
-        <p className="text-xs text-gray-500 mb-4">Выберите программу, регион/дилера и дату — название создастся автоматически.</p>
+        <p className="text-xs text-fg-subtle mb-4">Выберите программу, регион/дилера и дату — название создастся автоматически.</p>
         <form onSubmit={(e) => { e.preventDefault(); submit(true); }} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-fg-muted mb-1">
               Программа
               {!loadingPrograms && programs.length === 0 && (
-                <span className="ml-2 text-xs text-amber-600">(шаблоны не загрузились — fallback на список)</span>
+                <span className="ml-2 text-xs text-status-warning-fg">(шаблоны не загрузились — fallback на список)</span>
               )}
             </label>
             <select
               value={program}
               onChange={(e) => setProgram(e.target.value)}
               disabled={loadingPrograms}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50"
+              className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus disabled:bg-bg-muted"
             >
               {loadingPrograms ? (
                 <option>Загрузка программ...</option>
@@ -191,16 +191,16 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               )}
             </select>
             {selectedProgram?.description && (
-              <p className="mt-1 text-xs text-gray-500">{selectedProgram.description}</p>
+              <p className="mt-1 text-xs text-fg-subtle">{selectedProgram.description}</p>
             )}
           </div>
           {/* Регион */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Регион</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">Регион</label>
             <select
               value={regionId}
               onChange={(e) => setRegionId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus"
             >
               <option value="">— Выберите регион —</option>
               {regions.map((r) => (
@@ -211,12 +211,12 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Дилер (зависит от региона) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Дилер</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">Дилер</label>
             <select
               value={dealerId}
               onChange={(e) => setDealerId(e.target.value)}
               disabled={!regionId || loadingDealers}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+              className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus disabled:bg-bg-muted disabled:text-fg-subtle"
             >
               <option value="">
                 {!regionId
@@ -235,42 +235,42 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Дата */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Дата</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">Дата</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus"
             />
           </div>
 
           {/* Предпросмотр автоназвания */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-            <p className="text-xs text-gray-500 mb-0.5">Название (создастся автоматически):</p>
-            <p className="text-sm font-medium text-gray-800 break-words">{buildTitle()}</p>
+          <div className="bg-bg-muted border border-border-default rounded-lg px-3 py-2">
+            <p className="text-xs text-fg-subtle mb-0.5">Название (создастся автоматически):</p>
+            <p className="text-sm font-medium text-fg-default break-words">{buildTitle()}</p>
           </div>
 
           {/* Расширенные параметры */}
-          <div className="border-t border-gray-100 pt-2">
+          <div className="border-t border-border-default pt-2">
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
-              className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-1 text-xs text-fg-subtle hover:text-fg-default"
             >
               <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
               Расширенные параметры
             </button>
             {showAdvanced && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Ссылка на внешнюю презентацию</label>
+                <label className="block text-sm font-medium text-fg-muted mb-1">Ссылка на внешнюю презентацию</label>
                 <input
                   type="url"
                   value={presentationUrl}
                   onChange={(e) => setPresentationUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus"
                   placeholder="https://docs.google.com/presentation/..."
                 />
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-fg-subtle">
                   Нужна только если хотите показать внешние слайды (Google Slides) вместо встроенных слайдов программы.
                 </p>
               </div>
@@ -279,21 +279,21 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Кнопки */}
           <div className="flex justify-end gap-3 pt-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-fg-muted hover:text-fg-default">
               Отмена
             </button>
             <button
               type="button"
               onClick={() => submit(false)}
               disabled={saving || !program}
-              className="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="px-4 py-2 text-sm bg-bg-surface border border-border-strong text-fg-muted rounded-lg hover:bg-bg-muted disabled:opacity-50"
             >
               {saving ? 'Создание...' : 'Создать'}
             </button>
             <button
               type="submit"
               disabled={saving || !program}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 text-sm bg-bg-accent text-fg-on-accent rounded-lg hover:bg-bg-accent-hover disabled:opacity-50"
             >
               {saving ? 'Создание...' : 'Создать и запустить →'}
             </button>
@@ -310,29 +310,29 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
 function SessionCard({ session, onClick }: { session: OfflineSession; onClick: () => void }) {
   const t = useT();
-  const programClass = PROGRAM_COLORS[session.program] || 'bg-gray-100 text-gray-800';
+  const programClass = PROGRAM_COLORS[session.program] || 'bg-bg-muted text-fg-default';
   const handleProjector = (e: React.MouseEvent) => {
     e.stopPropagation();
     window.open(`/activities/sessions/${session.id}/present`, '_blank', 'noreferrer');
   };
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div className="bg-bg-surface rounded-xl border border-border-default p-4 hover:shadow-md transition-shadow">
       <button type="button" onClick={onClick} className="w-full text-left">
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-gray-900 text-sm">{session.title}</h3>
+          <h3 className="font-semibold text-fg-default text-sm">{session.title}</h3>
           <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${programClass}`}>{session.program}</span>
         </div>
-        <div className="flex flex-wrap gap-2 text-xs text-gray-500 mb-2">
+        <div className="flex flex-wrap gap-2 text-xs text-fg-subtle mb-2">
           {session.region && <span>{session.region}</span>}
           {session.scheduled_date && (
             <span>{new Date(session.scheduled_date).toLocaleDateString('ru-RU')}</span>
           )}
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+          <span className="text-xs px-2 py-0.5 rounded bg-bg-muted text-fg-muted">
             {STATUS_LABELS[session.status] || session.status}
           </span>
-          <span className="text-xs text-gray-500">{session.participant_count} уч.</span>
+          <span className="text-xs text-fg-subtle">{session.participant_count} уч.</span>
         </div>
       </button>
       <div className="mt-3">
@@ -395,16 +395,16 @@ function SessionDetail({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bg-accent" />
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="text-center py-20 text-gray-500">
+      <div className="text-center py-20 text-fg-subtle">
         Сессия не найдена
-        <button onClick={onBack} className="block mx-auto mt-4 text-blue-600 hover:underline text-sm">
+        <button onClick={onBack} className="block mx-auto mt-4 text-bg-accent hover:underline text-sm">
           Назад
         </button>
       </div>
@@ -430,45 +430,45 @@ function SessionDetail({
       {/* Back + Header */}
       <div className="flex items-center gap-3 justify-between">
         <div className="flex items-center gap-3 min-w-0">
-          <button onClick={onBack} className="text-gray-500 hover:text-gray-800 transition-colors flex-shrink-0">
+          <button onClick={onBack} className="text-fg-subtle hover:text-fg-default transition-colors flex-shrink-0">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h2 className="text-xl font-semibold text-gray-900 truncate">{session.title}</h2>
+          <h2 className="text-xl font-semibold text-fg-default truncate">{session.title}</h2>
         </div>
         <a
           href={`/activities/sessions/${session.id}/present`}
           target="_blank"
           rel="noreferrer"
-          className="flex-shrink-0 px-4 py-2 text-sm bg-stone-800 hover:bg-stone-700 text-white rounded-lg font-semibold transition-colors"
+          className="flex-shrink-0 px-4 py-2 text-sm bg-fg-default hover:opacity-90 text-bg-surface rounded-lg font-semibold transition-colors"
         >
           🖥 Запустить на проекторе
         </a>
       </div>
 
       {/* Код доступа */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
-        <p className="text-sm text-blue-600 mb-1">Код доступа</p>
-        <p className="text-4xl font-bold tracking-widest text-blue-800">{session.access_code}</p>
+      <div className="bg-status-info-bg border border-border-default rounded-xl p-6 text-center">
+        <p className="text-sm text-status-info-fg mb-1">Код доступа</p>
+        <p className="text-4xl font-bold tracking-widest text-status-info-fg">{session.access_code}</p>
       </div>
 
       {/* Status bar */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-bg-surface rounded-xl border border-border-default p-4">
         <div className="flex items-center gap-1 overflow-x-auto pb-1">
           {STATUS_FLOW.map((st, idx) => {
             const isCurrent = session.status === st;
             const isPast = currentIdx >= 0 && idx < currentIdx;
             return (
               <div key={st} className="flex items-center gap-1 flex-shrink-0">
-                {idx > 0 && <div className={`w-6 h-0.5 ${isPast || isCurrent ? 'bg-blue-500' : 'bg-gray-300'}`} />}
+                {idx > 0 && <div className={`w-6 h-0.5 ${isPast || isCurrent ? 'bg-bg-accent' : 'bg-border-strong'}`} />}
                 <div
                   className={`px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${
                     isCurrent
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-bg-accent text-fg-on-accent'
                       : isPast
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'bg-gray-100 text-gray-500'
+                        ? 'bg-status-info-bg text-status-info-fg'
+                        : 'bg-bg-muted text-fg-subtle'
                   }`}
                 >
                   {STATUS_LABELS[st]}
@@ -482,7 +482,7 @@ function SessionDetail({
             {prevStatus && (
               <button
                 onClick={() => handleStatusChange(prevStatus)}
-                className="px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-sm bg-bg-surface border border-border-strong text-fg-muted rounded-lg hover:bg-bg-muted"
                 title="Если случайно перешёл слишком далеко — можно вернуть на предыдущий статус"
               >
                 ← Вернуть в: {STATUS_LABELS[prevStatus]}
@@ -491,7 +491,7 @@ function SessionDetail({
             {nextStatus && (
               <button
                 onClick={() => handleStatusChange(nextStatus)}
-                className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                className="px-4 py-2 text-sm bg-bg-accent text-fg-on-accent rounded-lg hover:bg-bg-accent-hover"
               >
                 Перевести в: {STATUS_LABELS[nextStatus]} →
               </button>
@@ -502,9 +502,9 @@ function SessionDetail({
 
       {/* Presentation iframe */}
       {session.presentation_url && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-3 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700">Презентация</h3>
+        <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
+          <div className="p-3 border-b border-border-default">
+            <h3 className="text-sm font-medium text-fg-muted">Презентация</h3>
           </div>
           <iframe
             src={session.presentation_url}
@@ -517,14 +517,14 @@ function SessionDetail({
 
       {/* Participants table */}
       {userMap.size > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-3 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700">Участники — результаты тестов</h3>
+        <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
+          <div className="p-3 border-b border-border-default">
+            <h3 className="text-sm font-medium text-fg-muted">Участники — результаты тестов</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-gray-600 text-xs">
+                <tr className="bg-bg-muted text-fg-muted text-xs">
                   <th className="text-left px-4 py-2">Участник</th>
                   <th className="text-center px-4 py-2">PRE %</th>
                   <th className="text-center px-4 py-2">POST %</th>
@@ -534,10 +534,10 @@ function SessionDetail({
               <tbody>
                 {Array.from(userMap.entries()).map(([userId, data]) => {
                   const growth = data.pre && data.post ? data.post.percentage - data.pre.percentage : null;
-                  const growthColor = growth !== null ? (growth > 0 ? 'text-green-600' : growth < 0 ? 'text-red-600' : 'text-gray-500') : '';
+                  const growthColor = growth !== null ? (growth > 0 ? 'text-status-success-fg' : growth < 0 ? 'text-status-danger-fg' : 'text-fg-subtle') : '';
                   return (
-                    <tr key={userId} className="border-t border-gray-100">
-                      <td className="px-4 py-2 text-gray-900">{data.pre?.user_name || data.post?.user_name || userId.slice(0, 8)}</td>
+                    <tr key={userId} className="border-t border-border-default">
+                      <td className="px-4 py-2 text-fg-default">{data.pre?.user_name || data.post?.user_name || userId.slice(0, 8)}</td>
                       <td className="px-4 py-2 text-center">{data.pre ? `${Math.round(data.pre.percentage)}%` : '—'}</td>
                       <td className="px-4 py-2 text-center">{data.post ? `${Math.round(data.post.percentage)}%` : '—'}</td>
                       <td className={`px-4 py-2 text-center font-medium ${growthColor}`}>
@@ -554,14 +554,14 @@ function SessionDetail({
 
       {/* Game results */}
       {session.game_results.length > 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <div className="p-3 border-b border-gray-200">
-            <h3 className="text-sm font-medium text-gray-700">Игровые результаты</h3>
+        <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
+          <div className="p-3 border-b border-border-default">
+            <h3 className="text-sm font-medium text-fg-muted">Игровые результаты</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 text-gray-600 text-xs">
+                <tr className="bg-bg-muted text-fg-muted text-xs">
                   <th className="text-left px-4 py-2">Команда</th>
                   <th className="text-center px-4 py-2">Участники</th>
                   <th className="text-center px-4 py-2">Очки</th>
@@ -572,9 +572,9 @@ function SessionDetail({
                 {session.game_results
                   .sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999))
                   .map((gr) => (
-                    <tr key={gr.id} className="border-t border-gray-100">
-                      <td className="px-4 py-2 text-gray-900 font-medium">{gr.team_name}</td>
-                      <td className="px-4 py-2 text-center text-gray-600">{gr.member_ids.length}</td>
+                    <tr key={gr.id} className="border-t border-border-default">
+                      <td className="px-4 py-2 text-fg-default font-medium">{gr.team_name}</td>
+                      <td className="px-4 py-2 text-center text-fg-muted">{gr.member_ids.length}</td>
                       <td className="px-4 py-2 text-center">{gr.total_score}/{gr.max_score}</td>
                       <td className="px-4 py-2 text-center">{gr.rank ?? '—'}</td>
                     </tr>
@@ -698,8 +698,8 @@ export function OfflinePage() {
               onClick={() => setProgramFilter(p)}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
                 programFilter === p
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-bg-accent text-fg-on-accent'
+                  : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
               {p === 'all' ? 'Все' : p}
@@ -710,7 +710,7 @@ export function OfflinePage() {
         {/* Sessions Grid */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-bg-accent" />
           </div>
         ) : sessions.length === 0 ? (
           <EmptyState
@@ -749,23 +749,23 @@ export function OfflinePage() {
   if (view === 'join') {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-6">
-        <button onClick={() => setView('list')} className="text-blue-600 hover:underline text-sm">
+        <button onClick={() => setView('list')} className="text-bg-accent hover:underline text-sm">
           &larr; Назад к списку
         </button>
-        <h2 className="text-xl font-semibold text-gray-900">Введите код сессии</h2>
-        <p className="text-sm text-gray-500">Код вам сообщит тренер в начале занятия</p>
+        <h2 className="text-xl font-semibold text-fg-default">Введите код сессии</h2>
+        <p className="text-sm text-fg-subtle">Код вам сообщит тренер в начале занятия</p>
         <input
           type="text"
           value={joinCode}
           onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
           maxLength={8}
           placeholder="XXXXXX"
-          className="w-full text-center text-3xl tracking-[0.3em] font-mono border border-gray-300 rounded-xl px-4 py-4 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full text-center text-3xl tracking-[0.3em] font-mono border border-border-strong rounded-xl px-4 py-4 focus:ring-2 focus:ring-border-focus focus:border-border-focus"
         />
         <button
           onClick={handleJoin}
           disabled={joinCode.length < 4 || joining}
-          className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 font-medium"
+          className="w-full px-4 py-3 bg-bg-accent text-fg-on-accent rounded-xl hover:bg-bg-accent-hover disabled:opacity-50 font-medium"
         >
           {joining ? 'Подключение...' : 'Присоединиться'}
         </button>
