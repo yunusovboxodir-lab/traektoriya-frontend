@@ -111,14 +111,14 @@ export function PowerBadge() {
           alignItems: 'center',
           gap: 8,
           height: 30,
-          padding: '0 10px',
-          background: 'var(--bg-card)',
+          padding: '0 8px 0 10px',
+          background: open ? 'var(--bg-elevated)' : 'var(--bg-card)',
           border: '1px solid var(--line)',
           borderRadius: 8,
           cursor: 'pointer',
           fontFamily: "'JetBrains Mono', monospace",
           whiteSpace: 'nowrap',
-          transition: 'border-color 0.15s',
+          transition: 'border-color 0.15s, background-color 0.15s',
           borderColor: open ? 'var(--brass)' : 'var(--line)',
         }}
       >
@@ -136,6 +136,20 @@ export function PowerBadge() {
         >
           {isUz ? tier.uz : tier.ru}
         </span>
+        {/* Affordance-сигнал кликабельности (Кодекс 11_accessibility): шеврон,
+            поворачивается при раскрытом поповере — намёк, что бейдж раскрывает разбивку. */}
+        <svg
+          width="10" height="10" viewBox="0 0 10 10" fill="none"
+          style={{
+            flexShrink: 0,
+            color: 'var(--text-2, #8a93a3)',
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.15s',
+          }}
+          aria-hidden="true"
+        >
+          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       </button>
 
       {open && (
