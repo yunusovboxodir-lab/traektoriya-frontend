@@ -41,10 +41,10 @@ const LEVEL_LABELS: Record<string, string> = {
 };
 
 const LEVEL_COLORS: Record<string, string> = {
-  trainee: 'bg-red-100 text-red-700 border-red-300',
-  practitioner: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-  expert: 'bg-blue-100 text-blue-700 border-blue-300',
-  master: 'bg-green-100 text-green-700 border-green-300',
+  trainee: 'bg-status-danger-bg text-status-danger-fg border-status-danger-fg',
+  practitioner: 'bg-status-warning-bg text-status-warning-fg border-status-warning-fg',
+  expert: 'bg-status-info-bg text-status-info-fg border-status-info-fg',
+  master: 'bg-status-success-bg text-status-success-fg border-status-success-fg',
 };
 
 const STAGE_TO_STEP: Record<string, number> = {
@@ -136,7 +136,7 @@ export function PulsePipelinePage() {
         actions={jobId && (
           <button
             onClick={startNewPipeline}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted"
           >
             Новый пайплайн
           </button>
@@ -148,14 +148,14 @@ export function PulsePipelinePage() {
 
       {/* Error banner */}
       {error && (
-        <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-4">
+        <div className="bg-status-danger-bg border border-status-danger-fg text-status-danger-fg px-4 py-3 rounded-lg mb-4">
           <strong>Ошибка:</strong> {error}
           <button onClick={() => setError(null)} className="ml-3 underline">закрыть</button>
         </div>
       )}
 
       {/* Step content */}
-      <div className="bg-white rounded-2xl shadow-sm border p-6">
+      <div className="bg-bg-surface rounded-2xl shadow-sm border border-border-default p-6">
         {currentStep === 1 && (
           <Step1Start
             onCreated={(newJobId) => {
@@ -239,17 +239,17 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
             <div
               className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border-2 ${
                 currentStep > step.num
-                  ? 'bg-green-500 border-green-500 text-white'
+                  ? 'bg-status-success-fg border-status-success-fg text-bg-canvas'
                   : currentStep === step.num
-                  ? 'bg-blue-500 border-blue-500 text-white'
-                  : 'bg-white border-gray-300 text-gray-400'
+                  ? 'bg-bg-accent border-border-accent text-fg-on-accent'
+                  : 'bg-bg-surface border-border-strong text-fg-subtle'
               }`}
             >
               {currentStep > step.num ? '✓' : step.num}
             </div>
             <span
               className={`text-xs mt-1 ${
-                currentStep >= step.num ? 'text-gray-900 font-medium' : 'text-gray-400'
+                currentStep >= step.num ? 'text-fg-default font-medium' : 'text-fg-subtle'
               }`}
             >
               {step.label}
@@ -258,7 +258,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
           {idx < steps.length - 1 && (
             <div
               className={`flex-1 h-0.5 mx-2 ${
-                currentStep > step.num ? 'bg-green-500' : 'bg-gray-200'
+                currentStep > step.num ? 'bg-status-success-bg0' : 'bg-bg-muted'
               }`}
             />
           )}
@@ -316,20 +316,20 @@ function Step1Start({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">Шаг 1: Запуск пайплайна</h2>
-      <p className="text-sm text-gray-600">
+      <h2 className="text-xl font-bold text-fg-default">Шаг 1: Запуск пайплайна</h2>
+      <p className="text-sm text-fg-muted">
         Загрузите ДИ должности и стандарты в раздел Документы (если ещё не сделали),
         затем введите UUID документа здесь.
       </p>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-fg-muted mb-1">
           Целевая роль
         </label>
         <select
           value={targetRole}
           onChange={(e) => setTargetRole(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          className="w-full px-3 py-2 border border-border-strong rounded-md"
         >
           {ROLE_OPTIONS.map((r) => (
             <option key={r.value} value={r.value}>
@@ -340,7 +340,7 @@ function Step1Start({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-fg-muted mb-1">
           UUID документа должностной инструкции
         </label>
         <input
@@ -348,12 +348,12 @@ function Step1Start({
           value={documentId}
           onChange={(e) => setDocumentId(e.target.value)}
           placeholder="00000000-0000-0000-0000-000000000000"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+          className="w-full px-3 py-2 border border-border-strong rounded-md font-mono text-sm"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-fg-muted mb-1">
           UUID документов стандартов (опционально, через запятую)
         </label>
         <input
@@ -361,9 +361,9 @@ function Step1Start({
           value={standardsIds}
           onChange={(e) => setStandardsIds(e.target.value)}
           placeholder="uuid1, uuid2, uuid3"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm"
+          className="w-full px-3 py-2 border border-border-strong rounded-md font-mono text-sm"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-fg-subtle mt-1">
           Стандарты используются для RAG-контекста при генерации курсов
         </p>
       </div>
@@ -371,7 +371,7 @@ function Step1Start({
       <button
         onClick={handleStart}
         disabled={loading}
-        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2.5 rounded-md transition-colors"
+        className="w-full bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 text-fg-on-accent font-medium py-2.5 rounded-md transition-colors"
       >
         {loading ? 'AI извлекает компетенции (до 60 сек)...' : 'Запустить пайплайн'}
       </button>
@@ -471,14 +471,14 @@ function Step2Competencies({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-fg-default">
           Шаг 2: Компетенции ({competencies.length})
         </h2>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-fg-subtle">
           {status.output_data?.role_name_extracted && `Роль: ${status.output_data.role_name_extracted}`}
         </span>
       </div>
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-fg-muted">
         AI извлёк {initialComps.length} компетенций из ДИ. Проверь, отредактируй
         или удали ненужные. Должно быть от 4 до 12 компетенций.
       </p>
@@ -487,23 +487,23 @@ function Step2Competencies({
       <div className="hidden sm:block overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="bg-gray-50 text-left text-xs text-gray-500 uppercase">
-              <th className="px-3 py-2 border-b">Название RU</th>
-              <th className="px-3 py-2 border-b">Название UZ</th>
-              <th className="px-3 py-2 border-b">Описание</th>
-              <th className="px-3 py-2 border-b w-20">Сложность</th>
-              <th className="px-3 py-2 border-b w-12"></th>
+            <tr className="bg-bg-muted text-left text-xs text-fg-subtle uppercase">
+              <th className="px-3 py-2 border-b border-border-default">Название RU</th>
+              <th className="px-3 py-2 border-b border-border-default">Название UZ</th>
+              <th className="px-3 py-2 border-b border-border-default">Описание</th>
+              <th className="px-3 py-2 border-b border-border-default w-20">Сложность</th>
+              <th className="px-3 py-2 border-b border-border-default w-12"></th>
             </tr>
           </thead>
           <tbody>
             {competencies.map((c, idx) => (
-              <tr key={c.tmp_id || idx} className="border-b">
+              <tr key={c.tmp_id || idx} className="border-b border-border-default">
                 <td className="px-2 py-1">
                   <input
                     type="text"
                     value={c.name}
                     onChange={(e) => updateField(idx, 'name', e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-200 rounded"
+                    className="w-full px-2 py-1 border border-border-default rounded"
                   />
                 </td>
                 <td className="px-2 py-1">
@@ -511,7 +511,7 @@ function Step2Competencies({
                     type="text"
                     value={c.name_uz || ''}
                     onChange={(e) => updateField(idx, 'name_uz', e.target.value)}
-                    className="w-full px-2 py-1 border border-gray-200 rounded"
+                    className="w-full px-2 py-1 border border-border-default rounded"
                   />
                 </td>
                 <td className="px-2 py-1">
@@ -519,14 +519,14 @@ function Step2Competencies({
                     value={c.description}
                     onChange={(e) => updateField(idx, 'description', e.target.value)}
                     rows={2}
-                    className="w-full px-2 py-1 border border-gray-200 rounded text-xs"
+                    className="w-full px-2 py-1 border border-border-default rounded text-xs"
                   />
                 </td>
                 <td className="px-2 py-1">
                   <select
                     value={c.suggested_difficulty || 2}
                     onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
-                    className="w-full px-2 py-1 border border-gray-200 rounded"
+                    className="w-full px-2 py-1 border border-border-default rounded"
                   >
                     <option value={1}>1 - Стажёр</option>
                     <option value={2}>2 - Практик</option>
@@ -537,7 +537,7 @@ function Step2Competencies({
                 <td className="px-2 py-1 text-center">
                   <button
                     onClick={() => removeRow(idx)}
-                    className="text-red-500 hover:text-red-700 text-lg"
+                    className="text-status-danger-fg hover:opacity-80 text-lg"
                     title="Удалить"
                   >
                     ×
@@ -554,41 +554,41 @@ function Step2Competencies({
         {competencies.map((c, idx) => (
           <div
             key={c.tmp_id || idx}
-            className="rounded-md border border-gray-200 p-3 space-y-2 bg-white"
+            className="rounded-md border border-border-default p-3 space-y-2 bg-bg-surface"
           >
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Название RU</label>
+              <label className="block text-xs font-medium text-fg-subtle mb-1">Название RU</label>
               <input
                 type="text"
                 value={c.name}
                 onChange={(e) => updateField(idx, 'name', e.target.value)}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Название UZ</label>
+              <label className="block text-xs font-medium text-fg-subtle mb-1">Название UZ</label>
               <input
                 type="text"
                 value={c.name_uz || ''}
                 onChange={(e) => updateField(idx, 'name_uz', e.target.value)}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Описание</label>
+              <label className="block text-xs font-medium text-fg-subtle mb-1">Описание</label>
               <textarea
                 value={c.description}
                 onChange={(e) => updateField(idx, 'description', e.target.value)}
                 rows={2}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded text-xs"
+                className="w-full px-2 py-1.5 border border-border-default rounded text-xs"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Сложность</label>
+              <label className="block text-xs font-medium text-fg-subtle mb-1">Сложность</label>
               <select
                 value={c.suggested_difficulty || 2}
                 onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
-                className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
               >
                 <option value={1}>1 - Стажёр</option>
                 <option value={2}>2 - Практик</option>
@@ -613,14 +613,14 @@ function Step2Competencies({
       <div className="flex items-center gap-2">
         <button
           onClick={addRow}
-          className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
+          className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted"
         >
           + Добавить компетенцию
         </button>
         <button
           onClick={saveDraft}
           disabled={saving}
-          className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+          className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted disabled:opacity-50"
         >
           Сохранить черновик
         </button>
@@ -629,7 +629,7 @@ function Step2Competencies({
       <button
         onClick={handleApprove}
         disabled={saving || competencies.length < 4}
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-medium py-2.5 rounded-md"
+        className="w-full bg-status-success-fg hover:opacity-90 disabled:opacity-50 text-bg-canvas font-medium py-2.5 rounded-md"
       >
         {saving ? 'Сохранение...' : 'Утвердить и перейти к курсам →'}
       </button>
@@ -767,14 +767,14 @@ function Step3Courses({
   if (courses.length === 0) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-gray-900">Шаг 3: Генерация курсов</h2>
-        <p className="text-sm text-gray-600">
+        <h2 className="text-xl font-bold text-fg-default">Шаг 3: Генерация курсов</h2>
+        <p className="text-sm text-fg-muted">
           AI сгенерирует список курсов на основе утверждённых компетенций
           ({status.output_data?.approved_competency_ids?.length || 0} компетенций).
         </p>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-fg-muted mb-1">
             Минимум курсов на каждую территорию
           </label>
           <input
@@ -783,9 +783,9 @@ function Step3Courses({
             max={30}
             value={minPerTerritory}
             onChange={(e) => setMinPerTerritory(parseInt(e.target.value) || 15)}
-            className="w-32 px-3 py-2 border border-gray-300 rounded-md"
+            className="w-32 px-3 py-2 border border-border-strong rounded-md"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-fg-subtle mt-1">
             Итого минимум {minPerTerritory * 4} курсов на роль (4 территории)
           </p>
         </div>
@@ -793,7 +793,7 @@ function Step3Courses({
         <button
           onClick={handleGenerate}
           disabled={generating}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-medium py-2.5 rounded-md"
+          className="w-full bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 text-fg-on-accent font-medium py-2.5 rounded-md"
         >
           {generating ? 'AI генерирует список курсов (60-120 сек)...' : 'Сгенерировать курсы'}
         </button>
@@ -813,11 +813,11 @@ function Step3Courses({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl font-bold text-fg-default">
           Шаг 3: Курсы ({courses.length})
         </h2>
         {estimatedCost && (
-          <span className="text-sm text-gray-700">
+          <span className="text-sm text-fg-muted">
             Оценка стоимости генерации контента: <strong>${estimatedCost.toFixed(2)}</strong>
           </span>
         )}
@@ -831,10 +831,10 @@ function Step3Courses({
           return (
             <div
               key={level}
-              className={`p-3 rounded-lg border-2 ${ok ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}
+              className={`p-3 rounded-lg border-2 ${ok ? 'border-status-success-fg bg-status-success-bg' : 'border-status-danger-fg bg-status-danger-bg'}`}
             >
-              <div className="text-xs text-gray-600">{LEVEL_LABELS[level]}</div>
-              <div className={`text-lg font-bold ${ok ? 'text-green-700' : 'text-red-700'}`}>
+              <div className="text-xs text-fg-muted">{LEVEL_LABELS[level]}</div>
+              <div className={`text-lg font-bold ${ok ? 'text-status-success-fg' : 'text-status-danger-fg'}`}>
                 {count} / 15
               </div>
             </div>
@@ -844,7 +844,7 @@ function Step3Courses({
 
       {/* Курсы по группам */}
       {(['trainee', 'practitioner', 'expert', 'master'] as const).map((level) => (
-        <details key={level} open className="border border-gray-200 rounded-lg">
+        <details key={level} open className="border border-border-default rounded-lg">
           <summary className={`px-3 py-2 cursor-pointer font-medium ${LEVEL_COLORS[level]}`}>
             {LEVEL_LABELS[level]} ({grouped[level].length})
           </summary>
@@ -852,7 +852,7 @@ function Step3Courses({
             {grouped[level].map((course) => {
               const idx = courses.indexOf(course);
               return (
-                <div key={course.tmp_id || idx} className="p-2 border border-gray-100 rounded">
+                <div key={course.tmp_id || idx} className="p-2 border border-border-default rounded">
                   {/* Desktop: inline-layout с маленьким × (sm+) */}
                   <div className="hidden sm:flex items-start gap-2">
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -861,19 +861,19 @@ function Step3Courses({
                         value={course.title_ru}
                         onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
                         placeholder="Название RU"
-                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                        className="px-2 py-1 border border-border-default rounded text-sm"
                       />
                       <input
                         type="text"
                         value={course.title_uz || ''}
                         onChange={(e) => updateCourse(idx, 'title_uz', e.target.value)}
                         placeholder="Nomi UZ"
-                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                        className="px-2 py-1 border border-border-default rounded text-sm"
                       />
                       <select
                         value={course.course_type}
                         onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
-                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                        className="px-2 py-1 border border-border-default rounded text-sm"
                       >
                         {COURSE_TYPES.map((ct) => (
                           <option key={ct.value} value={ct.value}>{ct.label}</option>
@@ -882,7 +882,7 @@ function Step3Courses({
                       <select
                         value={course.weight}
                         onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
-                        className="px-2 py-1 border border-gray-200 rounded text-sm"
+                        className="px-2 py-1 border border-border-default rounded text-sm"
                       >
                         <option value={1}>Вес 1 - базовый</option>
                         <option value={2}>Вес 2 - стандартный</option>
@@ -894,12 +894,12 @@ function Step3Courses({
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
                         placeholder="Краткое описание"
                         rows={1}
-                        className="md:col-span-2 px-2 py-1 border border-gray-200 rounded text-xs"
+                        className="md:col-span-2 px-2 py-1 border border-border-default rounded text-xs"
                       />
                     </div>
                     <button
                       onClick={() => removeCourse(idx)}
-                      className="text-red-500 hover:text-red-700 text-lg"
+                      className="text-status-danger-fg hover:opacity-80 text-lg"
                       title="Удалить"
                     >
                       ×
@@ -909,31 +909,31 @@ function Step3Courses({
                   {/* Mobile: card-layout с явной кнопкой "Удалить" (<sm) */}
                   <div className="block sm:hidden space-y-2">
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Название RU</label>
+                      <label className="block text-xs font-medium text-fg-subtle mb-1">Название RU</label>
                       <input
                         type="text"
                         value={course.title_ru}
                         onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
                         placeholder="Название RU"
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Nomi UZ</label>
+                      <label className="block text-xs font-medium text-fg-subtle mb-1">Nomi UZ</label>
                       <input
                         type="text"
                         value={course.title_uz || ''}
                         onChange={(e) => updateCourse(idx, 'title_uz', e.target.value)}
                         placeholder="Nomi UZ"
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Тип курса</label>
+                      <label className="block text-xs font-medium text-fg-subtle mb-1">Тип курса</label>
                       <select
                         value={course.course_type}
                         onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       >
                         {COURSE_TYPES.map((ct) => (
                           <option key={ct.value} value={ct.value}>{ct.label}</option>
@@ -941,11 +941,11 @@ function Step3Courses({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Вес</label>
+                      <label className="block text-xs font-medium text-fg-subtle mb-1">Вес</label>
                       <select
                         value={course.weight}
                         onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-sm"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       >
                         <option value={1}>Вес 1 - базовый</option>
                         <option value={2}>Вес 2 - стандартный</option>
@@ -954,13 +954,13 @@ function Step3Courses({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Краткое описание</label>
+                      <label className="block text-xs font-medium text-fg-subtle mb-1">Краткое описание</label>
                       <textarea
                         value={course.short_description_ru || ''}
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
                         placeholder="Краткое описание"
                         rows={2}
-                        className="w-full px-2 py-1.5 border border-gray-200 rounded text-xs"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-xs"
                       />
                     </div>
                     <div className="pt-1">
@@ -979,7 +979,7 @@ function Step3Courses({
             })}
             <button
               onClick={() => addCourse(level)}
-              className="w-full px-3 py-1.5 text-xs border border-dashed border-gray-300 rounded hover:bg-gray-50"
+              className="w-full px-3 py-1.5 text-xs border border-dashed border-border-strong rounded hover:bg-bg-muted"
             >
               + Добавить курс в {LEVEL_LABELS[level]}
             </button>
@@ -990,7 +990,7 @@ function Step3Courses({
       <button
         onClick={handleApprove}
         disabled={saving || courses.length === 0}
-        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-medium py-3 rounded-md"
+        className="w-full bg-status-success-fg hover:opacity-90 disabled:opacity-50 text-bg-canvas font-medium py-3 rounded-md"
       >
         {saving
           ? 'Создание курсов и запуск генерации...'
@@ -1041,8 +1041,8 @@ function Step4Generation({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-900">Шаг 4: Генерация контента (Opus 4.6)</h2>
-      <p className="text-sm text-gray-600">
+      <h2 className="text-xl font-bold text-fg-default">Шаг 4: Генерация контента (Opus 4.6)</h2>
+      <p className="text-sm text-fg-muted">
         Claude Opus 4.6 генерирует полный контент для каждого курса (RU + UZ).
         Это может занять 30-90 минут. Можно закрыть страницу — генерация продолжится.
       </p>
@@ -1050,65 +1050,65 @@ function Step4Generation({
       {/* Big progress bar */}
       <div>
         <div className="flex justify-between text-sm mb-1">
-          <span className="font-medium text-gray-700">{status.current_step || 'Идёт обработка...'}</span>
-          <span className="text-gray-600">{completed} / {total}</span>
+          <span className="font-medium text-fg-muted">{status.current_step || 'Идёт обработка...'}</span>
+          <span className="text-fg-muted">{completed} / {total}</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-bg-muted rounded-full h-3 overflow-hidden">
           <div
-            className="h-full bg-blue-500 transition-all duration-300"
+            className="h-full bg-bg-accent transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="text-xs text-gray-500 mt-1">{Math.round(progress)}% выполнено</div>
+        <div className="text-xs text-fg-subtle mt-1">{Math.round(progress)}% выполнено</div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-gray-800">{total}</div>
-          <div className="text-xs text-gray-500">всего</div>
+        <div className="bg-bg-muted rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-fg-default">{total}</div>
+          <div className="text-xs text-fg-subtle">всего</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-green-700">{completed - failed.length}</div>
-          <div className="text-xs text-gray-500">успешно</div>
+        <div className="bg-status-success-bg rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-status-success-fg">{completed - failed.length}</div>
+          <div className="text-xs text-fg-subtle">успешно</div>
         </div>
-        <div className="bg-red-50 rounded-lg p-3 text-center">
-          <div className="text-2xl font-bold text-red-700">{failed.length}</div>
-          <div className="text-xs text-gray-500">ошибок</div>
+        <div className="bg-status-danger-bg rounded-lg p-3 text-center">
+          <div className="text-2xl font-bold text-status-danger-fg">{failed.length}</div>
+          <div className="text-xs text-fg-subtle">ошибок</div>
         </div>
       </div>
 
       {/* Failed courses */}
       {failed.length > 0 && (
-        <div className="border border-red-200 rounded-lg p-3">
-          <h3 className="text-sm font-medium text-red-700 mb-2">
+        <div className="border border-border-default rounded-lg p-3">
+          <h3 className="text-sm font-medium text-status-danger-fg mb-2">
             Не удалось сгенерировать ({failed.length}):
           </h3>
           <ul className="space-y-1 text-xs">
             {failed.slice(0, 10).map((f, i) => (
               <li key={i} className="flex items-center justify-between">
-                <span className="font-mono text-gray-600">
+                <span className="font-mono text-fg-muted">
                   {f.course_id.slice(0, 8)}... ({f.language})
                 </span>
                 <button
                   onClick={() => handleRetry(f.course_id)}
-                  className="text-blue-600 hover:underline"
+                  className="text-bg-accent hover:underline"
                 >
                   Повторить
                 </button>
               </li>
             ))}
             {failed.length > 10 && (
-              <li className="text-gray-500 italic">и ещё {failed.length - 10}...</li>
+              <li className="text-fg-subtle italic">и ещё {failed.length - 10}...</li>
             )}
           </ul>
         </div>
       )}
 
       {isDone && (
-        <div className="bg-green-50 border border-green-300 rounded-lg p-4 text-center">
-          <p className="text-green-700 font-medium">Генерация завершена!</p>
-          <p className="text-sm text-gray-600 mt-1">Переходим к финальному шагу...</p>
+        <div className="bg-status-success-bg border border-status-success-fg rounded-lg p-4 text-center">
+          <p className="text-status-success-fg font-medium">Генерация завершена!</p>
+          <p className="text-sm text-fg-muted mt-1">Переходим к финальному шагу...</p>
         </div>
       )}
     </div>
@@ -1140,27 +1140,27 @@ function Step5Done({
     <div className="space-y-4">
       <div className="text-center py-6">
         <div className="text-5xl mb-3">✓</div>
-        <h2 className="text-2xl font-bold text-gray-900">Pulse создан!</h2>
-        <p className="text-gray-600 mt-1">Роль <strong>{targetRole}</strong> готова к использованию</p>
+        <h2 className="text-2xl font-bold text-fg-default">Pulse создан!</h2>
+        <p className="text-fg-muted mt-1">Роль <strong>{targetRole}</strong> готова к использованию</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-blue-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-blue-700">{competencies}</div>
-          <div className="text-sm text-gray-600">компетенций</div>
+        <div className="bg-status-info-bg rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-status-info-fg">{competencies}</div>
+          <div className="text-sm text-fg-muted">компетенций</div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-green-700">{courses}</div>
-          <div className="text-sm text-gray-600">курсов создано</div>
+        <div className="bg-status-success-bg rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-status-success-fg">{courses}</div>
+          <div className="text-sm text-fg-muted">курсов создано</div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4 text-center">
-          <div className="text-3xl font-bold text-purple-700">{success}</div>
-          <div className="text-sm text-gray-600">контент готов</div>
+        <div className="bg-bg-muted rounded-lg p-4 text-center">
+          <div className="text-3xl font-bold text-role-sales">{success}</div>
+          <div className="text-sm text-fg-muted">контент готов</div>
         </div>
       </div>
 
       {failed > 0 && (
-        <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg text-sm">
+        <div className="bg-status-warning-bg border border-status-warning-fg text-status-warning-fg px-4 py-3 rounded-lg text-sm">
           <strong>{failed}</strong> курсов не удалось сгенерировать. Используй кнопку "Повторить" на шаге 4.
         </div>
       )}
@@ -1169,14 +1169,14 @@ function Step5Done({
         {sectionId && (
           <a
             href={`/learning?section=${sectionId}`}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium py-2.5 rounded-md"
+            className="flex-1 bg-bg-accent hover:bg-bg-accent-hover text-fg-on-accent text-center font-medium py-2.5 rounded-md"
           >
             Перейти к курсам
           </a>
         )}
         <button
           onClick={onNewPipeline}
-          className="flex-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2.5 rounded-md"
+          className="flex-1 border border-border-strong hover:bg-bg-muted text-fg-muted font-medium py-2.5 rounded-md"
         >
           Новый пайплайн
         </button>
