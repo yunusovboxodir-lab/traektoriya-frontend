@@ -197,7 +197,7 @@ body::after {
   border: 1px solid oklch(0.55 0.08 80 / 0.5);
   box-shadow: 0 0 14px oklch(0.55 0.08 80 / 0.35), inset 0 0 0 1px oklch(1 0 0 / 0.06);
 }
-.brand-text { line-height: 1.1; }
+.brand-text { line-height: 1.1; min-width: 0; overflow: hidden; }
 .brand-name {
   font-family: var(--font-display);
   font-size: 16px; font-weight: 700;
@@ -206,6 +206,9 @@ body::after {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .brand-tag {
   font-family: 'JetBrains Mono', monospace;
@@ -217,7 +220,10 @@ body::after {
 }
 
 /* ============ BRAND BUTTON + NAV MENU ============ */
-.brand-wrap { position: relative; }
+/* min-width:0 обязателен для дочернего flex-элемента, иначе он не сжимается
+   (растягивает .statusbar) и на узких экранах выталкивает язык/тему за край
+   вьюпорта (QA_ORCHESTRA: right=421px при vw=375). */
+.brand-wrap { position: relative; min-width: 0; flex-shrink: 1; }
 .brand {
   display: flex;
   align-items: center;
@@ -231,6 +237,7 @@ body::after {
   color: inherit;
   letter-spacing: inherit;
   transition: 0.18s;
+  min-width: 0;
 }
 .brand:hover {
   border-color: oklch(0.55 0.08 80 / 0.45);
@@ -507,6 +514,12 @@ body::after {
   color: var(--text-3);
 }
 .title-meta b { color: var(--text-1); font-weight: 500; }
+
+/* Пины карты обучения: видимый фокус при навигации с клавиатуры (11_accessibility) */
+.map-pin:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
 
 /* ============ LAYOUT GRID ============ */
 /* UX-аудит 2026-05-03: убрана правая колонка (RecsPanel + AwardsPanel были mock).
@@ -1606,8 +1619,29 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   }
   /* PowerBadge tier-лейбл: скрываем слово «Бронза/Золото» оставляем только число */
   .tactical-root .statusbar .power-badge-tier { display: none; }
-  /* Кнопка темы — убираем инлайн-margin-right */
-  .tactical-root .statusbar .sb-theme-btn { margin-right: 0 !important; }
+  /* PowerBadge: убираем фиксированный правый margin (12px) —
+     иначе на 375px (iPhone SE и т.п.) блок Мощь+бренд выталкивает язык/тему за
+     край вьюпорта (тапнуть невозможно, QA_ORCHESTRA блокер). */
+  .tactical-root .statusbar .power-badge-wrap { margin-right: 4px !important; }
+  /* Кнопка темы — убираем инлайн-margin-right, гарантируем тап-зону 44px */
+  .tactical-root .statusbar .sb-theme-btn {
+    margin-right: 0 !important;
+    min-width: 32px;
+    min-height: 32px;
+  }
+  /* Язык/тема — не даём сжаться до нечитаемого, тап-зона по высоте ряда */
+  .tactical-root .lang-toggle .lang-opt {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Совсем узкие экраны (iPhone SE и т.п., ≤360px): прячем текст бренда полностью,
+   оставляем только лого — освобождает место под правую группу без клиппинга. */
+@media (max-width: 360px) {
+  .tactical-root .statusbar .brand-text { display: none; }
+  .tactical-root .statusbar .brand-caret { display: none !important; }
 }
 
 /* --- divide-* (полосы между строками) --- */

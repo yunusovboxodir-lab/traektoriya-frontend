@@ -67,9 +67,17 @@ function ProtectedRoute({ children, pageKey }: { children: React.ReactNode; page
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isPageAllowed = useScopeStore((state) => state.isPageAllowed);
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
+  const isScopeLoaded = useScopeStore((state) => state.isLoaded);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Гонка при прямом заходе/F5: scope (allowed_pages) грузится асинхронно после
+  // authStore.fetchUser(). Пока не загружен — показываем лоадер, а НЕ редиректим
+  // (иначе разрешённая страница мигает и выкидывает на дашборд, см. scopeStore.ts).
+  if (pageKey && !isScopeLoaded) {
+    return <PageLoader />;
   }
 
   // If pageKey specified and user doesn't have access — redirect to first allowed page
@@ -104,9 +112,14 @@ function FullscreenProtectedRoute({ children, pageKey }: { children: React.React
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isPageAllowed = useScopeStore((state) => state.isPageAllowed);
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
+  const isScopeLoaded = useScopeStore((state) => state.isLoaded);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+  // См. комментарий в ProtectedRoute — та же гонка scope-загрузки при F5/прямом URL.
+  if (pageKey && !isScopeLoaded) {
+    return <PageLoader />;
   }
   if (pageKey && !isPageAllowed(pageKey)) {
     return <Navigate to={getFirstAllowedPath()} replace />;

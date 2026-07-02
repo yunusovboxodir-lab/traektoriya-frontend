@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { useT } from '../stores/langStore';
+import { useT, useLangStore } from '../stores/langStore';
+import { useAuthStore } from '../stores/authStore';
 import { PageHeader, RowActions } from '@/components/ui';
-import { BookOpen, Eye, Mail } from 'lucide-react';
+import { BookOpen, Eye, Mail, Users } from 'lucide-react';
 
 // =============================================================================
 // Types — match backend supervisor API response schemas
@@ -105,6 +106,8 @@ const TrendIcon = ({ trend, change }: { trend: string; change: number }) => {
 
 export function SupervisorDashboardPage() {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
+  const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState<'team' | 'learning'>('team');
   const [teamData, setTeamData] = useState<MyTeamData | null>(null);
   const [learningData, setLearningData] = useState<TeamLearningData | null>(null);
@@ -193,18 +196,43 @@ export function SupervisorDashboardPage() {
     );
   }
 
-  // QW-4 (Sprint 0, 2026-05-16): валидный empty state для admin/superadmin без команды.
-  // Этот таб создан для supervisor, у других ролей backend честно отдаёт 404 «команда не найдена».
+  // QW-4 (Sprint 0, 2026-05-16): валидный empty state для admin/superadmin без команды
+  // (используют таб «Администрирование» вместо этого).
+  // 2026-07-02 (QA_ORCHESTRA блокер): второй случай 404 — supervisor, у которого
+  // ещё не назначена команда (Team/TeamMember). Для него нужен человечный текст
+  // без упоминания «Администрирования» (нет доступа к этому табу).
   if (noTeam) {
+    const isSupervisorRole = user?.role === 'supervisor';
     return (
-      <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-8 text-center">
-        <div className="text-4xl mb-3">👥</div>
-        <p className="text-yellow-100 font-medium text-lg mb-2">
-          Раздел для супервайзеров
+      <div
+        className="rounded-xl p-8 text-center"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
+      >
+        <div
+          className="w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center"
+          style={{ background: 'var(--bg-overlay)' }}
+        >
+          <Users size={26} style={{ color: 'var(--text-muted)' }} />
+        </div>
+        <p className="font-medium text-lg mb-2" style={{ color: 'var(--text-primary)' }}>
+          {isSupervisorRole
+            ? (t('supervisor.noTeam.title') !== 'supervisor.noTeam.title'
+                ? t('supervisor.noTeam.title')
+                : (lang === 'uz' ? 'Sizda hali jamoa yo‘q' : 'У вас пока нет команды'))
+            : (t('supervisor.noTeam.otherRoleTitle') !== 'supervisor.noTeam.otherRoleTitle'
+                ? t('supervisor.noTeam.otherRoleTitle')
+                : 'Раздел для супервайзеров')}
         </p>
-        <p className="text-zinc-400 text-sm max-w-md mx-auto">
-          В этом табе супервайзер видит свою команду. Под вашей ролью команды нет — используйте таб
-          {' '}<b className="text-yellow-100">«Администрирование»</b> для работы с сотрудниками.
+        <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
+          {isSupervisorRole
+            ? (t('supervisor.noTeam.desc') !== 'supervisor.noTeam.desc'
+                ? t('supervisor.noTeam.desc')
+                : (lang === 'uz'
+                    ? 'Administrator sizga hali jamoa biriktirmagan. Tayinlash uchun murojaat qiling.'
+                    : 'Администратор ещё не назначил вам команду. Обратитесь к нему для назначения.'))
+            : (t('supervisor.noTeam.otherRoleDesc') !== 'supervisor.noTeam.otherRoleDesc'
+                ? t('supervisor.noTeam.otherRoleDesc')
+                : 'В этом табе супервайзер видит свою команду. Под вашей ролью команды нет — используйте таб «Администрирование» для работы с сотрудниками.')}
         </p>
       </div>
     );

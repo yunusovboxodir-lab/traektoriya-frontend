@@ -96,7 +96,8 @@ export function PowerBadge() {
   return (
     <div
       ref={wrapRef}
-      style={{ position: 'relative', marginRight: 12 }}
+      className="power-badge-wrap"
+      style={{ position: 'relative', marginRight: 12, minWidth: 0, flexShrink: 1 }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
