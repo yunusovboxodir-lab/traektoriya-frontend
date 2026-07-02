@@ -55,10 +55,10 @@ interface Territory {
 }
 
 const TERRITORIES: Territory[] = [
-  { level: 1, name: 'Стажёр',  icon: '\uD83C\uDF31', borderColor: 'border-green-300',  bgColor: 'bg-green-50',  badgeColor: 'bg-green-100 text-green-700',  minLessons: 5, maxLessons: 10 },
-  { level: 2, name: 'Практик', icon: '\uD83D\uDCBC', borderColor: 'border-blue-300',   bgColor: 'bg-blue-50',   badgeColor: 'bg-blue-100 text-blue-700',    minLessons: 5, maxLessons: 10 },
-  { level: 3, name: 'Эксперт', icon: '\u2B50',       borderColor: 'border-orange-300', bgColor: 'bg-orange-50', badgeColor: 'bg-orange-100 text-orange-700', minLessons: 5, maxLessons: 10 },
-  { level: 4, name: 'Мастер',  icon: '\uD83C\uDFC6', borderColor: 'border-purple-300', bgColor: 'bg-purple-50', badgeColor: 'bg-purple-100 text-purple-700', minLessons: 5, maxLessons: 10 },
+  { level: 1, name: 'Стажёр',  icon: '\uD83C\uDF31', borderColor: 'border-status-success-fg',  bgColor: 'bg-status-success-bg',  badgeColor: 'bg-status-success-bg text-status-success-fg',  minLessons: 5, maxLessons: 10 },
+  { level: 2, name: 'Практик', icon: '\uD83D\uDCBC', borderColor: 'border-status-info-fg',   bgColor: 'bg-status-info-bg',   badgeColor: 'bg-status-info-bg text-status-info-fg',    minLessons: 5, maxLessons: 10 },
+  { level: 3, name: 'Эксперт', icon: '\u2B50',       borderColor: 'border-status-warning-fg', bgColor: 'bg-status-warning-bg', badgeColor: 'bg-status-warning-bg text-status-warning-fg', minLessons: 5, maxLessons: 10 },
+  { level: 4, name: 'Мастер',  icon: '\uD83C\uDFC6', borderColor: 'border-role-sales', bgColor: 'bg-bg-muted', badgeColor: 'bg-bg-muted text-role-sales', minLessons: 5, maxLessons: 10 },
 ];
 
 interface LessonVariant {
@@ -180,9 +180,9 @@ interface ModerationLesson {
 }
 
 const MODERATION_STYLES: Record<ModerationStatus, { label: string; bg: string; text: string }> = {
-  draft: { label: 'Черновик', bg: 'bg-gray-100', text: 'text-gray-700' },
-  review: { label: 'На проверке', bg: 'bg-yellow-100', text: 'text-yellow-700' },
-  approved: { label: 'Утверждён', bg: 'bg-green-100', text: 'text-green-700' },
+  draft: { label: 'Черновик', bg: 'bg-bg-muted', text: 'text-fg-muted' },
+  review: { label: 'На проверке', bg: 'bg-status-warning-bg', text: 'text-status-warning-fg' },
+  approved: { label: 'Утверждён', bg: 'bg-status-success-bg', text: 'text-status-success-fg' },
 };
 
 // ===========================================================================
@@ -198,14 +198,14 @@ export function GenerationPage() {
       <PageHeader title={t('generation.title')} subtitle={t('generation.subtitle')} />
 
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 max-w-2xl">
+      <div className="flex gap-1 bg-bg-muted rounded-xl p-1 mb-6 max-w-2xl">
         <button
           type="button"
           onClick={() => setActiveTab('simple')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'simple'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+              : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
           {t('generation.tabs.simple')}
@@ -215,8 +215,8 @@ export function GenerationPage() {
           onClick={() => setActiveTab('wizard')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'wizard'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+              : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
           {t('generation.tabs.wizard')}
@@ -226,8 +226,8 @@ export function GenerationPage() {
           onClick={() => setActiveTab('moderation')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'moderation'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+              : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
           {t('generation.tabs.moderation')}
@@ -237,8 +237,8 @@ export function GenerationPage() {
           onClick={() => setActiveTab('media_prompts')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'media_prompts'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+              : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
           {t('generation.tabs.mediaPrompts')}
@@ -248,8 +248,8 @@ export function GenerationPage() {
           onClick={() => setActiveTab('kanban')}
           className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
             activeTab === 'kanban'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+              : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
           Kanban
@@ -262,15 +262,15 @@ export function GenerationPage() {
       ) : activeTab === 'wizard' ? (
         <WizardGeneration />
       ) : activeTab === 'moderation' ? (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-fg-subtle">{t('generation.loading')}</div>}>
           <ContentModerationTab />
         </Suspense>
       ) : activeTab === 'media_prompts' ? (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-fg-subtle">{t('generation.loading')}</div>}>
           <MediaPromptsTab />
         </Suspense>
       ) : (
-        <Suspense fallback={<div className="text-center py-8 text-gray-400">{t('generation.loading')}</div>}>
+        <Suspense fallback={<div className="text-center py-8 text-fg-subtle">{t('generation.loading')}</div>}>
           <ContentKanbanTab />
         </Suspense>
       )}
@@ -349,25 +349,25 @@ function SimpleGeneration() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* ---------- LEFT: FORM ---------- */}
       <div className="space-y-6">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-5">{t('generation.params')}</h2>
+        <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-fg-default mb-5">{t('generation.params')}</h2>
 
           {/* Topic */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.topicLabel')}</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1.5">{t('generation.topicLabel')}</label>
             <input
               type="text"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder={t('generation.topicPlaceholder')}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="w-full px-4 py-2.5 border border-border-strong rounded-lg focus:ring-2 focus:ring-border-focus focus:border-transparent text-sm"
               onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
             />
           </div>
 
           {/* Difficulty */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.difficultyLabel')}</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1.5">{t('generation.difficultyLabel')}</label>
             <div className="grid grid-cols-2 sm:flex gap-2">
               {[1, 2, 3, 4].map((d) => (
                 <button
@@ -376,8 +376,8 @@ function SimpleGeneration() {
                   onClick={() => setDifficulty(d)}
                   className={`sm:flex-1 py-2 px-3 rounded-lg text-sm font-medium transition ${
                     difficulty === d
-                      ? 'bg-blue-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+                      : 'bg-bg-muted text-fg-muted hover:text-fg-default'
                   }`}
                 >
                   {t('generation.difficulty.' + d)}
@@ -388,15 +388,15 @@ function SimpleGeneration() {
 
           {/* Language selector */}
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setLanguage('ru')}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
                   language === 'ru'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+                    : 'bg-bg-muted text-fg-muted hover:text-fg-default'
                 }`}
               >
                 <span className="text-base">🇷🇺</span> Русский
@@ -406,14 +406,14 @@ function SimpleGeneration() {
                 onClick={() => setLanguage('uz')}
                 className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
                   language === 'uz'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+                    : 'bg-bg-muted text-fg-muted hover:text-fg-default'
                 }`}
               >
                 <span className="text-base">🇺🇿</span> O'zbek
               </button>
             </div>
-            <p className="mt-1 text-xs text-gray-400">
+            <p className="mt-1 text-xs text-fg-subtle">
               {language === 'ru'
                 ? 'Контент на русском + узбекские переводы (title_uz)'
                 : "Barcha kontent faqat o'zbek tilida"}
@@ -427,9 +427,9 @@ function SimpleGeneration() {
                 type="checkbox"
                 checked={includeQuiz}
                 onChange={(e) => setIncludeQuiz(e.target.checked)}
-                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                className="w-4 h-4 accent-bg-accent rounded focus:ring-border-focus"
               />
-              <span className="text-sm font-medium text-gray-700">{t('generation.includeQuiz')}</span>
+              <span className="text-sm font-medium text-fg-muted">{t('generation.includeQuiz')}</span>
             </label>
           </div>
 
@@ -438,11 +438,11 @@ function SimpleGeneration() {
             type="button"
             onClick={handleGenerate}
             disabled={!topic.trim() || isGenerating}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isGenerating ? (
               <>
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-fg-on-accent border-t-transparent rounded-full animate-spin" />
                 {t('generation.generating')}
               </>
             ) : (
@@ -454,7 +454,7 @@ function SimpleGeneration() {
           </button>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mt-4 p-3 bg-status-danger-bg border border-border-default rounded-lg text-status-danger-fg text-sm">
               {error}
             </div>
           )}
@@ -464,26 +464,26 @@ function SimpleGeneration() {
       {/* ---------- RIGHT: RESULT ---------- */}
       <div className="space-y-6">
         {!result && !isGenerating && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <IconSparkles className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-400 mb-1">{t('generation.emptyTitle')}</h3>
-            <p className="text-sm text-gray-400">{t('generation.emptyDesc')}</p>
+          <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-12 text-center">
+            <IconSparkles className="w-16 h-16 text-fg-subtle mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-fg-subtle mb-1">{t('generation.emptyTitle')}</h3>
+            <p className="text-sm text-fg-subtle">{t('generation.emptyDesc')}</p>
           </div>
         )}
 
         {isGenerating && (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-            <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-600 mb-1">{t('generation.aiGenerating')}</h3>
-            <p className="text-sm text-gray-400">{t('generation.topic')}: «{topic}»</p>
+          <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-12 text-center">
+            <div className="w-12 h-12 border-4 border-border-default border-t-bg-accent rounded-full animate-spin mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-fg-muted mb-1">{t('generation.aiGenerating')}</h3>
+            <p className="text-sm text-fg-subtle">{t('generation.topic')}: «{topic}»</p>
           </div>
         )}
 
         {result && lesson && (
           <>
             {/* Title & content */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-3">{lesson.title}</h2>
+            <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+              <h2 className="text-xl font-bold text-fg-default mb-3">{lesson.title}</h2>
 
               {/* AI-trust блок (Phase 1' B3, 2026-05-16): AIBadge + ConfidenceIndicator
                   заменяют простой «grounded vs aiKnowledge» бейдж.
@@ -509,12 +509,12 @@ function SimpleGeneration() {
               {/* Metadata badges */}
               <div className="flex flex-wrap gap-2 mb-4">
                 {lesson.difficulty && (
-                  <span className="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <span className="px-2.5 py-0.5 bg-status-info-bg text-status-info-fg rounded-full text-xs font-medium">
                     {t('generation.difficulty.' + Number(lesson.difficulty)) || lesson.difficulty}
                   </span>
                 )}
                 {lesson.estimated_duration_minutes && (
-                  <span className="px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                  <span className="px-2.5 py-0.5 bg-status-success-bg text-status-success-fg rounded-full text-xs font-medium">
                     {lesson.estimated_duration_minutes} {t('generation.min')}
                   </span>
                 )}
@@ -522,20 +522,20 @@ function SimpleGeneration() {
 
               {/* Summary */}
               {lesson.summary && (
-                <div className="bg-gray-50 rounded-lg p-3 mb-4 text-sm text-gray-600 italic">
+                <div className="bg-bg-muted rounded-lg p-3 mb-4 text-sm text-fg-muted italic">
                   {Array.isArray(lesson.summary) ? lesson.summary.join(' ') : lesson.summary}
                 </div>
               )}
 
               {/* Content */}
               <div
-                className="prose max-w-none text-gray-700 text-sm leading-relaxed"
+                className="prose max-w-none text-fg-muted text-sm leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: renderMarkdown(lesson.content || '') }}
               />
 
               {/* AIFeedbackBar (B3, 2026-05-16): TRJ-033 — однокликовый feedback под
                   каждым AI-generated результатом. Mock: silent-fail POST в backend. */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="mt-4 pt-4 border-t border-border-default">
                 <AIFeedbackBar
                   responseId={lesson.title || 'lesson-' + Date.now()}
                   onFeedback={async (type, comment) => {
@@ -554,12 +554,12 @@ function SimpleGeneration() {
 
             {/* Key points */}
             {lesson.key_points && lesson.key_points.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h3 className="text-base font-semibold text-gray-900 mb-3">{t('generation.keyPoints')}</h3>
+              <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+                <h3 className="text-base font-semibold text-fg-default mb-3">{t('generation.keyPoints')}</h3>
                 <ul className="space-y-2">
                   {lesson.key_points.map((point, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                      <IconCheck className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-2 text-sm text-fg-muted">
+                      <IconCheck className="w-4 h-4 text-status-success-fg flex-shrink-0 mt-0.5" />
                       <span>{point}</span>
                     </li>
                   ))}
@@ -569,11 +569,11 @@ function SimpleGeneration() {
 
             {/* Quiz */}
             {includeQuiz && quizQuestions.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
                 <button
                   type="button"
                   onClick={() => setShowQuiz(!showQuiz)}
-                  className="w-full flex items-center justify-between text-base font-semibold text-gray-900"
+                  className="w-full flex items-center justify-between text-base font-semibold text-fg-default"
                 >
                   <span>{t('generation.testCount', { count: quizQuestions.length })}</span>
                   <svg className={`w-5 h-5 transition-transform ${showQuiz ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -589,14 +589,14 @@ function SimpleGeneration() {
                         className={`p-4 rounded-lg border-2 ${
                           quizChecked
                             ? quizAnswers[qi] === String(q.correct_answer)
-                              ? 'border-green-300 bg-green-50'
+                              ? 'border-status-success-fg bg-status-success-bg'
                               : quizAnswers[qi]
-                                ? 'border-red-300 bg-red-50'
-                                : 'border-gray-200'
-                            : 'border-gray-200'
+                                ? 'border-status-danger-fg bg-status-danger-bg'
+                                : 'border-border-default'
+                            : 'border-border-default'
                         }`}
                       >
-                        <p className="font-medium text-gray-800 mb-3 text-sm">
+                        <p className="font-medium text-fg-default mb-3 text-sm">
                           {qi + 1}. {q.question}
                         </p>
                         <div className="space-y-2">
@@ -614,13 +614,13 @@ function SimpleGeneration() {
                                 className={`w-full text-left p-2.5 rounded-lg border text-sm transition ${
                                   quizChecked
                                     ? isCorrect
-                                      ? 'border-green-500 bg-green-100 text-green-800'
+                                      ? 'border-status-success-fg bg-status-success-bg text-status-success-fg'
                                       : isSelected && !isCorrect
-                                        ? 'border-red-500 bg-red-100 text-red-800'
-                                        : 'border-gray-200 text-gray-600'
+                                        ? 'border-status-danger-fg bg-status-danger-bg text-status-danger-fg'
+                                        : 'border-border-default text-fg-muted'
                                     : isSelected
-                                      ? 'border-blue-500 bg-blue-50 text-blue-800'
-                                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                                      ? 'border-border-accent bg-bg-muted text-fg-default'
+                                      : 'border-border-default hover:border-border-strong hover:bg-bg-muted'
                                 }`}
                               >
                                 <span className="font-semibold mr-2">{letter}.</span>
@@ -630,7 +630,7 @@ function SimpleGeneration() {
                           })}
                         </div>
                         {quizChecked && q.explanation && (
-                          <div className="mt-3 p-2.5 bg-blue-50 rounded-lg text-xs text-blue-800">
+                          <div className="mt-3 p-2.5 bg-status-info-bg rounded-lg text-xs text-status-info-fg">
                             {q.explanation}
                           </div>
                         )}
@@ -641,20 +641,20 @@ function SimpleGeneration() {
                       <button
                         type="button"
                         onClick={() => setQuizChecked(true)}
-                        className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition text-sm"
+                        className="w-full py-2.5 bg-bg-accent text-fg-on-accent rounded-lg font-semibold hover:bg-bg-accent-hover transition text-sm"
                       >
                         {t('generation.checkAnswers')}
                       </button>
                     ) : (
-                      <div className="text-center p-4 bg-gray-50 rounded-lg">
-                        <p className="text-xl font-bold text-gray-800">
+                      <div className="text-center p-4 bg-bg-muted rounded-lg">
+                        <p className="text-xl font-bold text-fg-default">
                           {getQuizScore().correct}/{getQuizScore().total} (
                           {Math.round((getQuizScore().correct / Math.max(getQuizScore().total, 1)) * 100)}%)
                         </p>
                         <p className={`text-sm mt-1 ${
                           getQuizScore().correct / Math.max(getQuizScore().total, 1) >= 0.7
-                            ? 'text-green-600'
-                            : 'text-red-600'
+                            ? 'text-status-success-fg'
+                            : 'text-status-danger-fg'
                         }`}>
                           {getQuizScore().correct / Math.max(getQuizScore().total, 1) >= 0.7
                             ? t('generation.excellent')
@@ -672,7 +672,7 @@ function SimpleGeneration() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex-1 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-2.5 bg-bg-surface border border-border-default rounded-lg font-medium text-sm text-fg-muted hover:bg-bg-muted transition"
               >
                 {copied ? t('generation.copied') : t('generation.copyLesson')}
               </button>
@@ -685,7 +685,7 @@ function SimpleGeneration() {
                   setShowQuiz(false);
                   setError('');
                 }}
-                className="flex-1 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50 transition"
+                className="flex-1 py-2.5 bg-bg-surface border border-border-default rounded-lg font-medium text-sm text-fg-muted hover:bg-bg-muted transition"
               >
                 {t('generation.regenerate')}
               </button>
@@ -1089,20 +1089,20 @@ function WizardGeneration() {
                   <div
                     className={`w-7 h-7 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-colors ${
                       isDone
-                        ? 'bg-green-500 text-white'
+                        ? 'bg-status-success-fg text-bg-canvas'
                         : isActive
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
+                          ? 'bg-bg-accent text-fg-on-accent'
+                          : 'bg-bg-muted text-fg-subtle'
                     }`}
                   >
                     {isDone ? <IconCheck className="w-4 h-4" /> : s.num}
                   </div>
-                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 whitespace-nowrap ${isActive ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>
+                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 whitespace-nowrap ${isActive ? 'text-bg-accent font-medium' : 'text-fg-subtle'}`}>
                     {s.label}
                   </span>
                 </div>
                 {i < wizardSteps.length - 1 && (
-                  <div className={`w-12 sm:w-20 h-0.5 mx-2 mt-[-18px] ${isDone ? 'bg-green-400' : 'bg-gray-200'}`} />
+                  <div className={`w-12 sm:w-20 h-0.5 mx-2 mt-[-18px] ${isDone ? 'bg-status-success-fg' : 'bg-bg-muted'}`} />
                 )}
               </div>
             );
@@ -1221,9 +1221,9 @@ function StepUpload({
   const t = useT();
   return (
     <div className="max-w-xl">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-2">{t('generation.wizard.uploadTitle')}</h2>
-        <p className="text-sm text-gray-500 mb-5">
+      <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-fg-default mb-2">{t('generation.wizard.uploadTitle')}</h2>
+        <p className="text-sm text-fg-subtle mb-5">
           {t('generation.wizard.uploadDesc')}
         </p>
 
@@ -1235,13 +1235,13 @@ function StepUpload({
           onClick={() => fileInputRef.current?.click()}
           className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg px-4 py-10 cursor-pointer transition-colors ${
             isDragOver
-              ? 'border-blue-400 bg-blue-50'
-              : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+              ? 'border-border-accent bg-bg-muted'
+              : 'border-border-strong bg-bg-muted hover:border-border-accent hover:bg-bg-surface-raised'
           }`}
         >
-          <IconUploadCloud className={`w-12 h-12 mb-3 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
-          <p className="text-sm text-gray-600 text-center">{t('generation.wizard.dragDrop')}</p>
-          <p className="text-xs text-gray-400 mt-1">PDF, DOCX, DOC, TXT</p>
+          <IconUploadCloud className={`w-12 h-12 mb-3 ${isDragOver ? 'text-bg-accent' : 'text-fg-subtle'}`} />
+          <p className="text-sm text-fg-muted text-center">{t('generation.wizard.dragDrop')}</p>
+          <p className="text-xs text-fg-subtle mt-1">PDF, DOCX, DOC, TXT</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -1253,17 +1253,17 @@ function StepUpload({
 
         {/* Selected file */}
         {uploadFile && (
-          <div className="mt-4 flex items-center justify-between bg-blue-50 rounded-lg px-4 py-3">
+          <div className="mt-4 flex items-center justify-between bg-bg-muted rounded-lg px-4 py-3">
             <div className="flex items-center gap-3 min-w-0">
-              <svg className="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <svg className="w-5 h-5 text-bg-accent flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
               <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{uploadFile.name}</p>
-                <p className="text-xs text-gray-500">{formatFileSize(uploadFile.size)}</p>
+                <p className="text-sm font-medium text-fg-default truncate">{uploadFile.name}</p>
+                <p className="text-xs text-fg-subtle">{formatFileSize(uploadFile.size)}</p>
               </div>
             </div>
-            <button type="button" onClick={onRemoveFile} className="text-gray-400 hover:text-red-500 p-1">
+            <button type="button" onClick={onRemoveFile} className="text-fg-subtle hover:text-status-danger-fg p-1">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -1272,18 +1272,18 @@ function StepUpload({
         )}
 
         {uploadError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{uploadError}</div>
+          <div className="mt-4 p-3 bg-status-danger-bg border border-border-default rounded-lg text-status-danger-fg text-sm">{uploadError}</div>
         )}
 
         <button
           type="button"
           onClick={onUpload}
           disabled={!uploadFile || isUploading}
-          className="mt-5 w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          className="mt-5 w-full flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isUploading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-fg-on-accent border-t-transparent rounded-full animate-spin" />
               {t('generation.wizard.uploading')}
             </>
           ) : (
@@ -1347,10 +1347,10 @@ function StepCompetencies({
   if (isExtracting) {
     return (
       <div className="max-w-2xl">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center">
-          <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-600 mb-1">{t('generation.wizard.extracting')}</h3>
-          <p className="text-sm text-gray-400">{t('generation.wizard.aiAnalyzing')}</p>
+        <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-12 text-center">
+          <div className="w-12 h-12 border-4 border-border-default border-t-bg-accent rounded-full animate-spin mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-fg-muted mb-1">{t('generation.wizard.extracting')}</h3>
+          <p className="text-sm text-fg-subtle">{t('generation.wizard.aiAnalyzing')}</p>
         </div>
       </div>
     );
@@ -1359,15 +1359,15 @@ function StepCompetencies({
   if (extractError) {
     return (
       <div className="max-w-2xl">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <p className="text-red-700 text-sm">{extractError}</p>
+        <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+          <div className="bg-status-danger-bg border border-border-default rounded-lg p-4 mb-4">
+            <p className="text-status-danger-fg text-sm">{extractError}</p>
           </div>
           <div className="flex gap-3">
-            <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+            <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-fg-default bg-bg-muted rounded-lg hover:bg-bg-surface-raised">
               {t('generation.wizard.back')}
             </button>
-            <button type="button" onClick={onRetry} className="px-4 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+            <button type="button" onClick={onRetry} className="px-4 py-2 text-sm text-fg-on-accent bg-bg-accent rounded-lg hover:bg-bg-accent-hover">
               {t('generation.wizard.tryAgain')}
             </button>
           </div>
@@ -1386,33 +1386,33 @@ function StepCompetencies({
 
   return (
     <div className="max-w-5xl">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">{t('generation.wizard.competencyMatrix')}</h2>
+            <h2 className="text-lg font-semibold text-fg-default">{t('generation.wizard.competencyMatrix')}</h2>
             {extraction.role_name && (
-              <p className="text-sm text-gray-500 mt-0.5">{t('generation.wizard.position')}: {extraction.role_name}</p>
+              <p className="text-sm text-fg-subtle mt-0.5">{t('generation.wizard.position')}: {extraction.role_name}</p>
             )}
           </div>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-fg-subtle">
             {extraction.competencies.length} {t('generation.wizard.competenciesExtracted') || 'компетенций извлечено'}
           </span>
         </div>
 
         {/* Summary badge */}
-        <div className="flex flex-wrap items-center gap-3 mb-5 p-3 bg-gray-50 rounded-lg">
-          <span className="text-sm font-medium text-gray-700">
-            {'\uD83D\uDCDA'} Всего уроков: <strong className="text-blue-600">{totalExpectedLessons}</strong>
+        <div className="flex flex-wrap items-center gap-3 mb-5 p-3 bg-bg-muted rounded-lg">
+          <span className="text-sm font-medium text-fg-muted">
+            {'\uD83D\uDCDA'} Всего уроков: <strong className="text-bg-accent">{totalExpectedLessons}</strong>
           </span>
-          <span className="text-xs text-gray-400">|</span>
+          <span className="text-xs text-fg-subtle">|</span>
           {TERRITORIES.map((ter) => (
             <span key={ter.level} className={`text-xs px-2 py-0.5 rounded ${ter.badgeColor}`}>
               {ter.icon} {ter.name}: {territoryMap[ter.level]?.length || 0}
             </span>
           ))}
-          <span className="text-xs text-gray-400">|</span>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-fg-subtle">|</span>
+          <span className="text-xs text-fg-subtle">
             ~{totalExpectedLessons * 4} мин генерации
           </span>
         </div>
@@ -1427,7 +1427,7 @@ function StepCompetencies({
             return (
               <div
                 key={territory.level}
-                className={`rounded-xl border-2 ${isLow ? 'border-orange-300 bg-orange-50/30' : territory.borderColor + ' ' + territory.bgColor + '/30'}`}
+                className={`rounded-xl border-2 ${isLow ? 'border-status-warning-fg bg-status-warning-bg' : territory.borderColor}`}
               >
                 {/* Territory header */}
                 <div className={`px-4 py-3 rounded-t-lg ${territory.bgColor}`}>
@@ -1436,7 +1436,7 @@ function StepCompetencies({
                       {territory.icon} {territory.name}
                     </span>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      isLow ? 'bg-orange-200 text-orange-800' : 'bg-white/60 text-gray-700'
+                      isLow ? 'bg-status-warning-bg text-status-warning-fg' : 'bg-bg-surface text-fg-muted'
                     }`}>
                       {count} {count === 1 ? 'урок' : count < 5 ? 'урока' : 'уроков'}
                       {isLow && ' (мин. 5)'}
@@ -1447,7 +1447,7 @@ function StepCompetencies({
                 {/* Competency list in this territory */}
                 <div className="p-3 space-y-2 max-h-[250px] overflow-y-auto">
                   {indices.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-3">Нет компетенций</p>
+                    <p className="text-xs text-fg-subtle text-center py-3">Нет компетенций</p>
                   ) : (
                     indices.map((compIdx) => {
                       const comp = extraction.competencies[compIdx];
@@ -1455,18 +1455,18 @@ function StepCompetencies({
                       return (
                         <div
                           key={`${territory.level}-${compIdx}`}
-                          className="flex items-start gap-2 p-2 bg-white rounded-lg border border-gray-200 group"
+                          className="flex items-start gap-2 p-2 bg-bg-surface rounded-lg border border-border-default group"
                         >
                           <div className="min-w-0 flex-1">
-                            <p className="text-xs font-medium text-gray-800 leading-tight">{comp.name}</p>
+                            <p className="text-xs font-medium text-fg-default leading-tight">{comp.name}</p>
                             {comp.domain && (
-                              <span className="text-[10px] text-gray-400">{comp.domain}</span>
+                              <span className="text-[10px] text-fg-subtle">{comp.domain}</span>
                             )}
                           </div>
                           <button
                             type="button"
                             onClick={() => removeFromTerritory(territory.level, compIdx)}
-                            className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-500 p-0.5 flex-shrink-0 transition-opacity"
+                            className="opacity-0 group-hover:opacity-100 text-fg-subtle hover:text-status-danger-fg p-0.5 flex-shrink-0 transition-opacity"
                             title="Убрать из раздела"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1480,7 +1480,7 @@ function StepCompetencies({
 
                   {/* Add competency dropdown */}
                   <select
-                    className="w-full text-xs border border-dashed border-gray-300 rounded-lg px-2 py-1.5 text-gray-400 bg-transparent hover:border-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    className="w-full text-xs border border-dashed border-border-strong rounded-lg px-2 py-1.5 text-fg-subtle bg-transparent hover:border-border-accent focus:outline-none focus:ring-1 focus:ring-border-focus"
                     value=""
                     onChange={(e) => {
                       const idx = Number(e.target.value);
@@ -1505,15 +1505,15 @@ function StepCompetencies({
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between pt-4 border-t border-gray-100">
-          <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+        <div className="flex justify-between pt-4 border-t border-border-default">
+          <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-fg-default bg-bg-muted rounded-lg hover:bg-bg-surface-raised">
             {t('generation.wizard.back')}
           </button>
           <button
             type="button"
             onClick={onNext}
             disabled={totalExpectedLessons === 0}
-            className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="px-6 py-2 text-sm text-fg-on-accent bg-bg-accent rounded-lg hover:bg-bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {t('generation.wizard.nextSources')}
           </button>
@@ -1582,18 +1582,18 @@ function StepSources({
 
   return (
     <div className="max-w-3xl">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-1">{t('generation.wizard.sourcesTitle')}</h2>
-        <p className="text-sm text-gray-500 mb-5">
+      <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-fg-default mb-1">{t('generation.wizard.sourcesTitle')}</h2>
+        <p className="text-sm text-fg-subtle mb-5">
           {t('generation.wizard.sourcesDesc')}
         </p>
 
         {isLoading ? (
           <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-border-default border-t-bg-accent rounded-full animate-spin" />
           </div>
         ) : documents.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">
+          <div className="text-center py-10 text-fg-subtle">
             <p className="text-base font-medium mb-1">{t('generation.wizard.noStandards')}</p>
             <p className="text-sm">{t('generation.wizard.uploadStandards')}</p>
           </div>
@@ -1605,7 +1605,7 @@ function StepSources({
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  className="rounded-lg border border-border-strong px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-transparent bg-bg-surface"
                 >
                   <option value="all">{t('generation.wizard.allPositions')}</option>
                   {categories.map((cat) => (
@@ -1617,7 +1617,7 @@ function StepSources({
               <button
                 type="button"
                 onClick={handleToggleAll}
-                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                className="text-sm text-bg-accent hover:text-bg-accent-hover font-medium"
               >
                 {allFilteredSelected ? t('generation.wizard.deselectAll') : t('generation.wizard.selectAll')}
               </button>
@@ -1625,7 +1625,7 @@ function StepSources({
                 <button
                   type="button"
                   onClick={onDeselectAll}
-                  className="text-sm text-gray-500 hover:text-gray-700"
+                  className="text-sm text-fg-subtle hover:text-fg-default"
                 >
                   {t('generation.wizard.resetSelection')}
                 </button>
@@ -1640,26 +1640,26 @@ function StepSources({
                     key={doc.id}
                     onClick={() => onToggle(doc.id)}
                     className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition ${
-                      isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                      isSelected ? 'border-border-accent bg-bg-muted' : 'border-border-default hover:border-border-strong'
                     }`}
                   >
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onToggle(doc.id)}
-                      className="w-4 h-4 text-blue-600 rounded flex-shrink-0"
+                      className="w-4 h-4 accent-bg-accent rounded flex-shrink-0"
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{doc.original_filename}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-sm font-medium text-fg-default truncate">{doc.original_filename}</p>
+                      <p className="text-xs text-fg-subtle mt-0.5">
                         {formatFileSize(doc.file_size)}
                         {doc.category && (
-                          <span className="text-purple-600 ml-2">{doc.category}</span>
+                          <span className="text-role-sales ml-2">{doc.category}</span>
                         )}
                         {doc.status === 'processed' || doc.status === 'completed' ? (
-                          <span className="text-green-600 ml-2">{t('generation.wizard.indexed')}</span>
+                          <span className="text-status-success-fg ml-2">{t('generation.wizard.indexed')}</span>
                         ) : (
-                          <span className="text-yellow-600 ml-2">{doc.status}</span>
+                          <span className="text-status-warning-fg ml-2">{doc.status}</span>
                         )}
                       </p>
                     </div>
@@ -1667,7 +1667,7 @@ function StepSources({
                 );
               })}
               {filteredDocs.length === 0 && (
-                <div className="text-center py-6 text-gray-400 text-sm">
+                <div className="text-center py-6 text-fg-subtle text-sm">
                   {t('generation.wizard.noDocsForPosition')}
                 </div>
               )}
@@ -1676,22 +1676,22 @@ function StepSources({
         )}
 
         {/* Info */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+        <div className="mt-4 p-3 bg-status-info-bg rounded-lg text-xs text-status-info-fg">
           {t('generation.wizard.sourcesOptional')}
           {selectedSources.size > 0 && ` ${t('generation.wizard.selectedDocs', { count: selectedSources.size })}`}
         </div>
 
         {/* Language selector */}
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
+          <label className="block text-sm font-medium text-fg-muted mb-1.5">{t('generation.languageLabel') || 'Язык контента'}</label>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => onLanguageChange('ru')}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
                 language === 'ru'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+                  : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
               <span className="text-base">🇷🇺</span> Русский
@@ -1701,14 +1701,14 @@ function StepSources({
               onClick={() => onLanguageChange('uz')}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${
                 language === 'uz'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-bg-accent text-fg-on-accent shadow-sm'
+                  : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
               <span className="text-base">🇺🇿</span> O'zbek
             </button>
           </div>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-fg-subtle">
             {language === 'ru'
               ? 'Контент на русском + узбекские переводы (title_uz)'
               : "Barcha kontent faqat o'zbek tilida"}
@@ -1716,14 +1716,14 @@ function StepSources({
         </div>
 
         {/* Navigation */}
-        <div className="flex justify-between mt-6 pt-4 border-t border-gray-100">
-          <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+        <div className="flex justify-between mt-6 pt-4 border-t border-border-default">
+          <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-fg-default bg-bg-muted rounded-lg hover:bg-bg-surface-raised">
             {t('generation.wizard.back')}
           </button>
           <button
             type="button"
             onClick={onNext}
-            className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="px-6 py-2 text-sm text-fg-on-accent bg-bg-accent rounded-lg hover:bg-bg-accent-hover"
           >
             {t('generation.wizard.startGeneration')}
           </button>
@@ -1755,12 +1755,12 @@ function StepGenerate({
 
   return (
     <div className="max-w-3xl">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('generation.wizard.generationTitle')}</h2>
+      <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-fg-default mb-4">{t('generation.wizard.generationTitle')}</h2>
 
         {/* Progress bar */}
         <div className="mb-6">
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-fg-muted mb-2">
             <span>
               {isGenerating
                 ? t('generation.wizard.generatingLesson', { current: progress.current, total: progress.total })
@@ -1770,9 +1770,9 @@ function StepGenerate({
             </span>
             <span>{pct}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
+          <div className="w-full bg-bg-muted rounded-full h-2.5">
             <div
-              className={`h-2.5 rounded-full transition-all duration-500 ${isGenerating ? 'bg-blue-600' : 'bg-green-500'}`}
+              className={`h-2.5 rounded-full transition-all duration-500 ${isGenerating ? 'bg-bg-accent' : 'bg-status-success-bg0'}`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -1782,9 +1782,9 @@ function StepGenerate({
         {lessons.length > 0 && (
           <div className="space-y-2 max-h-[350px] overflow-y-auto">
             {lessons.map((l, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <div key={i} className="flex items-center gap-3 p-3 bg-bg-muted rounded-lg">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  l.lesson.title?.startsWith(t('generation.wizard.errorPrefix')) ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'
+                  l.lesson.title?.startsWith(t('generation.wizard.errorPrefix')) ? 'bg-status-danger-bg text-status-danger-fg' : 'bg-status-success-bg text-status-success-fg'
                 }`}>
                   {l.lesson.title?.startsWith(t('generation.wizard.errorPrefix')) ? (
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -1795,8 +1795,8 @@ function StepGenerate({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{l.lesson.title}</p>
-                  <p className="text-xs text-gray-500">{l.competencyName}</p>
+                  <p className="text-sm font-medium text-fg-default truncate">{l.lesson.title}</p>
+                  <p className="text-xs text-fg-subtle">{l.competencyName}</p>
                 </div>
               </div>
             ))}
@@ -1804,15 +1804,15 @@ function StepGenerate({
         )}
 
         {error && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">{error}</div>
+          <div className="mt-4 p-3 bg-status-danger-bg border border-border-default rounded-lg text-status-danger-fg text-sm">{error}</div>
         )}
 
         {!isGenerating && lessons.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end">
+          <div className="mt-6 pt-4 border-t border-border-default flex justify-end">
             <button
               type="button"
               onClick={onNext}
-              className="px-6 py-2 text-sm text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+              className="px-6 py-2 text-sm text-fg-on-accent bg-bg-accent rounded-lg hover:bg-bg-accent-hover"
             >
               {t('generation.wizard.goToModeration')}
             </button>
@@ -1855,19 +1855,19 @@ function StepModeration({
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">{t('generation.wizard.moderationTitle')}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <h2 className="text-lg font-semibold text-fg-default">{t('generation.wizard.moderationTitle')}</h2>
+          <p className="text-sm text-fg-subtle mt-0.5">
             {t('generation.wizard.moderationDesc')}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+          <span className="px-3 py-1 bg-status-success-bg text-status-success-fg rounded-full text-xs font-medium">
             {t('generation.wizard.approvedCount', { count: approvedCount })}
           </span>
-          <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
+          <span className="px-3 py-1 bg-status-warning-bg text-status-warning-fg rounded-full text-xs font-medium">
             {t('generation.wizard.onReviewCount', { count: reviewCount })}
           </span>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${groundedCount > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${groundedCount > 0 ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-warning-bg text-status-warning-fg'}`}>
             {groundedCount}/{lessons.length} со стандартами
           </span>
         </div>
@@ -1886,8 +1886,8 @@ function StepModeration({
               {/* Territory section header */}
               <div className={`flex items-center gap-2 mb-3 px-3 py-2 rounded-lg ${territory.bgColor}`}>
                 <span className="text-lg">{territory.icon}</span>
-                <span className="font-semibold text-sm text-gray-800">{territory.name}</span>
-                <span className="text-xs text-gray-500">({territoryLessons.length} {territoryLessons.length === 1 ? 'урок' : territoryLessons.length < 5 ? 'урока' : 'уроков'})</span>
+                <span className="font-semibold text-sm text-fg-default">{territory.name}</span>
+                <span className="text-xs text-fg-subtle">({territoryLessons.length} {territoryLessons.length === 1 ? 'урок' : territoryLessons.length < 5 ? 'урока' : 'уроков'})</span>
               </div>
 
               <div className="space-y-4">
@@ -1898,23 +1898,23 @@ function StepModeration({
           const isEnriching = enrichingIdx === idx;
           const isError = lesson.lesson.title?.startsWith('Ошибка:');
           return (
-            <div key={idx} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div key={idx} className="bg-bg-surface rounded-xl border border-border-default shadow-sm overflow-hidden">
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-100">
+              <div className="flex items-center justify-between px-5 py-3 bg-bg-muted border-b border-border-default">
                 <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-sm font-semibold text-gray-500">#{idx + 1}</span>
-                  <h3 className="text-sm font-medium text-gray-900 truncate">{lesson.lesson.title}</h3>
+                  <span className="text-sm font-semibold text-fg-subtle">#{idx + 1}</span>
+                  <h3 className="text-sm font-medium text-fg-default truncate">{lesson.lesson.title}</h3>
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.text}`}>
                     {t('generation.status.' + lesson.status)}
                   </span>
                   {!isError && (
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${isGrounded ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-600'}`}>
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${isGrounded ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-warning-bg text-status-warning-fg'}`}>
                       {isGrounded ? '\u2713 Источники' : '\u26A0 Без источников'}
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs text-gray-500">{lesson.competencyName}</span>
+                  <span className="text-xs text-fg-subtle">{lesson.competencyName}</span>
                 </div>
               </div>
 
@@ -1926,20 +1926,20 @@ function StepModeration({
                       value={lesson.editContent}
                       onChange={(e) => onUpdateContent(idx, e.target.value)}
                       rows={12}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
+                      className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-transparent font-mono"
                     />
                     <div className="flex gap-2 mt-3">
                       <button
                         type="button"
                         onClick={() => onSaveEdit(idx)}
-                        className="px-4 py-1.5 text-sm text-white bg-green-600 rounded-lg hover:bg-green-700"
+                        className="px-4 py-1.5 text-sm text-bg-canvas bg-status-success-fg rounded-lg hover:opacity-90"
                       >
                         {t('generation.wizard.save')}
                       </button>
                       <button
                         type="button"
                         onClick={() => onToggleEdit(idx)}
-                        className="px-4 py-1.5 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+                        className="px-4 py-1.5 text-sm text-fg-default bg-bg-muted rounded-lg hover:bg-bg-surface-raised"
                       >
                         {t('generation.wizard.cancel')}
                       </button>
@@ -1947,7 +1947,7 @@ function StepModeration({
                   </div>
                 ) : (
                   <div
-                    className="prose max-w-none text-sm text-gray-700 leading-relaxed max-h-60 overflow-y-auto"
+                    className="prose max-w-none text-sm text-fg-muted leading-relaxed max-h-60 overflow-y-auto"
                     dangerouslySetInnerHTML={{ __html: renderMarkdown(lesson.lesson.content || '') }}
                   />
                 )}
@@ -1955,11 +1955,11 @@ function StepModeration({
 
               {/* Actions */}
               {!lesson.isEditing && (
-                <div className="flex items-center gap-2 px-5 py-3 bg-gray-50 border-t border-gray-100">
+                <div className="flex items-center gap-2 px-5 py-3 bg-bg-muted border-t border-border-default">
                   <button
                     type="button"
                     onClick={() => onToggleEdit(idx)}
-                    className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50"
+                    className="px-3 py-1.5 text-xs font-medium text-fg-muted bg-bg-surface border border-border-default rounded-lg hover:bg-bg-muted"
                   >
                     {t('generation.wizard.edit')}
                   </button>
@@ -1968,11 +1968,11 @@ function StepModeration({
                       type="button"
                       onClick={() => onEnrich(idx)}
                       disabled={isEnriching || enrichingIdx !== null}
-                      className="px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                      className="px-3 py-1.5 text-xs font-medium text-status-success-fg bg-status-success-bg border border-status-success-fg rounded-lg hover:bg-status-success-bg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                     >
                       {isEnriching ? (
                         <>
-                          <div className="w-3 h-3 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin" />
+                          <div className="w-3 h-3 border-2 border-status-success-bg border-t-status-success-fg rounded-full animate-spin" />
                           Обогащение...
                         </>
                       ) : (
@@ -1984,7 +1984,7 @@ function StepModeration({
                     <button
                       type="button"
                       onClick={() => onSetStatus(idx, 'review')}
-                      className="px-3 py-1.5 text-xs font-medium text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100"
+                      className="px-3 py-1.5 text-xs font-medium text-status-warning-fg bg-status-warning-bg border border-status-warning-fg rounded-lg hover:bg-status-warning-bg"
                     >
                       {t('generation.wizard.toReview')}
                     </button>
@@ -1993,7 +1993,7 @@ function StepModeration({
                     <button
                       type="button"
                       onClick={() => onSetStatus(idx, 'approved')}
-                      className="px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100"
+                      className="px-3 py-1.5 text-xs font-medium text-status-success-fg bg-status-success-bg border border-status-success-fg rounded-lg hover:bg-status-success-bg"
                     >
                       {t('generation.wizard.approve')}
                     </button>
@@ -2002,7 +2002,7 @@ function StepModeration({
                     <button
                       type="button"
                       onClick={() => onSetStatus(idx, 'draft')}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-lg hover:bg-gray-200"
+                      className="px-3 py-1.5 text-xs font-medium text-fg-muted bg-bg-muted border border-border-default rounded-lg hover:bg-bg-surface-raised"
                     >
                       {t('generation.wizard.toDraft')}
                     </button>
@@ -2020,10 +2020,10 @@ function StepModeration({
 
       {/* Bottom navigation */}
       <div className="flex justify-between mt-6">
-        <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">
+        <button type="button" onClick={onBack} className="px-4 py-2 text-sm text-fg-default bg-bg-muted rounded-lg hover:bg-bg-surface-raised">
           {t('generation.wizard.backToGeneration')}
         </button>
-        <div className="text-sm text-gray-500 self-center">
+        <div className="text-sm text-fg-subtle self-center">
           {approvedCount === lessons.length && lessons.length > 0
             ? t('generation.wizard.allApproved')
             : t('generation.wizard.approvedOf', { approved: approvedCount, total: lessons.length })}

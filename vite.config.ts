@@ -12,6 +12,8 @@ export default defineConfig({
     },
   },
   server: {
+    // PORT из окружения — чтобы параллельные dev-серверы (Claude Preview) не дрались за 5173
+    port: process.env.PORT ? Number(process.env.PORT) : 5173,
     proxy: {
       '/api': {
         target: 'https://api.traektoriya.space',
