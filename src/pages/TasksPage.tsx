@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormResponse } from '../api/tasks';
 import { usersApi, type UserListItem } from '../api/users';
+import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
 import { FormField, Select } from '@/components/ui';
 import { TacticalShell } from '../components/tactical/shell';
@@ -396,13 +397,41 @@ export function TasksPage() {
     loadData();
   }, [scope]);
 
-  // Загружаем список подчинённых (только для руководителей)
+  // Загружаем список подчинённых (только для руководителей).
+  // /api/v1/users доступен только superadmin/commercial_dir/admin — у supervisor
+  // тихий 403 (гейт бэка), поэтому для supervisor берём подчинённых из
+  // /api/v1/supervisor/my-team (эндпоинт мобильного экрана «Моя команда»,
+  // доступен роли supervisor+) и мапим agents[] в формат UserListItem.
   useEffect(() => {
     if (!isManager) return;
+    if (user?.role === 'supervisor') {
+      api.get<{ agents: Array<{ id: string; name: string; employee_id: string; role: string | null }> }>('/api/v1/supervisor/my-team')
+        .then((res) => {
+          const mapped: UserListItem[] = (res.data?.agents ?? []).map((a) => ({
+            id: a.id,
+            employee_id: a.employee_id,
+            email: null,
+            full_name: a.name,
+            role: a.role || 'sales_rep',
+            position: null,
+            department: null,
+            region: null,
+            city: null,
+            is_active: true,
+            avatar_url: null,
+            created_at: null,
+            last_login: null,
+            total_active_minutes: 0,
+          }));
+          setSubordinates(mapped);
+        })
+        .catch(() => setSubordinates([]));
+      return;
+    }
     usersApi.list({ role: 'sales_rep', is_active: true, limit: 200 })
       .then((res) => setSubordinates(res.data?.items ?? []))
       .catch(() => setSubordinates([]));
-  }, [isManager]);
+  }, [isManager, user?.role]);
 
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     try {

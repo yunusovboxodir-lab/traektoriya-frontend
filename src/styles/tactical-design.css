@@ -132,10 +132,18 @@
    внутри .tactical-map-page, поэтому Dashboard/Championship/HallOfFame
    (тоже .tactical-root) продолжают следовать светлой теме как обычно. */
 [data-theme="light"] .tactical-map-page {
-  --bg-0: var(--bg-primary);
-  --bg-1: var(--bg-surface);
-  --bg-2: var(--bg-card);
-  --bg-statusbar: var(--bg-surface);
+  /* ВАЖНО: литеральные hex, НЕ var(--bg-primary/--bg-surface/--bg-card) —
+     эти токены сами theme-reactive (переопределены в index.css под
+     [data-theme=light]) и внутри этого же светлого скоупа резолвились бы
+     обратно в светлые значения (CSS custom properties — runtime lookup,
+     не значение-на-момент-объявления). Баг найден в контрольном UX-прогоне
+     2026-07-02: контраст шапки карты 1.02:1 (светлое на светлом). Фикс —
+     по образцу текстового блока ниже (строки ~203+), который уже был
+     сделан литералами верно. */
+  --bg-0: #0D0F14;
+  --bg-1: #141720;
+  --bg-2: #1A1F2E;
+  --bg-statusbar: #141720;
   --bg-panel-grad-from: rgba(26, 31, 46, 0.85);
   --bg-panel-grad-to:   rgba(20, 23, 32, 0.85);
   --bg-elevated-hover: rgba(32, 38, 58, 0.8);
@@ -145,26 +153,32 @@
   --bg-grid-dot: rgba(200, 168, 75, 0.05);
   --grid-blend-mode: screen;
   --scrim: rgba(13, 15, 20, 0.6);
-  --shadow-deep: var(--shadow-md);
+  --shadow-deep: 0 8px 24px rgba(0, 0, 0, 0.4);
 
-  --line: var(--border);
+  --line: #252B3B;
   --line-soft: rgba(37, 43, 59, 0.5);
-  --line-strong: var(--border-strong);
+  --line-strong: #323A50;
 
-  --text-0: var(--text-primary);
-  --text-1: var(--text-secondary);
-  --text-2: var(--text-secondary);
-  --text-3: var(--text-muted);
+  --text-0: #E8EAF0;
+  --text-1: #9CA3AF;
+  --text-2: #9CA3AF;
+  --text-3: #6B7280;
 
-  --cyan: var(--color-rm);
-  --brass: var(--color-rm);
+  /* Аналогично: --color-rm/--warning/--success/--color-sv/--text-muted тоже
+     theme-reactive (index.css переопределяет их под [data-theme=light] на
+     более тёмные/приглушённые значения для контраста на светлом холсте) —
+     если не литерализовать, брусс/акценты шапки карты станут тусклыми
+     светло-темными вместо дефолтного тёмно-темного золота. Значения взяты
+     из :root/[data-theme=dark] в index.css. */
+  --cyan: #C8A84B;
+  --brass: #C8A84B;
   --brass-deep: #A88836;
   --brass-light: #DBC074;
-  --amber: var(--warning);
-  --green: var(--success);
-  --gold: var(--color-rm);
-  --teal: var(--color-sv);
-  --gray: var(--text-muted);
+  --amber: #FBBF24;
+  --green: #4ADE80;
+  --gold: #C8A84B;
+  --teal: #2DD4BF;
+  --gray: #6B7280;
 
   --glow-soft: 0 0 60px rgba(200, 168, 75, 0.06);
   --panel-corner: rgba(200, 168, 75, 0.5);

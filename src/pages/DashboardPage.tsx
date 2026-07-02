@@ -20,15 +20,16 @@ import { useT, useLangStore } from '../stores/langStore';
 import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { TacticalShell } from '../components/tactical/shell';
+import { formatDateLong } from '../utils/formatDate';
 
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const t = useT();
   const lang = useLangStore((s) => s.lang);
 
-  const today = new Date().toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU', {
-    day: 'numeric', month: 'long', year: 'numeric',
-  });
+  // Intl.DateTimeFormat('uz-UZ', {month:'long'}) даёт артефакты вида «2026 M07 2»
+  // (ICU-данные для uz-UZ ненадёжны в браузерах) — используем ручной форматтер.
+  const today = formatDateLong(new Date(), lang);
 
   const operatorRole = user?.role ? t(`roles.${user.role}`) : '';
 

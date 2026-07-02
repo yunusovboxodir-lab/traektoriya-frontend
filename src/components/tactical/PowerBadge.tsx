@@ -113,13 +113,14 @@ export function PowerBadge() {
           height: 30,
           padding: '0 8px 0 10px',
           background: open ? 'var(--bg-elevated)' : 'var(--bg-card)',
-          border: '1px solid var(--line)',
+          borderWidth: 1,
+          borderStyle: 'solid',
+          borderColor: open ? 'var(--brass)' : 'var(--line)',
           borderRadius: 8,
           cursor: 'pointer',
           fontFamily: "'JetBrains Mono', monospace",
           whiteSpace: 'nowrap',
           transition: 'border-color 0.15s, background-color 0.15s',
-          borderColor: open ? 'var(--brass)' : 'var(--line)',
         }}
       >
         <span style={{ fontSize: 14, lineHeight: 1 }}>⚡</span>
