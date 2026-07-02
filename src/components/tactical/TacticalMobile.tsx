@@ -13,7 +13,7 @@
  *  + VillageSheet       (bottom-sheet с деталями посёлка)
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as DEFAULT_EDGES } from './data';
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
@@ -311,6 +311,23 @@ function PinchMap({ selectedId, setSelectedId, nodes, zones, edges }: PinchMapPr
   const renderedW = MAP_W * fitScale;
   const renderedH = MAP_H * fitScale;
 
+  // Тап по карте выбирает БЛИЖАЙШИЙ пин: сами пины ~4px на 375px-экране (норма ≥44px),
+  // а 64 отдельных тап-зоны по 44px на мини-карте не помещаются. Порог 80 SVG-юнитов
+  // ≈ 25px радиуса на 375px — тап рядом с пином срабатывает, тап в пустоту — нет.
+  const handleMapTap = (e: ReactMouseEvent<SVGSVGElement>) => {
+    if (!fitScale) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const sx = (e.clientX - rect.left) / fitScale;
+    const sy = (e.clientY - rect.top) / fitScale;
+    let best: string | null = null;
+    let bestD = Infinity;
+    for (const n of placed) {
+      const d = Math.hypot((n._px ?? 0) - sx, (n._py ?? 0) - sy);
+      if (d < bestD) { bestD = d; best = n.id; }
+    }
+    if (best !== null && bestD <= 80) setSelectedId(best);
+  };
+
   return (
     <div
       ref={containerRef}
@@ -328,7 +345,7 @@ function PinchMap({ selectedId, setSelectedId, nodes, zones, edges }: PinchMapPr
         transformOrigin: '0 0',
       }}>
         <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} width={renderedW} height={renderedH}
-          style={{ display: 'block' }}>
+          style={{ display: 'block' }} onClick={handleMapTap}>
           <defs>
             <radialGradient id="mPmVignette" cx="50%" cy="50%" r="75%">
               <stop offset="55%" stopColor="oklch(0.10 0.02 250)" stopOpacity="0" />

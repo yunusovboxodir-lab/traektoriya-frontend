@@ -24,6 +24,12 @@ const TIER_TINTS: { stroke: string; fill: string }[] = [
 ];
 const LOCKED_TINT = { stroke: 'oklch(0.52 0.02 250)', fill: 'oklch(0.22 0.02 250)' };
 
+// Невидимая тап-зона пина: 56 SVG-юнитов ≈ 44–53 CSS px при рабочих масштабах карты
+// (десктоп ~0.8–1.0, мобила с min-width 900 ~0.82). Норма ≥44px — Кодекс 11_accessibility.
+const HIT_R = 28;
+// Тёмный глиф поверх залитой (яркой) головы пина.
+const GLYPH_INK = 'oklch(0.16 0.02 250)';
+
 function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
   const locked = node.state === 'locked';
   // Цвет = тир (или приглушённый серый для заблокированных).
@@ -32,11 +38,16 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
   const headY = -(R + 13);                        // голова над точкой, остриё — на локации
   // Пульсирует только активный (текущий) курс — чтобы не зашумлять карту.
   const pulsing = node.state === 'active';
+  // Пройденные (done/mastered) — голова ЗАЛИТА цветом тира, глиф тёмный.
+  // Открытые/активные — тёмная голова с ярким контуром. Заливка+форма, не только глиф.
+  const solid = node.state === 'done' || node.state === 'mastered';
+  // Постоянное внешнее кольцо: активный (виден и без анимации) и мастер (двойной контур).
+  const ringed = node.state === 'active' || node.state === 'mastered';
 
   // Глиф = СОСТОЯНИЕ (форма, не цвет): ✓ пройден · ◆ в процессе · ▲ доступен · 🔒 закрыт · ★ мастер
   const renderGlyph = () => {
     if (node.state === 'done') {
-      return <path d="M -5 0 L -1 4 L 6 -5" stroke={col.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
+      return <path d="M -5 0 L -1 4 L 6 -5" stroke={GLYPH_INK} strokeWidth="2.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
     }
     if (node.state === 'new') {
       return <path d="M -6 -2 L 0 5 L 6 -2" stroke={col.stroke} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />;
@@ -54,17 +65,29 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
     }
     if (node.state === 'mastered') {
       return <path d="M 0 -8 L 2.4 -2.4 L 8 -2.4 L 3.2 1.6 L 4.8 7 L 0 4 L -4.8 7 L -3.2 1.6 L -8 -2.4 L -2.4 -2.4 Z"
-        fill={col.stroke} fillOpacity="0.55" stroke={col.stroke} strokeWidth="1.3" strokeLinejoin="round" />;
+        fill={GLYPH_INK} fillOpacity="0.9" stroke={GLYPH_INK} strokeWidth="1.3" strokeLinejoin="round" />;
     }
     return null;
   };
 
   return (
     <g
+      className="map-pin"
       transform={`translate(${node._px ?? 0}, ${node._py ?? 0})`}
       style={{ cursor: 'pointer', opacity: locked ? 0.72 : 1 }}
+      role="button"
+      tabIndex={0}
+      aria-label={node.title}
       onClick={() => onSelect(node)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect(node);
+        }
+      }}
     >
+      {/* невидимая тап-зона ≥44px — визуал пина не растим, кликается вся область */}
+      <circle cx={0} cy={headY / 2 - 2} r={HIT_R} fill="transparent" stroke="none" />
       {/* пульс вокруг головы (только активный — текущий курс) */}
       {pulsing && (
         <circle cx={0} cy={headY} r={R} fill="none" stroke={col.stroke} strokeWidth="2" opacity="0.5">
@@ -78,7 +101,12 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
       <path d={`M ${-R * 0.55} ${headY + R * 0.7} L ${R * 0.55} ${headY + R * 0.7} L 0 -1 Z`} fill={col.stroke} />
       {/* голова пина */}
       {selected && <circle cx={0} cy={headY} r={R + 5} fill="none" stroke={col.stroke} strokeWidth="1.2" opacity="0.6" />}
-      <circle cx={0} cy={headY} r={R} fill={col.fill} stroke={col.stroke} strokeWidth={selected ? 2.6 : 1.8} />
+      {ringed && <circle cx={0} cy={headY} r={R + 4} fill="none" stroke={col.stroke} strokeWidth="1.4" opacity="0.8" />}
+      <circle cx={0} cy={headY} r={R}
+        fill={solid ? col.stroke : col.fill}
+        stroke={col.stroke}
+        strokeWidth={selected ? 2.6 : 1.8}
+        strokeDasharray={locked ? '3 3' : undefined} />
       <g transform={`translate(0, ${headY})`}>{renderGlyph()}</g>
       {/* подпись курса — только у выбранного пина (иначе нечитаемо и зашумляет карту) */}
       {selected && (

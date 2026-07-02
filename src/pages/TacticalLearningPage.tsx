@@ -286,15 +286,21 @@ export function TacticalLearningPage() {
                 )}
               </div>
             ) : (
-              <TacticalMap
-                focusZone={focusZone}
-                selectedId={selectedNode?.id ?? null}
-                onSelect={handleSelect}
-                territoryMode={territoryMode}
-                nodes={nodes}
-                edges={edges}
-                zones={zones}
-              />
+              /* min-width + горизонтальная прокрутка: на узких окнах (901–1200px)
+                 карта сжимается и тап-зоны пинов падают ниже нормы ≥44px */
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <div style={{ minWidth: 900 }}>
+                  <TacticalMap
+                    focusZone={focusZone}
+                    selectedId={selectedNode?.id ?? null}
+                    onSelect={handleSelect}
+                    territoryMode={territoryMode}
+                    nodes={nodes}
+                    edges={edges}
+                    zones={zones}
+                  />
+                </div>
+              </div>
             )}
           </div>
 
