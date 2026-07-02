@@ -88,7 +88,7 @@ function ReportDetail({
           <div>
             <h2 className="text-lg font-semibold">{t('reports.title')}</h2>
             <p className="text-sm text-fg-muted">
-              {report.user_name || 'N/A'} &middot; {report.user_role || ''} &middot;{' '}
+              {report.user_name || 'N/A'} &middot; {report.user_role ? t(`roles.${report.user_role}`) : ''} &middot;{' '}
               {new Date(report.created_at).toLocaleString()}
             </p>
           </div>
@@ -328,7 +328,7 @@ export function ReportsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{r.user_name || 'N/A'}</div>
-                    <div className="text-xs text-fg-subtle">{r.user_role}</div>
+                    <div className="text-xs text-fg-subtle">{r.user_role ? t(`roles.${r.user_role}`) : ''}</div>
                   </td>
                   <td className="px-4 py-3"><TypeBadge type={r.report_type} /></td>
                   <td className="px-4 py-3">

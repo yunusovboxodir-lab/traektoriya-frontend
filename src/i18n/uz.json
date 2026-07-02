@@ -164,7 +164,7 @@
     "cards": {
       "learningDesc": "Kurslar, treninglar va o'quv materiallari",
       "productsDesc": "Mahsulotlar kutubxonasi va kompaniya katalogi",
-      "tasksDesc": "Vazifalarni boshqarish uchun Kanban-doska",
+      "tasksDesc": "Vazifalar va topshiriqlar — boshqaruv va bajarilish holati",
       "teamDesc": "Xodimlar va tashkilot tuzilmasini boshqarish",
       "assessmentsDesc": "Attestatsiya, testlar va kompetensiyalarni baholash",
       "generationDesc": "Sun'iy intellekt yordamida darslar va kontent yaratish",
@@ -174,7 +174,7 @@
   },
   "tasks": {
     "title": "Vazifalar",
-    "subtitle": "Vazifalarni boshqarish uchun Kanban-doska",
+    "subtitle": "Sizning vazifalaringiz va topshiriqlar",
     "newTask": "Yangi vazifa",
     "scope": {
       "my": "Mening vazifalarim",
@@ -237,7 +237,25 @@
       "createFailed": "Vazifani yaratish imkoni bo'lmadi"
     },
     "empty": "Vazifalar yo'q",
-    "retry": "Qayta urinish"
+    "retry": "Qayta urinish",
+    "source": {
+      "shelfscanAi": "ShelfScan AI",
+      "shelfscan": "ShelfScan",
+      "learning": "O'qitish",
+      "crm": "CRM",
+      "manual": "Qo'lda",
+      "fieldTask": "Darsdan topshiriq"
+    },
+    "type": {
+      "visit": "Tashrif",
+      "photo_report": "Fotohisobot",
+      "merchandising": "Merchandayzing",
+      "meeting": "Uchrashuv",
+      "learning": "O'qitish",
+      "cup_verification": "Kubok tekshiruvi",
+      "content_review": "Kontentni tekshirish",
+      "content_improvement": "Kontentni yaxshilash"
+    }
   },
   "team": {
     "title": "Jamoa",
@@ -609,9 +627,9 @@
       "trackFieldSalesShort": "TP",
       "trackSalesMgmtShort": "RM / KD / BM",
       "metricsTitle": "O'qitish ko'rsatkichlari",
-      "quizAccuracy": "Quiz Accuracy",
+      "quizAccuracy": "Testlar aniqligi",
       "quizAccuracyDesc": "1-urinishda to'g'ri",
-      "reflectionRate": "Reflection Rate",
+      "reflectionRate": "Refleksiya to'ldirilishi",
       "reflectionRateDesc": "To'ldirilgan refleksiyalar",
       "avgScore": "O'rtacha ball",
       "avgScoreDesc": "Barcha testlar bo'yicha",
@@ -634,7 +652,7 @@
     "eff": {
       "moduleEffectiveness": "Modullar samaradorligi",
       "module": "Modul",
-      "completion7d": "Completion 7k",
+      "completion7d": "7 kunlik yakunlash",
       "avgScore": "O'rt. ball",
       "avgTime": "O'rt. vaqt",
       "delta": "Delta",
@@ -1160,6 +1178,12 @@
     "title": "Mening jamoam",
     "rowActions": {
       "label": "Xodim bilan amallar"
+    },
+    "noTeam": {
+      "title": "Sizda hali jamoa yo'q",
+      "desc": "Administrator sizga hali jamoa biriktirmagan. Tayinlash uchun murojaat qiling.",
+      "otherRoleTitle": "Supervayzerlar uchun bo'lim",
+      "otherRoleDesc": "Bu tabda supervayzer o'z jamoasini ko'radi. Sizning rolingizda jamoa yo'q — xodimlar bilan ishlash uchun «Administratsiya» tabidan foydalaning."
     }
   },
   "shelfCorrections": {

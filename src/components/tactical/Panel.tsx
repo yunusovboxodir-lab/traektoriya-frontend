@@ -2,6 +2,7 @@
  * Panel — базовая обёртка с .glass-panel стилем (все панели Tactical UI).
  */
 import type { ReactNode, CSSProperties } from 'react';
+import { useLangStore } from '../../stores/langStore';
 
 interface PanelProps {
   children: ReactNode;
@@ -47,11 +48,12 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, max, color = 'var(--brass)', level = 'LVL 2' }: ProgressBarProps) {
+  const lang = useLangStore((s) => s.lang);
   const pct = Math.round((value / max) * 100);
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>ОПЫТ · {level}</span>
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>{lang === 'uz' ? 'TAJRIBA' : 'ОПЫТ'} · {level}</span>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: color, fontWeight: 700 }}>{value} / {max} XP</span>
       </div>
       <div className="bar-track">

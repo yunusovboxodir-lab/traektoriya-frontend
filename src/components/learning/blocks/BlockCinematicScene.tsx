@@ -194,8 +194,9 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
                 </div>
 
                 {/* Tap hint */}
-                <motion.div className="mt-8 text-center text-white/15 text-sm"
-                  animate={{ opacity: [0.1, 0.3, 0.1] }}
+                <motion.div className="mt-8 text-center text-sm"
+                  style={{ color: 'rgba(255,255,255,0.7)' }}
+                  animate={{ opacity: [0.55, 0.85, 0.55] }}
                   transition={{ duration: 2, repeat: Infinity }}>
                   {lang === 'uz' ? 'Davom etish uchun bosing' : 'Нажмите, чтобы продолжить'}
                 </motion.div>
@@ -217,13 +218,13 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
         ))}
 
         {/* Location */}
-        <motion.div className="absolute top-5 left-7"
+        <motion.div className="absolute top-5 left-7 max-w-[calc(100%-56px)]"
           initial={{ opacity: 0, x: -20 }}
           animate={step >= 1 ? { opacity: 1, x: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.2 }}>
-          <div className="text-white/30 text-xs tracking-[3px] uppercase">{bl(data.location.day, lang)}</div>
-          <div className="text-white text-4xl font-black tracking-tight">{bl(data.location.time, lang)}</div>
-          <div className="text-white/25 text-xs tracking-[2px] mt-0.5">{bl(data.location.subtitle, lang)}</div>
+          <div className="text-white/30 text-xs tracking-[3px] uppercase truncate">{bl(data.location.day, lang)}</div>
+          <div className="text-white text-4xl font-black tracking-tight truncate">{bl(data.location.time, lang)}</div>
+          <div className="text-white/25 text-xs tracking-[2px] mt-0.5 truncate">{bl(data.location.subtitle, lang)}</div>
         </motion.div>
 
         {/* Dialogue */}
@@ -311,10 +312,14 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
 
         {/* Tap hint */}
         {showTapHint && (
-          <motion.div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/20 text-sm tracking-wider"
-            animate={{ opacity: [0.15, 0.35, 0.15] }}
+          <motion.div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 rounded-full whitespace-nowrap"
+            style={{ background: 'rgba(0,0,0,0.35)', color: 'rgba(255,255,255,0.75)', fontSize: 14 }}
+            animate={{ opacity: [0.6, 1, 0.6] }}
             transition={{ duration: 2, repeat: Infinity }}>
-            {isTyping ? '' : 'Нажмите, чтобы продолжить'}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            {lang === 'uz' ? 'Davom etish uchun bosing' : 'Нажмите, чтобы продолжить'}
           </motion.div>
         )}
       </div>
@@ -451,7 +456,7 @@ function DialogueBubble({ character, text, isTyping, lang }: {
 
   return (
     <motion.div
-      className={`absolute max-w-[400px] rounded-2xl p-5 backdrop-blur-md
+      className={`absolute max-w-[calc(100%-40px)] sm:max-w-[400px] rounded-2xl p-5 backdrop-blur-md
         ${isLeft ? 'bottom-[220px] left-5' : 'bottom-[220px] right-5'}`}
       style={{
         background: 'linear-gradient(135deg, rgba(10,10,20,0.93), rgba(15,15,30,0.96))',

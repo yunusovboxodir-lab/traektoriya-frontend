@@ -164,7 +164,7 @@
     "cards": {
       "learningDesc": "Курсы, тренинги и учебные материалы для развития навыков",
       "productsDesc": "Библиотека товаров и каталог продукции компании",
-      "tasksDesc": "Kanban-доска для управления задачами и проектами",
+      "tasksDesc": "Задачи и поручения — управление и статус выполнения",
       "teamDesc": "Управление персоналом и структурой организации",
       "assessmentsDesc": "Аттестации, тесты и оценка компетенций сотрудников",
       "generationDesc": "Создание уроков и контента с помощью искусственного интеллекта",
@@ -174,7 +174,7 @@
   },
   "tasks": {
     "title": "Задачи",
-    "subtitle": "Kanban-доска управления задачами",
+    "subtitle": "Ваши задачи и поручения",
     "newTask": "Новая задача",
     "scope": {
       "my": "Мои задачи",
@@ -237,7 +237,25 @@
       "createFailed": "Не удалось создать задачу"
     },
     "empty": "Нет задач",
-    "retry": "Повторить"
+    "retry": "Повторить",
+    "source": {
+      "shelfscanAi": "ShelfScan AI",
+      "shelfscan": "ShelfScan",
+      "learning": "Обучение",
+      "crm": "CRM",
+      "manual": "Вручную",
+      "fieldTask": "Задание из урока"
+    },
+    "type": {
+      "visit": "Визит",
+      "photo_report": "Фотоотчёт",
+      "merchandising": "Мерчандайзинг",
+      "meeting": "Встреча",
+      "learning": "Обучение",
+      "cup_verification": "Проверка Кубка",
+      "content_review": "Проверка контента",
+      "content_improvement": "Улучшение контента"
+    }
   },
   "team": {
     "title": "Команда",
@@ -609,9 +627,9 @@
       "trackFieldSalesShort": "ТП",
       "trackSalesMgmtShort": "РМ / КД / БМ",
       "metricsTitle": "Метрики обучения",
-      "quizAccuracy": "Quiz Accuracy",
+      "quizAccuracy": "Точность тестов",
       "quizAccuracyDesc": "Правильных с 1-й попытки",
-      "reflectionRate": "Reflection Rate",
+      "reflectionRate": "Заполнение рефлексий",
       "reflectionRateDesc": "Заполненных рефлексий",
       "avgScore": "Средний балл",
       "avgScoreDesc": "По всем тестам",
@@ -634,7 +652,7 @@
     "eff": {
       "moduleEffectiveness": "Эффективность модулей",
       "module": "Модуль",
-      "completion7d": "Completion 7д",
+      "completion7d": "Завершаемость за 7д",
       "avgScore": "Ср. балл",
       "avgTime": "Ср. время",
       "delta": "Дельта",
@@ -1160,6 +1178,12 @@
     "title": "Моя команда",
     "rowActions": {
       "label": "Действия с сотрудником"
+    },
+    "noTeam": {
+      "title": "У вас пока нет команды",
+      "desc": "Администратор ещё не назначил вам команду. Обратитесь к нему для назначения.",
+      "otherRoleTitle": "Раздел для супервайзеров",
+      "otherRoleDesc": "В этом табе супервайзер видит свою команду. Под вашей ролью команды нет — используйте таб «Администрирование» для работы с сотрудниками."
     }
   },
   "shelfCorrections": {

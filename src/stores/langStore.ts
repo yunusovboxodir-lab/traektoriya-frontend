@@ -24,6 +24,12 @@ interface LangState {
 const STORAGE_KEY = 'language';
 const LANGS: Record<Lang, Strings> = { ru: ruStrings, uz: uzStrings };
 
+/** Синхронизирует <html lang="..."> с текущим языком (a11y + SEO). */
+function applyHtmlLang(lang: Lang): void {
+  if (typeof document === 'undefined') return;
+  document.documentElement.lang = lang === 'uz' ? 'uz-Latn' : 'ru';
+}
+
 function getInitialLang(): Lang {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'ru' || stored === 'uz') return stored;
@@ -34,21 +40,27 @@ function getInitialLang(): Lang {
 // Store
 // ---------------------------------------------------------------------------
 
-export const useLangStore = create<LangState>((set) => ({
-  lang: getInitialLang(),
-  strings: LANGS[getInitialLang()],
+export const useLangStore = create<LangState>((set) => {
+  const initial = getInitialLang();
+  applyHtmlLang(initial);
 
-  setLang: (lang: Lang) => {
-    localStorage.setItem(STORAGE_KEY, lang);
-    set({ lang, strings: LANGS[lang] });
+  return {
+    lang: initial,
+    strings: LANGS[initial],
 
-    // Sync with backend (fire-and-forget)
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      api.put('/api/v1/settings/me', { language: lang }).catch(() => {});
-    }
-  },
-}));
+    setLang: (lang: Lang) => {
+      localStorage.setItem(STORAGE_KEY, lang);
+      applyHtmlLang(lang);
+      set({ lang, strings: LANGS[lang] });
+
+      // Sync with backend (fire-and-forget)
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        api.put('/api/v1/settings/me', { language: lang }).catch(() => {});
+      }
+    },
+  };
+});
 
 /**
  * Применяет язык из user.telegram_lang при логине/восстановлении сессии.
@@ -61,6 +73,7 @@ export function applyUserLang(userLang: string | null | undefined): void {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'ru' || stored === 'uz') return; // уважаем ручной выбор
   localStorage.setItem(STORAGE_KEY, lang);
+  applyHtmlLang(lang);
   useLangStore.setState({ lang, strings: LANGS[lang] });
 }
 
