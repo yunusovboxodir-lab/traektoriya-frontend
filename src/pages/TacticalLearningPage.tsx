@@ -146,7 +146,7 @@ export function TacticalLearningPage() {
   const territoriesCount = zones.length;
 
   return (
-    <div className="tactical-root">
+    <div className="tactical-root tactical-map-page">
       <StatusBar />
 
       <div className="title-row">

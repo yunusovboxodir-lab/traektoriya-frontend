@@ -200,11 +200,18 @@ function ZoneColumn({ zone, idx, W, H, focusZone, lang }: ZoneColumnProps) {
         fontSize="15" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.28em" fontWeight="700" fill={t.stroke}
         style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{label}</text>
+      {/* T-0{idx} и БАЗ — HUD-лейбл (код, декоративный текст), остаётся Mono.
+          {zone.count} — числовые данные карты: Mono на <14px запрещён
+          (17_game_layer §в/ж.3) → сбрасываем на body-шрифт (Golos) через tspan. */}
       <text x={tcx} y={tcy + 17} textAnchor="middle"
         fontSize="9" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.18em" opacity="0.8"
         fill="oklch(0.80 0.02 250)"
-        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">{`T-0${idx + 1} · ${zone.count} ${unit}`}</text>
+        style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">
+        {`T-0${idx + 1} · `}
+        <tspan style={{ fontFamily: 'var(--font-body)' }}>{zone.count}</tspan>
+        {` ${unit}`}
+      </text>
     </g>
   );
 }

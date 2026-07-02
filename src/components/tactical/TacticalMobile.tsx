@@ -159,12 +159,13 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
           }}>{name}</span>
           <span style={{
             fontSize: 8, color: 'var(--text-muted)',
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
+            letterSpacing: '0.1em',
           }}>ТП · LVL {Math.floor(xp / 300)}</span>
         </div>
+        {/* pct/xp — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
         <div style={{
           fontSize: 9, color: 'var(--text-secondary)',
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em', marginTop: 2,
+          letterSpacing: '0.02em', marginTop: 2,
         }}>
           {pct}% ПУТИ · {xp.toLocaleString('ru')} XP
         </div>
@@ -190,9 +191,10 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
             fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
           }}>{league}</span>
         </div>
+        {/* streak/rank — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 9,
         }}>
           <span style={{ color: 'oklch(0.78 0.14 55)' }}>🔥{streak}</span>
           <span style={{ color: 'var(--text-muted)' }}>·</span>
@@ -252,9 +254,10 @@ function DailyQuestBanner() {
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
       }}>
+        {/* +50 XP — числовые данные (награда), не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
         <span style={{
           fontSize: 11, fontWeight: 700, color: 'var(--brass)',
-          fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.05em',
+          letterSpacing: '0.02em',
         }}>+50 XP</span>
         {/* Бонус +50XP — фейковая заглушка */}
         <DemoBadge />
@@ -500,9 +503,10 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
               transition: 'width 0.4s',
             }} />
           </div>
+          {/* done/sections — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
           <span style={{
             fontSize: 9, color: 'var(--text-secondary)',
-            fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
+            flexShrink: 0,
           }}>
             {v.done}/{v.sections}
           </span>
@@ -561,9 +565,10 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                     fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
                     letterSpacing: '0.18em', color: z.accent,
                   }}>{zLabel(z, lang)}</span>
+                  {/* {villages.length} — число, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
                   <span style={{
                     fontSize: 9, color: 'var(--text-muted)',
-                    fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
+                    letterSpacing: '0.02em',
                   }}>
                     {villages.length} ПОСЁЛКОВ
                   </span>
@@ -578,9 +583,10 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                   }} />
                 </div>
               </div>
+              {/* {pct}% — число, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
               <span style={{
                 fontSize: 10, fontWeight: 600, color: 'var(--text-primary)',
-                fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
+                flexShrink: 0,
               }}>
                 {pct}%
               </span>

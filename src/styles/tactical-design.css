@@ -122,6 +122,105 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* === КАРТА ОБУЧЕНИЯ — «правило двух стыков» (Кодекс 17_game_layer §г.1) ===
+   Карта = игровая зона целиком (SVG-холст TacticalMap.tsx уже всегда тёмный,
+   не зависит от темы). Если оставить шапку/title-row/glass-panel на светлых
+   «Пепел-холст»-токенах в [data-theme=light], получается светлая рамка вокруг
+   тёмного холста в одном вьюпорте — ощущение «двух программ». Решение владельца
+   2026-07-02: шапка карты остаётся тёмной HUD-панелью независимо от темы.
+   Переобъявляем те же алиасы, что и в :root/[data-theme="dark"] выше — только
+   внутри .tactical-map-page, поэтому Dashboard/Championship/HallOfFame
+   (тоже .tactical-root) продолжают следовать светлой теме как обычно. */
+[data-theme="light"] .tactical-map-page {
+  --bg-0: var(--bg-primary);
+  --bg-1: var(--bg-surface);
+  --bg-2: var(--bg-card);
+  --bg-statusbar: var(--bg-surface);
+  --bg-panel-grad-from: rgba(26, 31, 46, 0.85);
+  --bg-panel-grad-to:   rgba(20, 23, 32, 0.85);
+  --bg-elevated-hover: rgba(32, 38, 58, 0.8);
+  --bg-radial-1: rgba(200, 168, 75, 0.06);
+  --bg-radial-2: rgba(167, 139, 250, 0.05);
+  --bg-grid: rgba(200, 168, 75, 0.03);
+  --bg-grid-dot: rgba(200, 168, 75, 0.05);
+  --grid-blend-mode: screen;
+  --scrim: rgba(13, 15, 20, 0.6);
+  --shadow-deep: var(--shadow-md);
+
+  --line: var(--border);
+  --line-soft: rgba(37, 43, 59, 0.5);
+  --line-strong: var(--border-strong);
+
+  --text-0: var(--text-primary);
+  --text-1: var(--text-secondary);
+  --text-2: var(--text-secondary);
+  --text-3: var(--text-muted);
+
+  --cyan: var(--color-rm);
+  --brass: var(--color-rm);
+  --brass-deep: #A88836;
+  --brass-light: #DBC074;
+  --amber: var(--warning);
+  --green: var(--success);
+  --gold: var(--color-rm);
+  --teal: var(--color-sv);
+  --gray: var(--text-muted);
+
+  --glow-soft: 0 0 60px rgba(200, 168, 75, 0.06);
+  --panel-corner: rgba(200, 168, 75, 0.5);
+  --panel-corner-line: rgba(200, 168, 75, 0.45);
+  --top-shine: linear-gradient(90deg, transparent, rgba(200, 168, 75, 0.45), transparent);
+}
+/* Заголовок карты и лого бренда внутри игровой зоны — светлый градиент-текст
+   (как в тёмной теме), а не тёмное золото из [data-theme=light] .title-row h1 выше. */
+[data-theme="light"] .tactical-map-page .title-row h1 {
+  background: linear-gradient(180deg, oklch(0.95 0.06 88) 0%, oklch(0.72 0.10 75) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 28px oklch(0.70 0.10 78 / 0.30);
+}
+[data-theme="light"] .tactical-map-page .brand-name {
+  background: linear-gradient(180deg, oklch(0.92 0.08 85), oklch(0.72 0.10 75));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .tactical-map-page .nav-menu {
+  background: oklch(0.10 0.02 250); /* solid тёмный — совпадает с дефолтом .nav-menu */
+}
+[data-theme="light"] .tactical-map-page .nav-scrim {
+  background: oklch(0.05 0.01 250 / 0.85);
+}
+/* GuidesPanel (src/components/onboarding/GuidesPanel.tsx) и HeroPanel
+   (src/components/tactical/HeroPanel.tsx) сидят внутри карты (между шапкой и
+   SVG-холстом / в левой колонке), но используют легаси-токены НАПРЯМУЮ
+   (--text-muted/--text-primary/--color-rm-bg/--success/--info/--level-*), не
+   tactical-алиасы (--text-0/--brass) — поэтому не подхватывают переопределение
+   выше автоматически. Точечно фиксируем те же переменные внутри
+   .tactical-map-page на дефолт тёмной темы, не трогая сами компоненты (общие
+   для десктоп-карты и мобилки/дашборда, там эта проблема не воспроизводится). */
+[data-theme="light"] .tactical-map-page {
+  --bg-card:          #1A1F2E;
+  --border:           #252B3B;
+  --border-strong:    #323A50;
+  --text-primary:     #E8EAF0;
+  --text-secondary:   #9CA3AF;
+  --text-muted:       #6B7280;
+  --text-inverse:     #0D0F14;
+  --color-rm:         #C8A84B;
+  --color-rm-bg:      rgba(200, 168, 75, 0.12);
+  --color-rm-border:  rgba(200, 168, 75, 0.30);
+  --success:          #4ADE80;
+  --warning:          #FBBF24;
+  --danger:           #F87171;
+  --info:             #60A5FA;
+  --level-1:          #C8A84B;
+  --level-2:          #2DD4BF;
+  --level-3:          #A78BFA;
+  --level-4:          #F87171;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
@@ -513,7 +612,9 @@ body::after {
   letter-spacing: 0.15em;
   color: var(--text-3);
 }
-.title-meta b { color: var(--text-1); font-weight: 500; }
+/* Число внутри — данные, не лейбл: Mono запрещён <14px (17_game_layer §в/ж.3).
+   Наследуем body-шрифт (Golos), letter-spacing сбрасываем — цифрам разрядка не нужна. */
+.title-meta b { font-family: var(--font-body); letter-spacing: normal; color: var(--text-1); font-weight: 600; }
 
 /* Пины карты обучения: видимый фокус при навигации с клавиатуры (11_accessibility) */
 .map-pin:focus-visible {
@@ -712,7 +813,8 @@ body::after {
   font-size: 12px;
 }
 .stat-v {
-  font-family: 'JetBrains Mono', monospace;
+  /* Числовое значение статистики (13px) — данные, не HUD-лейбл. Mono запрещён
+     <14px (17_game_layer §в/ж.3) → наследуем body-шрифт (Golos). */
   font-weight: 700;
   font-size: 13px;
   color: var(--text-0);
@@ -749,6 +851,9 @@ body::after {
 .chip-num { color: var(--c); font-weight: 700; }
 .chip-name { color: var(--text-1); font-weight: 600; flex: 1; font-size: 9px; }
 .chip-count {
+  /* Число курсов территории — данные, не лейбл. Родитель .zone-chip задаёт
+     Mono — сбрасываем на body-шрифт (17_game_layer §в/ж.3). */
+  font-family: var(--font-body);
   color: var(--c);
   font-weight: 700;
   font-size: 11px;
@@ -781,7 +886,7 @@ body::after {
   box-shadow: 0 0 6px currentColor;
 }
 .team-pct {
-  font-family: 'JetBrains Mono', monospace;
+  /* Процент прогресса — данные, не лейбл (17_game_layer §в/ж.3). */
   font-size: 11px;
   text-align: right;
   color: var(--text-1);
@@ -1276,14 +1381,25 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   transform: translateX(100%);
 }
 
-/* --- Inputs focus в Tactical-стиле --- */
+/* --- Inputs focus в Tactical-стиле ---
+   Известный долг (17_game_layer §ж.1): раньше был безусловный `outline: none`
+   на :focus (не :focus-visible) — глушил системный outline и для мышиных
+   кликов, и для Tab-навигации, оставляя только box-shadow-glow без гарантии
+   видимости. Фикс: :focus (мышь+клавиатура) — только brass-glow без outline
+   (сохраняем визуал); :focus-visible (клавиатура) — добавляем явный outline
+   поверх glow, тот же паттерн что и .map-pin:focus-visible выше в файле. */
 .tactical-page input:focus,
 .tactical-page textarea:focus,
 .tactical-page select:focus {
-  outline: none;
   border-color: var(--brass) !important;
   box-shadow: 0 0 0 2px oklch(from var(--brass) l c h / 0.20),
               0 0 16px oklch(from var(--brass) l c h / 0.25);
+}
+.tactical-page input:focus-visible,
+.tactical-page textarea:focus-visible,
+.tactical-page select:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
 }
 
 /* --- Pulsating dot для "live" индикаторов --- */

@@ -5,6 +5,7 @@ import { getAtmosphere } from './atmospheres';
 import { SilhouetteCharacter } from './characters/SilhouetteCharacter';
 import { bl } from '../../../utils/bilingual';
 import { useLangStore } from '../../../stores/langStore';
+import { useMediaQuery } from '../../../hooks/useMediaQuery';
 
 const TYPING_SPEED_MS = 35;
 
@@ -107,11 +108,20 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
   const activeChar = activeDialogue ? data.characters.find(c => c.id === activeDialogue.characterId) : null;
   const showTapHint = !isTyping && step >= 1 && step < crisisStep;
 
+  // Стык 2 (Кодекс 17_game_layer §г): переход из светлого дашборда/карты в почти
+  // чёрную сцену урока не должен быть мгновенным «провалом» — короткий fade-in
+  // при монтировании. Уважаем prefers-reduced-motion (без анимации — сцена
+  // появляется сразу, как раньше).
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-[200] bg-[#060a14] flex flex-col overflow-hidden cursor-pointer select-none"
       style={{ fontFamily: "'Georgia', serif" }}
       onClick={handleClick}
+      initial={reducedMotion ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
     >
       <div className="h-8 bg-black shrink-0" />
 
@@ -325,7 +335,7 @@ export function BlockCinematicScene({ data, accent, onAdvance }: Props) {
       </div>
 
       <div className="h-8 bg-black shrink-0" />
-    </div>
+    </motion.div>
   );
 }
 

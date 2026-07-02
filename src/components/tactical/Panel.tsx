@@ -54,7 +54,9 @@ export function ProgressBar({ value, max, color = 'var(--brass)', level = 'LVL 2
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
         <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>{lang === 'uz' ? 'TAJRIBA' : 'ОПЫТ'} · {level}</span>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: color, fontWeight: 700 }}>{value} / {max} XP</span>
+        {/* XP {value}/{max} — числовые данные, не HUD-лейбл: Mono запрещён <14px
+            (Кодекс 17_game_layer §в/ж.3). Golos через наследование body-шрифта. */}
+        <span style={{ fontSize: 12, color: color, fontWeight: 700 }}>{value} / {max} XP</span>
       </div>
       <div className="bar-track">
         <div className="bar-fill" style={{ width: pct + '%', background: `linear-gradient(90deg, ${color}, var(--brass-light))` }} />
