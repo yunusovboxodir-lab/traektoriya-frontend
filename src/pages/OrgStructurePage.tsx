@@ -10,9 +10,9 @@ import { teamApi } from '../api/team';
 import { usersApi } from '../api/users';
 import type { Region, Dealer, Team } from '../api/team';
 import { toast } from '@/components/ui';
-import { Button, EmptyState } from '@/components/ui';
+import { Button, EmptyState, FormField, Input, Select, Switch } from '@/components/ui';
 import { useT } from '../stores/langStore';
-import { MapPin, Building2, UserCog, Plus, Pencil, Power, X as XIcon } from 'lucide-react';
+import { MapPin, Building2, UserCog, Plus, Pencil, X as XIcon } from 'lucide-react';
 
 type Section = 'regions' | 'dealers' | 'supervisors';
 
@@ -36,9 +36,6 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-const inputCls =
-  'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500';
-
 // ---------------------------------------------------------------------------
 // Секция «Регионы»
 // ---------------------------------------------------------------------------
@@ -60,7 +57,9 @@ function RegionsSection() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // t из useT() нестабильна (новая функция каждый рендер) → в deps даёт бесконечный цикл запросов
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -115,9 +114,12 @@ function RegionsSection() {
                       <button onClick={() => setEditing(r)} className="text-gray-500 hover:text-blue-600" title="Переименовать">
                         <Pencil size={16} />
                       </button>
-                      <button onClick={() => toggleActive(r)} className="text-gray-500 hover:text-amber-600" title={r.is_active ? 'Выключить' : 'Включить'}>
-                        <Power size={16} />
-                      </button>
+                      <Switch
+                        size="sm"
+                        checked={r.is_active}
+                        onCheckedChange={() => toggleActive(r)}
+                        aria-label={r.is_active ? `Выключить регион ${r.name}` : `Включить регион ${r.name}`}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -162,19 +164,17 @@ function RegionForm({ region, onClose, onSaved }: { region?: Region; onClose: ()
   return (
     <Modal title={region ? 'Редактировать регион' : 'Новый регион'} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Название *</label>
-          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Навои" required />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Страна</label>
-          <input className={inputCls} value={country} onChange={(e) => setCountry(e.target.value)} />
-        </div>
+        <FormField label="Название" required>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Навои" required autoFocus />
+        </FormField>
+        <FormField label="Страна">
+          <Input value={country} onChange={(e) => setCountry(e.target.value)} />
+        </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Отмена</button>
-          <button type="submit" disabled={saving || !name.trim()} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="submit" loading={saving} disabled={!name.trim()}>
             {saving ? 'Сохранение...' : 'Сохранить'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
@@ -207,7 +207,8 @@ function DealersSection() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- t нестабильна, см. RegionsSection
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -270,9 +271,12 @@ function DealersSection() {
                           <button onClick={() => setEditing(d)} className="text-gray-500 hover:text-blue-600" title="Редактировать">
                             <Pencil size={16} />
                           </button>
-                          <button onClick={() => toggleActive(d)} className="text-gray-500 hover:text-amber-600" title={d.is_active ? 'Выключить' : 'Включить'}>
-                            <Power size={16} />
-                          </button>
+                          <Switch
+                            size="sm"
+                            checked={d.is_active}
+                            onCheckedChange={() => toggleActive(d)}
+                            aria-label={d.is_active ? `Выключить дилера ${d.name}` : `Включить дилера ${d.name}`}
+                          />
                         </div>
                       </td>
                     </tr>
@@ -319,24 +323,22 @@ function DealerForm({ dealer, regions, onClose, onSaved }: { dealer?: Dealer; re
   return (
     <Modal title={dealer ? 'Редактировать дилера' : 'Новый дилер'} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Название *</label>
-          <input className={inputCls} value={name} onChange={(e) => setName(e.target.value)} placeholder="Алишер" required />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Регион *</label>
-          <select className={inputCls} value={regionId} onChange={(e) => setRegionId(e.target.value)} required>
-            <option value="">— Выберите регион —</option>
-            {regions.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
-        </div>
+        <FormField label="Название" required>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Алишер" required autoFocus />
+        </FormField>
+        <FormField label="Регион" required>
+          <Select
+            value={regionId}
+            onValueChange={setRegionId}
+            placeholder="— Выберите регион —"
+            options={regions.map((r) => ({ value: r.id, label: r.name }))}
+          />
+        </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Отмена</button>
-          <button type="submit" disabled={saving || !name.trim() || !regionId} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="submit" loading={saving} disabled={!name.trim() || !regionId}>
             {saving ? 'Сохранение...' : 'Сохранить'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>
@@ -368,7 +370,8 @@ function SupervisorsSection() {
     } finally {
       setLoading(false);
     }
-  }, [t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- t нестабильна, см. RegionsSection
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -428,9 +431,12 @@ function SupervisorsSection() {
                   </td>
                   <td className="px-4 py-2">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => toggleActive(team)} className="text-gray-500 hover:text-amber-600" title={team.is_active ? 'Выключить' : 'Включить'}>
-                        <Power size={16} />
-                      </button>
+                      <Switch
+                        size="sm"
+                        checked={team.is_active}
+                        onCheckedChange={() => toggleActive(team)}
+                        aria-label={team.is_active ? `Выключить супервайзера ${team.supervisor_name || team.name}` : `Включить супервайзера ${team.supervisor_name || team.name}`}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -526,58 +532,46 @@ function SupervisorForm({ regions, onClose, onSaved }: { regions: Region[]; onCl
   return (
     <Modal title="Новый супервайзер" onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Регион *</label>
-          <select className={inputCls} value={regionId} onChange={(e) => setRegionId(e.target.value)} required>
-            <option value="">— Выберите регион —</option>
-            {regions.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Дилер *</label>
-          <select
-            className={`${inputCls} disabled:bg-gray-50 disabled:text-gray-400`}
+        <FormField label="Регион" required>
+          <Select
+            value={regionId}
+            onValueChange={setRegionId}
+            placeholder="— Выберите регион —"
+            options={regions.map((r) => ({ value: r.id, label: r.name }))}
+          />
+        </FormField>
+        <FormField label="Дилер" required>
+          <Select
             value={dealerId}
-            onChange={(e) => setDealerId(e.target.value)}
+            onValueChange={setDealerId}
             disabled={!regionId || loadingDealers}
-            required
-          >
-            <option value="">
-              {!regionId ? 'Сначала выберите регион' : loadingDealers ? 'Загрузка...' : dealers.length === 0 ? 'В регионе нет дилеров' : '— Выберите дилера —'}
-            </option>
-            {dealers.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">ФИО супервайзера *</label>
-          <input className={inputCls} value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Холматов Мухаммадюсуф" required />
-        </div>
+            placeholder={!regionId ? 'Сначала выберите регион' : loadingDealers ? 'Загрузка...' : dealers.length === 0 ? 'В регионе нет дилеров' : '— Выберите дилера —'}
+            options={dealers.map((d) => ({ value: d.id, label: d.name }))}
+          />
+        </FormField>
+        <FormField label="ФИО супервайзера" required>
+          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Холматов Мухаммадюсуф" required />
+        </FormField>
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Логин (ID) *</label>
-            <input className={inputCls} value={login} onChange={(e) => setLogin(e.target.value)} placeholder="sv_kholmatov" required />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Пароль *</label>
-            <input className={inputCls} type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="мин. 8 символов" required />
-          </div>
+          <FormField label="Логин (ID)" required>
+            <Input value={login} onChange={(e) => setLogin(e.target.value)} placeholder="sv_kholmatov" required />
+          </FormField>
+          <FormField
+            label="Пароль"
+            required
+            errorText={password.length > 0 && password.length < 8 ? 'Пароль должен быть не короче 8 символов.' : undefined}
+          >
+            <Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="мин. 8 символов" required />
+          </FormField>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
-          <input className={inputCls} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998..." />
-        </div>
-        {password.length > 0 && password.length < 8 && (
-          <p className="text-xs text-red-500">Пароль должен быть не короче 8 символов.</p>
-        )}
+        <FormField label="Телефон">
+          <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998..." />
+        </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">Отмена</button>
-          <button type="submit" disabled={saving || !valid} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="submit" loading={saving} disabled={!valid}>
             {saving ? 'Создание...' : 'Создать'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

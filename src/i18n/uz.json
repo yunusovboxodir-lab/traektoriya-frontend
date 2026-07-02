@@ -211,6 +211,8 @@
       "descLabel": "Tavsif",
       "descPlaceholder": "Vazifa tafsilotlari (ixtiyoriy)",
       "priorityLabel": "Muhimlik",
+      "assigneeLabel": "Ijrochi",
+      "assigneePlaceholder": "Ijrochisiz",
       "cancel": "Bekor qilish",
       "creating": "Yaratilmoqda...",
       "submit": "Vazifa yaratish"

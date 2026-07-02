@@ -211,6 +211,8 @@
       "descLabel": "Описание",
       "descPlaceholder": "Детали задачи (необязательно)",
       "priorityLabel": "Приоритет",
+      "assigneeLabel": "Исполнитель",
+      "assigneePlaceholder": "Без исполнителя",
       "cancel": "Отмена",
       "creating": "Создание...",
       "submit": "Создать задачу"
