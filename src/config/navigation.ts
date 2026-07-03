@@ -40,11 +40,11 @@ export interface NavDestination {
  */
 /**
  * Флаг витрины «Здоровье платформы» (движок самоулучшения).
- * false → пункт СКРЫТ из меню (но маршрут /engine-health доступен прямым URL).
- * Держим false до go-live: бэкенд-эндпоинты /engine-health/* ещё не задеплоены,
- * и до реального потока витрина всё равно пуста. После запуска — поставить true.
+ * true с 2026-07-03 (решение владельца): движок LIVE — первые 121 вердикт за
+ * 2026-06 (ручной прогон attribution-джоба). Пункт виден admin+ (гейтинг
+ * как у admin-roles). Бэкенд /engine-health/* задеплоен на Eskiz 2026-07-01.
  */
-const ENGINE_HEALTH_NAV_ENABLED = false;
+const ENGINE_HEALTH_NAV_ENABLED = true;
 
 export const NAV_REGISTRY: NavDestination[] = [
   { pageKey: 'dashboard',     path: '/dashboard',             labelKey: 'nav.home',         icon: '🏠', group: 'main', mobilePrimary: true },
