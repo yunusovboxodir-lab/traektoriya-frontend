@@ -93,8 +93,9 @@
   --easing-standard:   cubic-bezier(0.4, 0, 0.2, 1);
   --easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
 
-  /* === Typography (R5 ещё открыт — оставляем Inter в spec, не форсим) === */
-  --font-sans:    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* === Typography — Golos Text = канон тела (решение владельца 2026-07-02,
+     Кодекс 01c v1.2; Inter-миграция ОТМЕНЕНА, Inter не подключён) === */
+  --font-sans:    'Golos Text', 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Manrope', var(--font-sans);
   --font-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
 }
