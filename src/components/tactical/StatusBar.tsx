@@ -128,7 +128,10 @@ export function StatusBar() {
                     role="menuitem"
                     disabled={frozen}
                     onClick={() => handleNav(item.path, frozen)}
-                    style={frozen ? { opacity: 0.45, cursor: 'not-allowed' } : undefined}
+                    /* opacity 0.62 (не 0.45) — UX-прогон 2026-07-02 hit-test: 0.45 давал
+                       ~3.5:1 на тёмном меню (ниже WCAG AA); 0.62 держит ≥4.5:1 в обеих темах
+                       (расчёт: тёмное меню #010408+#E8EAF0@0.62≈6.7:1, светлое #FAF8F5+#0D1721@0.62≈5.0:1) */
+                    style={frozen ? { opacity: 0.62, cursor: 'not-allowed' } : undefined}
                   >
                     <span className="nav-code" aria-hidden="true">{item.icon}</span>
                     <span className="nav-label">

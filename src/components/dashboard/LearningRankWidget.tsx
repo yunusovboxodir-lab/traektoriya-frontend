@@ -164,13 +164,15 @@ export function LearningRankWidget() {
               <span className="text-2xl">🏆</span>
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
-            <p className="text-[11px] mt-1" style={{ color: 'var(--text-muted)' }}>
+            {/* было text-[11px] — UX-прогон 2026-07-02: подпись 11px на грани читаемости
+                в светлой теме → 12px (text-xs), сама пара текст-фон уже ≥4.5:1 */}
+            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
               Формула: <span className="font-semibold" style={{ color: 'var(--success)' }}>50% обучение</span>
               {' + '}
               <span className="font-semibold" style={{ color: 'var(--warning)' }}>30% активность</span>
               {' + '}
               <span className="font-semibold" style={{ color: 'var(--info)' }}>20% streak</span>
-              <span className="ml-1.5" style={{ color: 'var(--text-muted)', opacity: 0.6 }}>· KPI 30% после CRM</span>
+              <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>· KPI 30% после CRM</span>
             </p>
           </div>
           <Link
@@ -233,8 +235,8 @@ export function LearningRankWidget() {
             ))}
           </div>
 
-          {/* Контекст текущего выбора */}
-          <div className="text-[11px] ml-auto" style={{ color: 'var(--text-muted)' }}>
+          {/* Контекст текущего выбора — было text-[11px] → 12px (text-xs) */}
+          <div className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>
             {data.formula?.period_days && (
               <>За последние <strong style={{ color: 'var(--text-secondary)' }}>{data.formula.period_days}</strong> дней</>
             )}
@@ -335,7 +337,8 @@ export function LearningRankWidget() {
                   #{my_rank}
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--color-rm)', opacity: 0.85 }}>
+                  {/* opacity 0.85 → 0.92: на светлой теме давало ~4.0:1 (ниже AA на 10px) */}
+                  <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--color-rm)', opacity: 0.92 }}>
                     Твой ранг
                   </p>
                   <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -370,8 +373,9 @@ export function LearningRankWidget() {
       {/* СПИСОК 4-10 */}
       {rest.length > 0 && (
         <div className="px-5 pb-5 sm:px-6">
+          {/* было text-[10px] — UX-прогон 2026-07-02: подпись мелкая → 12px */}
           <p
-            className="mb-3 text-[10px] font-bold uppercase tracking-widest"
+            className="mb-3 text-xs font-bold uppercase tracking-widest"
             style={{ color: 'var(--text-muted)' }}
           >
             Преследователи
@@ -440,9 +444,9 @@ function PodiumPlayer({
         {entry.full_name || entry.employee_id}
         {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>★</span>}
       </div>
-      {/* Уровень */}
+      {/* Уровень — было text-[9px] (UX-прогон 2026-07-02: тир-бейджи нечитаемы мелкими) → 11px */}
       <span
-        className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium"
+        className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium"
         style={{ background: lvl.bg, color: lvl.color }}
       >
         {levelName(entry.current_level)}
@@ -460,7 +464,8 @@ function PodiumPlayer({
               <span style={{ color: 'var(--color-rm)' }}>{Math.round(entry.total_score)}</span>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.75em' }}> /100</span>
             </div>
-            <div className="text-[9px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {/* было text-[9px] — UX-прогон 2026-07-02: подпись мелкая → 11px */}
+            <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
               📚 {Math.round(entry.learning_score ?? 0)}
               <span className="mx-1">·</span>
               🔥 {Math.round(entry.activity_score ?? 0)}
@@ -469,7 +474,7 @@ function PodiumPlayer({
             </div>
           </>
         ) : (
-          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+          <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
             {entry.courses_completed} курс · {entry.avg_quiz_score}%
           </div>
         )}
@@ -512,10 +517,12 @@ function LeaderboardRow({
           style={{ color: isMe ? 'var(--color-rm)' : 'var(--text-primary)' }}
         >
           {entry.full_name || entry.employee_id}
-          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)', opacity: 0.8 }}>(вы)</span>}
+          {/* opacity 0.8 → 0.95: на золотом tint светлой темы давало ~3.45:1 (ниже AA) */}
+          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)', opacity: 0.95 }}>(вы)</span>}
         </p>
+        {/* было text-[10px] — UX-прогон 2026-07-02: тир-бейджи мелкие → 11px */}
         <span
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium"
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium"
           style={{ background: cfg.bg, color: cfg.color }}
         >
           {levelName(entry.current_level)}
@@ -532,7 +539,8 @@ function LeaderboardRow({
             >
               {Math.round(entry.total_score)}
             </p>
-            <p className="text-[9px]" style={{ color: 'var(--text-muted)' }}>
+            {/* было text-[9px] — подпись breakdown → 11px */}
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
               📚{Math.round(entry.learning_score ?? 0)} · 🔥{Math.round(entry.activity_score ?? 0)} · ⏱{Math.round(entry.streak_score ?? 0)}
             </p>
           </>
@@ -541,7 +549,7 @@ function LeaderboardRow({
             <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {entry.courses_completed}
             </p>
-            <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>
+            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>
           </>
         )}
       </div>

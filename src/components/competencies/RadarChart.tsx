@@ -302,10 +302,12 @@ export function RadarChart({
             fontFamily: "'Inter',sans-serif",
           }}
         >
+          {/* было хардкод #C8A84B — на светлой теме ≈2.3:1 на --bg-elevated
+              (UX-прогон 2026-07-02). --color-rm уже даёт ≥4.5:1 в обеих темах */}
           <div style={{
             fontSize: 13,
             fontWeight: 700,
-            color: '#C8A84B',
+            color: 'var(--color-rm)',
             marginBottom: 6,
           }}>
             {data[hoverIdx].label}

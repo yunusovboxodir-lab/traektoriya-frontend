@@ -70,6 +70,13 @@
   --rank-expert:       #60A5FA;  /* Эксперт */
   --rank-master:       #4ADE80;  /* Мастер */
 
+  /* ── Цвета медалей 1/2/3 места (как ТЕКСТ, не фон) ──
+     UX-прогон 2026-07-02: золото #C8A84B на светлом холсте ≈2.2:1 — далеко
+     ниже AA. В светлой переопределяются на тёмные варианты (≥4.5:1). */
+  --medal-gold:   #C8A84B;  /* 1 место */
+  --medal-silver: #9CA3AF;  /* 2 место */
+  --medal-bronze: #C08A4A;  /* 3 место */
+
   /* ── Типографика ── */
   --font-display: 'Unbounded', sans-serif;                            /* ТОЛЬКО h1, hero, stat-number */
   --font-body:    'Golos Text', 'Manrope', system-ui, sans-serif;      /* ВСЁ остальное */
@@ -140,6 +147,11 @@
   --rank-practitioner: #8A6210;
   --rank-expert:       #1F5FD0;
   --rank-master:       #15703A;
+
+  /* Медали 1/2/3 — затемнены под контраст ≥4.5:1 на пепле (было 2.2/2.5/2.9:1) */
+  --medal-gold:   #7E6320;  /* = --color-rm, 5.49:1 */
+  --medal-silver: #45525E;  /* = --text-secondary, 7.73:1 */
+  --medal-bronze: #8A5A2A;  /* 5.66:1 */
 
   /* Тени — мягче на светлом */
   --shadow-sm: 0 1px 3px rgba(40, 46, 54, 0.10);

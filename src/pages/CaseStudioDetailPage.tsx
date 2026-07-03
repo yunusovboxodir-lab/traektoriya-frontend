@@ -445,9 +445,11 @@ function SolutionCard({
       }}
     >
       <div className="flex items-center gap-2 flex-wrap mb-2">
+        {/* было хардкод #C8A84B/#9CA3AF/#A0764A — на светлой теме золото ≈2.2:1 (UX-прогон
+            2026-07-02). Токены --medal-* переопределены в index.css под ≥4.5:1 */}
         {solution.top_position && (
           <span className="font-bold" style={{
-            color: solution.top_position === 1 ? '#C8A84B' : solution.top_position === 2 ? '#9CA3AF' : '#A0764A',
+            color: solution.top_position === 1 ? 'var(--medal-gold)' : solution.top_position === 2 ? 'var(--medal-silver)' : 'var(--medal-bronze)',
           }}>{solution.top_position}</span>
         )}
         {solution.is_etalon && (

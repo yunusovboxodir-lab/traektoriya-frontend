@@ -383,10 +383,12 @@ function LeaderboardTab() {
         <tbody>
           {rows.map((r, i) => (
             <tr key={r.user_id} style={{ borderBottom: '1px solid var(--border)' }}>
+              {/* было хардкод #C8A84B/#9CA3AF/#A0764A — на светлой теме золото ≈2.2:1
+                  (UX-прогон 2026-07-02). --medal-* переопределены в index.css под ≥4.5:1 */}
               <td className="py-2" style={{ color: 'var(--text-muted)' }}>
-                {i === 0 && <span style={{ color: '#C8A84B' }}>1</span>}
-                {i === 1 && <span style={{ color: '#9CA3AF' }}>2</span>}
-                {i === 2 && <span style={{ color: '#A0764A' }}>3</span>}
+                {i === 0 && <span style={{ color: 'var(--medal-gold)' }}>1</span>}
+                {i === 1 && <span style={{ color: 'var(--medal-silver)' }}>2</span>}
+                {i === 2 && <span style={{ color: 'var(--medal-bronze)' }}>3</span>}
                 {i > 2 && i + 1}
               </td>
               <td className="py-2 font-medium" style={{ color: 'var(--text-primary)' }}>

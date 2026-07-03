@@ -825,8 +825,9 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
           🎯
         </div>
         <div>
+          {/* было text-[10px] — UX-прогон 2026-07-02: подпись мелкая → 12px */}
           <div
-            className="text-[10px] font-bold uppercase tracking-widest mb-0.5 text-red-400"
+            className="text-xs font-bold uppercase tracking-widest mb-0.5 text-red-400"
           >
             Самая слабая компетенция
           </div>
@@ -1000,7 +1001,8 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold mb-1">
+          {/* было text-[10px] → 12px */}
+          <div className="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">
             Drill-down
           </div>
           <h3 className="text-lg font-bold">
@@ -1209,12 +1211,15 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-emerald-300 mb-2">
+        {/* было text-[10px] — UX-прогон 2026-07-02: подпись мелкая → 12px */}
+        <div className="text-xs uppercase tracking-widest text-emerald-300 mb-2">
           🏆 Лидеры
         </div>
         {top.map((m, i) => (
           <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
-            <span className="w-6 text-center font-bold" style={{ color: i === 0 ? '#C8A84B' : i === 1 ? '#9CA3AF' : '#C08A4A' }}>{i + 1}</span>
+            {/* было хардкод #C8A84B/#9CA3AF/#C08A4A — на светлой теме ≈2.2-2.9:1 (UX-прогон
+                2026-07-02). Токены --medal-* переопределены в index.css под ≥4.5:1 */}
+            <span className="w-6 text-center font-bold" style={{ color: i === 0 ? 'var(--medal-gold)' : i === 1 ? 'var(--medal-silver)' : 'var(--medal-bronze)' }}>{i + 1}</span>
             <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
             <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontWeight: 700 }}>
               {Math.round(m.overall_pulse)}%
@@ -1224,7 +1229,8 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
       </div>
       {bottom.length > 0 && (
         <div className="pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-          <div className="text-[10px] uppercase tracking-widest text-red-400 mb-2">
+          {/* было text-[10px] → 12px */}
+          <div className="text-xs uppercase tracking-widest text-red-400 mb-2">
             Нужна помощь
           </div>
           {bottom.map((m) => (
@@ -1268,7 +1274,8 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
           <div className="text-2xl font-bold" style={{ color: meta.color }}>
             {Math.round(member.overall_pulse)}%
           </div>
-          <div className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{meta.label}</div>
+          {/* было text-[10px] → 12px */}
+          <div className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{meta.label}</div>
         </div>
       </div>
 
@@ -1281,7 +1288,8 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
 
       {weakest.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
+          {/* было text-[10px] → 12px */}
+          <div className="text-xs uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Слабые места
           </div>
           <div className="flex flex-col gap-1 text-xs">
