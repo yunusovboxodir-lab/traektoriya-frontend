@@ -6,9 +6,21 @@ import i18next from 'eslint-plugin-i18next'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
+import { builtinRules } from 'eslint/use-at-your-own-risk'
+
+// Локальный псевдо-плагин: реэкспортирует core-правило `no-restricted-syntax`
+// под своим именем, чтобы дать ему НЕЗАВИСИМУЮ severity от основного
+// `no-restricted-syntax` (hex-цвета, остаётся warn из-за 160 исторических
+// нарушений). Один и тот же ключ правила не может иметь два разных уровня
+// в одном flat-config дереве — это стандартный обходной путь ESLint 9.
+const localTacticalPlugin = {
+  rules: {
+    'no-tactical-font-outside-overlay': builtinRules.get('no-restricted-syntax'),
+  },
+}
 
 // ============================================================================
-// ESLint config — Phase 0 (2026-05-16) + Phase 4.2 (2026-07-02)
+// ESLint config — Phase 0 (2026-05-16) + Phase 4.2 (2026-07-02) + Phase 4.2-финал (2026-07-02/03)
 //
 // Добавлены классы правил из Кодекса:
 //
@@ -29,20 +41,30 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 //    коде есть исторические нарушения (не блокируем существующие PR сразу).
 //    TODO: поднять до `error` после отдельной чистки a11y-долга.
 //
-// 4. no-restricted-syntax «tactical-шрифты вне игрового слоя» (Кодекс 01d
-//    Brand-overlay + 17_game_layer.md) — Cinzel/Unbounded/JetBrains Mono и
-//    динамическая инъекция fonts.googleapis.com разрешены ТОЛЬКО в
-//    whitelisted tactical/gamification-зонах (см. блок overrides ниже).
-//    Кодекс описывает идеальную структуру `src/features/gamification/**` —
-//    в реальности проекта такой директории нет (плоская структура
+// 4. no-restricted-syntax/tactical-font («псевдоним»-правило, тот же движок
+//    no-restricted-syntax, зарегистрирован под отдельным именем через
+//    локальный псевдо-плагин ниже) «tactical-шрифты вне игрового слоя»
+//    (Кодекс 01d Brand-overlay + 17_game_layer.md) — Cinzel/Unbounded/
+//    JetBrains Mono и динамическая инъекция fonts.googleapis.com разрешены
+//    ТОЛЬКО в whitelisted tactical/gamification-зонах (см. блок overrides
+//    ниже). Кодекс описывает идеальную структуру `src/features/gamification/**`
+//    — в реальности проекта такой директории нет (плоская структура
 //    src/pages + src/components/tactical), поэтому whitelist привязан к
 //    ФАКТИЧЕСКИМ путям 2026-07-02. При появлении src/features/** —
 //    актуализировать список.
-//    Ограничение: no-restricted-syntax ловит JS/JSX AST (Property fontFamily,
-//    строковые литералы), НЕ CSS-классы/CSS-файлы (*.css вне области ESLint
-//    для JS-парсера) — глобальные *.css (tactical-design.css, tokens.css)
+//    Ограничение: селектор ловит JS/JSX AST (Property fontFamily, строковые
+//    литералы), НЕ CSS-классы/CSS-файлы (*.css вне области ESLint для
+//    JS-парсера) — глобальные *.css (tactical-design.css, tokens.css)
 //    сознательно не покрываются этим гейтом, это разрешённый источник токенов.
-//    Уровень `warn` — по ТЗ (не блокировать сразу).
+//    Уровень `error` (Фаза 4.2-финал, 2026-07-02/03): после чистки 41 находки
+//    (0 нарушений вне whitelist) правило поднято с warn до error — регресс
+//    (новый Cinzel/Unbounded/JetBrains Mono вне whitelist-зон) теперь ломает
+//    сборку. Вынесено ИЗ общего no-restricted-syntax (который остаётся warn
+//    из-за 160 исторических hex-нарушений) в отдельную запись
+//    `local-tactical/no-tactical-font-outside-overlay`, т.к. один и тот же
+//    ключ правила в ESLint flat config не может иметь двух разных severity
+//    в одном месте — используем локальный псевдо-плагин, реализующий тот же
+//    ESLint core `no-restricted-syntax` под своим именем (см. LOCAL_TACTICAL_PLUGIN).
 // ============================================================================
 
 // Пути, где tactical-эстетика (Cinzel/Unbounded/JetBrains Mono, glow, motion)
@@ -54,6 +76,18 @@ const TACTICAL_WHITELIST_GLOBS = [
   '**/src/pages/Championship2026Page.tsx',
   '**/src/pages/HallOfFame2025Page.tsx',
   '**/src/components/layout/TacticalLayout.tsx',
+  // Фаза 4.2-финал (2026-07-02, чистка 41 находки): точечный whitelist для
+  // файлов вне tactical-каталогов, где Unbounded остаётся ТОЛЬКО на крупных
+  // (≥14px) декоративных заголовках/геймификационных элементах —
+  // UX-прогон подтвердил «привычно и не мешает» (владелец, 2026-07-02).
+  // PulsePage.tsx: h1 заголовка страницы (28px). LearningRankWidget.tsx:
+  // h2 «Лига Чемпионов» (18px) + пьедестал ТОП-3 (цифры/аватар-инициалы
+  // медалей 1/2/3, 14-36px, декор геймификации, не текстовые данные).
+  // Все ЧИСЛОВЫЕ/мелкие (<14px) употребления Unbounded/JetBrains Mono в этих
+  // файлах уже вычищены (см. memory.md фронт-агента) — whitelist не открывает
+  // файл целиком заново, остаток проверен вручную.
+  '**/src/pages/PulsePage.tsx',
+  '**/src/components/dashboard/LearningRankWidget.tsx',
   // Ниже — whitelist-зоны из Кодекса, которых пока физически нет в коде.
   // Оставлены на случай появления (лендинги/сплэш/кейсотека-featured):
   '**/src/pages/Landing*.tsx',
@@ -93,6 +127,7 @@ export default defineConfig([
     ],
     plugins: {
       i18next,
+      'local-tactical': localTacticalPlugin,
     },
     languageOptions: {
       ecmaVersion: 2020,
@@ -118,7 +153,7 @@ export default defineConfig([
           'placeholder',  // некоторые placeholder остаются — Phase 2 разберём
         ],
       }],
-      // P0-2c (2) + Phase 4.2 (3): hex-цвета + tactical-шрифты вне игрового слоя
+      // P0-2c (2): hex-цвета (исторический долг 160 нарушений, остаётся warn)
       'no-restricted-syntax': ['warn',
         {
           selector: 'JSXAttribute[name.name="style"] Literal[value=/#[0-9a-fA-F]{3,8}/]',
@@ -135,35 +170,24 @@ export default defineConfig([
           message:
             'Хардкод hex-цвета в style-объекте. Используй CSS-токены (var(--color-bg-surface)) или Tailwind-классы. См. _docs/codex/01_foundations.md',
         },
+      ],
+      // Phase 4.2-финал (2026-07-02/03): tactical-шрифты вне игрового слоя —
+      // ERROR. Живой прогон после чистки 41 находки = 0 вне whitelist,
+      // порог «поднять до error после чистки» (из Phase 4.2) выполнен.
+      'local-tactical/no-tactical-font-outside-overlay': ['error',
         TACTICAL_FONT_RULE,
         TACTICAL_FONTS_GOOGLEAPIS_RULE,
       ],
     },
   },
-  // Whitelist игрового слоя: tactical-шрифты разрешены, отключаем оба
-  // селектора no-restricted-syntax именно для tactical-строк (hex-правила
-  // выше остаются активными — tactical-зона не освобождена от токенов цвета).
+  // Whitelist игрового слоя: tactical-шрифты разрешены — правило полностью
+  // отключено для этих путей. Hex-правило `no-restricted-syntax` (основной
+  // блок выше) НЕ имеет override здесь и остаётся активным без изменений —
+  // tactical-зона не освобождена от цветовых токенов, только от шрифтов.
   {
     files: TACTICAL_WHITELIST_GLOBS,
     rules: {
-      'no-restricted-syntax': ['warn',
-        {
-          selector: 'JSXAttribute[name.name="style"] Literal[value=/#[0-9a-fA-F]{3,8}/]',
-          message:
-            'Не хардкодить hex-цвета в style. Используй Tailwind-классы (bg-bg-surface, text-fg-default) или CSS-токены (--color-*). См. _docs/codex/01_foundations.md',
-        },
-        {
-          selector: 'JSXAttribute[name.name="className"] Literal[value=/#[0-9a-fA-F]{3,8}/]',
-          message:
-            'Не хардкодить hex-цвета в className. Используй Tailwind-классы из tokens. См. _docs/codex/01_foundations.md',
-        },
-        {
-          selector: 'Property[key.name=/^(color|backgroundColor|borderColor|fill|stroke)$/] Literal[value=/^#[0-9a-fA-F]{3,8}$/]',
-          message:
-            'Хардкод hex-цвета в style-объекте. Используй CSS-токены (var(--color-bg-surface)) или Tailwind-классы. См. _docs/codex/01_foundations.md',
-        },
-        // tactical-font и fonts.googleapis правила намеренно ОПУЩЕНЫ — разрешено в игровом слое
-      ],
+      'local-tactical/no-tactical-font-outside-overlay': 'off',
     },
   },
 ])

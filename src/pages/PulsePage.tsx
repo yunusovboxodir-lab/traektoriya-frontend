@@ -444,7 +444,6 @@ function Card({ title, children, accent }: { title: string; children: React.Reac
       <h3
         className="font-bold uppercase mb-4"
         style={{
-          fontFamily: "'Unbounded',sans-serif",
           fontSize: 11,
           letterSpacing: '0.18em',
           color: 'var(--text-muted)',
@@ -486,7 +485,7 @@ function PulseHeader({
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 12px #FBBF24' }} />
           <span
             className="text-amber-400 font-bold uppercase"
-            style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 11, letterSpacing: '0.2em' }}
+            style={{ fontSize: 11, letterSpacing: '0.2em' }}
           >
             ★ Pulse
           </span>
@@ -606,7 +605,7 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
+          <span style={{ fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
             {Math.round(pct)}<span className="text-lg opacity-60">%</span>
           </span>
         </div>
@@ -724,7 +723,6 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
             </div>
             <div
               style={{
-                fontFamily: "'Unbounded',sans-serif",
                 fontWeight: 800,
                 fontSize: 18,
                 color: meta.color,
@@ -741,7 +739,6 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
       <h3
         className="font-bold uppercase mb-2.5"
         style={{
-          fontFamily: "'Unbounded',sans-serif",
           fontSize: 11,
           letterSpacing: '0.18em',
           color: 'var(--text-muted)',
@@ -758,7 +755,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
           <div key={p.key}>
             <div className="flex justify-between mb-1">
               <span style={{ color: 'var(--text-secondary)' }}>{p.label}</span>
-              <span style={{ color: LEVEL_META[p.key].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700, fontSize: 11 }}>
+              <span style={{ color: LEVEL_META[p.key].color, fontWeight: 700, fontSize: 11 }}>
                 {p.count} / {total} · {Math.round(p.share)}%
               </span>
             </div>
@@ -830,11 +827,10 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
         <div>
           <div
             className="text-[10px] font-bold uppercase tracking-widest mb-0.5 text-red-400"
-            style={{ fontFamily: "'Unbounded',sans-serif" }}
           >
             Самая слабая компетенция
           </div>
-          <h3 style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 18, fontWeight: 700 }}>
+          <h3 style={{ fontSize: 18, fontWeight: 700 }}>
             {lang === 'uz' && weakest.competency_name_uz ? weakest.competency_name_uz : weakest.competency_name}
           </h3>
           <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
@@ -875,7 +871,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
               </span>
               <span
                 className="font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 rounded-md"
-                style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 13 }}
+                style={{ fontSize: 13 }}
               >
                 +{gainPerCourse(course)}%
               </span>
@@ -935,7 +931,7 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
               </span>
               <span
                 className="text-emerald-400 font-bold"
-                style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 13 }}
+                style={{ fontSize: 13 }}
               >
                 +{Math.ceil(gap)}% →
               </span>
@@ -1004,10 +1000,10 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
     >
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold mb-1" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold mb-1">
             Drill-down
           </div>
-          <h3 className="text-lg font-bold" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <h3 className="text-lg font-bold">
             {lang === 'uz' && comp.competency_name_uz ? comp.competency_name_uz : comp.competency_name}
           </h3>
           <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
@@ -1110,7 +1106,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
+                <span style={{ fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
                   {Math.round(data.avg_pulse)}<span className="text-lg opacity-60">%</span>
                 </span>
               </div>
@@ -1128,7 +1124,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
           </div>
 
           <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-            <div className="text-[11px] uppercase tracking-widest mb-3" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
+            <div className="text-[11px] uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
               Распределение
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
@@ -1139,7 +1135,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
                   style={{ background: LEVEL_META[k].bg, borderColor: LEVEL_META[k].color + '40' }}
                 >
                   <span style={{ color: LEVEL_META[k].color }}>{LEVEL_META[k].label}</span>
-                  <strong style={{ fontFamily: "'Unbounded',sans-serif", color: LEVEL_META[k].color }}>
+                  <strong style={{ color: LEVEL_META[k].color }}>
                     {levelCounts[k]}
                   </strong>
                 </div>
@@ -1186,7 +1182,6 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
         <h3
           className="font-bold uppercase mb-4"
           style={{
-            fontFamily: "'Unbounded',sans-serif",
             fontSize: 11,
             letterSpacing: '0.18em',
             color: 'var(--text-muted)',
@@ -1214,14 +1209,14 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-emerald-300 mb-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+        <div className="text-[10px] uppercase tracking-widest text-emerald-300 mb-2">
           🏆 Лидеры
         </div>
         {top.map((m, i) => (
           <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
             <span className="w-6 text-center font-bold" style={{ color: i === 0 ? '#C8A84B' : i === 1 ? '#9CA3AF' : '#C08A4A' }}>{i + 1}</span>
             <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
-            <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
+            <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontWeight: 700 }}>
               {Math.round(m.overall_pulse)}%
             </span>
           </div>
@@ -1229,14 +1224,14 @@ function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
       </div>
       {bottom.length > 0 && (
         <div className="pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-          <div className="text-[10px] uppercase tracking-widest text-red-400 mb-2" style={{ fontFamily: "'Unbounded',sans-serif" }}>
+          <div className="text-[10px] uppercase tracking-widest text-red-400 mb-2">
             Нужна помощь
           </div>
           {bottom.map((m) => (
             <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
               <span className="w-6 text-center" style={{ color: 'var(--text-muted)' }}>↓</span>
               <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
-              <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
+              <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontWeight: 700 }}>
                 {Math.round(m.overall_pulse)}%
               </span>
             </div>
@@ -1269,10 +1264,7 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
           <div className="text-xs mb-0.5" style={{ color: 'var(--text-muted)' }}>#{rank} · {member.employee_id}</div>
           <div className="font-semibold truncate">{member.full_name || member.employee_id}</div>
         </div>
-        <div
-          className="text-right ml-2"
-          style={{ fontFamily: "'Unbounded',sans-serif" }}
-        >
+        <div className="text-right ml-2">
           <div className="text-2xl font-bold" style={{ color: meta.color }}>
             {Math.round(member.overall_pulse)}%
           </div>
@@ -1289,14 +1281,14 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
 
       {weakest.length > 0 && (
         <div>
-          <div className="text-[10px] uppercase tracking-widest mb-1.5" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}>
+          <div className="text-[10px] uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Слабые места
           </div>
           <div className="flex flex-col gap-1 text-xs">
             {weakest.map((c) => (
               <div key={c.id} className="flex items-center justify-between">
                 <span className="truncate" style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
-                <span style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontFamily: "'Unbounded',sans-serif", fontWeight: 700 }}>
+                <span style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontWeight: 700 }}>
                   {Math.round(c.pct)}%
                 </span>
               </div>

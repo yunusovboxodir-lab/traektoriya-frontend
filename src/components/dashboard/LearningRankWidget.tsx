@@ -329,17 +329,16 @@ export function LearningRankWidget() {
                   style={{
                     background: 'rgba(200,168,75,0.15)',
                     border: '2px solid rgba(200,168,75,0.5)',
-                    fontFamily: "'Unbounded',sans-serif",
                     color: 'var(--color-rm)', // золотой акцент — бренд, оставляем
                   }}
                 >
                   #{my_rank}
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-widest" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--color-rm)', opacity: 0.85 }}>
+                  <p className="text-[10px] uppercase tracking-widest" style={{ color: 'var(--color-rm)', opacity: 0.85 }}>
                     Твой ранг
                   </p>
-                  <p className="text-xl font-bold" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}>
+                  <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
                     {my_rank} <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>из {total_in_group}</span>
                   </p>
                 </div>
@@ -373,7 +372,7 @@ export function LearningRankWidget() {
         <div className="px-5 pb-5 sm:px-6">
           <p
             className="mb-3 text-[10px] font-bold uppercase tracking-widest"
-            style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-muted)' }}
+            style={{ color: 'var(--text-muted)' }}
           >
             Преследователи
           </p>
@@ -454,7 +453,7 @@ function PodiumPlayer({
           <>
             <div
               className="text-base font-bold leading-none"
-              style={{ fontFamily: "'Unbounded',sans-serif", color: meta.text === '#fff' ? '#fff' : '#0a1929' }}
+              style={{ color: meta.text === '#fff' ? '#fff' : '#0a1929' }}
             >
               {/* meta.text === '#fff' — бронзовая медаль (тёмный фон), meta.text === '#0a1929' — золото/серебро.
                   Здесь намеренно тёмный текст #0a1929 на светлых медалях (золото/серебро) — оставляем. */}
@@ -502,7 +501,6 @@ function LeaderboardRow({
         style={{
           background: 'var(--bg-overlay)',
           color: 'var(--text-muted)',
-          fontFamily: "'Unbounded',sans-serif",
         }}
       >
         {entry.rank}
@@ -529,7 +527,7 @@ function LeaderboardRow({
           <>
             <p
               className="text-base font-bold"
-              style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--color-rm)' }}
+              style={{ color: 'var(--color-rm)' }}
               title={`Обучение ${Math.round(entry.learning_score ?? 0)} · Активность ${Math.round(entry.activity_score ?? 0)} · Streak ${Math.round(entry.streak_score ?? 0)}`}
             >
               {Math.round(entry.total_score)}
@@ -540,7 +538,7 @@ function LeaderboardRow({
           </>
         ) : (
           <>
-            <p className="text-sm font-semibold" style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}>
+            <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {entry.courses_completed}
             </p>
             <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>

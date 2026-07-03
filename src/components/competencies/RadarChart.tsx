@@ -267,7 +267,6 @@ export function RadarChart({
                   dominantBaseline="central"
                   style={{
                     fontSize: '12px',
-                    fontFamily: "'Unbounded','Inter',sans-serif",
                     fill: valueColor,
                     fontWeight: 800,
                     paintOrder: 'stroke',
@@ -304,7 +303,6 @@ export function RadarChart({
           }}
         >
           <div style={{
-            fontFamily: "'Unbounded',sans-serif",
             fontSize: 13,
             fontWeight: 700,
             color: '#C8A84B',

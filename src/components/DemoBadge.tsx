@@ -24,7 +24,6 @@ export function DemoBadge({ className, style }: DemoBadgeProps) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        fontFamily: 'JetBrains Mono, monospace',
         fontSize: 9,
         fontWeight: 700,
         letterSpacing: '0.1em',

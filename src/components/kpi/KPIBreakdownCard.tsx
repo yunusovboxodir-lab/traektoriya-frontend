@@ -298,7 +298,6 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
               fontWeight: 800,
               color: scoreColor(record.total_kpi),
               lineHeight: 1,
-              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
             {record.total_kpi.toFixed(1)}
