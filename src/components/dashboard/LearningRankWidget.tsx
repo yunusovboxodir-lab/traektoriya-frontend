@@ -132,13 +132,22 @@ export function LearningRankWidget() {
     : data.leaderboard.filter((e) => e.employee_id !== DEMO_EMPLOYEE_ID);
   const myInTop3 = my_rank <= 3;
 
-  // Шпаргалка формулы подиума. Берём готовые строки весов из ответа бэка
-  // (data.formula.components) — единый источник истины, не хардкод. Fallback —
+  // Шпаргалка формулы подиума. Берём ЧИСЛОВЫЕ веса из ответа бэка
+  // (data.formula.weights) — единый источник истины, не хардкод — и подставляем
+  // короткие ярлыки. NB: formula.components — это подробная разбивка под-компонентов
+  // («70% курсы + 30% качество тестов…»), для шпаргалки слишком длинно. Fallback —
   // текущие живые веса (50/30/20). Это Рейтинг ОБУЧЕНИЯ; официальный KPI периода
   // (40/30/20/10) и накопительная Мощь — отдельные оценки на своих досках.
-  const fLearning = data.formula?.components?.learning ?? '50% обучение';
-  const fActivity = data.formula?.components?.activity ?? '30% активность';
-  const fStreak = data.formula?.components?.streak ?? '20% streak';
+  const fw = data.formula?.weights;
+  // Бэк отдаёт веса долями (0.5/0.3/0.2); демо — целыми (50/30/20). Нормализуем:
+  // значение ≤1 считаем долей и умножаем на 100.
+  const toPct = (v: number | undefined, def: number) => {
+    const n = v ?? def;
+    return Math.round(n <= 1 ? n * 100 : n);
+  };
+  const fLearning = `${toPct(fw?.learning, 0.5)}% обучение`;
+  const fActivity = `${toPct(fw?.activity, 0.3)}% активность`;
+  const fStreak = `${toPct(fw?.streak, 0.2)}% streak`;
 
   // Разделение на пьедестал и список
   const top3 = leaderboard.slice(0, 3);
