@@ -390,7 +390,7 @@ function MemberLearningCard({
             <DetailStat
               label="LMS KPI"
               value={m.lms_score > 0 ? `${m.lms_score}%` : '—'}
-              sub="30% KPI"
+              sub="20% KPI"
               bg="bg-purple-50"
               color="text-purple-700"
             />

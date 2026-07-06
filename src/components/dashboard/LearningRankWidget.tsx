@@ -5,7 +5,11 @@
  *  1. ТОП-3 пьедестал — серебро / золото / бронза с подсветкой
  *  2. Карточка «Твой ранг» (если не в топ-3) с прогрессом к следующему
  *  3. Список 4-10 ниже
- *  4. Подзаголовок: «Сейчас: Обучение · Скоро: + Активность + KPI»
+ *  4. Шпаргалка-подзаголовок «Рейтинг обучения: N% обучение + N% активность + N% streak»
+ *     (веса из data.formula — единый источник истины с бэком).
+ *
+ * NB: это ОДНА из трёх оценок платформы. Официальный KPI периода (40/30/20/10)
+ *     живёт в KPIBreakdownCard, накопительная Мощь — в PowerBadge.
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -128,6 +132,14 @@ export function LearningRankWidget() {
     : data.leaderboard.filter((e) => e.employee_id !== DEMO_EMPLOYEE_ID);
   const myInTop3 = my_rank <= 3;
 
+  // Шпаргалка формулы подиума. Берём готовые строки весов из ответа бэка
+  // (data.formula.components) — единый источник истины, не хардкод. Fallback —
+  // текущие живые веса (50/30/20). Это Рейтинг ОБУЧЕНИЯ; официальный KPI периода
+  // (40/30/20/10) и накопительная Мощь — отдельные оценки на своих досках.
+  const fLearning = data.formula?.components?.learning ?? '50% обучение';
+  const fActivity = data.formula?.components?.activity ?? '30% активность';
+  const fStreak = data.formula?.components?.streak ?? '20% streak';
+
   // Разделение на пьедестал и список
   const top3 = leaderboard.slice(0, 3);
   const rest = leaderboard.slice(3);
@@ -164,15 +176,15 @@ export function LearningRankWidget() {
               <span className="text-2xl">🏆</span>
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
-            {/* было text-[11px] — UX-прогон 2026-07-02: подпись 11px на грани читаемости
-                в светлой теме → 12px (text-xs), сама пара текст-фон уже ≥4.5:1 */}
+            {/* Шпаргалка — всегда видимая строка «как считается рейтинг» под заголовком.
+                text-xs (12px) — UX-прогон 2026-07-02: 11px на грани читаемости в светлой теме. */}
             <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-              Формула: <span className="font-semibold" style={{ color: 'var(--success)' }}>50% обучение</span>
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Рейтинг обучения:</span>{' '}
+              <span className="font-semibold" style={{ color: 'var(--success)' }}>{fLearning}</span>
               {' + '}
-              <span className="font-semibold" style={{ color: 'var(--warning)' }}>30% активность</span>
+              <span className="font-semibold" style={{ color: 'var(--warning)' }}>{fActivity}</span>
               {' + '}
-              <span className="font-semibold" style={{ color: 'var(--info)' }}>20% streak</span>
-              <span className="ml-1.5" style={{ color: 'var(--text-muted)' }}>· KPI 30% после CRM</span>
+              <span className="font-semibold" style={{ color: 'var(--info)' }}>{fStreak}</span>
             </p>
           </div>
           <Link

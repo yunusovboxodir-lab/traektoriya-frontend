@@ -192,6 +192,13 @@ export function PowerBadge() {
               : (isUz ? 'Eng yuqori daraja!' : 'Максимальный ранг!')}
           </div>
 
+          {/* Шпаргалка — из чего складывается Мощь (всегда видна в поповере). */}
+          <div style={{ fontSize: 10, color: 'var(--text-2, #8a93a3)', lineHeight: 1.5, marginBottom: 10 }}>
+            {isUz
+              ? 'Kuch = Biznes + O‘qish + Yutuqlar + Seriya. Doim yig‘iladi, darajani belgilaydi.'
+              : 'Мощь = Бизнес + Обучение + Достижения + Серия. Копится всегда — задаёт тир.'}
+          </div>
+
           {/* Разбивка */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {rows.map((r) => (
