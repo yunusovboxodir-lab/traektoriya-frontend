@@ -171,7 +171,8 @@ export function TeamPage() {
                 </svg>
               </div>
               <div>
-                <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+                {/* Значение чернилами, цвет несёт иконка-чип (dataviz-ревизия 2026-07-12) */}
+                <div className="text-2xl font-bold text-gray-900 tabular-nums">{s.value}</div>
                 <div className="text-xs text-gray-500">{s.label}</div>
               </div>
             </div>

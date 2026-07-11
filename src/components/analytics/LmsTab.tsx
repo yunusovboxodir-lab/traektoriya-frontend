@@ -59,7 +59,6 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
           value={m?.quiz_accuracy ?? 0}
           suffix="%"
           target={75}
-          color="blue"
           desc={t('analytics.lms.quizAccuracyDesc')}
         />
         <LmsMetricCard
@@ -67,7 +66,6 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
           value={m?.reflection_rate ?? 0}
           suffix="%"
           target={40}
-          color="emerald"
           desc={t('analytics.lms.reflectionRateDesc')}
         />
         <LmsMetricCard
@@ -75,7 +73,6 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
           value={m?.avg_quiz_score ?? 0}
           suffix="%"
           target={70}
-          color="amber"
           desc={t('analytics.lms.avgScoreDesc')}
         />
         <LmsMetricCard
@@ -83,7 +80,6 @@ export function LmsTab({ dashboard, track, onTrackChange }: Props) {
           value={m?.clusters_this_week ?? 0}
           suffix=""
           target={3}
-          color="purple"
           desc={t('analytics.lms.clustersWeekDesc')}
         />
       </div>

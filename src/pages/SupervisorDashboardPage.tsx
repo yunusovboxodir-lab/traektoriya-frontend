@@ -409,7 +409,7 @@ export function SupervisorDashboardPage() {
 // Sub-components
 // =============================================================================
 
-function SummaryCard({ icon, label, value, color, bg }: {
+function SummaryCard({ icon, label, value, bg }: {
   icon: string; label: string; value: string | number; color: string; bg: string;
 }) {
   return (
@@ -419,7 +419,8 @@ function SummaryCard({ icon, label, value, color, bg }: {
           {icon}
         </div>
         <div>
-          <div className={`text-2xl font-bold ${color}`}>{value}</div>
+          {/* Значение чернилами, цвет несёт иконка-чип (dataviz-ревизия 2026-07-12) */}
+          <div className="text-2xl font-bold text-gray-900 tabular-nums">{value}</div>
           <div className="text-xs text-gray-500">{label}</div>
         </div>
       </div>
@@ -563,7 +564,8 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
               const info = LEVEL_LABELS[ld.level] || LEVEL_LABELS.trainee;
               return (
                 <div key={ld.level} className="flex-1 text-center">
-                  <div className={`text-2xl font-bold ${info.color}`}>{ld.count}</div>
+                  {/* Число чернилами — идентичность уровня несёт бейдж ниже (dataviz-ревизия 2026-07-12) */}
+                  <div className="text-2xl font-bold text-gray-900 tabular-nums">{ld.count}</div>
                   <div className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${info.bg} ${info.color} font-medium`}>
                     {info.label}
                   </div>
