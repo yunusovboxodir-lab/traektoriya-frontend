@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { create } from 'zustand';
 import ruStrings from '../i18n/ru.json';
 import uzStrings from '../i18n/uz.json';
@@ -168,13 +169,20 @@ export function useT() {
   const lang = useLangStore((s) => s.lang);
   const strings = useLangStore((s) => s.strings);
 
-  return (key: string, params?: Record<string, string | number>): string => {
-    let value = getByPath(strings as unknown as Record<string, unknown>, key, lang);
-    if (params) {
-      for (const [k, v] of Object.entries(params)) {
-        value = value.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+  // useCallback: t обязан быть стабильной ссылкой между рендерами.
+  // Раньше возвращалась новая функция каждый рендер, и любой useEffect
+  // с t в deps (например load в RoiTab) уходил в бесконечный цикл
+  // запросов - баг-хант 2026-07-12 поймал 4348 запросов на ?tab=roi.
+  return useCallback(
+    (key: string, params?: Record<string, string | number>): string => {
+      let value = getByPath(strings as unknown as Record<string, unknown>, key, lang);
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          value = value.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+        }
       }
-    }
-    return value;
-  };
+      return value;
+    },
+    [lang, strings],
+  );
 }

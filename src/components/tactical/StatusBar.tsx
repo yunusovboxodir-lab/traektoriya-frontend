@@ -16,9 +16,11 @@ import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
 import {
   visibleDesktopItems,
+  isDestinationActive,
   isAdminRole,
   isSuperOrAdminRole,
 } from '../../config/navigation';
+import type { NavDestination } from '../../config/navigation';
 import { PowerBadge } from './PowerBadge';
 
 // Навигация (иконки/пути/гейтинг разделов) вынесена в единый реестр
@@ -64,8 +66,9 @@ export function StatusBar() {
   // Видимые разделы — из единого реестра (main, затем admin-блок для админов)
   const allItems = visibleDesktopItems({ isPageAllowed, isAdmin, isSuperOrAdmin });
 
-  const isActive = (path: string) =>
-    location.pathname === path || location.pathname.startsWith(path + '/');
+  // Учитывает query-пункты (например «Обратная связь» = /analytics?tab=reports)
+  const isActive = (item: NavDestination) =>
+    isDestinationActive(item, location.pathname, location.search);
 
   // currentMod (КОМАНДНЫЙ ЦЕНТР / TACTICAL TABLE и т.д.) убран UX-аудит 2026-05-03 —
   // декоративный, без функции. Контекст текущего раздела даётся самим контентом
@@ -120,7 +123,7 @@ export function StatusBar() {
 
               {allItems.map((item) => {
                 const frozen = item.frozen ?? false;
-                const active = isActive(item.path);
+                const active = isActive(item);
                 return (
                   <button
                     key={item.path}

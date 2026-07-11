@@ -160,7 +160,9 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {leaderboard.length > 0 && (
         <>
           <SectionTitle title={t('analytics.leaderboard')} />
-          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          {/* px-4 на контейнере: без него первая и последняя колонки лежали
+              вплотную к скруглённым краям карточки (репорт владельца 2026-07-12) */}
+          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto px-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>

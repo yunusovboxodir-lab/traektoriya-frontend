@@ -111,6 +111,29 @@ export function visibleDesktopItems(ctx: NavVisibilityCtx): NavDestination[] {
   return NAV_REGISTRY.filter((d) => isNavVisible(d, ctx));
 }
 
+/**
+ * Активность пункта с учётом query-строки. Нужна пунктам вида
+ * `/analytics?tab=reports` («Обратная связь»): раньше сравнивался только
+ * pathname, поэтому на ?tab=reports подсвечивалась «Аналитика», а сама
+ * «Обратная связь» не подсвечивалась никогда (репорт владельца 2026-07-12).
+ * Правило: пункт-запрос активен при совпадении всех его параметров;
+ * обычный пункт уступает более точному пункту-запросу с тем же base-путём.
+ */
+export function isDestinationActive(d: NavDestination, pathname: string, search: string): boolean {
+  const [base, query] = d.path.split('?');
+  if (!(pathname === base || pathname.startsWith(base + '/'))) return false;
+  const current = new URLSearchParams(search);
+  if (query) {
+    return [...new URLSearchParams(query)].every(([k, v]) => current.get(k) === v);
+  }
+  return !NAV_REGISTRY.some((o) => {
+    if (o.path === d.path) return false;
+    const [ob, oq] = o.path.split('?');
+    return !!oq && ob === base &&
+      [...new URLSearchParams(oq)].every(([k, v]) => current.get(k) === v);
+  });
+}
+
 /** Нижние табы мобайла (mobilePrimary). Drawer-кнопка добавляется в самом компоненте. */
 export function mobilePrimaryItems(ctx: NavVisibilityCtx): NavDestination[] {
   return NAV_REGISTRY.filter((d) => d.mobilePrimary && isNavVisible(d, ctx));
