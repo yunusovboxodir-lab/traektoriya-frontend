@@ -46,6 +46,14 @@ const ROLES_WITH_COURSES = [
 // поэтому показываем селектор ролей и дефолтим на 'sales_rep'.
 const SELF_LEARNING_ROLES = new Set(['sales_rep', 'supervisor', 'regional_manager']);
 
+// Кнопки-переходы в шапке карты (Кейсотека / Чемпионат / Зал славы).
+// Один конфиг вместо трёх скопированных кнопок с инлайн-стилями (дедуп 2026-07-11).
+const HEADER_LINKS = [
+  { path: '/case-studio', accent: 'var(--brass)', label_ru: 'Кейсотека', label_uz: 'Keyslar bazasi', title_ru: 'Кейсотека', title_uz: 'Keyslar bazasi' },
+  { path: '/learning/championship-2026', accent: 'var(--gold, #f2c660)', label_ru: 'Чемпионат 2026', label_uz: 'Chempionat 2026', title_ru: 'Чемпионат 2026 · живые результаты', title_uz: 'Chempionat 2026 · jonli natijalari' },
+  { path: '/learning/hall-of-fame', accent: 'var(--brass)', label_ru: 'История 2025', label_uz: 'Tarix 2025', title_ru: 'Зал славы · Кубок 2025', title_uz: 'Shon-shuhrat zali · Kubok 2025' },
+];
+
 export function TacticalLearningPage() {
   const user = useAuthStore((s) => s.user);
   const lang = useLangStore((s) => s.lang);
@@ -142,9 +150,6 @@ export function TacticalLearningPage() {
     );
   }
 
-  // Title-meta из реальных данных
-  const territoriesCount = zones.length;
-
   return (
     <div className="tactical-root tactical-map-page">
       <StatusBar />
@@ -157,101 +162,42 @@ export function TacticalLearningPage() {
             <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
           </div>
         )}
-        <button
-          type="button"
-          onClick={() => navigate('/case-studio')}
-          style={{
-            marginLeft: 16,
-            background: 'var(--bg-overlay)',
-            border: '1px solid var(--line)',
-            borderRadius: 6,
-            padding: '6px 12px',
-            color: 'var(--brass)',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            transition: 'border-color 0.15s, background 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--brass)';
-            e.currentTarget.style.background = 'var(--bg-elevated)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--line)';
-            e.currentTarget.style.background = 'var(--bg-overlay)';
-          }}
-          title={lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
-        >
-          {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate('/learning/championship-2026')}
-          style={{
-            marginLeft: 12,
-            background: 'var(--bg-overlay)',
-            border: '1px solid var(--line)',
-            borderRadius: 6,
-            padding: '6px 12px',
-            color: 'var(--gold, #f2c660)',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 11,
-            fontWeight: 700,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            transition: 'border-color 0.15s, background 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--gold, #f2c660)';
-            e.currentTarget.style.background = 'var(--bg-elevated)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--line)';
-            e.currentTarget.style.background = 'var(--bg-overlay)';
-          }}
-          title={lang === 'uz' ? "Chempionat 2026 · jonli natijalari" : 'Чемпионат 2026 · живые результаты'}
-        >
-          {lang === 'uz' ? 'Chempionat 2026' : 'Чемпионат 2026'}
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate('/learning/hall-of-fame')}
-          style={{
-            marginLeft: 8,
-            background: 'var(--bg-overlay)',
-            border: '1px solid var(--line)',
-            borderRadius: 6,
-            padding: '6px 12px',
-            color: 'var(--brass)',
-            fontFamily: 'JetBrains Mono, monospace',
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            transition: 'border-color 0.15s, background 0.15s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = 'var(--brass)';
-            e.currentTarget.style.background = 'var(--bg-elevated)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = 'var(--line)';
-            e.currentTarget.style.background = 'var(--bg-overlay)';
-          }}
-          title={lang === 'uz' ? "Shon-shuhrat zali · Kubok 2025" : 'Зал славы · Кубок 2025'}
-        >
-          {lang === 'uz' ? 'Tarix 2025' : 'История 2025'}
-        </button>
-        <div className="title-meta">
-          <span><b>{totalCourses}</b> {lang === 'uz' ? 'KURSLAR' : 'КУРСОВ'}</span>
-          <span><b>{territoriesCount}</b> {lang === 'uz' ? 'HUDUDLAR' : 'ТЕРРИТОРИИ'}</span>
-          <span><b>{doneCourses}</b> {lang === 'uz' ? "O'TILDI" : 'ПРОЙДЕНО'}</span>
-        </div>
+        {HEADER_LINKS.map((l) => (
+          <button
+            key={l.path}
+            type="button"
+            onClick={() => navigate(l.path)}
+            style={{
+              marginLeft: 12,
+              background: 'var(--bg-overlay)',
+              border: '1px solid var(--line)',
+              borderRadius: 6,
+              padding: '6px 12px',
+              color: l.accent,
+              fontFamily: 'JetBrains Mono, monospace',
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              transition: 'border-color 0.15s, background 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = l.accent;
+              e.currentTarget.style.background = 'var(--bg-elevated)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--line)';
+              e.currentTarget.style.background = 'var(--bg-overlay)';
+            }}
+            title={lang === 'uz' ? l.title_uz : l.title_ru}
+          >
+            {lang === 'uz' ? l.label_uz : l.label_ru}
+          </button>
+        ))}
+        {/* title-meta (КУРСОВ/ТЕРРИТОРИИ/ПРОЙДЕНО) убрана — разгрузка шапки
+            2026-07-11: те же числа уже показывает HeroPanel слева (СТАТИСТИКА
+            + навигация по территориям); дубль в шапке не нёс новой информации. */}
       </div>
 
       <div className="tactical-grid">

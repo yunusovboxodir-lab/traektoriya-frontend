@@ -1794,3 +1794,8 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
   .power-badge-tier { display: none; }
 }
 
+
+/* --- GuidesPanel: свёрнутый «Гид по платформе» (разгрузка экрана 2026-07-11).
+   Нативный маркер <summary> скрыт (свой ▾ в разметке); WebKit требует
+   отдельного правила — inline-стилем псевдоэлемент не убрать. --- */
+.guides-summary::-webkit-details-marker { display: none; }
