@@ -368,9 +368,11 @@ export function TasksPage() {
   // Task detail modal
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  const loadData = async () => {
+  // showSkeleton=false -> тихий рефреш без подмены доски скелетоном
+  // (иначе после каждой смены статуса вся доска мигает: unmount скелетон remount).
+  const loadData = async (showSkeleton = true) => {
     try {
-      setLoading(true);
+      if (showSkeleton) setLoading(true);
       setError(null);
       const promises: Promise<unknown>[] = [
         tasksApi.getKanban(undefined, scope),
@@ -436,7 +438,7 @@ export function TasksPage() {
   const handleStatusChange = async (taskId: string, newStatus: string) => {
     try {
       await tasksApi.update(taskId, { status: newStatus } as Partial<Task>);
-      await loadData();
+      await loadData(false);  // тихий рефреш: доска обновляется на месте, без мигания
     } catch {
       setError(t('tasks.errors.updateFailed'));
     }
@@ -760,7 +762,7 @@ export function TasksPage() {
               <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
             </svg>
             <p className="text-status-danger-fg text-sm flex-1">{error}</p>
-            <button onClick={loadData} className="text-status-danger-fg hover:opacity-80 text-sm font-medium underline">{t('tasks.retry')}</button>
+            <button onClick={() => loadData()} className="text-status-danger-fg hover:opacity-80 text-sm font-medium underline">{t('tasks.retry')}</button>
           </div>
         </div>
       )}
