@@ -8,7 +8,10 @@
 <meta name="description" content="AI-платформа развития персонала: траектория сотрудника от стажёра до мастера. AI-наставник, Trace — цифровой след реальной работы, живой KPI. RU/UZ. Облако или ваш контур.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<!-- ital,wght: курсивное начертание 700 нужно градиентным <span class="ai"> —
+     без него браузер синтезирует наклон, глиф вылезает за бокс и background-clip
+     срезает его край (репорт владельца 2026-07-12: «AI» читался как «Al») -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --noir:#0b0a08;
@@ -66,7 +69,10 @@
   .hero{position:relative;padding:74px 0 22px;z-index:1;text-align:center}
   .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
   .hero h1{font-size:clamp(31px,5.2vw,56px);line-height:1.12;margin:18px auto 18px;max-width:19ch}
-  .hero h1 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+  /* padding/margin-компенсация: курсивный глиф выступает за инлайн-бокс,
+     а background-clip:text красит только внутри бокса - без запаса край
+     буквы срезается даже с настоящим italic-начертанием */
+  .hero h1 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;padding:0 .14em;margin:0 -.14em;}
   .hero .sub{font-size:18px;color:var(--dim);max-width:58ch;margin:0 auto 28px;font-weight:500}
   .hero .sub b{color:var(--ivory)}
   .cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
@@ -130,7 +136,7 @@
   .trace::after{content:"";position:absolute;top:-80px;right:-80px;width:260px;height:260px;border-radius:50%;background:rgba(212,175,106,.08);filter:blur(60px)}
   .trace-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;position:relative;z-index:1}
   .trace h3{font-family:"Playfair Display",serif;font-size:25px;font-weight:700;margin-bottom:12px;color:var(--champagne)}
-  .trace h3 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .trace h3 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;padding:0 .14em;margin:0 -.14em;}
   .trace p{color:var(--dim);font-size:15px;margin-bottom:16px}
   .trace p b{color:var(--ivory)}
   .sensors{display:grid;grid-template-columns:1fr 1fr;gap:9px}
@@ -168,7 +174,7 @@
 
   .final{text-align:center;padding:96px 0 104px}
   .final h2{font-size:clamp(26px,3.8vw,42px);line-height:1.12;max-width:22ch;margin:0 auto 16px;color:var(--champagne)}
-  .final h2 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+  .final h2 .ai{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic;padding:0 .14em;margin:0 -.14em;}
   .final p{color:var(--dim);font-size:16px;max-width:50ch;margin:0 auto 30px;font-weight:500}
 
   footer{border-top:1px solid var(--line);padding:28px 0 46px;position:relative;z-index:1}
