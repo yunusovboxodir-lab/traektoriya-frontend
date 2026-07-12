@@ -627,6 +627,9 @@ body::after {
   border: 1px solid var(--line);
   border-radius: 2px;
 }
+/* Пустой тег рисовался серой рамкой-заглушкой рядом с заголовками
+   (карта обучения, чемпионат, зал славы) - баг-хант 2026-07-12 */
+.title-row .tactical-tag:empty { display: none; }
 .title-meta {
   margin-left: auto;
   display: flex;
@@ -1498,28 +1501,43 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 }
 
 /* --- Текст --- */
+/* stone-* добавлен 2026-07-12: формы календаря/командировок (CalendarEventNew,
+   FieldTripNew и детали) написаны на stone-палитре, и без ремапа их подписи
+   оставались тёмными на тёмной теме (контраст ~1.1:1, баг-хант) */
 .tactical-root .text-gray-900,
 .tactical-root .text-slate-900,
+.tactical-root .text-stone-900,
 .tactical-root .text-black { color: var(--text-0) !important; }
 .tactical-root .text-gray-800,
 .tactical-root .text-gray-700,
 .tactical-root .text-slate-800,
-.tactical-root .text-slate-700 { color: var(--text-1) !important; }
+.tactical-root .text-slate-700,
+.tactical-root .text-stone-800,
+.tactical-root .text-stone-700 { color: var(--text-1) !important; }
 .tactical-root .text-gray-600,
 .tactical-root .text-gray-500,
 .tactical-root .text-slate-600,
-.tactical-root .text-slate-500 { color: var(--text-2) !important; }
+.tactical-root .text-slate-500,
+.tactical-root .text-stone-600,
+.tactical-root .text-stone-500 { color: var(--text-2) !important; }
 .tactical-root .text-gray-400,
 .tactical-root .text-gray-300,
 .tactical-root .text-slate-400,
-.tactical-root .text-slate-300 { color: var(--text-3) !important; }
+.tactical-root .text-slate-300,
+.tactical-root .text-stone-400 { color: var(--text-3) !important; }
 
 /* --- Бордеры --- */
 .tactical-root .border-gray-100,
 .tactical-root .border-gray-200,
-.tactical-root .border-slate-200 { border-color: var(--line-soft) !important; }
+.tactical-root .border-slate-200,
+.tactical-root .border-stone-200 { border-color: var(--line-soft) !important; }
 .tactical-root .border-gray-300,
-.tactical-root .border-slate-300 { border-color: var(--line) !important; }
+.tactical-root .border-slate-300,
+.tactical-root .border-stone-300,
+.tactical-root .border-stone-400 { border-color: var(--line) !important; }
+/* border-stone-800 = маркер выбранной карточки «Тип события»: на тёмной теме
+   тёмный бордер не виден - красим в brass (как прочие selected-акценты) */
+.tactical-root .border-stone-800 { border-color: var(--brass) !important; }
 
 /* --- Акценты: blue/indigo → brass --- */
 .tactical-root .bg-blue-500,

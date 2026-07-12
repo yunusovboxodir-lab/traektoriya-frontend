@@ -14,6 +14,7 @@
  *  - Автор может опубликовать draft и архивировать
  */
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
@@ -79,15 +80,30 @@ export function CaseStudioDetailPage() {
     caseStudioApi
       .getScenario(scenarioId)
       .then((res) => setScenario(res.data))
-      .catch((e: Error) => setError(e.message))
+      // 404 = кейса нет: не ошибка, а достижимая ветка «Кейс не найден» ниже
+      // (баг-хант 2026-07-12: сырой axios-текст вместо заглушки)
+      .catch((e: unknown) => {
+        if (!(isAxiosError(e) && e.response?.status === 404)) {
+          setError('Не удалось загрузить кейс. Попробуйте обновить страницу.');
+        }
+      })
       .finally(() => setLoading(false));
   }, [scenarioId, reloadKey]);
 
   const reload = () => setReloadKey((k) => k + 1);
 
   if (loading) return <div className="max-w-4xl mx-auto p-6"><SkeletonCard withAvatar lines={5} /></div>;
-  if (error) return <div className="max-w-4xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;
-  if (!scenario) return <div className="max-w-4xl mx-auto p-6">Кейс не найден</div>;
+  if (error) return <div className="max-w-4xl mx-auto p-6 text-red-600">{error}</div>;
+  if (!scenario) {
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <p className="mb-4" style={{ color: 'var(--text-primary)' }}>Кейс не найден</p>
+        <button onClick={() => navigate('/case-studio')} className="text-sm underline" style={{ color: 'var(--info)' }}>
+          К списку кейсов
+        </button>
+      </div>
+    );
+  }
 
   const isAuthor = user && scenario.author_id === user.id;
   const canManage = user && ['admin', 'superadmin', 'trainer'].includes(user.role);

@@ -2,6 +2,7 @@
  * Редактор программы — 4 вкладки: Метаданные / Слайды / Вопросы / Категории.
  */
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { offlineProgramsApi } from '../api/offlinePrograms';
 import type { Block, Category, Program, Question, Slide, SlideType } from '../types/offlineProgram';
@@ -54,7 +55,11 @@ export function OfflineProgramEditPage() {
       setProgram(res.data);
       setError(null);
     } catch (e: unknown) {
-      setError((e as Error).message);
+      // 404 = программы нет: error остаётся null, сработает ветка «Программа не найдена»
+      // (баг-хант 2026-07-12: сырой axios-текст вместо заглушки)
+      if (!(isAxiosError(e) && e.response?.status === 404)) {
+        setError('Не удалось загрузить программу. Попробуйте обновить страницу.');
+      }
     } finally {
       setLoading(false);
     }
@@ -65,7 +70,16 @@ export function OfflineProgramEditPage() {
   }, [programId]);
 
   if (loading) return <div className="p-8"><SkeletonCard lines={4} /></div>;
-  if (error || !program) return <div className="p-8" style={{ color: 'var(--danger)' }}>{error || 'Программа не найдена'}</div>;
+  if (error || !program) {
+    return (
+      <div className="p-8 text-center">
+        <p className="mb-4" style={{ color: error ? 'var(--danger)' : 'var(--text-primary)' }}>{error || 'Программа не найдена'}</p>
+        <button onClick={() => navigate('/activities/programs')} className="text-sm underline" style={{ color: 'var(--info)' }}>
+          К списку программ
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6">

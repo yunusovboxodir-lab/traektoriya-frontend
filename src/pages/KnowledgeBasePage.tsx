@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { documentsApi, type DocumentResponse, type DocumentStats } from '../api/documents';
 import { ragApi } from '../api/rag';
+import { useAuthStore } from '../stores/authStore';
 import { useT } from '../stores/langStore';
 import {
   PageHeader,
@@ -362,6 +363,10 @@ function SmartFilterBar({
 
 export function KnowledgeBasePage() {
   const t = useT();
+  const role = useAuthStore((st) => st.user?.role);
+  // Зеркалит _WRITE_ROLE бэка (documents.py): остальным роли бэк отвечает 403,
+  // а фронт показывал полный админский набор write-контролов (баг-хант 2026-07-12).
+  const canWrite = ['superadmin', 'admin', 'commercial_dir'].includes(role || '');
 
   // ----- State -----
   const [documents, setDocuments] = useState<DocumentResponse[]>([]);
@@ -769,7 +774,7 @@ export function KnowledgeBasePage() {
       <PageHeader
         title={t('kb.title')}
         subtitle={t('kb.subtitle')}
-        actions={
+        actions={canWrite ? (
           <Button
             variant="primary"
             leftIcon={<Upload size={16} />}
@@ -777,7 +782,7 @@ export function KnowledgeBasePage() {
           >
             {t('kb.upload')}
           </Button>
-        }
+        ) : undefined}
       />
 
       {/* ---- Stats Row ---- */}
@@ -852,7 +857,7 @@ export function KnowledgeBasePage() {
             resultCount={displayedDocs.length}
           />
           {/* ---- Bulk Action Bar ---- */}
-          {selectedIds.size > 0 && (
+          {canWrite && selectedIds.size > 0 && (
             <div className="mb-3 flex items-center gap-3 bg-bg-muted border border-border-accent rounded-xl px-4 py-3">
               <span className="text-sm font-medium text-fg-default">
                 {t('kb.selected', { count: selectedIds.size })} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
@@ -1047,7 +1052,7 @@ export function KnowledgeBasePage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
-                          {deleteConfirmId === doc.id ? (
+                          {!canWrite ? null : deleteConfirmId === doc.id ? (
                             <div className="flex items-center gap-1">
                               <button
                                 type="button"
@@ -1138,7 +1143,7 @@ export function KnowledgeBasePage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      {deleteConfirmId === doc.id ? (
+                      {!canWrite ? null : deleteConfirmId === doc.id ? (
                         <div className="flex items-center gap-1">
                           <button
                             type="button"

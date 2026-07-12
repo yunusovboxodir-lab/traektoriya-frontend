@@ -12,9 +12,9 @@ import { formatDateShort, formatDateLong } from '../utils/formatDate';
 const MANAGER_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
 const COLUMNS = [
-  { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-bg-muted', border: 'border-border-default', badge: 'bg-bg-muted0', dot: 'bg-fg-subtle' },
+  { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-bg-muted', border: 'border-border-default', badge: 'bg-fg-subtle', dot: 'bg-fg-subtle' },
   { key: 'in_progress', labelKey: 'tasks.columns.in_progress', color: 'bg-status-info-bg', border: 'border-status-info-fg', badge: 'bg-status-info-fg', dot: 'bg-status-info-fg' },
-  { key: 'review', labelKey: 'tasks.columns.review', color: 'bg-status-warning-bg', border: 'border-status-warning-fg', badge: 'bg-status-warning-bg0', dot: 'bg-status-warning-fg' },
+  { key: 'review', labelKey: 'tasks.columns.review', color: 'bg-status-warning-bg', border: 'border-status-warning-fg', badge: 'bg-status-warning-fg', dot: 'bg-status-warning-fg' },
   { key: 'done', labelKey: 'tasks.columns.done', color: 'bg-status-success-bg', border: 'border-status-success-fg', badge: 'bg-status-success-fg', dot: 'bg-status-success-fg' },
 ] as const;
 
@@ -609,7 +609,7 @@ export function TasksPage() {
           {/* Mini progress bar */}
           <div className="w-24 h-2 bg-bg-muted rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${norm.all_met ? 'bg-status-success-bg0' : 'bg-status-warning-bg0'}`}
+              className={`h-full rounded-full transition-all ${norm.all_met ? 'bg-status-success-fg' : 'bg-status-warning-fg'}`}
               style={{ width: `${norm.norm_total ? ((norm.norm_met_count ?? 0) / norm.norm_total) * 100 : 0}%` }}
             />
           </div>
