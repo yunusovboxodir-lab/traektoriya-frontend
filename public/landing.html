@@ -32,6 +32,14 @@
   a{color:inherit}
   :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
   ::selection{background:rgba(212,175,106,.3)}
+  /* Градиентный текст (background-clip:text + color:transparent) при выделении
+     вырождается в песочный короб с невидимыми буквами: подложка выделения
+     красится, а прозрачные глифы на ней теряются. Таким элементам даём
+     читаемое выделение: тёмные буквы на плотной золотой подложке. */
+  .logo b::selection,.hero h1 .ai::selection,.stat .v::selection,
+  .trace h3 em::selection,.final h2 .ai::selection{
+    -webkit-text-fill-color:#141109;color:#141109;background:rgba(212,175,106,.9)
+  }
 
   .amb{position:fixed;inset:0;pointer-events:none;z-index:0}
   .amb .g{position:absolute;border-radius:50%;filter:blur(120px)}
