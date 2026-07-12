@@ -155,10 +155,15 @@ function SmartRedirect() {
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (!isAuthenticated) {
-    // Лендинг — статическая страница (public/landing.html), Vercel отдаёт её по /landing.
-    // Нужен полноценный переход браузера (а не client-side <Navigate>), чтобы
-    // загрузился статический HTML с его собственным Three.js, а не маршрут React.
-    window.location.replace('/landing');
+    // Лендинг — статическая страница public/landing.html. Редиректим на сам
+    // файл (.html), а не на красивый /landing: реврайт /landing→landing.html
+    // существует только на Vercel (vercel.json). В vite dev и за nginx (Eskiz)
+    // /landing проваливался обратно в SPA → этот же редирект → бесконечная
+    // перезагрузка («мигание», 2600+ запросов — репорт владельца 2026-07-12).
+    // Прямой .html обслуживается статикой в любом окружении и зациклиться
+    // не может. Нужен полноценный переход браузера (не <Navigate>), чтобы
+    // загрузился статический HTML со своим Three.js, а не маршрут React.
+    window.location.replace('/landing.html');
     return <PageLoader />;
   }
   return <Navigate to={getFirstAllowedPath()} replace />;
