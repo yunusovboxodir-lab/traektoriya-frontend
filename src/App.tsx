@@ -35,6 +35,7 @@ const PlanogramPage = lazyWithRetry(() => import('./pages/PlanogramPage').then(m
 const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
+const OrganizationsPage = lazyWithRetry(() => import('./pages/OrganizationsPage').then(m => ({ default: m.OrganizationsPage })));
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => ({ default: m.OfflinePage })));
 const OfflineProgramsPage = lazyWithRetry(() => import('./pages/OfflineProgramsPage').then(m => ({ default: m.OfflineProgramsPage })));
@@ -499,6 +500,17 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="admin-roles">
             <RolesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Организации (мультиорг-консоль): пункт меню виден только superadmin,
+          бэк дополнительно гейтит 403 (require_role superadmin) */}
+      <Route
+        path="/admin/organizations"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <OrganizationsPage />
           </ProtectedRoute>
         }
       />

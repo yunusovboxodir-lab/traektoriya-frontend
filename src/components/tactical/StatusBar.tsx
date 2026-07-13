@@ -14,6 +14,7 @@ import { useLangStore, useT } from '../../stores/langStore';
 import { useThemeStore } from '../../stores/themeStore';
 import { useAuthStore } from '../../stores/authStore';
 import { useScopeStore } from '../../stores/scopeStore';
+import { useTenantStore } from '../../stores/tenantStore';
 import {
   visibleDesktopItems,
   isDestinationActive,
@@ -41,7 +42,15 @@ export function StatusBar() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const isPageAllowed = useScopeStore((s) => s.isPageAllowed);
+  const tenant = useTenantStore((s) => s.tenant);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
   const brandRef = useRef<HTMLDivElement>(null);
+
+  // Мультиорг брендинг: организация юзера из /api/v1/tenant (лого + имя).
+  // Ленивый одноразовый fetch; при ошибке остаёмся на платформенном виде.
+  useEffect(() => {
+    if (user) fetchTenant();
+  }, [user, fetchTenant]);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -64,7 +73,7 @@ export function StatusBar() {
   const isSuperOrAdmin = isSuperOrAdminRole(userRole);
 
   // Видимые разделы — из единого реестра (main, затем admin-блок для админов)
-  const allItems = visibleDesktopItems({ isPageAllowed, isAdmin, isSuperOrAdmin });
+  const allItems = visibleDesktopItems({ isPageAllowed, isAdmin, isSuperOrAdmin, isSuperadmin: userRole === 'superadmin' });
 
   // Учитывает query-пункты (например «Обратная связь» = /analytics?tab=reports)
   const isActive = (item: NavDestination) =>
@@ -96,10 +105,14 @@ export function StatusBar() {
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}
         >
-          <img src="/tactical/traektoriya-logo.jpg" alt="Traektoriya" className="brand-logo" />
+          <img src={tenant?.logo_url || '/tactical/traektoriya-logo.jpg'} alt={tenant?.name || 'Traektoriya'} className="brand-logo" />
           <div className="brand-text">
             <div className="brand-name">TRAEKTORIYA</div>
-            <div className="brand-tag">{lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта'}</div>
+            {/* Строка тега = организация юзера (мультиорг брендинг);
+                до загрузки/для дефолтной орг — платформенный слоган */}
+            <div className="brand-tag">
+              {tenant?.name || (lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта')}
+            </div>
           </div>
           <span className="brand-caret">▾</span>
         </button>

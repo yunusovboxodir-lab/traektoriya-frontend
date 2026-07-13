@@ -20,7 +20,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (employee_id: string, password: string) => Promise<void>;
+  login: (employee_id: string, password: string, tenantSlug?: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User | null) => void;
   fetchUser: () => Promise<void>;
@@ -48,10 +48,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: false,
   error: null,
 
-  login: async (employee_id: string, password: string) => {
+  login: async (employee_id: string, password: string, tenantSlug?: string) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await authApi.login(employee_id, password);
+      const response = await authApi.login(employee_id, password, tenantSlug);
       const { access_token, refresh_token, user } = response.data;
 
       localStorage.setItem('accessToken', access_token);

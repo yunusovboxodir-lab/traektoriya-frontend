@@ -28,6 +28,8 @@ export interface NavDestination {
   mobilePrimary?: boolean;
   /** Доступен только superadmin/admin (напр. AI-Студия — инструменты тренера). */
   superAdminOnly?: boolean;
+  /** Строго платформенный superadmin (мультиорг-консоль организаций). */
+  superadminStrictOnly?: boolean;
   /** Показывать серым с замком (заморожен). Сейчас никто не заморожен. */
   frozen?: boolean;
   /** (Пункт 2, онбординг) минимальный тир Мощи для раскрытия. Не задан → виден всегда. */
@@ -62,6 +64,8 @@ export const NAV_REGISTRY: NavDestination[] = [
   // Обратная связь — репорты со скринами (вкладка reports в Аналитике).
   { pageKey: 'analytics',     path: '/analytics?tab=reports', labelKey: 'nav.feedback',     icon: '🗣️', group: 'admin' },
   { pageKey: 'admin-roles',   path: '/admin/roles',           labelKey: 'nav.settings',     icon: '⚙️', group: 'admin' },
+  // Организации (мультиорг): онбординг новых орг, только платформенный superadmin.
+  { pageKey: 'admin-roles',   path: '/admin/organizations',   labelKey: 'nav.organizations', icon: '🏢', group: 'admin', superadminStrictOnly: true },
   // Здоровье платформы — витрина движка самоулучшения (гейтинг как у ролей).
   // Скрыта из меню до go-live (флаг выше). Маршрут /engine-health работает по прямому URL.
   ...(ENGINE_HEALTH_NAV_ENABLED
@@ -91,6 +95,8 @@ export interface NavVisibilityCtx {
   isPageAllowed: (pageKey: string) => boolean;
   isAdmin: boolean;
   isSuperOrAdmin: boolean;
+  /** Строго платформенный superadmin (для superadminStrictOnly-пунктов). */
+  isSuperadmin?: boolean;
 }
 
 /**
@@ -102,6 +108,7 @@ export function isNavVisible(d: NavDestination, ctx: NavVisibilityCtx): boolean 
   if (!ctx.isPageAllowed(d.pageKey)) return false;
   if (d.group === 'admin' && !ctx.isAdmin) return false;
   if (d.superAdminOnly && !ctx.isSuperOrAdmin) return false;
+  if (d.superadminStrictOnly && !ctx.isSuperadmin) return false;
   if (d.frozen && !ctx.isAdmin) return false;
   return true;
 }
