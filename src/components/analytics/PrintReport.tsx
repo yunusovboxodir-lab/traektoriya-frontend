@@ -100,7 +100,8 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
           setKpiLeaderboard(kpiRes.value.data?.leaders || kpiRes.value.data || []);
         }
         if (teamsRes.status === 'fulfilled') {
-          setTeamRatings(teamsRes.value.data?.teams || teamsRes.value.data || []);
+          const raw = teamsRes.value.data;
+          setTeamRatings(Array.isArray(raw) ? raw : raw?.teams ?? []);
         }
       } catch {
         // non-critical

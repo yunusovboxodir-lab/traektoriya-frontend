@@ -10,6 +10,7 @@ import {
   type ManualAssessInput,
 } from '../api/competencies';
 import { toast } from '@/components/ui';
+import { plural } from '../utils/plural';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -413,7 +414,7 @@ export function CompetencyMatrixPage() {
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               {t('Профиль:', 'Profil:')} <strong style={{ color: 'var(--text-primary)' }}>{teamMatrix.profile_title}</strong>
               {' · '}
-              {teamMatrix.members_count} {t('сотрудников', 'xodim')}
+              {teamMatrix.members_count} {plural(teamMatrix.members_count, lang, { ru: ['сотрудник', 'сотрудника', 'сотрудников'], uz: 'xodim' })}
             </p>
           </div>
 

@@ -143,6 +143,16 @@
         "master": "Usta"
       }
     },
+    "supervisorTeam": {
+      "title": "Mening jamoam",
+      "place": "{total} tadan reytingdagi oʻrin",
+      "rating": "Reyting",
+      "membersUnit": "ishtirokchi",
+      "noRating": "Jamoa reytingi davr maʼlumotlari toʻplangach paydo boʻladi. Bu xatolik emas.",
+      "loadError": "Jamoa reytingini yuklab boʻlmadi",
+      "ctaTeam": "Jamoa",
+      "ctaPulse": "Jamoa pulsi"
+    },
     "shelfScan": {
       "title": "ShelfScan AI",
       "viewAll": "Barcha tahlillar",

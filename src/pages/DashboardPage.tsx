@@ -19,6 +19,7 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
+import { SupervisorTeamWidget } from '../components/dashboard/SupervisorTeamWidget';
 import { TacticalShell } from '../components/tactical/shell';
 import { formatDateLong } from '../utils/formatDate';
 
@@ -53,11 +54,16 @@ export function DashboardPage() {
           </>
         ) : (
           <>
-            {/* Рейтинг сотрудников — виджет сам себе карточка с заголовком «Рейтинг обучения».
-                Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27).
-                Для supervisor скрыт целиком — командный разрез живёт на странице «Команда»,
-                СВ не соревнуется как ученик среди своих ТП (Кодекс 08, находка ux-qa №14). */}
-            {!isSupervisor && <LearningRankWidget />}
+            {/* Для supervisor личный рейтинг обучения скрыт (СВ не соревнуется как
+                ученик среди своих ТП, Кодекс 08). Вместо пустоты — командный блок:
+                место команды в рейтинге + CTA на «Команду» и «Пульс команды». */}
+            {isSupervisor ? (
+              <SupervisorTeamWidget />
+            ) : (
+              /* Рейтинг сотрудников — виджет сам себе карточка с заголовком «Рейтинг обучения».
+                 Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27). */
+              <LearningRankWidget />
+            )}
 
             {/* Квесты дня — ежедневная петля (P1). Виджет сам рендерит панель и скрывается, если квестов нет. */}
             <DailyQuestsWidget />
