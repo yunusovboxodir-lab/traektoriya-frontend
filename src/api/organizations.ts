@@ -11,6 +11,8 @@ export interface TenantInfo {
   slug: string;
   logo_url: string | null;
   primary_color: string | null;
+  /** Корневая (старейшая) орг = основатель платформы. Легаси-контент только ей. */
+  is_root?: boolean;
 }
 
 export interface OrgListItem {

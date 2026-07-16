@@ -8,6 +8,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { useTenantStore } from '../stores/tenantStore';
 import { useLangStore } from '../stores/langStore';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
@@ -57,6 +58,7 @@ const HEADER_LINKS = [
 export function TacticalLearningPage() {
   const user = useAuthStore((s) => s.user);
   const lang = useLangStore((s) => s.lang);
+  const isRoot = useTenantStore((s) => s.tenant?.is_root === true);
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 900px)');
   const [focusZone, setFocusZone] = useState<number | null>(null);
@@ -162,7 +164,7 @@ export function TacticalLearningPage() {
             <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
           </div>
         )}
-        {HEADER_LINKS.map((l) => (
+        {HEADER_LINKS.filter((l) => l.path !== '/learning/hall-of-fame' || isRoot).map((l) => (
           <button
             key={l.path}
             type="button"
