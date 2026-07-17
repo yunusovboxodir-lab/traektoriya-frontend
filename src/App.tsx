@@ -28,6 +28,7 @@ const LearningPage = lazyWithRetry(() => import('./pages/LearningPage').then(m =
 const TacticalLearningPage = lazyWithRetry(() => import('./pages/TacticalLearningPage').then(m => ({ default: m.TacticalLearningPage })));
 const HallOfFame2025Page = lazyWithRetry(() => import('./pages/HallOfFame2025Page').then(m => ({ default: m.HallOfFame2025Page })));
 const Championship2026Page = lazyWithRetry(() => import('./pages/Championship2026Page').then(m => ({ default: m.Championship2026Page })));
+const AssortmentAcademyPage = lazyWithRetry(() => import('./pages/AssortmentAcademyPage').then(m => ({ default: m.AssortmentAcademyPage })));
 const ProductsPage = lazyWithRetry(() => import('./pages/ProductsPage').then(m => ({ default: m.ProductsPage })));
 const ProductDetailPage = lazyWithRetry(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 const TasksPage = lazyWithRetry(() => import('./pages/TasksPage').then(m => ({ default: m.TasksPage })));
@@ -246,6 +247,15 @@ function AppRoutes() {
         element={
           <FullscreenProtectedRoute pageKey="learning">
             <Championship2026Page />
+          </FullscreenProtectedRoute>
+        }
+      />
+      {/* Академия ассортимента N'Medov — отдельное обучение по продуктам (вне общей карты) */}
+      <Route
+        path="/learning/assortment"
+        element={
+          <FullscreenProtectedRoute pageKey="learning">
+            <AssortmentAcademyPage />
           </FullscreenProtectedRoute>
         }
       />

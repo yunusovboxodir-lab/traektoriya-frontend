@@ -159,9 +159,37 @@ export function TacticalLearningPage() {
         )}
         <button
           type="button"
-          onClick={() => navigate('/case-studio')}
+          onClick={() => navigate('/learning/assortment')}
           style={{
             marginLeft: 16,
+            background: 'var(--bg-overlay)',
+            border: '1px solid #E67E22',
+            borderRadius: 6,
+            padding: '6px 12px',
+            color: '#E67E22',
+            fontFamily: 'JetBrains Mono, monospace',
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--bg-elevated)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--bg-overlay)';
+          }}
+          title={lang === 'uz' ? "N'Medov assortimenti — mahsulotlar boʻyicha alohida kurs" : "Ассортимент N'Medov — отдельный курс по продуктам"}
+        >
+          {lang === 'uz' ? 'Assortiment' : 'Ассортимент'}
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate('/case-studio')}
+          style={{
+            marginLeft: 12,
             background: 'var(--bg-overlay)',
             border: '1px solid var(--line)',
             borderRadius: 6,
