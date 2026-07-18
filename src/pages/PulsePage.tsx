@@ -1069,13 +1069,22 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
 // ─── TeamPulseView ──────────────────────────────────────────────────────────
 
 function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
-  // Превращаем competency_averages в RadarDataPoint для общего радара команды
-  const teamRadarData: RadarDataPoint[] = data.competency_averages.map((c) => ({
-    label: c.name,
-    value: c.avg_pct,
-    level: c.level,
-    id: c.id,
-  }));
+  // Превращаем competency_averages в RadarDataPoint для радара
+  const toRadar = (avgs: SubordinatesPulseResponse['competency_averages']): RadarDataPoint[] =>
+    avgs.map((c) => ({
+      label: c.name,
+      value: c.avg_pct,
+      level: c.level,
+      id: c.id,
+    }));
+
+  // Несколько подчинённых ролей (admin/superadmin) → радар на КАЖДУЮ роль:
+  // профили компетенций у ролей разные, общий радар был кашей из 24 осей
+  const roleGroups = (data.competency_averages_by_role ?? []).filter(
+    (g) => g.competency_averages.length > 0
+  );
+  const multiRole = roleGroups.length > 1;
+  const teamRadarData = toRadar(data.competency_averages);
 
   // Распределение участников по уровням
   const levelCounts = useMemo(() => {
@@ -1090,8 +1099,10 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
 
   return (
     <>
-      {/* TOP: Сводный радар + распределение людей */}
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-5">
+      {/* TOP: Сводный радар + распределение людей (при нескольких ролях радары уезжают в свой ряд ниже) */}
+      <div className={multiRole
+        ? 'grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5'
+        : 'grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-5'}>
         <Card title="Средний пульс команды">
           <div className="flex flex-col items-center gap-3">
             <div className="relative w-[180px] h-[180px]">
@@ -1146,32 +1157,66 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
           </div>
         </Card>
 
-        <Card title="Сводная карта · средние по команде">
-          <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
-            <RadarChart
-              data={teamRadarData}
-              size={420}
-              targetValues={70}
-              fillColor="rgba(200, 168, 75, 0.15)"
-              strokeColor="#C8A84B"
-            />
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-amber-400" />
-              Средний по команде
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 border-t-2 border-dashed border-amber-400" />
-              Целевой профиль (70%)
-            </span>
-          </div>
-        </Card>
+        {!multiRole && (
+          <Card title="Сводная карта · средние по команде">
+            <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
+              <RadarChart
+                data={teamRadarData}
+                size={420}
+                targetValues={70}
+                fillColor="rgba(200, 168, 75, 0.15)"
+                strokeColor="#C8A84B"
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-4 h-0.5 bg-amber-400" />
+                Средний по команде
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-4 border-t-2 border-dashed border-amber-400" />
+                Целевой профиль (70%)
+              </span>
+            </div>
+          </Card>
+        )}
 
         <Card title="Топ-3 / Худшие-3">
           <TopBottomList members={data.members} />
         </Card>
       </div>
+
+      {/* Радар на каждую подчинённую роль — admin/superadmin */}
+      {multiRole && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {roleGroups.map((g) => (
+            <Card key={g.role} title={`Сводная карта · ${g.role_ru}`}>
+              <div className="text-xs text-center mb-1" style={{ color: 'var(--text-muted)' }}>
+                {g.members_count} чел · средний пульс {Math.round(g.avg_pulse)}%
+              </div>
+              <div className="relative flex items-center justify-center" style={{ minHeight: 340 }}>
+                <RadarChart
+                  data={toRadar(g.competency_averages)}
+                  size={310}
+                  targetValues={70}
+                  fillColor="rgba(200, 168, 75, 0.15)"
+                  strokeColor="#C8A84B"
+                />
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-4 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-4 h-0.5 bg-amber-400" />
+                  Средний по роли
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-4 border-t-2 border-dashed border-amber-400" />
+                  Цель (70%)
+                </span>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Полный список членов команды */}
       <div

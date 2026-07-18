@@ -181,6 +181,23 @@ export interface SubordinatePulseEntry {
   }>;
 }
 
+export interface CompetencyAverage {
+  id: string;
+  name: string;
+  avg_pct: number;
+  level: string;
+}
+
+// Группа средних по одной подчинённой роли: у каждой роли свой профиль из 8
+// компетенций, поэтому admin/superadmin получают несколько радаров, а не кашу из 24 осей
+export interface RoleCompetencyAverages {
+  role: string;
+  role_ru: string;
+  members_count: number;
+  avg_pulse: number;
+  competency_averages: CompetencyAverage[];
+}
+
 export interface SubordinatesPulseResponse {
   parent_user_id: string;
   parent_role: string;
@@ -188,12 +205,10 @@ export interface SubordinatesPulseResponse {
   members_count: number;
   avg_pulse: number;
   members: SubordinatePulseEntry[];
-  competency_averages: Array<{
-    id: string;
-    name: string;
-    avg_pct: number;
-    level: string;
-  }>;
+  // Средние только по основной подчинённой роли (обратная совместимость)
+  competency_averages: CompetencyAverage[];
+  // Полная картина по ролям; optional — старый бэк поля не отдаёт
+  competency_averages_by_role?: RoleCompetencyAverages[];
 }
 
 // ---------------------------------------------------------------------------
