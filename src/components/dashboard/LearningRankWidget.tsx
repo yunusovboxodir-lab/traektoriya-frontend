@@ -37,6 +37,15 @@ const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string 
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
+// Строка контекста «регион · дилер · СВ Имя» — пропускаем пустые части
+function orgLine(entry: LeaderboardEntry): string {
+  const parts: string[] = [];
+  if (entry.region) parts.push(entry.region);
+  if (entry.dealer_name) parts.push(entry.dealer_name);
+  if (entry.supervisor_name) parts.push(`СВ ${entry.supervisor_name}`);
+  return parts.join(' · ');
+}
+
 // Цвет-как-текст через токены (тёмно в светлой теме, ярко в тёмной — контраст ≥4.5).
 // bg-tint оставляем ярким — текст теперь адаптируется.
 const LEVEL_COLOR: Record<string, { color: string; bg: string }> = {
@@ -57,6 +66,7 @@ export function LearningRankWidget() {
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [expanded, setExpanded] = useState(false);  // «Показать всех»
   const t = useT();
   const user = useAuthStore((s) => s.user);
   const isAdmin = !!user?.role && ADMIN_ROLES.includes(user.role);
@@ -83,7 +93,7 @@ export function LearningRankWidget() {
     const opts: { period: LeaderboardPeriod; role?: LeaderboardRole } = { period };
     if (isAdmin) opts.role = role;
     learningApi
-      .getLeaderboard(10, opts)
+      .getLeaderboard(100, opts)
       .then((res) => setData(res.data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
@@ -391,7 +401,7 @@ export function LearningRankWidget() {
         </div>
       )}
 
-      {/* СПИСОК 4-10 */}
+      {/* СПИСОК с 4-го места. По умолчанию первые 7 (итого топ-10), «Показать всех» — весь */}
       {rest.length > 0 && (
         <div className="px-5 pb-5 sm:px-6">
           {/* было text-[10px] — UX-прогон 2026-07-02: подпись мелкая → 12px */}
@@ -402,10 +412,22 @@ export function LearningRankWidget() {
             Преследователи
           </p>
           <div className="space-y-1.5">
-            {rest.map((entry) => (
+            {(expanded ? rest : rest.slice(0, 7)).map((entry) => (
               <LeaderboardRow key={entry.user_id} entry={entry} levelName={levelName} />
             ))}
           </div>
+          {rest.length > 7 && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-3 w-full py-2 rounded-lg text-sm font-medium transition-colors"
+              style={{ background: 'var(--bg-overlay)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
+            >
+              {expanded
+                ? 'Свернуть'
+                : `Показать всех (${leaderboard.length})`}
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -465,6 +487,16 @@ function PodiumPlayer({
         {entry.full_name || entry.employee_id}
         {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>★</span>}
       </div>
+      {/* Контекст: регион · дилер · СВ */}
+      {orgLine(entry) && (
+        <div
+          className="text-[10px] text-center w-full mt-0.5"
+          style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+          title={orgLine(entry)}
+        >
+          {orgLine(entry)}
+        </div>
+      )}
       {/* Уровень — было text-[9px] (UX-прогон 2026-07-02: тир-бейджи нечитаемы мелкими) → 11px */}
       <span
         className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium"
@@ -541,9 +573,14 @@ function LeaderboardRow({
           {/* opacity 0.8 → 0.95: на золотом tint светлой темы давало ~3.45:1 (ниже AA) */}
           {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)', opacity: 0.95 }}>(вы)</span>}
         </p>
+        {orgLine(entry) && (
+          <p className="truncate text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
+            {orgLine(entry)}
+          </p>
+        )}
         {/* было text-[10px] — UX-прогон 2026-07-02: тир-бейджи мелкие → 11px */}
         <span
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium"
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium mt-0.5"
           style={{ background: cfg.bg, color: cfg.color }}
         >
           {levelName(entry.current_level)}
