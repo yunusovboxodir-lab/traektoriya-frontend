@@ -32,6 +32,8 @@ const ROLE_LABELS: Record<string, string> = {
   regional_manager: 'Рег. менеджер',
   supervisor: 'Супервайзер',
   sales_rep: 'Торговый пред.',
+  standalone: 'Общие (товары)',
+  top_management: 'Топ-менеджмент',
 };
 
 // ---------------------------------------------------------------------------
