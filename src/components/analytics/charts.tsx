@@ -44,7 +44,7 @@ export const BAR_COLORS = [
 // Section title with divider
 // ---------------------------------------------------------------------------
 
-export function SectionTitle({ title }: { title: string }) {
+export function SectionTitle({ title }: { title: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 mb-4">
       <h2 className="text-base font-semibold whitespace-nowrap" style={{ color: 'var(--text-primary)' }}>

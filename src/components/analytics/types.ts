@@ -25,8 +25,16 @@ export interface LearningMetrics {
   courses_completed?: number;
   by_territory?: TerritoryItem[];
   by_course?: CourseItem[];
+  by_role?: RoleLearningItem[];
   time_stats?: { avg_time_per_lesson?: number; total_learning_hours?: number };
   difficult_steps?: DifficultStep[];
+}
+
+export interface RoleLearningItem {
+  role: string;
+  enrolled: number;
+  completed: number;
+  avg_score: number;
 }
 
 export interface TerritoryItem {
@@ -39,6 +47,7 @@ export interface TerritoryItem {
 export interface CourseItem {
   course_id: string;
   title: string;
+  role?: string;
   enrolled: number;
   completed: number;
   avg_score: number;
@@ -63,8 +72,9 @@ export interface ProductStats {
   average_test_score?: number;
   tests_completed?: number;
   test_stats?: { total_attempts?: number; pass_rate?: number; avg_score?: number };
-  categories_breakdown?: CategoryBreakdown[];
+  categories_breakdown?: CategoryBreakdownRaw[];
   by_product?: ProductItem[];
+  by_brand?: BrandItem[];
   popular_products?: ProductItem[];
   difficult_products?: ProductItem[];
 }
@@ -72,6 +82,22 @@ export interface ProductStats {
 export interface ProductItem {
   product_id: string;
   name: string;
+  attempts: number;
+  pass_rate: number;
+  avg_score: number;
+}
+
+// Сырой формат бэка (categories_breakdown) — бренд в поле category
+export interface CategoryBreakdownRaw {
+  category: string;
+  product_count: number;
+  attempts: number;
+  avg_score: number;
+}
+
+export interface BrandItem {
+  brand: string;
+  products: number;
   attempts: number;
   pass_rate: number;
   avg_score: number;

@@ -1,13 +1,25 @@
 import { useT } from '../../stores/langStore';
 import type {
   OverviewData, LearningMetrics, ProductStats,
-  LeaderboardEntry, CategoryBreakdown,
+  LeaderboardEntry, BrandItem,
 } from './types';
 import {
   SectionTitle, StatCard, DonutChart,
   HorizontalBarChart, MetricBar, MetricValue,
 } from './charts';
 import type { StatCardDef } from './charts';
+
+// Бейдж «за всё время» — эти блоки не зависят от фильтра периода (см. AnalyticsPage)
+function AllTimeBadge() {
+  return (
+    <span
+      className="ml-2 align-middle inline-block px-2 py-0.5 rounded text-[11px] font-medium"
+      style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
+    >
+      за всё время
+    </span>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -121,16 +133,25 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
     },
   ];
 
-  // Только реальные данные с бэкенда; без данных — блок «Категории» не рендерится.
-  const categories: CategoryBreakdown[] =
-    productStats?.categories_breakdown && productStats.categories_breakdown.length > 0
-      ? productStats.categories_breakdown
-      : [];
+  // Знание товаров — по БРЕНДАМ (17 читаемо; по SKU 114 — шум). Приоритет by_brand;
+  // фолбэк на categories_breakdown (старый бэк) без pass_rate.
+  const byBrand: BrandItem[] =
+    productStats?.by_brand && productStats.by_brand.length > 0
+      ? productStats.by_brand
+      : (productStats?.categories_breakdown ?? []).map((c) => ({
+          brand: c.category,
+          products: c.product_count,
+          attempts: c.attempts,
+          pass_rate: 0,
+          avg_score: c.avg_score,
+        }));
+  // Бар «Бренды» — доля товаров по бренду
+  const brandBars = byBrand.map((b) => ({ name: b.brand, count: b.products }));
 
-  const byProduct = productStats?.by_product ?? [];
-  const popularProducts = productStats?.popular_products ?? byProduct.slice(0, 10);
   const byTerritory = learning?.by_territory ?? [];
   const byCourse = learning?.by_course ?? [];
+  const byRole = learning?.by_role ?? [];
+  const usersByRole = overview?.users?.by_role ?? {};
 
   // «Нет активности» — когда нет ни прохождений курсов, ни закрытых задач.
   // Раньше пустые метрики (0) читались как «сломано»; показываем честную плашку.
@@ -158,11 +179,29 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
           </span>
         </div>
       )}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {statCards.map((card) => (
           <StatCard key={card.label} card={card} />
         ))}
       </div>
+
+      {/* Состав пользователей по ролям (данные уже в overview.users.by_role) */}
+      {Object.keys(usersByRole).length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-10">
+          {(['regional_manager', 'supervisor', 'sales_rep', 'admin', 'commercial_dir', 'superadmin'] as const)
+            .filter((r) => usersByRole[r])
+            .map((r) => (
+              <span
+                key={r}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs"
+                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+              >
+                {ROLE_LABELS[r] ?? r}
+                <strong style={{ color: 'var(--text-primary)' }}>{usersByRole[r]}</strong>
+              </span>
+            ))}
+        </div>
+      )}
 
       {/* Leaderboard */}
       {leaderboard.length > 0 && (
@@ -231,7 +270,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {/* Learning metrics */}
       {learning && (
         <>
-          <SectionTitle title={t('analytics.learningMetrics')} />
+          <SectionTitle title={<>{t('analytics.learningMetrics')}<AllTimeBadge /></>} />
           <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <MetricBar
@@ -285,6 +324,26 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
               </div>
             )}
 
+            {/* Разбивка обучения по ролям ТП/СВ/РМ */}
+            {byRole.length > 0 && (
+              <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
+                  По ролям
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {byRole.map((r) => (
+                    <div key={r.role} className="rounded-lg p-3" style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}>
+                      <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[r.role] ?? r.role}</div>
+                      <div className="flex items-baseline gap-3 text-sm">
+                        <span style={{ color: 'var(--text-primary)' }}><strong>{r.completed}</strong> / {r.enrolled}</span>
+                        <span style={{ color: 'var(--text-muted)' }}>ср. {r.avg_score}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {byCourse.length > 0 && (
               <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
@@ -295,6 +354,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border)' }}>
                         <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.courseName')}</th>
+                        <th className="text-left py-2 pl-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>Роль</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.enrolled')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.completed')}</th>
                       </tr>
@@ -303,6 +363,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                       {byCourse.map((c) => (
                         <tr key={c.course_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                           <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{c.title}</td>
+                          <td className="py-2 pl-4 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>{c.role ? (ROLE_LABELS[c.role] ?? c.role) : '—'}</td>
                           <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.enrolled}</td>
                           <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.completed}</td>
                         </tr>
@@ -319,7 +380,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {/* Product knowledge */}
       {productStats && (
         <>
-          <SectionTitle title={t('analytics.productKnowledge')} />
+          <SectionTitle title={<>{t('analytics.productKnowledge')}<AllTimeBadge /></>} />
           <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <MetricValue
@@ -353,46 +414,48 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                   filled={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
                 />
               </div>
-              {categories.length > 0 && (
+              {brandBars.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    {t('analytics.categories')}
+                    Бренды
                   </h3>
-                  <HorizontalBarChart categories={categories} />
+                  <HorizontalBarChart categories={brandBars} />
                 </div>
               )}
             </div>
 
-            {popularProducts.length > 0 && (
+            {byBrand.length > 0 && (
               <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.productDetails')}
+                  Знание по брендам
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.productName')}</th>
+                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Бренд</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Товаров</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.attempts')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.passRate')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.avgScore')}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {popularProducts.map((p) => (
-                        <tr key={p.product_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{p.name}</td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{p.attempts}</td>
+                      {byBrand.map((b) => (
+                        <tr key={b.brand} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
+                          <td className="py-2 truncate max-w-[200px] font-medium" style={{ color: 'var(--text-primary)' }}>{b.brand}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.products}</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.attempts}</td>
                           <td className="py-2 text-right">
                             <span className="font-medium" style={{
-                              color: p.pass_rate >= 80 ? 'var(--success)' :
-                                     p.pass_rate >= 50 ? 'var(--warning)' :
+                              color: b.pass_rate >= 80 ? 'var(--success)' :
+                                     b.pass_rate >= 50 ? 'var(--warning)' :
                                      'var(--danger)',
                             }}>
-                              {p.pass_rate}%
+                              {b.pass_rate}%
                             </span>
                           </td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{p.avg_score}%</td>
+                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.avg_score}%</td>
                         </tr>
                       ))}
                     </tbody>
