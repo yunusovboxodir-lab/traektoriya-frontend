@@ -134,28 +134,28 @@ export function TranslationReviewPage() {
                         className="w-full border rounded-lg p-2 text-sm resize-none"
                         rows={2}
                       />
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => handleReview(item.id, 'approve')}
-                          className="px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700"
+                          className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
                         >
                           ✅ Одобрить (+{item.bonus_xp} XP)
                         </button>
                         <button
                           onClick={() => handleReview(item.id, 'reject')}
-                          className="px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700"
+                          className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700"
                         >
                           ❌ Отклонить
                         </button>
                         <button
                           onClick={() => handleReview(item.id, 'lock')}
-                          className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700"
+                          className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                         >
                           🔒 Качественный
                         </button>
                         <button
                           onClick={() => { setReviewingId(null); setReviewComment(''); }}
-                          className="px-3 py-1.5 text-gray-500 text-xs hover:text-gray-700"
+                          className="px-3 py-1.5 text-gray-500 text-sm hover:text-gray-700"
                         >
                           Отмена
                         </button>
@@ -174,7 +174,7 @@ export function TranslationReviewPage() {
 
               {/* Комментарий админа (для rejected/locked) */}
               {item.admin_comment && (
-                <div className="bg-gray-100 rounded-lg p-2 text-xs text-gray-600">
+                <div className="bg-gray-100 rounded-lg p-2 text-sm text-gray-600">
                   Админ: {item.admin_comment}
                 </div>
               )}

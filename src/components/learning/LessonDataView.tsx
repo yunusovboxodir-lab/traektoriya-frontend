@@ -59,7 +59,7 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-xs font-medium transition-all`}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-sm font-medium transition-all`}
               style={{
                 background: isActive ? 'var(--bg-card)' : 'transparent',
                 boxShadow: isActive ? '0 1px 2px rgba(0,0,0,0.1)' : 'none',
@@ -284,7 +284,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
     <div className="space-y-4">
       <div className="text-center">
         <h4 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{dialogue.title}</h4>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>{dialogue.scenario}</p>
+        <p className="text-sm mt-0.5" style={{ color: 'var(--text-secondary)' }}>{dialogue.scenario}</p>
       </div>
 
       {/* Exchange counter */}
@@ -328,7 +328,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
             <p className="text-xs font-bold text-red-400 mb-1.5">{exchange.wrong.speaker || '❌ Неверно'}</p>
             <p className="text-sm text-red-800 leading-relaxed">{exchange.wrong.text}</p>
             {exchange.wrong.consequence && (
-              <p className="text-xs text-red-500 mt-1 italic">{exchange.wrong.consequence}</p>
+              <p className="text-sm text-red-500 mt-1 italic">{exchange.wrong.consequence}</p>
             )}
           </div>
 
@@ -337,14 +337,14 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
             <p className="text-xs font-bold text-emerald-500 mb-1.5">{exchange.right.speaker || '✅ Верно'}</p>
             <p className="text-sm text-emerald-800 leading-relaxed">{exchange.right.text}</p>
             {exchange.right.outcome && (
-              <p className="text-xs text-emerald-600 mt-1 italic">{exchange.right.outcome}</p>
+              <p className="text-sm text-emerald-600 mt-1 italic">{exchange.right.outcome}</p>
             )}
           </div>
 
           {/* Lesson */}
           <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-start gap-2">
             <span className="text-base">💡</span>
-            <p className="text-xs text-blue-800 leading-relaxed font-medium">{exchange.lesson}</p>
+            <p className="text-sm text-blue-800 leading-relaxed font-medium">{exchange.lesson}</p>
           </div>
 
           {/* Next exchange */}
@@ -479,7 +479,7 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
               <div className="flex-1">
                 <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{opt.text}</p>
                 {isExplained && isAnswered && (isThis || isCorrectOpt) && opt.explanation && (
-                  <p className={`text-xs mt-1.5 leading-relaxed ${isCorrectOpt ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <p className={`text-sm mt-1.5 leading-relaxed ${isCorrectOpt ? 'text-emerald-600' : 'text-red-600'}`}>
                     {opt.explanation}
                   </p>
                 )}

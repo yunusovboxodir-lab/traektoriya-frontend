@@ -86,7 +86,7 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
           {/* Edit toggle */}
           <button
             onClick={() => setEditMode(!editMode)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               editMode
                 ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
                 : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
@@ -100,7 +100,7 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
           {/* Preview button */}
           <button
             onClick={onPreview}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-medium hover:bg-indigo-100 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-sm font-medium hover:bg-indigo-100 transition-colors"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -120,14 +120,14 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
           </span>
           <button
             onClick={handleDiscard}
-            className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded"
+            className="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded"
           >
             {lang === 'uz' ? 'Bekor qilish' : 'Отменить'}
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="text-xs font-medium text-white bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-lg disabled:opacity-50"
+            className="text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-lg disabled:opacity-50"
           >
             {saving
               ? (lang === 'uz' ? 'Saqlanmoqda...' : 'Сохранение...')
@@ -379,7 +379,7 @@ function CinematicSceneCard({
               <div className="min-w-0">
                 <p className="text-xs font-bold text-red-700 uppercase">{bl(crisis.badge, lang)}</p>
                 <p className="text-sm text-red-800 mt-0.5 font-medium">{bl(crisis.headline, lang)}</p>
-                <p className="text-xs text-red-600 mt-1">{bl(crisis.description, lang)}</p>
+                <p className="text-sm text-red-600 mt-1">{bl(crisis.description, lang)}</p>
               </div>
             </div>
           )}
@@ -420,7 +420,7 @@ function CinematicSceneCard({
             if (editMode) {
               return (
                 <div key={i} className="flex items-start gap-2">
-                  <span className="text-xs font-semibold text-gray-500 mt-2 shrink-0 w-20 truncate">{name}:</span>
+                  <span className="text-sm font-semibold text-gray-500 mt-2 shrink-0 w-20 truncate">{name}:</span>
                   <EditableBiText
                     value={d.text}
                     lang={lang}
@@ -437,7 +437,7 @@ function CinematicSceneCard({
 
             return (
               <div key={i} className={`flex gap-2 ${isLeft ? '' : 'flex-row-reverse'}`}>
-                <div className={`max-w-[85%] px-3 py-2 rounded-xl text-xs ${
+                <div className={`max-w-[85%] px-3 py-2 rounded-xl text-sm ${
                   isLeft ? 'bg-blue-50 text-blue-900' : 'bg-gray-100 text-gray-800'
                 }`}>
                   <span className="font-semibold">{name}:</span>{' '}
@@ -511,7 +511,7 @@ function KeyPointCard({
           ) : (
             <>
               <p className="text-sm font-bold text-gray-800">{bl(data.title, lang)}</p>
-              {data.body && <p className="text-xs text-gray-600 mt-1">{bl(data.body, lang)}</p>}
+              {data.body && <p className="text-sm text-gray-600 mt-1">{bl(data.body, lang)}</p>}
             </>
           )}
         </div>
@@ -550,7 +550,7 @@ function KeyPointCard({
               <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 text-xs font-bold flex items-center justify-center shrink-0">
                 {step.num}
               </span>
-              <p className="text-xs text-gray-700">{bl(step.text, lang)}</p>
+              <p className="text-sm text-gray-700">{bl(step.text, lang)}</p>
             </div>
           ))}
         </div>
@@ -561,7 +561,7 @@ function KeyPointCard({
           {editMode ? (
             <EditableBiText value={data.callout} lang={lang} multiline onChange={(v) => onChange({ ...data, callout: v })} />
           ) : (
-            <p className="text-xs text-emerald-800">{bl(data.callout, lang)}</p>
+            <p className="text-sm text-emerald-800">{bl(data.callout, lang)}</p>
           )}
         </div>
       )}

@@ -519,7 +519,7 @@ function Step2Competencies({
                     value={c.description}
                     onChange={(e) => updateField(idx, 'description', e.target.value)}
                     rows={2}
-                    className="w-full px-2 py-1 border border-border-default rounded text-xs"
+                    className="w-full px-2 py-1 border border-border-default rounded text-sm"
                   />
                 </td>
                 <td className="px-2 py-1">
@@ -557,7 +557,7 @@ function Step2Competencies({
             className="rounded-md border border-border-default p-3 space-y-2 bg-bg-surface"
           >
             <div>
-              <label className="block text-xs font-medium text-fg-subtle mb-1">Название RU</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">Название RU</label>
               <input
                 type="text"
                 value={c.name}
@@ -566,7 +566,7 @@ function Step2Competencies({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-fg-subtle mb-1">Название UZ</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">Название UZ</label>
               <input
                 type="text"
                 value={c.name_uz || ''}
@@ -575,16 +575,16 @@ function Step2Competencies({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-fg-subtle mb-1">Описание</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">Описание</label>
               <textarea
                 value={c.description}
                 onChange={(e) => updateField(idx, 'description', e.target.value)}
                 rows={2}
-                className="w-full px-2 py-1.5 border border-border-default rounded text-xs"
+                className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-fg-subtle mb-1">Сложность</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">Сложность</label>
               <select
                 value={c.suggested_difficulty || 2}
                 onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
@@ -894,7 +894,7 @@ function Step3Courses({
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
                         placeholder="Краткое описание"
                         rows={1}
-                        className="md:col-span-2 px-2 py-1 border border-border-default rounded text-xs"
+                        className="md:col-span-2 px-2 py-1 border border-border-default rounded text-sm"
                       />
                     </div>
                     <button
@@ -909,7 +909,7 @@ function Step3Courses({
                   {/* Mobile: card-layout с явной кнопкой "Удалить" (<sm) */}
                   <div className="block sm:hidden space-y-2">
                     <div>
-                      <label className="block text-xs font-medium text-fg-subtle mb-1">Название RU</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">Название RU</label>
                       <input
                         type="text"
                         value={course.title_ru}
@@ -919,7 +919,7 @@ function Step3Courses({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-fg-subtle mb-1">Nomi UZ</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">Nomi UZ</label>
                       <input
                         type="text"
                         value={course.title_uz || ''}
@@ -929,7 +929,7 @@ function Step3Courses({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-fg-subtle mb-1">Тип курса</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">Тип курса</label>
                       <select
                         value={course.course_type}
                         onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
@@ -941,7 +941,7 @@ function Step3Courses({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-fg-subtle mb-1">Вес</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">Вес</label>
                       <select
                         value={course.weight}
                         onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
@@ -954,13 +954,13 @@ function Step3Courses({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-fg-subtle mb-1">Краткое описание</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">Краткое описание</label>
                       <textarea
                         value={course.short_description_ru || ''}
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
                         placeholder="Краткое описание"
                         rows={2}
-                        className="w-full px-2 py-1.5 border border-border-default rounded text-xs"
+                        className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       />
                     </div>
                     <div className="pt-1">
@@ -979,7 +979,7 @@ function Step3Courses({
             })}
             <button
               onClick={() => addCourse(level)}
-              className="w-full px-3 py-1.5 text-xs border border-dashed border-border-strong rounded hover:bg-bg-muted"
+              className="w-full px-3 py-1.5 text-sm border border-dashed border-border-strong rounded hover:bg-bg-muted"
             >
               + Добавить курс в {LEVEL_LABELS[level]}
             </button>

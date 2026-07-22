@@ -291,7 +291,7 @@ export function CaseStudioDetailPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 className="text-lg font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Поставить задачу команде</h3>
-              <p className="text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
                 Каждый получит задачу «Изучи кейс» в Kanban + TG-уведомление.
               </p>
 
@@ -578,7 +578,7 @@ function RatingControl({
         {!showComment && !chosen && (
           <button
             onClick={() => setShowComment(true)}
-            className="text-xs underline ml-2"
+            className="text-sm underline ml-2"
             style={{ color: 'var(--text-muted)' }}
           >
             + Комментарий
@@ -595,7 +595,7 @@ function RatingControl({
           style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
         />
       )}
-      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
     </div>
   );
 }
@@ -656,7 +656,7 @@ function SolutionForm({
           {submitting ? 'Отправляю…' : 'Предложить решение'}
         </button>
       </div>
-      {error && <p className="text-xs text-red-600 mt-2">{error}</p>}
+      {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
     </div>
   );
 }

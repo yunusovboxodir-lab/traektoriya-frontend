@@ -220,7 +220,7 @@ export function CompetencyProfilePage() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-gray-800 truncate">{p.title}</h3>
-                    <p className="text-xs text-gray-400 mt-0.5">
+                    <p className="text-sm text-gray-400 mt-0.5 truncate">
                       {ROLE_LABELS[p.target_role || '']?.[lang] || p.target_role || '—'}
                     </p>
                   </div>
@@ -280,7 +280,7 @@ export function CompetencyProfilePage() {
                       {selectedProfile.status === 'draft' && (
                         <button
                           onClick={() => handleStatusChange(selectedProfile.id, 'review')}
-                          className="px-3 py-1.5 text-xs bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200"
+                          className="px-3 py-1.5 text-sm bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200"
                         >
                           {t('На проверку', "Ko'rib chiqish")}
                         </button>
@@ -288,14 +288,14 @@ export function CompetencyProfilePage() {
                       {selectedProfile.status === 'review' && (
                         <button
                           onClick={() => handleStatusChange(selectedProfile.id, 'approved')}
-                          className="px-3 py-1.5 text-xs bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
+                          className="px-3 py-1.5 text-sm bg-green-100 text-green-700 rounded-lg hover:bg-green-200"
                         >
                           {t('Утвердить', 'Tasdiqlash')}
                         </button>
                       )}
                       <button
                         onClick={() => handleDelete(selectedProfile.id)}
-                        className="px-3 py-1.5 text-xs bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
+                        className="px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100"
                       >
                         {t('Удалить', "O'chirish")}
                       </button>
@@ -374,7 +374,7 @@ export function CompetencyProfilePage() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-center">
-                              <span className="text-xs text-gray-500">{c.ksa_type}</span>
+                              <span className="text-sm text-gray-500">{c.ksa_type}</span>
                             </td>
                           </tr>
                         ))}

@@ -201,7 +201,7 @@ function ScenariosTab() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4 items-end">
         <div>
-          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Роль</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>Роль</label>
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value as CaseTargetRole | '')}
@@ -216,7 +216,7 @@ function ScenariosTab() {
           </select>
         </div>
         <div>
-          <label className="block text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Категория</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>Категория</label>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}

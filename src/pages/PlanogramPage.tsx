@@ -346,7 +346,7 @@ export function PlanogramPage() {
                           }`} />
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-sm">{item.product}</div>
-                            <div className="text-xs text-gray-500 mt-0.5">{item.reason}</div>
+                            <div className="text-sm text-gray-500 mt-0.5">{item.reason}</div>
                           </div>
                           <div className="text-right shrink-0">
                             <div className="text-xs text-gray-400">на полке</div>
@@ -413,7 +413,7 @@ export function PlanogramPage() {
                                 <button
                                   onClick={() => handleCompleteTask(task.id)}
                                   disabled={isBusy}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                   {status === 'completing' ? (
                                     <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
@@ -422,7 +422,7 @@ export function PlanogramPage() {
                                 <button
                                   onClick={() => handleSkipTask(task.id)}
                                   disabled={isBusy}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-xs font-medium rounded-lg hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 text-orange-700 text-sm font-medium rounded-lg hover:bg-orange-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                   {status === 'skipping' ? (
                                     <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
@@ -464,7 +464,7 @@ export function PlanogramPage() {
                         <span className="text-3xl">{a.icon}</span>
                         <div>
                           <div className="font-bold text-sm">{a.title}</div>
-                          <div className="text-xs text-gray-500">{a.description} — +{a.points} pts</div>
+                          <div className="text-sm text-gray-500">{a.description} — +{a.points} pts</div>
                         </div>
                       </div>
                     ))}
@@ -477,7 +477,7 @@ export function PlanogramPage() {
                     {result.nudges.map((n) => (
                       <div key={n.id} className={`rounded-xl p-4 border ${n.type === 'alert' ? 'bg-red-50 border-red-200' : n.type === 'celebration' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
                         <div className="font-medium text-sm">{n.title}</div>
-                        <div className="text-xs text-gray-600 mt-1">{n.message}</div>
+                        <div className="text-sm text-gray-600 mt-1">{n.message}</div>
                       </div>
                     ))}
                   </div>

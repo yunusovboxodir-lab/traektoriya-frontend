@@ -365,11 +365,11 @@ function SalesTab({ product }: { product: ProductDetail }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <p className="text-xs font-medium text-green-600 mb-1">{t('productDetail.strengths')}</p>
-                    <p className="text-xs text-gray-600">{c.strengths}</p>
+                    <p className="text-sm text-gray-600">{c.strengths}</p>
                   </div>
                   <div>
                     <p className="text-xs font-medium text-red-600 mb-1">{t('productDetail.weaknesses')}</p>
-                    <p className="text-xs text-gray-600">{c.weaknesses}</p>
+                    <p className="text-sm text-gray-600">{c.weaknesses}</p>
                   </div>
                 </div>
               </div>

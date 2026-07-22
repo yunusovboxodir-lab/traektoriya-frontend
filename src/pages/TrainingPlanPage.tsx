@@ -509,10 +509,10 @@ function CalendarTab({ lang }: { lang: Lang }) {
                       onMouseEnter={(ev) => { (ev.currentTarget as HTMLButtonElement).style.background = 'var(--bg-elevated)'; }}
                       onMouseLeave={(ev) => { (ev.currentTarget as HTMLButtonElement).style.background = 'var(--bg-card)'; }}
                     >
-                      <div className="p-2.5 text-center text-xs font-mono" style={{ color: 'var(--text-muted)' }}>
+                      <div className="p-2.5 text-center text-sm font-mono" style={{ color: 'var(--text-muted)' }}>
                         W{isoWeek(e.start_date)}
                       </div>
-                      <div className="p-2.5 text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      <div className="p-2.5 text-sm font-mono" style={{ color: 'var(--text-secondary)' }}>
                         {formatDate(e.start_date, lang)}
                         {e.end_date && e.end_date !== e.start_date && (
                           <div className="text-xs" style={{ color: 'var(--text-muted)' }}>— {formatDate(e.end_date, lang)}</div>
@@ -523,7 +523,7 @@ function CalendarTab({ lang }: { lang: Lang }) {
                           {eventTypeLabel(e.event_type, lang)}
                         </span>
                       </div>
-                      <div className="p-2.5 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                      <div className="p-2.5 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                         {roleLabel(e.target_role, lang)}
                       </div>
                       <div className="p-2.5">
@@ -762,7 +762,7 @@ function RequestCard({
             <button
               disabled={busy}
               onClick={handleApprove}
-              className="px-3 py-1.5 text-xs rounded disabled:opacity-50 font-medium"
+              className="px-3 py-1.5 text-sm rounded disabled:opacity-50 font-medium"
               style={{ background: 'var(--success)', color: 'var(--text-inverse)' }}
             >
               {lang === 'uz' ? 'Tasdiqlash' : 'Утвердить'}
@@ -770,7 +770,7 @@ function RequestCard({
             <button
               disabled={busy}
               onClick={() => setShowRejectModal(true)}
-              className="px-3 py-1.5 text-xs rounded disabled:opacity-50 font-medium"
+              className="px-3 py-1.5 text-sm rounded disabled:opacity-50 font-medium"
               style={{ background: 'var(--danger)', color: 'var(--text-inverse)' }}
             >
               {lang === 'uz' ? 'Rad etish' : 'Отклонить'}

@@ -183,7 +183,7 @@ function ProgramCard({ program, onClick, onDelete }: { program: Program; onClick
           <span className="text-4xl">{program.icon || '?'}</span>
           <div className="flex-1">
             <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{program.title}</h3>
-            {program.title_uz && <p className="text-xs italic" style={{ color: 'var(--text-muted)' }}>{program.title_uz}</p>}
+            {program.title_uz && <p className="text-sm italic" style={{ color: 'var(--text-muted)' }}>{program.title_uz}</p>}
           </div>
         </div>
         {program.description && (

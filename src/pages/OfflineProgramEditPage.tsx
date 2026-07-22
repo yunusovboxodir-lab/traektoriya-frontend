@@ -306,7 +306,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
       <div className="col-span-3 rounded-xl p-3 max-h-[70vh] overflow-y-auto" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
         <div className="flex justify-between items-center mb-3">
           <span className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>Слайды</span>
-          <button onClick={addSlide} className="text-xs px-2 py-1 bg-amber-500 text-white rounded">+ Добавить</button>
+          <button onClick={addSlide} className="text-sm px-2 py-1 bg-amber-500 text-white rounded">+ Добавить</button>
         </div>
         {slides.map((s, i) => (
           <div key={i} className="flex items-center gap-1 mb-1 px-2 py-2 rounded-lg cursor-pointer"
@@ -315,7 +315,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
               : { background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
             onClick={() => setActiveIdx(i)}>
             <span className="text-xs font-bold w-6">{i + 1}</span>
-            <span className="text-xs flex-1 truncate">{slideShortLabel(s)}</span>
+            <span className="text-sm flex-1 truncate">{slideShortLabel(s)}</span>
             <button onClick={(e) => { e.stopPropagation(); moveSlide(i, i - 1); }} className="opacity-50 hover:opacity-100 px-1">↑</button>
             <button onClick={(e) => { e.stopPropagation(); moveSlide(i, i + 1); }} className="opacity-50 hover:opacity-100 px-1">↓</button>
             <button onClick={(e) => { e.stopPropagation(); removeSlide(i); }} className="opacity-50 hover:opacity-100 text-red-400 px-1">×</button>
@@ -368,7 +368,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
                 <div className="flex flex-wrap gap-2">
                   {BLOCK_TYPES.map((b) => (
                     <button key={b.v} onClick={() => addBlock(b.v)}
-                      className="text-xs px-3 py-1.5 rounded hover:border-amber-400"
+                      className="text-sm px-3 py-1.5 rounded hover:border-amber-400"
                       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                       {b.icon} {b.t}
                     </button>
@@ -475,7 +475,7 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
       <div className="flex justify-between">
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Один тест проходит и в PRE и в POST. {questions.length} из {program.num_questions} в банке.</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-xs px-3 py-1.5 rounded hover:border-amber-400" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Вопрос</button>
+          <button onClick={add} className="text-sm px-3 py-1.5 rounded hover:border-amber-400" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Вопрос</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
             style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
             {saving ? 'Сохранение...' : 'Сохранить вопросы'}
@@ -488,7 +488,7 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
           <div key={qi} className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
             <div className="flex justify-between items-start mb-3">
               <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>ВОПРОС #{qi + 1}</span>
-              <button onClick={() => remove(qi)} className="text-xs text-red-600">Удалить</button>
+              <button onClick={() => remove(qi)} className="text-sm text-red-600">Удалить</button>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
               <FieldTextArea label="Вопрос (RU)" value={q.question} onChange={(question) => update(qi, { ...q, question })} />
@@ -567,7 +567,7 @@ function CategoriesTab({ program, onSaved, saving, setSaving }: {
       <div className="flex justify-between">
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Категории — для радар-диаграммы и breakdown (привязка через `Question.category`)</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-xs px-3 py-1.5 rounded" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Категория</button>
+          <button onClick={add} className="text-sm px-3 py-1.5 rounded" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Категория</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
             style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
             {saving ? 'Сохранение...' : 'Сохранить'}

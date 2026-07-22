@@ -605,7 +605,7 @@ export function CompetencyMatrixPage() {
                     <button
                       key={lvl}
                       onClick={() => setAssessLevel(lvl)}
-                      className="flex-1 py-2 rounded-lg text-xs font-medium transition"
+                      className="flex-1 py-2 rounded-lg text-sm font-medium transition"
                       style={assessLevel === lvl
                         ? { background: 'var(--info)', color: 'var(--text-inverse)' }
                         : { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }
@@ -742,7 +742,7 @@ function GapRow({
               e.stopPropagation();
               onAssess();
             }}
-            className="text-xs"
+            className="text-sm"
             style={{ color: 'var(--info)' }}
           >
             {lang === 'ru' ? 'Оценить' : 'Baholash'}

@@ -255,7 +255,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
             <button
               type="button"
               onClick={() => setShowAdvanced((v) => !v)}
-              className="flex items-center gap-1 text-xs text-fg-subtle hover:text-fg-default"
+              className="flex items-center gap-1 text-sm text-fg-subtle hover:text-fg-default"
             >
               <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
               Расширенные параметры

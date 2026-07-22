@@ -268,7 +268,7 @@ export function ReportsPage() {
                 <button
                   key={s}
                   onClick={() => { setFilterStatus(s); setPage(0); }}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     filterStatus === s ? 'bg-bg-accent text-fg-on-accent' : 'bg-bg-canvas text-fg-muted hover:bg-bg-surface'
                   }`}
                 >
@@ -281,7 +281,7 @@ export function ReportsPage() {
                 <button
                   key={tf.value}
                   onClick={() => { setFilterType(tf.value); setPage(0); }}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
                     filterType === tf.value ? 'bg-bg-accent text-fg-on-accent' : 'bg-bg-canvas text-fg-muted hover:bg-bg-surface'
                   }`}
                 >
@@ -322,7 +322,7 @@ export function ReportsPage() {
                       {t('common.actions.open')}
                     </Button>
                   </td>
-                  <td className="px-4 py-3 text-xs text-fg-muted whitespace-nowrap">
+                  <td className="px-4 py-3 text-sm text-fg-muted whitespace-nowrap">
                     {new Date(r.created_at).toLocaleDateString()}<br />
                     {new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </td>

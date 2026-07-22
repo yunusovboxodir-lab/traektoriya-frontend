@@ -304,14 +304,14 @@ export function DictionaryUZPage() {
                           {!entry.is_verified && (
                             <button
                               onClick={() => handleVerify(entry.id)}
-                              className="px-2 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700"
+                              className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
                             >
                               Одобрить
                             </button>
                           )}
                           <button
                             onClick={() => handleDelete(entry.id)}
-                            className="px-2 py-1 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200"
+                            className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200"
                           >
                             Удалить
                           </button>

@@ -46,7 +46,7 @@ function GoalCard({ goal }: { goal: Goal }) {
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-gray-900 text-sm leading-snug">{goal.title}</h3>
           {goal.description && (
-            <p className="text-xs text-gray-500 mt-1 line-clamp-2">{goal.description}</p>
+            <p className="text-sm text-gray-500 mt-1 line-clamp-2">{goal.description}</p>
           )}
         </div>
         <span className={`flex-shrink-0 px-2 py-0.5 rounded text-xs font-medium ${sc.bg} ${sc.text}`}>
