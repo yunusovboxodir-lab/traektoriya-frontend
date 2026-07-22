@@ -39,7 +39,8 @@
     "themeDark": "Qorongʻi",
     "themeLight": "Yorugʻ",
     "theme": "Rejim",
-    "caseStudio": "Keyslar bazasi"
+    "caseStudio": "Keyslar bazasi",
+    "organizations": "Tashkilotlar"
   },
   "roles": {
     "superadmin": "Superadmin",
@@ -68,7 +69,10 @@
     "errorNetwork": "Server bilan aloqa yoʻq. Internetni tekshiring yoki tarmoqni oʻzgartiring — mehmon va ommaviy Wi-Fi koʻpincha kirishni bloklaydi. Mobil internetdan foydalanib koʻring.",
     "errorCredentials": "Xodim ID yoki parol notoʻgʻri.",
     "errorServer": "Server vaqtincha ishlamayapti. Bir daqiqadan soʻng urinib koʻring.",
-    "demoAccess": "Demo kirish"
+    "demoAccess": "Demo kirish",
+    "tenantSlug": "Tashkilot",
+    "tenantSlugPlaceholder": "tashkilot slugi (masalan, acme-corp)",
+    "errorAmbiguousTenant": "Bunday login bir nechta tashkilotda mavjud. Tashkilot slugini kiriting."
   },
   "home": {
     "tabOverview": "Umumiy",

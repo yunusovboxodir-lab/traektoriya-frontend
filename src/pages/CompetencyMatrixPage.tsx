@@ -1,5 +1,6 @@
 import type React from 'react';
 import { useEffect, useState, useMemo } from 'react';
+import { isAxiosError } from 'axios';
 import { useAuthStore } from '../stores/authStore';
 import { useLangStore } from '../stores/langStore';
 import {
@@ -118,6 +119,7 @@ export function CompetencyMatrixPage() {
   const [mode, setMode] = useState<'personal' | 'team'>('personal');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [userMatrix, setUserMatrix] = useState<UserMatrix | null>(null);
   const [teamMatrix, setTeamMatrix] = useState<TeamMatrixResponse | null>(null);
   const [search, setSearch] = useState('');
@@ -143,6 +145,7 @@ export function CompetencyMatrixPage() {
   const loadData = async () => {
     setLoading(true);
     setError(null);
+    setNotFound(false);
     try {
       if (mode === 'personal') {
         const res = await competencyMatrixApi.getUserMatrix(user?.id || '');
@@ -152,8 +155,14 @@ export function CompetencyMatrixPage() {
         setTeamMatrix(res.data);
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setError(msg);
+      // 404 = матрица для юзера ещё не заполнена: это не ошибка, а пустое
+      // состояние (баг-хант 2026-07-12: красный баннер с сырым axios-текстом).
+      if (isAxiosError(err) && err.response?.status === 404) {
+        setNotFound(true);
+      } else {
+        const msg = err instanceof Error ? err.message : String(err);
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -218,6 +227,24 @@ export function CompetencyMatrixPage() {
               <div key={i} className="h-12 rounded" style={{ background: 'var(--bg-elevated)' }} />
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="p-6 max-w-[1400px] mx-auto">
+        <h1 className="text-2xl font-bold mb-6" style={{ color: 'var(--text-primary)' }}>
+          {t('Матрица компетенций', 'Kompetensiyalar matritsasi')}
+        </h1>
+        <div className="rounded-xl p-10 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          <p className="font-medium mb-1" style={{ color: 'var(--text-primary)' }}>
+            {t('Матрица ещё не заполнена', 'Matritsa hali toʻldirilmagan')}
+          </p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            {t('Она появится после первой оценки компетенций.', 'U kompetensiyalar birinchi baholanganidan keyin paydo boʻladi.')}
+          </p>
         </div>
       </div>
     );

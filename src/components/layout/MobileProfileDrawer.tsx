@@ -60,6 +60,7 @@ export function MobileProfileDrawer({ onClose }: Props) {
     isPageAllowed,
     isAdmin: isAdminRole(role),
     isSuperOrAdmin: isSuperOrAdminRole(role),
+    isSuperadmin: role === 'superadmin',
   });
 
   const userName = user?.full_name || '—';

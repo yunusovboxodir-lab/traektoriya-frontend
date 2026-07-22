@@ -49,6 +49,7 @@ export function MobileBottomNav() {
     isPageAllowed,
     isAdmin: isAdminRole(role),
     isSuperOrAdmin: isSuperOrAdminRole(role),
+    isSuperadmin: role === 'superadmin',
   });
   const tabs: NavTab[] = [...primary, DRAWER_TAB];
 

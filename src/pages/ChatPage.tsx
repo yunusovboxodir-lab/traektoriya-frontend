@@ -210,7 +210,10 @@ export function ChatPage() {
 
       {/* Input area */}
       <div className="flex-none px-4 py-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-card)' }}>
-        <div className="flex gap-2 max-w-4xl mx-auto">
+        {/* pr-16 на мобиле: плавающая кнопка «Сообщить» (fixed right-4 bottom-20)
+            перекрывала правую половину кнопки отправки - тапы уходили в камеру
+            (баг-хант 2026-07-12, mob 390px) */}
+        <div className="flex gap-2 max-w-4xl mx-auto pr-16 sm:pr-0">
           <textarea
             ref={inputRef}
             value={input}

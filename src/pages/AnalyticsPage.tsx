@@ -249,14 +249,16 @@ export function AnalyticsPage() {
             {t('analytics.subtitle')}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        {/* flex-wrap + shrink-0/nowrap: на 390px кнопка «Отчёт» сжималась flex'ом
+            до ~20px, а пилюля периода переносилась на две строки (баг-хант 2026-07-12) */}
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Period filter */}
-          <div className="flex bg-gray-100 rounded-lg p-0.5">
+          <div className="flex bg-gray-100 rounded-lg p-0.5 shrink-0">
             {PERIOD_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => setPeriod(opt.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                   period === opt.value
                     ? 'bg-white text-gray-900 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
@@ -269,7 +271,7 @@ export function AnalyticsPage() {
           {/* One-click report */}
           <button
             onClick={() => setShowReport(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shrink-0 whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -281,7 +283,7 @@ export function AnalyticsPage() {
             <button
               onClick={() => setExportMenu((v) => !v)}
               disabled={exporting}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors shrink-0 whitespace-nowrap"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

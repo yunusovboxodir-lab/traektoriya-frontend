@@ -75,9 +75,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
   const statCards: StatCardDef[] = [
     {
       label: t('analytics.users'),
-      value: ov(overview, 'users.total') || '---',
-      gradientFrom: 'from-blue-500',
-      gradientTo: 'to-blue-600',
+      value: ov(overview, 'users.total'),
       accentColor: 'var(--info)',
       accentBg: 'var(--info-bg)',
       icon: (
@@ -91,9 +89,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
     },
     {
       label: t('analytics.courses'),
-      value: ov(overview, 'courses.total') || '---',
-      gradientFrom: 'from-emerald-500',
-      gradientTo: 'to-emerald-600',
+      value: ov(overview, 'courses.total'),
       accentColor: 'var(--success)',
       accentBg: 'var(--success-bg)',
       icon: (
@@ -105,9 +101,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
     },
     {
       label: t('analytics.tasks'),
-      value: ov(overview, 'tasks.total') || '---',
-      gradientFrom: 'from-amber-500',
-      gradientTo: 'to-amber-600',
+      value: ov(overview, 'tasks.total'),
       accentColor: 'var(--warning)',
       accentBg: 'var(--warning-bg)',
       icon: (
@@ -120,11 +114,9 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
     },
     {
       label: t('analytics.products'),
-      value: ov(overview, 'products.total') || '---',
-      gradientFrom: 'from-purple-500',
-      gradientTo: 'to-purple-600',
-      accentColor: 'var(--color-tp)',
-      accentBg: 'var(--color-tp-bg)',
+      value: ov(overview, 'products.total'),
+      accentColor: 'var(--info)',
+      accentBg: 'var(--info-bg)',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
           <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
@@ -209,7 +201,9 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {leaderboard.length > 0 && (
         <>
           <SectionTitle title={t('analytics.leaderboard')} />
-          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+          {/* px-4 на контейнере: без него первая и последняя колонки лежали
+              вплотную к скруглённым краям карточки (репорт владельца 2026-07-12) */}
+          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto px-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -280,14 +274,12 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                 value={learning.completion_rate ?? learning.avg_completion_rate ?? 0}
                 max={100}
                 suffix="%"
-                color="bg-blue-500"
               />
               <MetricBar
                 label={t('analytics.avgScore')}
                 value={learning.average_score ?? 0}
                 max={100}
                 suffix="%"
-                color="bg-green-500"
               />
               <MetricValue
                 label={t('analytics.activeLearners')}
@@ -398,7 +390,6 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                 value={productStats.average_test_score ?? productStats.test_stats?.avg_score ?? 0}
                 max={100}
                 suffix="%"
-                color="bg-purple-500"
               />
               <MetricValue
                 label={t('analytics.testsCompleted')}
@@ -406,7 +397,9 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
               />
             </div>
             <div className="mb-8" style={{ borderTop: '1px solid var(--border)' }} />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Без категорий сетка 2 колонок оставляла дыру справа от бублика —
+                вторая колонка включается только когда есть чем её заполнить. */}
+            <div className={`grid grid-cols-1 gap-8 mb-8 ${brandBars.length > 0 ? 'lg:grid-cols-2' : ''}`}>
               <div className="flex flex-col items-center">
                 <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
                   {t('analytics.hpvCoverage')}

@@ -28,6 +28,8 @@ export interface NavDestination {
   mobilePrimary?: boolean;
   /** Доступен только superadmin/admin (напр. AI-Студия — инструменты тренера). */
   superAdminOnly?: boolean;
+  /** Строго платформенный superadmin (мультиорг-консоль организаций). */
+  superadminStrictOnly?: boolean;
   /** Показывать серым с замком (заморожен). Сейчас никто не заморожен. */
   frozen?: boolean;
   /** (Пункт 2, онбординг) минимальный тир Мощи для раскрытия. Не задан → виден всегда. */
@@ -62,6 +64,8 @@ export const NAV_REGISTRY: NavDestination[] = [
   // Обратная связь — репорты со скринами (вкладка reports в Аналитике).
   { pageKey: 'analytics',     path: '/analytics?tab=reports', labelKey: 'nav.feedback',     icon: '🗣️', group: 'admin' },
   { pageKey: 'admin-roles',   path: '/admin/roles',           labelKey: 'nav.settings',     icon: '⚙️', group: 'admin' },
+  // Организации (мультиорг): онбординг новых орг, только платформенный superadmin.
+  { pageKey: 'admin-roles',   path: '/admin/organizations',   labelKey: 'nav.organizations', icon: '🏢', group: 'admin', superadminStrictOnly: true },
   // Здоровье платформы — витрина движка самоулучшения (гейтинг как у ролей).
   // Скрыта из меню до go-live (флаг выше). Маршрут /engine-health работает по прямому URL.
   ...(ENGINE_HEALTH_NAV_ENABLED
@@ -91,6 +95,8 @@ export interface NavVisibilityCtx {
   isPageAllowed: (pageKey: string) => boolean;
   isAdmin: boolean;
   isSuperOrAdmin: boolean;
+  /** Строго платформенный superadmin (для superadminStrictOnly-пунктов). */
+  isSuperadmin?: boolean;
 }
 
 /**
@@ -102,6 +108,7 @@ export function isNavVisible(d: NavDestination, ctx: NavVisibilityCtx): boolean 
   if (!ctx.isPageAllowed(d.pageKey)) return false;
   if (d.group === 'admin' && !ctx.isAdmin) return false;
   if (d.superAdminOnly && !ctx.isSuperOrAdmin) return false;
+  if (d.superadminStrictOnly && !ctx.isSuperadmin) return false;
   if (d.frozen && !ctx.isAdmin) return false;
   return true;
 }
@@ -109,6 +116,29 @@ export function isNavVisible(d: NavDestination, ctx: NavVisibilityCtx): boolean 
 /** Видимые разделы для десктоп-дропдауна (main, затем admin). */
 export function visibleDesktopItems(ctx: NavVisibilityCtx): NavDestination[] {
   return NAV_REGISTRY.filter((d) => isNavVisible(d, ctx));
+}
+
+/**
+ * Активность пункта с учётом query-строки. Нужна пунктам вида
+ * `/analytics?tab=reports` («Обратная связь»): раньше сравнивался только
+ * pathname, поэтому на ?tab=reports подсвечивалась «Аналитика», а сама
+ * «Обратная связь» не подсвечивалась никогда (репорт владельца 2026-07-12).
+ * Правило: пункт-запрос активен при совпадении всех его параметров;
+ * обычный пункт уступает более точному пункту-запросу с тем же base-путём.
+ */
+export function isDestinationActive(d: NavDestination, pathname: string, search: string): boolean {
+  const [base, query] = d.path.split('?');
+  if (!(pathname === base || pathname.startsWith(base + '/'))) return false;
+  const current = new URLSearchParams(search);
+  if (query) {
+    return [...new URLSearchParams(query)].every(([k, v]) => current.get(k) === v);
+  }
+  return !NAV_REGISTRY.some((o) => {
+    if (o.path === d.path) return false;
+    const [ob, oq] = o.path.split('?');
+    return !!oq && ob === base &&
+      [...new URLSearchParams(oq)].every(([k, v]) => current.get(k) === v);
+  });
 }
 
 /** Нижние табы мобайла (mobilePrimary). Drawer-кнопка добавляется в самом компоненте. */

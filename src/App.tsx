@@ -36,6 +36,7 @@ const PlanogramPage = lazyWithRetry(() => import('./pages/PlanogramPage').then(m
 const AnalyticsPage = lazyWithRetry(() => import('./pages/AnalyticsPage').then(m => ({ default: m.AnalyticsPage })));
 const GoalsPage = lazyWithRetry(() => import('./pages/GoalsPage').then(m => ({ default: m.GoalsPage })));
 const RolesPage = lazyWithRetry(() => import('./pages/RolesPage').then(m => ({ default: m.RolesPage })));
+const OrganizationsPage = lazyWithRetry(() => import('./pages/OrganizationsPage').then(m => ({ default: m.OrganizationsPage })));
 const PulsePipelinePage = lazyWithRetry(() => import('./pages/PulsePipelinePage').then(m => ({ default: m.PulsePipelinePage })));
 const OfflinePage = lazyWithRetry(() => import('./pages/OfflinePage').then(m => ({ default: m.OfflinePage })));
 const OfflineProgramsPage = lazyWithRetry(() => import('./pages/OfflineProgramsPage').then(m => ({ default: m.OfflineProgramsPage })));
@@ -156,10 +157,15 @@ function SmartRedirect() {
   const getFirstAllowedPath = useScopeStore((state) => state.getFirstAllowedPath);
 
   if (!isAuthenticated) {
-    // Лендинг — статическая страница (public/landing.html), Vercel отдаёт её по /landing.
-    // Нужен полноценный переход браузера (а не client-side <Navigate>), чтобы
-    // загрузился статический HTML с его собственным Three.js, а не маршрут React.
-    window.location.replace('/landing');
+    // Лендинг — статическая страница public/landing.html. Редиректим на сам
+    // файл (.html), а не на красивый /landing: реврайт /landing→landing.html
+    // существует только на Vercel (vercel.json). В vite dev и за nginx (Eskiz)
+    // /landing проваливался обратно в SPA → этот же редирект → бесконечная
+    // перезагрузка («мигание», 2600+ запросов — репорт владельца 2026-07-12).
+    // Прямой .html обслуживается статикой в любом окружении и зациклиться
+    // не может. Нужен полноценный переход браузера (не <Navigate>), чтобы
+    // загрузился статический HTML со своим Three.js, а не маршрут React.
+    window.location.replace('/landing.html');
     return <PageLoader />;
   }
   return <Navigate to={getFirstAllowedPath()} replace />;
@@ -504,6 +510,17 @@ function AppRoutes() {
         element={
           <ProtectedRoute pageKey="admin-roles">
             <RolesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Организации (мультиорг-консоль): пункт меню виден только superadmin,
+          бэк дополнительно гейтит 403 (require_role superadmin) */}
+      <Route
+        path="/admin/organizations"
+        element={
+          <ProtectedRoute pageKey="admin-roles">
+            <OrganizationsPage />
           </ProtectedRoute>
         }
       />

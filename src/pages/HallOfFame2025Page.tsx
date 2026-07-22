@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLangStore } from '../stores/langStore';
+import { useTenantStore } from '../stores/tenantStore';
 import { StatusBar } from '../components/tactical/StatusBar';
 import { CHAMPIONSHIP_2025, type HofTeam } from '../data/championship2025';
 import '../styles/tactical-design.css';
@@ -37,8 +38,16 @@ export function HallOfFame2025Page() {
   const lang = useLangStore((s) => s.lang);
   const navigate = useNavigate();
   const [cat, setCat] = useState(0);
+  const tenant = useTenantStore((s) => s.tenant);
+  const tenantLoaded = useTenantStore((s) => s.loaded);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
+  // Зал славы 2025 это легаси-контент корневой орг (N'Medov). Другим орг не показываем.
+  const isRoot = tenant?.is_root === true;
 
-  useEffect(() => { injectFonts(); }, []);
+  useEffect(() => { injectFonts(); fetchTenant(); }, [fetchTenant]);
+  useEffect(() => {
+    if (tenantLoaded && !isRoot) navigate('/learning', { replace: true });
+  }, [tenantLoaded, isRoot, navigate]);
 
   const category = CHAMPIONSHIP_2025.categories[cat];
   const catName = (i: number) => {
@@ -47,6 +56,9 @@ export function HallOfFame2025Page() {
   };
   const medals = ['🥇', '🥈', '🥉'];
   const podiumOrder = [1, 0, 2]; // 2-е, 1-е, 3-е — классический подиум
+
+  // Не рендерим чужой контент, пока не подтвердили корневую орг.
+  if (!tenantLoaded || !isRoot) return null;
 
   return (
     <div className="tactical-root" style={{ paddingBottom: 60 }}>

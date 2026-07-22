@@ -13,8 +13,9 @@ export interface CategoryBreakdown {
 export interface StatCardDef {
   label: string;
   value: number | string;
-  gradientFrom: string;
-  gradientTo: string;
+  /** Декоративный градиент-полоска убран (dataviz-ревизия 2026-07-12); поля опциональны для старых вызовов. */
+  gradientFrom?: string;
+  gradientTo?: string;
   /** Legacy Tailwind classes — kept for TS compat but overridden by accentColor/accentBg */
   bgLight?: string;
   textColor?: string;
@@ -29,16 +30,10 @@ export interface StatCardDef {
 // Constants
 // ---------------------------------------------------------------------------
 
-export const BAR_COLORS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-purple-500',
-  'bg-rose-500',
-  'bg-cyan-500',
-  'bg-orange-500',
-  'bg-indigo-500',
-];
+/* Радужный цикл BAR_COLORS убран (dataviz-ревизия 2026-07-12): один показатель
+   по категориям = одна последовательная краска, а не категориальная палитра.
+   Идентичность несут подписи строк, не цвет. */
+export const BAR_COLOR = 'var(--info)';
 
 // ---------------------------------------------------------------------------
 // Section title with divider
@@ -64,9 +59,6 @@ export function StatCard({ card }: { card: StatCardDef }) {
   const iconColor = card.accentColor ?? undefined;
   return (
     <div className="relative overflow-hidden rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-      <div
-        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradientFrom} ${card.gradientTo}`}
-      />
       <div className="flex items-center justify-between mb-3">
         <div
           className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center"
@@ -75,7 +67,8 @@ export function StatCard({ card }: { card: StatCardDef }) {
           {card.icon}
         </div>
       </div>
-      <div className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: iconColor }}>
+      {/* Значение — чернилами, не цветом серии: цвет несёт иконка-чип (dataviz-ревизия 2026-07-12) */}
+      <div className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
         {card.value}
       </div>
       <div className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{card.label}</div>
@@ -110,7 +103,7 @@ export function DonutChart({ total, filled }: { total: number; filled: number })
       <svg width="180" height="180" viewBox="0 0 180 180" className="-rotate-90">
         <circle cx="90" cy="90" r={radius} fill="none" stroke="var(--bg-elevated)" strokeWidth="16" />
         <circle
-          cx="90" cy="90" r={radius} fill="none" stroke="#8b5cf6" strokeWidth="16"
+          cx="90" cy="90" r={radius} fill="none" stroke={BAR_COLOR} strokeWidth="16"
           strokeLinecap="round" strokeDasharray={circumference}
           strokeDashoffset={animated ? offset : circumference}
           style={{ transition: 'stroke-dashoffset 1s ease-out' }}
@@ -138,19 +131,19 @@ export function HorizontalBarChart({ categories }: { categories: CategoryBreakdo
     <div className="space-y-3">
       {categories.map((cat, i) => {
         const widthPct = (cat.count / maxValue) * 100;
-        const barColor = BAR_COLORS[i % BAR_COLORS.length];
         return (
           <div key={`${cat.name}-${i}`} className="flex items-center gap-3">
             <span className="text-xs sm:text-sm w-20 sm:w-28 text-right shrink-0 truncate" style={{ color: 'var(--text-secondary)' }}>
               {cat.name}
             </span>
-            <div className="flex-1 h-6 rounded-md overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
+            <div className="flex-1 h-4 rounded overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
               <div
-                className={`h-full rounded-md ${barColor} transition-all duration-700 ease-out`}
-                style={{ width: `${widthPct}%` }}
+                className="h-full rounded transition-all duration-700 ease-out"
+                style={{ width: `${widthPct}%`, background: BAR_COLOR }}
               />
             </div>
-            <span className="text-sm font-semibold w-6 text-right shrink-0" style={{ color: 'var(--text-secondary)' }}>
+            {/* w-10: трёхзначные значения не обрезались (раньше w-6) */}
+            <span className="text-sm font-semibold w-10 text-right shrink-0" style={{ color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
               {cat.count}
             </span>
           </div>
@@ -165,22 +158,23 @@ export function HorizontalBarChart({ categories }: { categories: CategoryBreakdo
 // ---------------------------------------------------------------------------
 
 export function MetricBar({
-  label, value, max, suffix, color,
+  label, value, max, suffix,
 }: {
-  label: string; value: number; max: number; suffix?: string; color: string;
+  label: string; value: number; max: number; suffix?: string;
+  /** color-проп убран: все метры одного вида красятся одной краской (BAR_COLOR) */
 }) {
   const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0;
   return (
     <div>
       <p className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
-      <p className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
+      <p className="text-xl font-bold mb-2" style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
         {typeof value === 'number' ? Math.round(value) : value}
         {suffix}
       </p>
       <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
         <div
-          className={`h-full rounded-full ${color} transition-all duration-500`}
-          style={{ width: `${pct}%` }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${pct}%`, background: BAR_COLOR }}
         />
       </div>
     </div>
@@ -201,35 +195,30 @@ export function MetricValue({ label, value }: { label: string; value: number | s
 // ---------------------------------------------------------------------------
 
 export function LmsMetricCard({
-  label, value, suffix, target, color, desc,
+  label, value, suffix, target, desc,
 }: {
-  label: string; value: number; suffix: string; target: number; color: string; desc: string;
+  label: string; value: number; suffix: string; target: number; desc: string;
+  /** color-проп убран (dataviz-ревизия 2026-07-12): значение чернилами,
+      прогресс к цели одной краской, статус «достигнуто» — зелёным семантически. */
+  color?: string;
 }) {
-  const colorMap: Record<string, { accentColor: string; bar: string; gradient: string }> = {
-    blue:    { accentColor: 'var(--info)',     bar: 'bg-blue-500',    gradient: 'from-blue-500 to-blue-600' },
-    emerald: { accentColor: 'var(--success)',  bar: 'bg-emerald-500', gradient: 'from-emerald-500 to-emerald-600' },
-    amber:   { accentColor: 'var(--warning)',  bar: 'bg-amber-500',   gradient: 'from-amber-500 to-amber-600' },
-    purple:  { accentColor: 'var(--color-tp)', bar: 'bg-purple-500',  gradient: 'from-purple-500 to-purple-600' },
-  };
-  const c = colorMap[color] || colorMap.blue;
   const achieved = value >= target;
 
   return (
     <div className="relative overflow-hidden rounded-xl p-5 shadow-sm" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-      <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${c.gradient}`} />
       <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{label}</p>
       <div className="flex items-baseline gap-1 mb-1">
-        <span className="text-2xl font-bold" style={{ color: c.accentColor }}>
+        <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>
           {typeof value === 'number' ? Math.round(value) : value}
         </span>
-        {suffix && <span className="text-sm" style={{ color: c.accentColor }}>{suffix}</span>}
+        {suffix && <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{suffix}</span>}
       </div>
       <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{desc}</p>
       <div className="flex items-center gap-2">
         <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-elevated)' }}>
           <div
-            className={`h-full rounded-full ${c.bar} transition-all duration-500`}
-            style={{ width: `${Math.min((value / target) * 100, 100)}%` }}
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${Math.min((value / target) * 100, 100)}%`, background: achieved ? 'var(--success)' : BAR_COLOR }}
           />
         </div>
         <span className="text-xs font-medium" style={{ color: achieved ? 'var(--success)' : 'var(--text-muted)' }}>

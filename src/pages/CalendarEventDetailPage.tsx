@@ -19,6 +19,7 @@
  *  - Если есть rescheduled_to_event_id — ссылка на новое событие
  */
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
 import { useAuthStore } from '../stores/authStore';
@@ -105,7 +106,13 @@ export function CalendarEventDetailPage() {
     trainingPlanApi
       .getEvent(eventId)
       .then((res) => setEvent(res.data))
-      .catch((e: Error) => setError(e.message))
+      // 404 = события нет: не ошибка, а достижимая ветка «Событие не найдено» ниже
+      // (баг-хант 2026-07-12: сырой axios-текст вместо заглушки)
+      .catch((e: unknown) => {
+        if (!(isAxiosError(e) && e.response?.status === 404)) {
+          setError('Не удалось загрузить событие. Попробуйте обновить страницу.');
+        }
+      })
       .finally(() => setLoading(false));
   }, [eventId, reloadKey]);
 
@@ -150,10 +157,17 @@ export function CalendarEventDetailPage() {
     );
   }
   if (error) {
-    return <div className="max-w-4xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;
+    return <div className="max-w-4xl mx-auto p-6 text-red-600">{error}</div>;
   }
   if (!event) {
-    return <div className="max-w-4xl mx-auto p-6">Событие не найдено</div>;
+    return (
+      <div className="max-w-4xl mx-auto p-6 text-center">
+        <p className="mb-4" style={{ color: 'var(--text-primary)' }}>Событие не найдено</p>
+        <button onClick={() => navigate('/training-plan')} className="text-sm underline" style={{ color: 'var(--info)' }}>
+          К плану обучения
+        </button>
+      </div>
+    );
   }
 
   const canComplete = canManage && ['planned', 'confirmed', 'in_progress'].includes(event.status);

@@ -14,6 +14,9 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Мультиорг: поле показывается только после 409 (employee_id в нескольких орг)
+  const [tenantSlug, setTenantSlug] = useState('');
+  const [needTenant, setNeedTenant] = useState(false);
 
   const { login } = useAuthStore();
   const navigate = useNavigate();
@@ -25,7 +28,7 @@ export function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(employeeId, password);
+      await login(employeeId, password, needTenant ? tenantSlug.trim() : undefined);
       navigate('/rating');
     } catch (err: unknown) {
       const axiosErr = err as {
@@ -39,6 +42,11 @@ export function LoginPage() {
       //  • 5xx → сервер временно недоступен.
       if (!axiosErr.response) {
         setError(t('login.errorNetwork'));
+      } else if (axiosErr.response.status === 409) {
+        // Мультиорг: такой employee_id есть в нескольких организациях —
+        // раскрываем поле слага и просим уточнить (бэк auth.py, PR #36)
+        setNeedTenant(true);
+        setError(t('login.errorAmbiguousTenant'));
       } else if (axiosErr.response.status === 401) {
         setError(axiosErr.response.data?.detail || t('login.errorCredentials'));
       } else if ((axiosErr.response.status ?? 0) >= 500) {
@@ -194,6 +202,33 @@ export function LoginPage() {
                 </button>
               </div>
             </div>
+
+            {/* Организация (мультиорг): виден только после 409 */}
+            {needTenant && (
+              <div>
+                <label
+                  className="block mb-1.5"
+                  style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.04em' }}
+                >
+                  {t('login.tenantSlug')}
+                </label>
+                <input
+                  type="text"
+                  value={tenantSlug}
+                  onChange={(e) => setTenantSlug(e.target.value)}
+                  placeholder={t('login.tenantSlugPlaceholder')}
+                  className="w-full py-2.5 px-4 text-sm outline-none transition-all"
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--radius-md)',
+                    color: 'var(--text-primary)',
+                  }}
+                  required
+                  autoFocus
+                />
+              </div>
+            )}
 
             {/* Error message */}
             {error && (

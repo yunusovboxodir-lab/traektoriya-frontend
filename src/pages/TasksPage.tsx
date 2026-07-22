@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { tasksApi, type Task, type KanbanBoard, type TaskStats, type DailyNormResponse } from '../api/tasks';
+import { tasksApi, type Task, type KanbanBoard, type DailyNormResponse } from '../api/tasks';
 import { usersApi, type UserListItem } from '../api/users';
 import { api } from '../api/client';
 import { useAuthStore } from '../stores/authStore';
@@ -12,9 +12,9 @@ import { formatDateShort, formatDateLong } from '../utils/formatDate';
 const MANAGER_ROLES = ['supervisor', 'admin', 'commercial_dir', 'regional_manager', 'superadmin'];
 
 const COLUMNS = [
-  { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-bg-muted', border: 'border-border-default', badge: 'bg-bg-muted0', dot: 'bg-fg-subtle' },
+  { key: 'todo', labelKey: 'tasks.columns.todo', color: 'bg-bg-muted', border: 'border-border-default', badge: 'bg-fg-subtle', dot: 'bg-fg-subtle' },
   { key: 'in_progress', labelKey: 'tasks.columns.in_progress', color: 'bg-status-info-bg', border: 'border-status-info-fg', badge: 'bg-status-info-fg', dot: 'bg-status-info-fg' },
-  { key: 'review', labelKey: 'tasks.columns.review', color: 'bg-status-warning-bg', border: 'border-status-warning-fg', badge: 'bg-status-warning-bg0', dot: 'bg-status-warning-fg' },
+  { key: 'review', labelKey: 'tasks.columns.review', color: 'bg-status-warning-bg', border: 'border-status-warning-fg', badge: 'bg-status-warning-fg', dot: 'bg-status-warning-fg' },
   { key: 'done', labelKey: 'tasks.columns.done', color: 'bg-status-success-bg', border: 'border-status-success-fg', badge: 'bg-status-success-fg', dot: 'bg-status-success-fg' },
 ] as const;
 
@@ -345,7 +345,6 @@ export function TasksPage() {
   const isManager = MANAGER_ROLES.includes(user?.role || '');
   const [scope, setScope] = useState<'my' | 'all'>('my');
   const [board, setBoard] = useState<KanbanBoard>({ todo: [], in_progress: [], review: [], done: [] });
-  const [stats, setStats] = useState<TaskStats>({ total: 0, todo: 0, in_progress: 0, done: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -376,20 +375,17 @@ export function TasksPage() {
       setError(null);
       const promises: Promise<unknown>[] = [
         tasksApi.getKanban(undefined, scope),
-        tasksApi.getStats(scope),
       ];
       if (isManager) promises.push(tasksApi.getDailyNorm());
 
       const results = await Promise.all(promises);
       setBoard((results[0] as { data: KanbanBoard }).data);
-      setStats((results[1] as { data: TaskStats }).data);
-      if (isManager && results[2]) {
-        setNorm((results[2] as { data: DailyNormResponse }).data);
+      if (isManager && results[1]) {
+        setNorm((results[1] as { data: DailyNormResponse }).data);
       }
     } catch {
       setError(t('tasks.errors.loadFailed'));
       setBoard({ todo: [], in_progress: [], review: [], done: [] });
-      setStats({ total: 0, todo: 0, in_progress: 0, done: 0 });
     } finally {
       setLoading(false);
     }
@@ -613,36 +609,16 @@ export function TasksPage() {
           {/* Mini progress bar */}
           <div className="w-24 h-2 bg-bg-muted rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all ${norm.all_met ? 'bg-status-success-bg0' : 'bg-status-warning-bg0'}`}
+              className={`h-full rounded-full transition-all ${norm.all_met ? 'bg-status-success-fg' : 'bg-status-warning-fg'}`}
               style={{ width: `${norm.norm_total ? ((norm.norm_met_count ?? 0) / norm.norm_total) * 100 : 0}%` }}
             />
           </div>
         </div>
       )}
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: t('tasks.stats.total'), value: stats.total, icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2', color: 'text-fg-muted', bg: 'bg-bg-muted' },
-          { label: t('tasks.stats.todo'), value: stats.todo, icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-fg-muted', bg: 'bg-bg-muted' },
-          { label: t('tasks.stats.inProgress'), value: stats.in_progress, icon: 'M13 10V3L4 14h7v7l9-11h-7z', color: 'text-status-info-fg', bg: 'bg-status-info-bg' },
-          { label: t('tasks.stats.done'), value: stats.done, icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', color: 'text-status-success-fg', bg: 'bg-status-success-bg' },
-        ].map((s) => (
-          <div key={s.label} className="bg-bg-surface rounded-xl border border-border-default p-4 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg ${s.bg} flex items-center justify-center ${s.color}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <path d={s.icon} />
-                </svg>
-              </div>
-              <div>
-                <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
-                <div className="text-xs text-fg-subtle">{s.label}</div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Ряд стат-карточек (Всего/К выполнению/В работе/Готово) убран — разгрузка
+          экрана 2026-07-11: те же числа уже на бейджах колонок канбана прямо под ним,
+          карточки только отодвигали доску (рабочую поверхность) ниже сгиба. */}
 
       {/* Create Task Modal */}
       {showCreate && (

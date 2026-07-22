@@ -1772,7 +1772,7 @@ function StepGenerate({
           </div>
           <div className="w-full bg-bg-muted rounded-full h-2.5">
             <div
-              className={`h-2.5 rounded-full transition-all duration-500 ${isGenerating ? 'bg-bg-accent' : 'bg-status-success-bg0'}`}
+              className={`h-2.5 rounded-full transition-all duration-500 ${isGenerating ? 'bg-bg-accent' : 'bg-status-success-fg'}`}
               style={{ width: `${pct}%` }}
             />
           </div>

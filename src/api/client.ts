@@ -121,8 +121,10 @@ api.interceptors.response.use(
 );
 
 export const authApi = {
-  login: (employee_id: string, password: string) =>
-    api.post('/api/v1/auth/login', { employee_id, password }),
+  // tenant_slug опционален: бэк требует его (409) только когда employee_id
+  // существует в нескольких организациях (мультиорг, PR #36 бэка)
+  login: (employee_id: string, password: string, tenant_slug?: string) =>
+    api.post('/api/v1/auth/login', tenant_slug ? { employee_id, password, tenant_slug } : { employee_id, password }),
   refresh: () => api.post('/api/v1/auth/refresh'),
   logout: () => api.post('/api/v1/auth/logout'),
   me: () => api.get('/api/v1/auth/me'),

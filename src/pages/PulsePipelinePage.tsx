@@ -258,7 +258,7 @@ function StepIndicator({ currentStep }: { currentStep: number }) {
           {idx < steps.length - 1 && (
             <div
               className={`flex-1 h-0.5 mx-2 ${
-                currentStep > step.num ? 'bg-status-success-bg0' : 'bg-bg-muted'
+                currentStep > step.num ? 'bg-status-success-fg' : 'bg-bg-muted'
               }`}
             />
           )}

@@ -49,7 +49,8 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, max, color = 'var(--brass)', level = 'LVL 2' }: ProgressBarProps) {
   const lang = useLangStore((s) => s.lang);
-  const pct = Math.round((value / max) * 100);
+  // max=0 давал NaN% и бар рисовался заполненным при «0/0 XP» (баг-хант 2026-07-12)
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>

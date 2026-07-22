@@ -23,6 +23,7 @@ export function GuidesPanel() {
   const userId = useAuthStore((s) => s.user?.id ?? s.user?.employee_id ?? 'anon');
   const userTier = useScopeStore((s) => s.userTier);
   const [active, setActive] = useState<PlatformGuide | null>(null);
+  const [expanded, setExpanded] = useState<boolean | null>(null);
   const [seen, setSeen] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem(`trj-guides-seen-${userId}`);
@@ -44,16 +45,34 @@ export function GuidesPanel() {
     });
   };
 
+  const unseenCount = guides.filter((g) => !seen.has(g.id)).length;
+
   return (
-    <div style={{ padding: '0 14px', marginBottom: 6 }}>
-      <div style={{
+    // Разгрузка экрана (UX 2026-07-11): ряд чипов свёрнут в нативный <details>.
+    // Пока есть непройденные гиды — открыт по умолчанию; все пройдены — одна строка.
+    // expanded===null → дефолт от unseenCount; после ручного клика — выбор юзера
+    // (иначе управляемый open захлопывал бы блок при ре-рендере markSeen).
+    <details
+      open={expanded ?? unseenCount > 0}
+      onToggle={(e) => setExpanded((e.target as HTMLDetailsElement).open)}
+      style={{ padding: '0 14px', marginBottom: 6 }}
+    >
+      <summary className="guides-summary" style={{
         display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
         fontSize: 11, fontWeight: 600, letterSpacing: '0.12em',
         color: 'var(--text-muted)', textTransform: 'uppercase',
+        cursor: 'pointer', listStyle: 'none', width: 'fit-content',
+        minHeight: 24,
       }}>
         <span aria-hidden="true">🎁</span>
         {lang === 'uz' ? 'Platforma bo‘yicha gid' : 'Гид по платформе'}
-      </div>
+        <span style={{ opacity: 0.75, letterSpacing: '0.02em', textTransform: 'none' }}>
+          {unseenCount > 0
+            ? `· ${guides.length - unseenCount}/${guides.length}`
+            : `· ${guides.length} ✓`}
+        </span>
+        <span aria-hidden="true" style={{ fontSize: 9 }}>▾</span>
+      </summary>
 
       <div style={{
         display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4,
@@ -89,6 +108,6 @@ export function GuidesPanel() {
           onClose={() => { markSeen(active.id); setActive(null); }}
         />
       )}
-    </div>
+    </details>
   );
 }
