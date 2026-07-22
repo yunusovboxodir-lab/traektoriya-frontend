@@ -26,7 +26,7 @@ export function BlockCard({ accent, accentSoft, label, className = '', children 
     <div className="animate-slideUp">
       {label && (
         <div
-          className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
+          className="inline-flex items-center gap-1 text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-xl mx-4 mt-3.5 mb-1.5"
           style={{ color: accent, background: accentSoft }}
         >
           {label}

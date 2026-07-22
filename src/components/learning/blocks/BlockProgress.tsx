@@ -19,7 +19,7 @@ export function BlockProgressBar({ title, subtitle, current, total, accent }: Bl
       style={{ background: `linear-gradient(135deg, ${accent}, var(--color-bg-surface-raised))` }}
     >
       <div className="text-white text-sm font-semibold">{bl(title, lang)}</div>
-      {subtitle && <div className="text-white/70 text-[10px] mt-0.5">{bl(subtitle, lang)}</div>}
+      {subtitle && <div className="text-white/70 text-xs mt-0.5">{bl(subtitle, lang)}</div>}
       <div className="mt-2.5 h-1 bg-white/20 rounded-full overflow-hidden">
         <div
           className="h-full bg-bg-accent rounded-full transition-all duration-500 ease-out"

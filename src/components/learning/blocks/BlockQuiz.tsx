@@ -46,7 +46,7 @@ export function BlockQuiz({ data, accent, accentSoft, onAnswer, onReady }: Props
   return (
     <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'✅'} {t.blocks.finalQuestion}</>}>
         {questions.length > 1 && (
-          <div className="text-[11px] text-fg-subtle mb-1.5">
+          <div className="text-xs text-fg-subtle mb-1.5">
             {t.blocks.question} {qIndex + 1} {t.blocks.of} {questions.length}
           </div>
         )}
@@ -71,10 +71,10 @@ export function BlockQuiz({ data, accent, accentSoft, onAnswer, onReady }: Props
               <div
                 key={i}
                 onClick={() => handleSelect(i)}
-                className={`flex items-start gap-2.5 p-3 border-2 rounded-xl cursor-pointer text-[13px] leading-snug
+                className={`flex items-start gap-2.5 p-3 border-2 rounded-xl cursor-pointer text-sm leading-snug
                   transition-all active:scale-[0.98] ${optClass} ${selected !== null ? 'pointer-events-none' : ''}`}
               >
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${letterClass}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${letterClass}`}>
                   {opt.letter}
                 </span>
                 <span>{bl(opt.text, lang)}</span>

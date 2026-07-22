@@ -227,8 +227,9 @@ export function TacticalLearningPage() {
             ) : nodes.length === 0 ? (
               <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
                 <div>{lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ'}</div>
+                {/* 13 → 14px; opacity с текста убран — иерархия токеном text-muted */}
                 {showRoleSelector && (
-                  <div style={{ marginTop: 16, fontSize: 13, letterSpacing: '0.05em', textTransform: 'none', opacity: 0.7 }}>
+                  <div style={{ marginTop: 16, fontSize: 14, letterSpacing: '0.05em', textTransform: 'none', color: 'var(--text-muted)' }}>
                     {lang === 'uz'
                       ? 'Yuqoridagi rol tanlovchi orqali boshqa rolni tanlang.'
                       : 'Выберите другую роль через переключатель в шапке.'}
@@ -320,11 +321,12 @@ export function TacticalLearningPage() {
                       }}
                     >
                       <span style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: 1 }}>
-                        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-2)', letterSpacing: '0.15em' }}>
+                        {/* КУРС N — HUD-микрометка: 10 → 11px; заголовок 13 → 14 (ellipsis есть) */}
+                        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--text-2)', letterSpacing: '0.15em' }}>
                           {lang === 'uz' ? `KURS ${i + 1}` : `КУРС ${i + 1}`}
                         </span>
                         {h.course_title && (
-                          <span style={{ fontSize: 13, color: 'var(--text-0)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: 14, color: 'var(--text-0)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {h.course_title}
                           </span>
                         )}
@@ -417,7 +419,7 @@ function RoleSelector({
           border: 'none',
           outline: 'none',
           fontFamily: 'inherit',
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: 600,
           cursor: 'pointer',
         }}

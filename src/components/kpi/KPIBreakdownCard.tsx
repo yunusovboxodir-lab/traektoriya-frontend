@@ -65,20 +65,19 @@ function ComponentRow({
     <div style={{ marginBottom: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</span>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)', opacity: 0.75 }}>{weight}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{weight}</span>
           {showProxy && (
             <span
               title="Предварительное значение — прокси до интеграции CRM (SalesDoctor)"
               style={{
-                fontSize: 10,
+                fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: '0.04em',
                 padding: '1px 5px',
                 borderRadius: 4,
                 border: '1px solid var(--warning, #fbbf24)',
                 color: 'var(--warning, #fbbf24)',
-                opacity: 0.85,
                 whiteSpace: 'nowrap',
               }}
             >
@@ -91,7 +90,7 @@ function ComponentRow({
             {value.toFixed(1)}
           </span>
           {contribution !== undefined && (
-            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+            <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
               (+{contribution.toFixed(1)})
             </span>
           )}
@@ -134,7 +133,7 @@ function FallbackView({ record }: { record: KPIRecord }) {
     <>
       <div
         style={{
-          fontSize: 11,
+          fontSize: 12,
           color: 'var(--warning, #fbbf24)',
           marginBottom: 10,
           padding: '5px 8px',
@@ -228,7 +227,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
           border: '1px solid var(--danger-border, rgba(239,68,68,0.3))',
           background: 'var(--danger-bg, rgba(239,68,68,0.07))',
           padding: 14,
-          fontSize: 13,
+          fontSize: 14,
           color: 'var(--danger, #ef4444)',
         }}
       >
@@ -245,7 +244,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
           border: '1px solid var(--border)',
           background: 'var(--bg-card)',
           padding: 14,
-          fontSize: 13,
+          fontSize: 14,
           color: 'var(--text-muted)',
         }}
       >
@@ -280,13 +279,13 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
       {/* Заголовок */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
             KPI периода
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
             {periodLabel}
             {bd?.formula && (
-              <span style={{ marginLeft: 6, opacity: 0.6 }}>· v2.0</span>
+              <span style={{ marginLeft: 6 }}>· v2.0</span>
             )}
           </div>
         </div>
@@ -302,7 +301,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
           >
             {record.total_kpi.toFixed(1)}
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
             {bd?.streak_bonus && bd.streak_bonus > 1
               ? `+${((bd.streak_bonus - 1) * 100).toFixed(0)}% серия`
               : 'без серии'}
@@ -361,9 +360,8 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
             <div
               style={{
                 marginTop: 10,
-                fontSize: 11,
+                fontSize: 12,
                 color: 'var(--text-muted)',
-                opacity: 0.75,
                 lineHeight: 1.5,
               }}
             >
@@ -383,9 +381,8 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
             marginTop: 12,
             paddingTop: 10,
             borderTop: '1px solid var(--border)',
-            fontSize: 10,
+            fontSize: 12,
             color: 'var(--text-muted)',
-            opacity: 0.6,
             letterSpacing: '0.02em',
           }}
         >

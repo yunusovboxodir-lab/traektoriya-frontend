@@ -297,7 +297,7 @@ export function TeamPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-semibold text-gray-900 truncate">{m.full_name || m.employee_id}</span>
-                        <span className="text-[10px] px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded font-mono">#{m.employee_id}</span>
+                        <span className="text-xs px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded font-mono">#{m.employee_id}</span>
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${roleStyle.bg} ${roleStyle.text}`}>
                           {t(roleStyle.labelKey)}
                         </span>

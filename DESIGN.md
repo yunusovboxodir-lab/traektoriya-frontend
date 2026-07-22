@@ -138,6 +138,17 @@ a planned ESLint rule `no-tactical-fonts-outside-overlay` (not yet implemented).
 unitless line-height · letter-spacing `-0.01em` for headings ≥24px · `uz-Latn`: `hyphens: auto; word-break:
 break-word` · input font-size ≥16px on mobile (prevents iOS zoom).
 
+🔴 **Readability floor (2026-07-22, benchmark app.shelfscan.uz — Codex 01c §3 rules 7–10):**
+- **12px floor.** No text below `text-xs`. Only exceptions (tactical whitelist zones): HUD micro-labels
+  (uppercase + letter-spacing ≥0.1em) ≥11px; `RingProgress` inner label ≥10px if ring geometry demands.
+- **No opacity on text.** Hierarchy via size + color token (`--text-secondary`/`--text-muted`), never
+  `opacity-50/60/70` or inline `opacity` on text elements.
+- **12px = captions only** (labels, badges, KPI captions, axis ticks). Content — table cells, people lists,
+  buttons, values — is `text-sm` (14px) minimum; body text `text-base`. `text-xs` as default-for-everything
+  is an anti-pattern.
+- **KPI pattern:** number 28–32px/600–800 + caption 12px/500/uppercase/+0.04em in a full-opacity secondary
+  token. Hierarchy comes from the ×2.5 size contrast, not from dimming the caption.
+
 **Motion:** `--duration-instant/fast120/base200/slow320`; animate only `opacity`/`transform`, never
 `width/height/top/left`; `prefers-reduced-motion` must be respected everywhere including game layer.
 

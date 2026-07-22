@@ -1319,15 +1319,15 @@ function CourseView({
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <div className="bg-blue-50 rounded-xl py-3 px-2">
                   <p className="text-lg font-bold text-blue-600">{(lang === 'uz' ? LEVEL_NAMES_UZ[completionResult.new_level] : LEVEL_NAMES[completionResult.new_level]) || completionResult.new_level}</p>
-                  <p className="text-[10px] text-blue-400 uppercase tracking-wide">{t('learning.level')}</p>
+                  <p className="text-xs text-blue-400 uppercase tracking-wide">{t('learning.level')}</p>
                 </div>
                 <div className="bg-emerald-50 rounded-xl py-3 px-2">
                   <p className="text-lg font-bold text-emerald-600">{completionResult.total_courses_completed}</p>
-                  <p className="text-[10px] text-emerald-400 uppercase tracking-wide">{t('learning.passed')}</p>
+                  <p className="text-xs text-emerald-400 uppercase tracking-wide">{t('learning.passed')}</p>
                 </div>
                 <div className="bg-amber-50 rounded-xl py-3 px-2">
                   <p className="text-lg font-bold text-amber-600">{completionResult.streak_days} {t('learning.days')}</p>
-                  <p className="text-[10px] text-amber-400 uppercase tracking-wide">{t('learning.streak')}</p>
+                  <p className="text-xs text-amber-400 uppercase tracking-wide">{t('learning.streak')}</p>
                 </div>
               </div>
 

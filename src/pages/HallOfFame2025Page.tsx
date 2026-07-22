@@ -128,7 +128,7 @@ export function HallOfFame2025Page() {
                 </div>
                 <div style={{ fontFamily: 'Cinzel, serif', fontSize: 19, fontWeight: 700, margin: '8px 0 2px', color: 'var(--text-0)' }}>{t.team}</div>
                 <div style={{ color: 'var(--text-1)', fontSize: 12.5 }}>{t.supervisor}</div>
-                <div style={{ color: 'var(--text-2)', fontSize: 11, marginTop: 2 }}>{t.dealer}</div>
+                <div style={{ color: 'var(--text-2)', fontSize: 12, marginTop: 2 }}>{t.dealer}</div>
                 <div style={{ fontFamily: MONO, fontWeight: 700, fontSize: 26, marginTop: 10, color: t.rank === 1 ? 'var(--gold)' : t.rank === 2 ? '#cdd6e3' : '#d08a4e' }}>
                   {pct(t.total)}
                 </div>
@@ -139,7 +139,8 @@ export function HallOfFame2025Page() {
 
         {/* Рейтинг */}
         <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+          {/* 13.5 → 14: пол читабельности; Mono на числах в строках легален с 14px */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
             <thead>
               <tr>
                 {th('#', 'center')}
@@ -158,7 +159,7 @@ export function HallOfFame2025Page() {
           </table>
         </div>
 
-        <div style={{ textAlign: 'center', color: 'var(--text-2)', fontSize: 11, marginTop: 22, fontFamily: MONO, letterSpacing: '.1em' }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-2)', fontSize: 12, marginTop: 22, fontFamily: MONO, letterSpacing: '.1em' }}>
           {lang === 'uz'
             ? "Tarixiy yozuv · N'Medov Kubogi 2025 qayd etilgan"
             : "Историческая запись · Кубок N'Medov 2025 зафиксирован"}
@@ -177,7 +178,8 @@ function Row({ t }: { t: HofTeam }) {
       <td style={{ padding: '11px 12px', color: 'var(--text-1)' }}>{t.supervisor}</td>
       <td style={{ padding: '11px 12px', color: 'var(--text-2)', fontSize: 12 }}>{t.dealer}</td>
       {t.months.map((m, i) => (
-        <td key={i} style={{ fontFamily: MONO, textAlign: 'center', color: m ? 'var(--text-1)' : 'var(--text-2)', opacity: m ? 1 : 0.45, padding: '11px 12px' }}>
+        /* opacity с текста убран — пустые месяцы приглушаем токеном text-muted */
+        <td key={i} style={{ fontFamily: MONO, textAlign: 'center', color: m ? 'var(--text-1)' : 'var(--text-muted)', padding: '11px 12px' }}>
           {pct(m)}
         </td>
       ))}
@@ -194,7 +196,7 @@ function Row({ t }: { t: HofTeam }) {
 function th(label: string, align: 'left' | 'center' = 'left') {
   return (
     <th style={{
-      fontFamily: MONO, fontSize: 10.5, letterSpacing: '.12em', textTransform: 'uppercase',
+      fontFamily: MONO, fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase',
       color: 'var(--text-2)', textAlign: align, padding: 12, fontWeight: 600,
       borderBottom: '1px solid var(--line)', background: 'var(--bg-overlay)',
     }}>{label}</th>

@@ -50,9 +50,9 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
 
         {!showFinale ? (
           <>
-            <div className="text-[11px] text-fg-subtle mb-2">{stepIndex + 1} / {data.steps.length}</div>
+            <div className="text-xs text-fg-subtle mb-2">{stepIndex + 1} / {data.steps.length}</div>
             <div
-              className="rounded-xl p-3 mb-3 text-[13px] leading-relaxed"
+              className="rounded-xl p-3 mb-3 text-sm leading-relaxed"
               style={{ background: accentSoft, color: 'oklch(0.20 0.02 265)' }}
             >
               {bl(step.scene, lang)}
@@ -69,7 +69,7 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
                   <div
                     key={i}
                     onClick={() => handlePick(i)}
-                    className={`p-3 border-2 rounded-xl cursor-pointer text-[13px] leading-snug
+                    className={`p-3 border-2 rounded-xl cursor-pointer text-sm leading-snug
                       transition-all active:scale-[0.98] ${optClass} ${picked !== null ? 'pointer-events-none' : ''}`}
                   >
                     {bl(opt.text, lang)}
@@ -96,7 +96,7 @@ export function BlockScenarioChain({ data, accent, accentSoft, onAnswer, onReady
             )}
           </>
         ) : (
-          <div className="rounded-xl p-4 text-[13px] leading-relaxed font-semibold bg-status-success-bg text-status-success-fg border-2 border-status-success-fg animate-fadeIn">
+          <div className="rounded-xl p-4 text-sm leading-relaxed font-semibold bg-status-success-bg text-status-success-fg border-2 border-status-success-fg animate-fadeIn">
             {bl(data.finale, lang)}
           </div>
         )}

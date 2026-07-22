@@ -106,7 +106,7 @@ function AchievementBadge({ item, earned }: { item: AchievementCatalogItem | Use
       <p className={`text-xs font-semibold leading-tight ${earned ? tc.text : 'text-gray-400'}`}>
         {item.title}
       </p>
-      <span className={`mt-1 text-[10px] px-2 py-0.5 rounded-full font-medium ${
+      <span className={`mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${
         earned ? `${tc.bg} ${tc.text}` : 'bg-gray-100 text-gray-400'
       }`}>
         {item.points} {t('goals.pts')}
@@ -168,14 +168,14 @@ export function GoalsPage() {
               <span className="text-xl">🏆</span>
               <div>
                 <p className="text-lg font-bold text-amber-700">{totalPoints}</p>
-                <p className="text-[10px] text-amber-600 leading-tight">{t('goals.points')}</p>
+                <p className="text-xs text-amber-600 leading-tight">{t('goals.points')}</p>
               </div>
             </div>
             <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl">
               <span className="text-xl">🎖️</span>
               <div>
                 <p className="text-lg font-bold text-blue-700">{achievements.length}</p>
-                <p className="text-[10px] text-blue-600 leading-tight">{t('goals.achievements')}</p>
+                <p className="text-xs text-blue-600 leading-tight">{t('goals.achievements')}</p>
               </div>
             </div>
           </div>

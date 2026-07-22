@@ -62,7 +62,7 @@ export function BlockFillBlank({ data, accent, accentSoft, onAnswer, onReady }: 
                 key={idx}
                 onClick={() => handleSelect(idx)}
                 disabled={selectedIdx !== null}
-                className={`px-4 py-2.5 rounded-full border-2 text-[13px] font-semibold transition-all
+                className={`px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-all
                   active:scale-95 disabled:pointer-events-none ${optClass}`}
               >
                 {bl(opt, lang)}

@@ -24,7 +24,7 @@ export function BlockKeyPoint({ data, accent, accentSoft, onReady }: Props) {
         <div className="text-[17px] font-extrabold text-center mb-2">{bl(data.title, lang)}</div>
 
         {data.body && (
-          <div className="text-[13px] leading-relaxed text-fg-muted text-center">{bl(data.body, lang)}</div>
+          <div className="text-sm leading-relaxed text-fg-muted text-center">{bl(data.body, lang)}</div>
         )}
 
         {/* Variant: number */}
@@ -34,7 +34,7 @@ export function BlockKeyPoint({ data, accent, accentSoft, onReady }: Props) {
               {bl(data.number, lang)}
             </div>
             {data.numberCaption && (
-              <div className="text-[13px] leading-relaxed text-fg-muted text-center">{bl(data.numberCaption, lang)}</div>
+              <div className="text-sm leading-relaxed text-fg-muted text-center">{bl(data.numberCaption, lang)}</div>
             )}
           </>
         )}
@@ -60,13 +60,13 @@ export function BlockKeyPoint({ data, accent, accentSoft, onReady }: Props) {
             {data.steps.map((step) => (
               <div key={step.num} className="flex items-center gap-2.5">
                 <span
-                  className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0"
+                  className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-sm font-extrabold shrink-0"
                   style={{ background: accentSoft, color: accent }}
                 >
                   {step.num}
                 </span>
                 <span
-                  className="text-[13px]"
+                  className="text-sm"
                   dangerouslySetInnerHTML={{ __html: bl(step.text, lang) }}
                 />
               </div>
@@ -76,7 +76,7 @@ export function BlockKeyPoint({ data, accent, accentSoft, onReady }: Props) {
 
         {/* Footnote */}
         {data.footnote && (
-          <div className="text-center mt-3 text-[11px] text-fg-subtle">{bl(data.footnote, lang)}</div>
+          <div className="text-center mt-3 text-xs text-fg-subtle">{bl(data.footnote, lang)}</div>
         )}
 
         {/* Callout */}

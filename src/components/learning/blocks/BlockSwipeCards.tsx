@@ -45,7 +45,7 @@ export function BlockSwipeCards({ data, accent, accentSoft, onAnswer, onReady }:
 
   return (
     <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u{1F446}'} {t.blocks.trueOrFalse}</>}>
-        <div className="text-[11px] text-fg-subtle text-center mb-3">
+        <div className="text-xs text-fg-subtle text-center mb-3">
           {t.blocks.evaluate} ({cardIndex + 1}/{data.cards.length})
         </div>
 

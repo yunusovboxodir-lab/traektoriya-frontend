@@ -50,7 +50,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
     <div className="bg-bg-surface rounded-xl shadow-sm border border-border-default p-4 hover:shadow-md hover:border-border-strong transition-all duration-200 group cursor-pointer" onClick={() => onCardClick(task)}>
       {/* Priority + Title */}
       <div className="flex items-start gap-2 mb-2">
-        <span className={`flex-shrink-0 mt-0.5 text-[10px] px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
+        <span className={`flex-shrink-0 mt-0.5 text-xs px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
           {t(PRIORITY_LABEL_KEYS[task.priority]) || task.priority}
         </span>
         <h4 className="font-medium text-sm text-fg-default leading-snug flex-1 group-hover:text-bg-accent transition-colors">
@@ -61,7 +61,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
       {/* Creator + Source */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         {task.creator_name && (
-          <span className="text-[10px] text-fg-subtle flex items-center gap-1">
+          <span className="text-xs text-fg-subtle flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -69,7 +69,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
           </span>
         )}
         {task.assignee_name && (
-          <span className="text-[10px] text-fg-subtle flex items-center gap-1">
+          <span className="text-xs text-fg-subtle flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -82,7 +82,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
           const sourceStyle = SOURCE_STYLES[sourceKey];
           if (!sourceStyle) return null;
           return (
-            <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
+            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
               {t(sourceStyle.labelKey) || sourceStyle.labelKey}
             </span>
           );
@@ -106,7 +106,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
             </span>
           )}
           {task.task_type && task.task_type !== 'other' && (
-            <span className="bg-bg-muted px-1.5 py-0.5 rounded text-[10px]">{t(`tasks.type.${task.task_type}`) || task.task_type}</span>
+            <span className="bg-bg-muted px-1.5 py-0.5 rounded text-xs">{t(`tasks.type.${task.task_type}`) || task.task_type}</span>
           )}
         </div>
 
@@ -116,7 +116,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
             <div className="w-14 h-1.5 bg-bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-bg-accent rounded-full transition-all duration-500" style={{ width: `${task.progress}%` }} />
             </div>
-            <span className="text-[10px] text-fg-subtle font-medium">{task.progress}%</span>
+            <span className="text-xs text-fg-subtle font-medium">{task.progress}%</span>
           </div>
         )}
       </div>
@@ -191,14 +191,14 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
         <div className="sticky top-0 bg-bg-surface border-b border-border-default px-6 py-4 flex items-start justify-between rounded-t-2xl">
           <div className="flex-1 pr-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
+              <span className={`text-xs px-1.5 py-0.5 rounded font-bold border ${style.bg} ${style.text} ${style.border}`}>
                 {t(PRIORITY_LABEL_KEYS[task.priority]) || task.priority}
               </span>
               {task.task_type && task.task_type !== 'other' && (
-                <span className="bg-bg-muted px-1.5 py-0.5 rounded text-[10px] text-fg-muted">{t(`tasks.type.${task.task_type}`) || task.task_type}</span>
+                <span className="bg-bg-muted px-1.5 py-0.5 rounded text-xs text-fg-muted">{t(`tasks.type.${task.task_type}`) || task.task_type}</span>
               )}
               {sourceStyle && (
-                <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${sourceStyle.bg} ${sourceStyle.text}`}>
                   {t(sourceStyle.labelKey) || sourceStyle.labelKey}
                 </span>
               )}
@@ -217,12 +217,12 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Creator & Assignee */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-bg-muted rounded-xl p-3">
-              <div className="text-[10px] text-fg-subtle uppercase font-medium mb-1">Поставил</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Поставил</div>
               <div className="text-sm font-medium text-fg-default">{task.creator_name || '\u2014'}</div>
               {task.creator_role && <div className="text-xs text-fg-subtle">{task.creator_role}</div>}
             </div>
             <div className="bg-bg-muted rounded-xl p-3">
-              <div className="text-[10px] text-fg-subtle uppercase font-medium mb-1">Исполнитель</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Исполнитель</div>
               <div className="text-sm font-medium text-fg-default">{task.assignee_name || '\u2014'}</div>
               {task.assignee_role && <div className="text-xs text-fg-subtle">{task.assignee_role}</div>}
             </div>
@@ -231,7 +231,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Description */}
           {task.description && (
             <div>
-              <div className="text-[10px] text-fg-subtle uppercase font-medium mb-1">Описание</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Описание</div>
               <p className="text-sm text-fg-muted leading-relaxed whitespace-pre-wrap">{pickTaskI18n(task, lang, 'description')}</p>
             </div>
           )}
@@ -240,25 +240,25 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           <div className="grid grid-cols-2 gap-3 text-sm">
             {task.due_date && (
               <div>
-                <div className="text-[10px] text-fg-subtle uppercase font-medium mb-0.5">Срок</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Срок</div>
                 <div className="text-fg-muted">{formatDateLong(task.due_date, lang)}</div>
               </div>
             )}
             {task.estimated_time && (
               <div>
-                <div className="text-[10px] text-fg-subtle uppercase font-medium mb-0.5">Время</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Время</div>
                 <div className="text-fg-muted">{task.estimated_time} мин</div>
               </div>
             )}
             {task.started_at && (
               <div>
-                <div className="text-[10px] text-fg-subtle uppercase font-medium mb-0.5">Начата</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Начата</div>
                 <div className="text-fg-muted">{formatDateShort(task.started_at, lang)}</div>
               </div>
             )}
             {task.completed_at && (
               <div>
-                <div className="text-[10px] text-fg-subtle uppercase font-medium mb-0.5">Завершена</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Завершена</div>
                 <div className="text-fg-muted">{formatDateShort(task.completed_at, lang)}</div>
               </div>
             )}
@@ -280,10 +280,10 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
             <div>
-              <div className="text-[10px] text-fg-subtle uppercase font-medium mb-1">Теги</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Теги</div>
               <div className="flex flex-wrap gap-1.5">
                 {task.tags.filter(tag => tag !== 'demo-seed').map((tag, i) => (
-                  <span key={i} className="bg-status-info-bg text-status-info-fg text-[10px] px-2 py-0.5 rounded-full font-medium">
+                  <span key={i} className="bg-status-info-bg text-status-info-fg text-xs px-2 py-0.5 rounded-full font-medium">
                     {tag}
                   </span>
                 ))}

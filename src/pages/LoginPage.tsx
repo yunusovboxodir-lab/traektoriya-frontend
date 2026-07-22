@@ -85,7 +85,7 @@ export function LoginPage() {
         <div
           className="relative z-10 text-center px-6 pb-6"
           style={{
-            fontSize: 11,
+            fontSize: 12,
             letterSpacing: '0.25em',
             color: 'rgba(232, 234, 240, 0.45)',
             textTransform: 'uppercase',
@@ -114,7 +114,7 @@ export function LoginPage() {
             >
               {t('login.heading')}
             </h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 6 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 6 }}>
               {t('login.subheading')}
             </p>
           </div>
@@ -282,7 +282,7 @@ export function LoginPage() {
           <p
             className="mt-10 text-center"
             style={{
-              fontSize: 10,
+              fontSize: 12,
               letterSpacing: '0.2em',
               color: 'var(--text-muted)',
               textTransform: 'uppercase',

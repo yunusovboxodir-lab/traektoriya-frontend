@@ -302,7 +302,7 @@ function KPICards({ events, lang }: { events: CalendarEvent[]; lang: Lang }) {
           className={`${c.border} border-l-4 rounded-lg p-3`}
           style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
-          <div className="text-[10px] uppercase tracking-wider font-mono" style={{ color: 'var(--text-muted)' }}>{c.label}</div>
+          <div className="text-xs uppercase tracking-wider font-mono" style={{ color: 'var(--text-muted)' }}>{c.label}</div>
           <div className="text-2xl font-bold font-mono mt-1" style={{ color: 'var(--text-primary)' }}>{c.value}</div>
         </div>
       ))}
@@ -476,7 +476,7 @@ function CalendarTab({ lang }: { lang: Lang }) {
         <div className="rounded-lg overflow-x-auto" style={{ border: '1px solid var(--border)' }}>
           <div style={{ minWidth: 700 }}>
           {/* Header */}
-          <div className="grid grid-cols-[60px_110px_120px_90px_1fr_140px] gap-px text-[10px] uppercase tracking-wider font-mono" style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)' }}>
+          <div className="grid grid-cols-[60px_110px_120px_90px_1fr_140px] gap-px text-xs uppercase tracking-wider font-mono" style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)' }}>
             <div className="p-2 text-center" style={{ background: 'var(--bg-elevated)' }}>{lang === 'uz' ? 'Hafta' : 'Нед.'}</div>
             <div className="p-2" style={{ background: 'var(--bg-elevated)' }}>{lang === 'uz' ? 'Sana' : 'Дата'}</div>
             <div className="p-2" style={{ background: 'var(--bg-elevated)' }}>{lang === 'uz' ? 'Kanal' : 'Канал'}</div>
@@ -515,11 +515,11 @@ function CalendarTab({ lang }: { lang: Lang }) {
                       <div className="p-2.5 text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
                         {formatDate(e.start_date, lang)}
                         {e.end_date && e.end_date !== e.start_date && (
-                          <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>— {formatDate(e.end_date, lang)}</div>
+                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>— {formatDate(e.end_date, lang)}</div>
                         )}
                       </div>
                       <div className="p-2.5">
-                        <span className="text-[10px] px-2 py-0.5 rounded font-mono uppercase" style={chCol.badgeStyle}>
+                        <span className="text-xs px-2 py-0.5 rounded font-mono uppercase" style={chCol.badgeStyle}>
                           {eventTypeLabel(e.event_type, lang)}
                         </span>
                       </div>
@@ -531,19 +531,19 @@ function CalendarTab({ lang }: { lang: Lang }) {
                           {pickLang(e, lang, 'title')}
                         </div>
                         {(e.location || e.target_region) && (
-                          <div className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
                             {[e.location, e.target_region].filter(Boolean).join(' · ')}
                           </div>
                         )}
                         {e.status === 'completed' && e.pre_avg_score != null && e.post_avg_score != null && (
-                          <div className="text-[10px] mt-0.5 font-mono" style={{ color: 'var(--success)' }}>
+                          <div className="text-xs mt-0.5" style={{ color: 'var(--success)', fontVariantNumeric: 'tabular-nums' }}>
                             PRE {formatPct(e.pre_avg_score)} → POST {formatPct(e.post_avg_score)}
                             {e.growth_pct != null && ` (+${e.growth_pct.toFixed(0)} п.п.)`}
                           </div>
                         )}
                       </div>
                       <div className="p-2.5">
-                        <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded font-mono" style={stStyle}>
+                        <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-mono" style={stStyle}>
                           <StatusIcon status={e.status} />
                           {statusLabel(e.status, lang)}
                         </span>
@@ -729,7 +729,7 @@ function RequestCard({
               {roleLabel(request.requester_role, lang)}
             </span>
             {request.urgency !== 'normal' && (
-              <span className="text-[10px] px-2 py-0.5 rounded font-mono uppercase" style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid var(--danger)' }}>
+              <span className="text-xs px-2 py-0.5 rounded font-mono uppercase" style={{ background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid var(--danger)' }}>
                 {request.urgency}
               </span>
             )}
@@ -979,7 +979,7 @@ function AggregateStat({
 }) {
   return (
     <div className="rounded p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-      <div className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: 'var(--text-muted)' }}>
+      <div className="text-xs uppercase tracking-wider font-mono mb-1" style={{ color: 'var(--text-muted)' }}>
         {label}
       </div>
       <div

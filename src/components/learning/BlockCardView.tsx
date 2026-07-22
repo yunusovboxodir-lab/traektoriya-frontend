@@ -353,9 +353,10 @@ function CinematicSceneCard({
           ) : (
             <>
               <div className="flex items-center gap-2 text-xs">
-                <span className="font-mono text-gray-400">{bl(loc.day, lang)}</span>
+                {/* mono на цифрах <14px запрещён — Golos + tabular-nums */}
+                <span className="text-gray-400 tabular-nums">{bl(loc.day, lang)}</span>
                 <span className="w-1 h-1 rounded-full bg-gray-500" />
-                <span className="font-mono text-gray-400">{bl(loc.time, lang)}</span>
+                <span className="text-gray-400 tabular-nums">{bl(loc.time, lang)}</span>
               </div>
               <p className="text-sm font-semibold mt-1">{bl(loc.subtitle, lang)}</p>
             </>

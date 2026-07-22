@@ -225,13 +225,13 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                       <th className="py-2 px-3 font-semibold text-gray-600">Роль</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">
                         Продажи (40%)
-                        <span className="ml-1 text-[10px] font-normal text-amber-500">пред.</span>
+                        <span className="ml-1 text-xs font-normal text-amber-500">пред.</span>
                       </th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">Исполнение (30%)</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">Обучение (20%)</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">
                         Дисциплина (10%)
-                        <span className="ml-1 text-[10px] font-normal text-amber-500">пред.</span>
+                        <span className="ml-1 text-xs font-normal text-amber-500">пред.</span>
                       </th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-right">KPI</th>
                     </tr>

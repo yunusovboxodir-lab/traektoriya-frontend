@@ -124,7 +124,7 @@ export function StatusBar() {
               {/* Имя пользователя под логотипом — внутри дропдауна */}
               {user && (
                 <div className="nav-section">
-                  <div style={{ fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-0)', textTransform: 'none', textShadow: 'none', marginBottom: 2 }}>
+                  <div style={{ fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600, letterSpacing: '0.06em', color: 'var(--text-0)', textTransform: 'none', textShadow: 'none', marginBottom: 2 }}>
                     {user.full_name}
                   </div>
                   <div>{t(`roles.${user.role}`)}</div>

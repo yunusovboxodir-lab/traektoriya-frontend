@@ -158,7 +158,7 @@ export function NotificationBell({ mobile = false }: NotificationBellProps) {
       >
         <IconBell />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-0.5 flex items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold leading-none">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}

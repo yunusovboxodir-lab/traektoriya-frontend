@@ -19,6 +19,64 @@ const localTacticalPlugin = {
   },
 }
 
+// Тот же приём для гейта «пол читабельности 12px» (Кодекс 01c §3 п.7,
+// 2026-07-22, эталон ShelfScan): независимая severity от прочих
+// no-restricted-syntax-правил + отдельное послабление в tactical-зонах.
+const localReadabilityPlugin = {
+  rules: {
+    'no-text-below-floor': builtinRules.get('no-restricted-syntax'),
+  },
+}
+
+// Пол 12px для продуктового UI: запрещены text-[4..11px] и text-[13px]
+// (13 — мимо шкалы, использовать text-sm), inline fontSize < 12 и = 13.
+const READABILITY_FLOOR_RULES = [
+  {
+    selector: 'JSXAttribute[name.name="className"] Literal[value=/text-\\[(?:[4-9]|1[01]|13)px\\]/]',
+    message:
+      'Пол читабельности: текст мельче 12px запрещён, 13px — мимо шкалы. ' +
+      'Используй text-xs (12) / text-sm (14). См. _docs/codex/01c_typography.md §3 п.7-9.',
+  },
+  {
+    selector: 'Property[key.name="fontSize"] Literal[value<12]',
+    message:
+      'Пол читабельности: inline fontSize < 12px запрещён. Минимум 12 (подписи), контент — 14+. ' +
+      'См. _docs/codex/01c_typography.md §3 п.7-9.',
+  },
+  {
+    selector: 'Property[key.name="fontSize"] Literal[value=13]',
+    message:
+      'fontSize: 13 — мимо шкалы. Используй 12 (подпись) или 14 (text-sm). ' +
+      'См. _docs/codex/01c_typography.md §2.',
+  },
+  {
+    selector: 'Property[key.name="fontSize"] Literal[value=/^(?:[4-9]|1[01]|13)px$/]',
+    message:
+      'Пол читабельности: fontSize мельче 12px (или 13 мимо шкалы) запрещён. ' +
+      'См. _docs/codex/01c_typography.md §3 п.7-9.',
+  },
+]
+
+// Послабление для tactical-зон (исключения Кодекса 01c §3 п.7):
+// HUD-микрометки ≥11px, подпись RingProgress ≥10px — банится только <10.
+const READABILITY_FLOOR_RULES_TACTICAL = [
+  {
+    selector: 'JSXAttribute[name.name="className"] Literal[value=/text-\\[(?:[4-9])px\\]/]',
+    message:
+      'Даже в tactical-слое текст мельче 10px запрещён (Кодекс 01c §3 п.7: HUD-микрометки ≥11px, RingProgress ≥10px).',
+  },
+  {
+    selector: 'Property[key.name="fontSize"] Literal[value<10]',
+    message:
+      'Даже в tactical-слое inline fontSize < 10px запрещён (Кодекс 01c §3 п.7).',
+  },
+  {
+    selector: 'Property[key.name="fontSize"] Literal[value=/^[4-9]px$/]',
+    message:
+      'Даже в tactical-слое fontSize мельче 10px запрещён (Кодекс 01c §3 п.7).',
+  },
+]
+
 // ============================================================================
 // ESLint config — Phase 0 (2026-05-16) + Phase 4.2 (2026-07-02) + Phase 4.2-финал (2026-07-02/03)
 //
@@ -128,6 +186,7 @@ export default defineConfig([
     plugins: {
       i18next,
       'local-tactical': localTacticalPlugin,
+      'local-readability': localReadabilityPlugin,
     },
     languageOptions: {
       ecmaVersion: 2020,
@@ -178,6 +237,10 @@ export default defineConfig([
         TACTICAL_FONT_RULE,
         TACTICAL_FONTS_GOOGLEAPIS_RULE,
       ],
+      // 2026-07-22: гейт «пол читабельности 12px» (Кодекс 01c §3 п.7-9,
+      // волна чистки суб-12px = 0 нарушений на момент включения) — error,
+      // чтобы мелкий текст не возвращался.
+      'local-readability/no-text-below-floor': ['error', ...READABILITY_FLOOR_RULES],
     },
   },
   // Whitelist игрового слоя: tactical-шрифты разрешены — правило полностью
@@ -188,6 +251,9 @@ export default defineConfig([
     files: TACTICAL_WHITELIST_GLOBS,
     rules: {
       'local-tactical/no-tactical-font-outside-overlay': 'off',
+      // Tactical-исключения пола: HUD-микрометки ≥11px, RingProgress ≥10px —
+      // здесь банится только текст <10px.
+      'local-readability/no-text-below-floor': ['error', ...READABILITY_FLOOR_RULES_TACTICAL],
     },
   },
 ])

@@ -59,7 +59,7 @@ export function GuidesPanel() {
     >
       <summary className="guides-summary" style={{
         display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8,
-        fontSize: 11, fontWeight: 600, letterSpacing: '0.12em',
+        fontSize: 12, fontWeight: 600, letterSpacing: '0.12em',
         color: 'var(--text-muted)', textTransform: 'uppercase',
         cursor: 'pointer', listStyle: 'none', width: 'fit-content',
         minHeight: 24,
@@ -89,9 +89,10 @@ export function GuidesPanel() {
                 padding: '9px 13px', borderRadius: 'var(--radius-md)', cursor: 'pointer',
                 background: 'var(--color-rm-bg)',
                 border: `1px solid ${done ? 'var(--border)' : 'var(--color-rm-border)'}`,
-                color: 'var(--text-primary)',
-                fontFamily: 'var(--font-body)', fontSize: 13, fontWeight: 500,
-                opacity: done ? 0.7 : 1, whiteSpace: 'nowrap',
+                // opacity на тексте запрещён — «пройдено» показываем токеном цвета
+                color: done ? 'var(--text-muted)' : 'var(--text-primary)',
+                fontFamily: 'var(--font-body)', fontSize: 14, fontWeight: 500,
+                whiteSpace: 'nowrap',
               }}
             >
               <span style={{ fontSize: 17, lineHeight: 1 }} aria-hidden="true">{g.icon}</span>

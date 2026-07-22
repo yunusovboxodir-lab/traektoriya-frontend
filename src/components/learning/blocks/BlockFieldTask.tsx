@@ -29,16 +29,16 @@ export function BlockFieldTask({ data, accent, accentSoft, onReady }: Props) {
   return (
     <BlockCard accent={accent} accentSoft={accentSoft} label={t.blocks.fieldTask}>
         <div className="text-sm font-bold mb-2 leading-relaxed">{bl(data.title, lang)}</div>
-        <div className="text-[13px] leading-relaxed mb-3">{bl(data.task, lang)}</div>
+        <div className="text-sm leading-relaxed mb-3">{bl(data.task, lang)}</div>
 
         {data.checklist?.length > 0 && (
           <div className="mb-3">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-fg-subtle mb-1.5">
+            <div className="text-xs font-semibold uppercase tracking-wider text-fg-subtle mb-1.5">
               {t.blocks.checklist}
             </div>
             <div className="space-y-1.5">
               {data.checklist.map((item, i) => (
-                <div key={i} className="flex items-start gap-2 text-[13px] leading-snug">
+                <div key={i} className="flex items-start gap-2 text-sm leading-snug">
                   <span
                     className="w-4 h-4 rounded border-2 shrink-0 mt-0.5"
                     style={{ borderColor: accent }}

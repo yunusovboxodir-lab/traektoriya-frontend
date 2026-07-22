@@ -35,7 +35,7 @@
   /* ── Текст ── */
   --text-primary:   #E8EAF0;
   --text-secondary: #9CA3AF;
-  --text-muted:     #6B7280;
+  --text-muted:     #8B94A3; /* было #6B7280 (≈3.7:1 — ниже AA); поднят до ≈6:1 (Кодекс 01c §3 п.8, эталон ShelfScan 2026-07-22) */
   --text-inverse:   #0D0F14;
 
   /* ── Акцентные цвета ролей ── */
@@ -368,7 +368,7 @@ body {
    дизайнерской унификации. Все рабочие страницы переходят на <PageHeader>. */
 
 .label-uppercase {
-  font-size: 11px;
+  font-size: 12px; /* пол 12px, Кодекс 01c §3 п.7 (было 11px) */
   font-weight: 600;
   letter-spacing: 1.5px;
   text-transform: uppercase;

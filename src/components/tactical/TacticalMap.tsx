@@ -111,7 +111,7 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
       {/* подпись курса — только у выбранного пина (иначе нечитаемо и зашумляет карту) */}
       {selected && (
         <text textAnchor="middle" y={11}
-          fontSize="10"
+          fontSize="12"
           fontFamily="Inter, sans-serif"
           fontWeight={600}
           fill="oklch(0.92 0.02 250)"
@@ -202,10 +202,11 @@ function ZoneColumn({ zone, idx, W, H, focusZone, lang }: ZoneColumnProps) {
         style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3.5">{label}</text>
       {/* T-0{idx} и БАЗ — HUD-лейбл (код, декоративный текст), остаётся Mono.
           {zone.count} — числовые данные карты: Mono на <14px запрещён
-          (17_game_layer §в/ж.3) → сбрасываем на body-шрифт (Golos) через tspan. */}
+          (17_game_layer §в/ж.3) → сбрасываем на body-шрифт (Golos) через tspan.
+          9 → 11px (HUD-исключение); opacity с текста убран (пол читабельности). */}
       <text x={tcx} y={tcy + 17} textAnchor="middle"
-        fontSize="9" fontFamily="JetBrains Mono, monospace"
-        letterSpacing="0.18em" opacity="0.8"
+        fontSize="11" fontFamily="JetBrains Mono, monospace"
+        letterSpacing="0.18em"
         fill="oklch(0.80 0.02 250)"
         style={{ paintOrder: 'stroke' }} stroke="oklch(0.08 0.02 250)" strokeWidth="3">
         {`T-0${idx + 1} · `}

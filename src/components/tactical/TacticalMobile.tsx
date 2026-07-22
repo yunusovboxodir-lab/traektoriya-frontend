@@ -67,7 +67,7 @@ function _MobileTopBar_DEPRECATED() {
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           }}>TRAEKTORIYA</span>
           <span style={{
-            fontSize: 8, color: 'var(--text-muted)',
+            fontSize: 11, color: 'var(--text-muted)',
             letterSpacing: '0.1em', marginTop: 2,
           }}>{lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта'}</span>
         </div>
@@ -76,7 +76,7 @@ function _MobileTopBar_DEPRECATED() {
         <div style={{
           display: 'flex', border: '1px solid var(--border)',
           borderRadius: 7, overflow: 'hidden',
-          fontSize: 9, fontWeight: 600, letterSpacing: '0.08em',
+          fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
           fontFamily: "'JetBrains Mono', monospace",
         }}>
           <button
@@ -160,9 +160,9 @@ function HeroStrip({ name, pct, hero, lang }: HeroStripProps) {
             color: 'var(--text-primary)',
           }}>{name}</span>
         </div>
-        {/* pct пути + Мощь — реальные данные (Мощь из /power/my) */}
+        {/* pct пути + Мощь — реальные данные (Мощь из /power/my); 9 → 12px (пол) */}
         <div style={{
-          fontSize: 9, color: 'var(--text-secondary)',
+          fontSize: 12, color: 'var(--text-secondary)',
           letterSpacing: '0.02em', marginTop: 2,
         }}>
           {pct}% {lang === 'uz' ? 'YOʻL' : 'ПУТИ'}
@@ -194,8 +194,9 @@ function HeroStrip({ name, pct, hero, lang }: HeroStripProps) {
                   <path d="M6 1 L8 4.5 L11 5 L8.5 7.5 L9 11 L6 9.5 L3 11 L3.5 7.5 L1 5 L4 4.5 Z"
                     fill="oklch(0.78 0.13 75)" stroke="oklch(0.95 0.10 88)" strokeWidth="0.5" />
                 </svg>
+                {/* 9 → 12px (tracking 0.08em < 0.1em — не HUD-исключение, пол 12) */}
                 <span style={{
-                  fontSize: 9, fontWeight: 700, color: 'oklch(0.92 0.10 80)',
+                  fontSize: 12, fontWeight: 700, color: 'oklch(0.92 0.10 80)',
                   fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                 }}>{league}</span>
@@ -204,7 +205,7 @@ function HeroStrip({ name, pct, hero, lang }: HeroStripProps) {
             {/* серия/ранг — реальные (streak из power, rank из leaderboard). rank=null → «—». */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: 5,
-              fontSize: 9,
+              fontSize: 12,
             }}>
               {hero.streakDays != null && hero.streakDays > 0 && (
                 <>
@@ -261,12 +262,13 @@ function DailyQuestBanner() {
           strokeLinecap="round" fill="none" />
       </svg>
       <div style={{ flex: 1, minWidth: 0 }}>
+        {/* 8 → 11px: HUD-микрометка (uppercase + tracking ≥0.1em) */}
         <div style={{
-          fontSize: 8, color: 'var(--brass)',
+          fontSize: 11, color: 'var(--brass)',
           fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em',
         }}>{lang === 'uz' ? 'KUNDALIK QUEST' : 'ЕЖЕДНЕВНЫЙ КВЕСТ'}</div>
         <div style={{
-          fontSize: 11, color: 'var(--text-primary)', marginTop: 1, fontWeight: 500,
+          fontSize: 12, color: 'var(--text-primary)', marginTop: 1, fontWeight: 500,
         }}>
           {lang === 'uz' ? 'Bugun 1 ta bo\'limni yoping' : 'Закрой 1 раздел сегодня'}
         </div>
@@ -276,12 +278,13 @@ function DailyQuestBanner() {
       }}>
         {/* +50 XP — фиксированная награда за закрытие раздела (штатная механика квеста). */}
         <span style={{
-          fontSize: 11, fontWeight: 700, color: 'var(--brass)',
+          fontSize: 12, fontWeight: 700, color: 'var(--brass)',
           letterSpacing: '0.02em',
         }}>+50 XP</span>
+        {/* Часы — цифры: пол 12px + Golos/tabular (Mono <14px на числах запрещён) */}
         <span style={{
-          fontSize: 8, color: 'var(--text-muted)',
-          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: 12, color: 'var(--text-muted)',
+          fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums',
         }}>{time}</span>
       </div>
     </div>
@@ -396,8 +399,8 @@ function PinchMap({ selectedId, setSelectedId, nodes, zones, edges }: PinchMapPr
               x={(z.x + z.w / 2) * MAP_W} y={32}
               textAnchor="middle"
               fontFamily="Cinzel, serif" fontWeight="600"
-              fontSize="13" letterSpacing="0.22em"
-              fill={z.accent} opacity="0.85">
+              fontSize="14" letterSpacing="0.22em"
+              fill={z.accent}>
               {zLabel(z, lang)}
             </text>
           ))}
@@ -490,6 +493,7 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
           width: 14, height: 14, borderRadius: '50%',
           background: s.fill, border: `1.5px solid ${s.stroke}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          // eslint-disable-next-line local-readability/no-text-below-floor -- декоративный глиф статуса (✓/◆/🔒) в кружке 14px, не текст
           fontSize: 8, color: s.stroke,
         }}>
           {v.state === 'done' || v.state === 'mastered' ? '✓' :
@@ -499,13 +503,14 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 7, lineHeight: 1.1 }}>
+          {/* Код — HUD-микрометка: 8 → 11px; заголовок 13 → 14 (ellipsis уже есть) */}
           <span style={{
-            fontSize: 8, color: 'var(--text-muted)',
+            fontSize: 11, color: 'var(--text-muted)',
             fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.1em',
             flexShrink: 0,
           }}>{v.code}</span>
           <span style={{
-            fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
+            fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
             color: 'var(--text-primary)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
@@ -525,8 +530,8 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
           </div>
           {/* done/sections — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
           <span style={{
-            fontSize: 9, color: 'var(--text-secondary)',
-            flexShrink: 0,
+            fontSize: 12, color: 'var(--text-secondary)',
+            flexShrink: 0, fontVariantNumeric: 'tabular-nums',
           }}>
             {v.done}/{v.sections}
           </span>
@@ -571,23 +576,25 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
               borderBottom: '1px solid var(--border)',
               display: 'flex', alignItems: 'center', gap: 10,
             }}>
+              {/* 13 → 14px; бокс 26px фиксированный — «III» в Cinzel 14px ≈ 17px,
+                  влезает; рискованное место отмечено для визуальной проверки */}
               <div style={{
                 width: 26, height: 26, borderRadius: 6,
                 border: `1px solid ${z.accent}80`,
                 background: `linear-gradient(135deg, ${z.accent}25, transparent)`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
+                fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
                 color: z.accent, letterSpacing: '0.04em', flexShrink: 0,
               }}>{numeral}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                   <span style={{
-                    fontFamily: "'Cinzel', serif", fontSize: 13, fontWeight: 600,
+                    fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
                     letterSpacing: '0.18em', color: z.accent,
                   }}>{zLabel(z, lang)}</span>
                   {/* {villages.length} — число, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
                   <span style={{
-                    fontSize: 9, color: 'var(--text-muted)',
+                    fontSize: 12, color: 'var(--text-muted)',
                     letterSpacing: '0.02em',
                   }}>
                     {villages.length} ПОСЁЛКОВ
@@ -605,8 +612,8 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
               </div>
               {/* {pct}% — число, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
               <span style={{
-                fontSize: 10, fontWeight: 600, color: 'var(--text-primary)',
-                flexShrink: 0,
+                fontSize: 12, fontWeight: 600, color: 'var(--text-primary)',
+                flexShrink: 0, fontVariantNumeric: 'tabular-nums',
               }}>
                 {pct}%
               </span>
@@ -679,15 +686,16 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
         }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 3 }}>
+              {/* HUD-микрометки (uppercase + tracking ≥0.1em): 9 → 11px */}
               <span style={{
-                fontSize: 9, color: zone.accent,
+                fontSize: 11, color: zone.accent,
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: '0.14em', fontWeight: 600,
               }}>
                 {zLabel(zone, lang)} · {village.code}
               </span>
               <span style={{
-                fontSize: 9, color: s.stroke,
+                fontSize: 11, color: s.stroke,
                 fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: '0.1em', fontWeight: 600,
                 padding: '1px 6px', borderRadius: 3,
@@ -711,8 +719,9 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
         </div>
 
         <div style={{ marginBottom: 14 }}>
+          {/* HUD-микрометка: 9 → 11px */}
           <div style={{
-            fontSize: 9, color: 'var(--text-muted)',
+            fontSize: 11, color: 'var(--text-muted)',
             fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: '0.14em', marginBottom: 8,
           }}>
@@ -747,8 +756,9 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                         stroke={hs.stroke} strokeWidth="1.4" rx="1" />
                     )}
                   </svg>
+                  {/* 9 → 12px (tracking 0.05em < 0.1em — не HUD-исключение, пол 12) */}
                   <span style={{
-                    fontSize: 9,
+                    fontSize: 12,
                     fontFamily: "'JetBrains Mono', monospace",
                     color: hs.stroke, fontWeight: 600, letterSpacing: '0.05em',
                   }}>
@@ -814,7 +824,8 @@ const statCardStyle: CSSProperties = {
   borderRadius: 7,
 };
 const statLabelStyle: CSSProperties = {
-  fontSize: 8, color: 'var(--text-muted)',
+  /* 8 → 11px: HUD-микрометка (uppercase + tracking ≥0.1em) */
+  fontSize: 11, color: 'var(--text-muted)',
   fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.14em',
 };
 const statValueStyle: CSSProperties = {
@@ -854,7 +865,7 @@ function _MobileTabBar_DEPRECATED() {
             background: 'transparent', border: 0,
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
             color: it.active ? 'var(--brass)' : 'var(--text-muted)',
-            fontSize: 9, fontFamily: "'Inter', sans-serif", cursor: 'pointer',
+            fontSize: 12, fontFamily: "'Inter', sans-serif", cursor: 'pointer',
             flex: 1, padding: 0,
           }}
         >
@@ -938,6 +949,10 @@ export function TacticalMobile({
         'var(--bg-primary)',
       color: 'var(--text-primary)',
       fontFamily: "'Inter', system-ui, sans-serif",
+      /* Базовая типографика: раньше наследовалась от глобального html,body
+         { font-size: 13px } из tactical-design.css (утечка убрана 2026-07-22).
+         Мобильная ветка НЕ обёрнута в .tactical-root — задаём базу явно (пол 14). */
+      fontSize: 14, lineHeight: 1.4,
       display: 'flex', flexDirection: 'column',
       position: 'relative',
     }}>

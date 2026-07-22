@@ -146,7 +146,7 @@ export function SectionUnlockChest() {
             }}>
               {lang === 'uz' ? 'Yangi daraja!' : 'Новый уровень!'}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 18 }}>
+            <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 18 }}>
               {lang === 'uz'
                 ? `«${tierLabel}» darajasiga yetding — sovg‘a seni kutmoqda`
                 : `Ты достиг уровня «${tierLabel}» — тебя ждёт награда`}

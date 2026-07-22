@@ -87,7 +87,8 @@ export function HeroPanel({
       <div className="hero-rank">
         <RingProgress value={overallPct} label={hero.tier ? tierLabel(hero.tier, lang) : ''} />
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>
+          {/* 10 → 11px: HUD-микрометка (исключение тактического слоя) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>
             {t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}
           </div>
           {hero.loading ? (
@@ -97,9 +98,11 @@ export function HeroPanel({
               <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'var(--brass)' }}>
                 {hero.tier ? tierLabel(hero.tier, lang) : '—'}
               </div>
+              {/* Лейбл 10 → 11px (HUD-исключение); число — данные, не лейбл:
+                  Mono запрещён <14px (17_game_layer §в/ж.3) → Golos + tabular-nums. */}
               {hero.power != null && (
-                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
-                  {t('Мощь', 'Quvvat')}: <span style={{ color: 'var(--success)' }}>{hero.power.toLocaleString('ru')}</span>
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  {t('Мощь', 'Quvvat')}: <span style={{ color: 'var(--success)', fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>{hero.power.toLocaleString('ru')}</span>
                 </div>
               )}
             </>

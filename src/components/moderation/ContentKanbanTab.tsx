@@ -116,18 +116,18 @@ function DraggableCard({ item, onClick }: { item: ContentItem; onClick: () => vo
 
       {/* Meta */}
       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={typeBadge.style}>
+        <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={typeBadge.style}>
           {typeBadge.label}
         </span>
         {item.difficulty_level && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
+          <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
             {DIFFICULTY_LABELS[item.difficulty_level] || `Ур.${item.difficulty_level}`}
           </span>
         )}
       </div>
 
       {/* Updated date */}
-      <p className="text-[10px] mt-2" style={{ color: 'var(--text-muted)' }}>
+      <p className="text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
         {new Date(item.updated_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}
       </p>
     </div>
@@ -144,7 +144,7 @@ function OverlayCard({ item }: { item: ContentItem }) {
     <div className="rounded-xl shadow-xl p-3.5 w-64 rotate-2" style={{ background: 'var(--bg-card)', border: '2px solid var(--info)' }}>
       <h4 className="font-medium text-sm leading-snug line-clamp-2" style={{ color: 'var(--text-primary)' }}>{item.title}</h4>
       <div className="flex items-center gap-1.5 mt-2">
-        <span className="px-1.5 py-0.5 rounded text-[10px] font-medium" style={typeBadge.style}>
+        <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={typeBadge.style}>
           {typeBadge.label}
         </span>
       </div>

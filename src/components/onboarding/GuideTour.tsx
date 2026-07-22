@@ -58,7 +58,7 @@ export function GuideTour({ guide, onClose }: Props) {
         {/* Бейдж гида */}
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
-          fontSize: 11, fontWeight: 600, letterSpacing: '0.04em',
+          fontSize: 12, fontWeight: 600, letterSpacing: '0.04em',
           color: 'var(--color-rm)', marginBottom: 14,
           textTransform: 'uppercase',
         }}>

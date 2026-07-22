@@ -145,7 +145,7 @@ function SceneView({ scene }: { scene: NonNullable<LessonData['scene']>; accent:
             return (
               <div key={i} className={`flex ${isRight ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[85%] ${isRight ? 'items-end' : 'items-start'}`}>
-                  <p className="text-[10px] font-medium text-gray-500 mb-1 px-1" style={{ color: bubbleColor }}>
+                  <p className="text-xs font-medium text-gray-500 mb-1 px-1" style={{ color: bubbleColor }}>
                     {msg.speaker}
                   </p>
                   <div
@@ -219,7 +219,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
                     </span>
                     {node.name && <span className="ml-1" style={{ color: 'var(--text-secondary)' }}>{node.name}</span>}
                     {node.kpi != null && (
-                      <span className={`ml-1.5 px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+                      <span className={`ml-1.5 px-1.5 py-0.5 rounded-md text-xs font-bold ${
                         node.kpi >= 90 ? 'bg-emerald-100 text-emerald-700'
                         : node.kpi >= 75 ? 'bg-blue-100 text-blue-700'
                         : 'bg-amber-100 text-amber-700'
@@ -252,7 +252,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
                 <p className={`text-xl font-bold ${textColors[i % 4]}`}>
                   {m.value}<span className="text-xs font-normal ml-0.5">{m.unit}</span>
                 </p>
-                <p className="text-[10px] mt-0.5 leading-tight" style={{ color: 'var(--text-muted)' }}>{m.label}</p>
+                <p className="text-xs mt-0.5 leading-tight" style={{ color: 'var(--text-muted)' }}>{m.label}</p>
               </div>
             );
           })}

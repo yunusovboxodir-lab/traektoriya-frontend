@@ -94,7 +94,7 @@ function ThCell({ label, align = 'left' }: { label: string; align?: 'left' | 'ce
   return (
     <th style={{
       fontFamily: MONO,
-      fontSize: 10.5,
+      fontSize: 11,
       letterSpacing: '.12em',
       textTransform: 'uppercase',
       color: 'var(--text-2)',
@@ -134,17 +134,20 @@ function PodiumCard({ leader, rank }: { leader: ChampionshipLeader; rank: 1 | 2 
       >
         <circle cx="12" cy="12" r="10" fill={medalColor} opacity={0.18} />
         <circle cx="12" cy="12" r="7" stroke={medalColor} strokeWidth={1.5} fill="none" />
+        {/* Цифра ранга внутри медали-иконки: 8 → 10 юнитов viewBox 24
+            (эффективно ~12-15px при 28/36px иконке); в круг r=7 помещается */}
         <text
-          x="12" y="16"
+          x="12" y="15.5"
           textAnchor="middle"
           fontFamily={MONO}
-          fontSize="8"
+          fontSize="10"
           fontWeight="700"
           fill={medalColor}
         >{rank}</text>
       </svg>
 
-      <div style={{ fontFamily: MONO, fontSize: 10, letterSpacing: '.2em', color: 'var(--text-2)', marginTop: 2 }}>
+      {/* HUD-микрометка: 10 → 11px */}
+      <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: '.2em', color: 'var(--text-2)', marginTop: 2 }}>
         {rankLabels[rank]}
       </div>
       <div style={{
@@ -157,7 +160,7 @@ function PodiumCard({ leader, rank }: { leader: ChampionshipLeader; rank: 1 | 2 
       }}>
         {leader.full_name}
       </div>
-      <div style={{ color: 'var(--text-2)', fontSize: 11, marginTop: 1, fontFamily: MONO }}>
+      <div style={{ color: 'var(--text-2)', fontSize: 12, marginTop: 1, fontFamily: MONO }}>
         {leader.employee_id}
       </div>
       <div style={{
@@ -170,7 +173,8 @@ function PodiumCard({ leader, rank }: { leader: ChampionshipLeader; rank: 1 | 2 
       }}>
         {leader.kpi_final.toFixed(1)}
       </div>
-      <div style={{ fontSize: 10, color: 'var(--text-2)', marginTop: 4, fontFamily: MONO }}>
+      {/* Число — данные: пол 12px + Golos/tabular (Mono <14px на числах запрещён) */}
+      <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4, fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>
         {leader.percentile.toFixed(0)}‑й перцентиль
       </div>
     </div>
@@ -207,7 +211,8 @@ function LeaderRow({ leader }: { leader: ChampionshipLeader }) {
               borderRadius: 2,
             }} />
           </div>
-          <span style={{ fontFamily: MONO, fontSize: 11, color: 'var(--brass)', minWidth: 32, textAlign: 'right' }}>
+          {/* Число — данные: пол 12px + Golos/tabular (Mono <14px на числах запрещён) */}
+          <span style={{ fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--brass)', minWidth: 32, textAlign: 'right' }}>
             {leader.percentile.toFixed(0)}%
           </span>
         </div>
@@ -238,13 +243,14 @@ function ImprovedRow({ entry, rank }: { entry: ChampionshipImproved; rank: numbe
         </span>
       </td>
       <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-        <span style={{ fontFamily: MONO, fontSize: 12, color: 'var(--text-2)' }}>
+        {/* Числа «было → стало» — данные: Golos + tabular (Mono <14px запрещён) */}
+        <span style={{ fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--text-2)' }}>
           {entry.from.toFixed(1)}
         </span>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ display: 'inline', margin: '0 4px', verticalAlign: 'middle' }}>
           <path d="M5 12h14M13 6l6 6-6 6" stroke={dc} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        <span style={{ fontFamily: MONO, fontSize: 12, color: kpiColor(entry.to), fontWeight: 600 }}>
+        <span style={{ fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums', fontSize: 12, color: kpiColor(entry.to), fontWeight: 600 }}>
           {entry.to.toFixed(1)}
         </span>
       </td>
@@ -282,7 +288,7 @@ function EmptyState({ note, lang }: { note?: string; lang: string }) {
         <rect x="3" y="3" width="4" height="18" rx="1" fill="var(--text-2)" />
         <path d="M7 5h10l-2 4 2 4H7" fill="var(--text-2)" opacity="0.6" />
       </svg>
-      <div style={{ fontFamily: MONO, fontSize: 13, color: 'var(--text-1)', lineHeight: 1.6 }}>
+      <div style={{ fontFamily: MONO, fontSize: 14, color: 'var(--text-1)', lineHeight: 1.6 }}>
         {note || defaultNote}
       </div>
     </div>
@@ -368,8 +374,9 @@ export function Championship2026Page() {
               {lang === 'uz' ? 'DAVR' : 'ПЕРИОД'}
             </span>
           )}
+          {/* Дата/время — данные: пол 12px, Golos (Mono <14px на цифрах запрещён) */}
           {data?.computed_at && (
-            <span style={{ color: 'var(--text-2)', fontSize: 10 }}>
+            <span style={{ color: 'var(--text-2)', fontSize: 12, fontFamily: 'var(--font-body)', letterSpacing: 'normal' }}>
               {lang === 'uz' ? 'yangilandi' : 'обновлено'} {formatComputedAt(data.computed_at, lang)}
             </span>
           )}
@@ -419,7 +426,7 @@ export function Championship2026Page() {
             className="glass-panel"
             style={{ textAlign: 'center', padding: '32px 24px', color: 'var(--danger, #ef4444)' }}
           >
-            <div style={{ fontFamily: MONO, fontSize: 13, marginBottom: 16 }}>{error}</div>
+            <div style={{ fontFamily: MONO, fontSize: 14, marginBottom: 16 }}>{error}</div>
             <button
               type="button"
               onClick={load}
@@ -454,7 +461,7 @@ export function Championship2026Page() {
                 {lang === 'uz'
                   ? `LIGA LIDERLARI · ${leagueLabel(league).toUpperCase()}`
                   : `ЛИДЕРЫ ЛИГИ · ${leagueLabel(league).toUpperCase()}`}
-                <span style={{ color: 'var(--text-2)', fontWeight: 400, letterSpacing: '.06em', fontSize: 10 }}>
+                <span style={{ color: 'var(--text-2)', fontWeight: 400, letterSpacing: '.06em', fontSize: 12 }}>
                   · {lang === 'uz' ? 'percentil bo\'yicha' : 'по перцентилю'} · {lang === 'uz' ? 'yopiq davrlar' : 'закрытые периоды'}
                 </span>
               </div>
@@ -487,14 +494,16 @@ export function Championship2026Page() {
                       <span style={{ fontFamily: MONO, fontWeight: 700, color: rankColor(leader.rank), width: 28, textAlign: 'center' }}>{leader.rank}</span>
                       <span style={{ flex: 1, color: 'var(--text-0)', fontWeight: 600 }}>{leader.full_name}</span>
                       <span style={{ fontFamily: MONO, fontWeight: 700, color: kpiColor(leader.kpi_final) }}>{leader.kpi_final.toFixed(1)}</span>
-                      <span style={{ fontFamily: MONO, fontSize: 11, color: 'var(--brass)' }}>{leader.percentile.toFixed(0)}%</span>
+                      {/* Число — данные: пол 12px + Golos (Mono <14px запрещён) */}
+                      <span style={{ fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--brass)' }}>{leader.percentile.toFixed(0)}%</span>
                     </div>
                   ))}
 
                   {/* Остальные (4+) в таблице */}
                   {rest.length > 0 && (
                     <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+                      {/* 13.5 → 14: пол читабельности; Mono на числах в строках легален с 14px */}
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                         <thead>
                           <tr>
                             <ThCell label="#" align="center" />
@@ -536,7 +545,7 @@ export function Championship2026Page() {
                     <polyline points="16 7 22 7 22 13" stroke="var(--success, #4ade80)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   {lang === 'uz' ? 'ENG KO\'P O\'SISH' : 'ЛУЧШИЙ ПРИРОСТ'}
-                  <span style={{ color: 'var(--text-2)', fontWeight: 400, letterSpacing: '.06em', fontSize: 10 }}>
+                  <span style={{ color: 'var(--text-2)', fontWeight: 400, letterSpacing: '.06em', fontSize: 12 }}>
                     · {data.previous_period
                         ? (lang === 'uz' ? `${data.previous_period} → ${data.period}` : `${data.previous_period} → ${data.period}`)
                         : (lang === 'uz' ? 'oldingi davrga nisbatan' : 'к прошлому периоду')}
@@ -544,7 +553,7 @@ export function Championship2026Page() {
                 </div>
 
                 <div className="glass-panel" style={{ padding: 0, overflow: 'hidden' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                     <thead>
                       <tr>
                         <ThCell label="#" align="center" />
@@ -568,7 +577,7 @@ export function Championship2026Page() {
             <div style={{
               textAlign: 'center',
               color: 'var(--text-2)',
-              fontSize: 10,
+              fontSize: 12,
               marginTop: 24,
               fontFamily: MONO,
               letterSpacing: '.1em',

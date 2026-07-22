@@ -38,7 +38,7 @@ export function TacticalShell({ children, title, subtitle, toolbar, meta }: Tact
               <h1>{title}</h1>
               {subtitle && (
                 <div style={{
-                  fontSize: 13,
+                  fontSize: 14,
                   color: 'var(--text-2)',
                   marginTop: 2,
                   letterSpacing: '0.04em',
@@ -137,7 +137,7 @@ export function TacticalButton({
 }: TacticalButtonProps) {
   const sizeStyle: CSSProperties = {
     sm: { padding: '6px 12px', fontSize: 12 },
-    md: { padding: '8px 16px', fontSize: 13 },
+    md: { padding: '8px 16px', fontSize: 14 },
     lg: { padding: '10px 22px', fontSize: 14 },
   }[size];
 
@@ -217,14 +217,14 @@ export function TacticalInput({ label, hint, error, style, ...props }: TacticalI
           padding: '8px 12px',
           color: 'var(--text-0)',
           fontFamily: 'inherit',
-          fontSize: 13,
+          fontSize: 14,
           outline: 'none',
           ...style,
         }}
       />
       {(hint || error) && (
         <div style={{
-          fontSize: 11,
+          fontSize: 12,
           color: error ? 'oklch(0.65 0.18 28)' : 'var(--text-2)',
         }}>
           {error || hint}
@@ -264,7 +264,7 @@ export function TacticalSelect({ label, options, style, ...props }: TacticalSele
           padding: '8px 12px',
           color: 'var(--text-0)',
           fontFamily: 'inherit',
-          fontSize: 13,
+          fontSize: 14,
           outline: 'none',
           cursor: 'pointer',
           ...style,
@@ -329,8 +329,9 @@ export function TacticalStat({
         justifyContent: 'space-between',
         marginBottom: 8,
       }}>
+        {/* 10 → 11px: HUD-микрометка (исключение тактического слоя) */}
         <span style={{
-          fontSize: 10,
+          fontSize: 11,
           color: 'var(--text-2)',
           fontFamily: 'var(--font-mono)',
           letterSpacing: '0.18em',
@@ -349,7 +350,7 @@ export function TacticalStat({
       </div>
       {(hint || trend) && (
         <div style={{
-          fontSize: 11,
+          fontSize: 12,
           marginTop: 6,
           display: 'flex',
           gap: 8,
@@ -403,7 +404,8 @@ export function TacticalBadge({ variant = 'default', children, size = 'sm' }: Ta
       color: c.fg,
       border: `1px solid ${c.border}`,
       borderRadius: 3,
-      fontSize: size === 'sm' ? 10 : 11,
+      /* 10/11 → 11px: HUD-бейдж (uppercase + tracking), исключение тактического слоя */
+      fontSize: 11,
       fontFamily: "'JetBrains Mono', monospace",
       letterSpacing: '0.1em',
       textTransform: 'uppercase',

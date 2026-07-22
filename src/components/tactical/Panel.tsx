@@ -54,7 +54,8 @@ export function ProgressBar({ value, max, color = 'var(--brass)', level = 'LVL 2
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>{lang === 'uz' ? 'TAJRIBA' : 'ОПЫТ'} · {level}</span>
+        {/* 10 → 11px: HUD-микрометка (исключение тактического слоя, пол читабельности) */}
+        <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.15em', color: 'var(--text-secondary)' }}>{lang === 'uz' ? 'TAJRIBA' : 'ОПЫТ'} · {level}</span>
         {/* XP {value}/{max} — числовые данные, не HUD-лейбл: Mono запрещён <14px
             (Кодекс 17_game_layer §в/ж.3). Golos через наследование body-шрифта. */}
         <span style={{ fontSize: 12, color: color, fontWeight: 700 }}>{value} / {max} XP</span>
@@ -89,8 +90,11 @@ export function RingProgress({ value, size = 78, label }: RingProgressProps) {
       <text x="50%" y="46%" textAnchor="middle" dominantBaseline="central"
         fontSize="18" fontWeight="700" fontFamily="Inter, sans-serif"
         fill="var(--text-primary)">{value}%</text>
+      {/* Подпись тира: 8 → 10px. Кольцо size=78 (r=34): хорда на высоте подписи
+          (~14px ниже центра) ≈ 62px; самый длинный тир «Серебро»/«Platina»
+          (7 зн. mono 10px + 0.15em) ≈ 52px — помещается с запасом. */}
       <text x="50%" y="68%" textAnchor="middle" dominantBaseline="central"
-        fontSize="8" fontFamily="JetBrains Mono, monospace"
+        fontSize="10" fontFamily="JetBrains Mono, monospace"
         letterSpacing="0.15em" fill="var(--text-secondary)">{label}</text>
     </svg>
   );

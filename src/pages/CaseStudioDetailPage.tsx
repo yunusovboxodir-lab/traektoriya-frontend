@@ -430,7 +430,7 @@ function DialogueLineView({ line }: { line: DialogueLine }) {
             : { background: 'var(--info-bg)', border: '1px solid var(--info)', color: 'var(--text-primary)' }
         }
       >
-        <div className="text-xs font-medium mb-0.5 opacity-70">
+        <div className="text-xs font-medium mb-0.5" style={{ color: 'var(--text-secondary)' }}>
           {line.speaker_name || SPEAKER_LABELS[line.speaker] || line.speaker}
         </div>
         <div className="text-sm whitespace-pre-wrap">{line.text}</div>

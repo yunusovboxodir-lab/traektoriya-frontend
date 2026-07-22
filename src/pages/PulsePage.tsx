@@ -324,7 +324,7 @@ export function PulsePage() {
         )}
         {canViewTeam && (
           <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-            Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
+            Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> — переключить «Я ↔ Команда»
           </div>
         )}
       </div>
@@ -427,7 +427,7 @@ export function PulsePage() {
       {/* Подсказка с горячими клавишами */}
       {canViewTeam && (
         <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-          Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-[10px]">M</kbd> — переключить «Я ↔ Команда»
+          Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> — переключить «Я ↔ Команда»
         </div>
       )}
     </div>
@@ -473,7 +473,7 @@ function Card({ title, children, accent }: { title: string; children: React.Reac
       <h3
         className="font-bold uppercase mb-4"
         style={{
-          fontSize: 11,
+          fontSize: 12,
           letterSpacing: '0.18em',
           color: 'var(--text-muted)',
         }}
@@ -514,7 +514,7 @@ function PulseHeader({
           <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" style={{ boxShadow: '0 0 12px #FBBF24' }} />
           <span
             className="text-amber-400 font-bold uppercase"
-            style={{ fontSize: 11, letterSpacing: '0.2em' }}
+            style={{ fontSize: 12, letterSpacing: '0.2em' }}
           >
             ★ Pulse
           </span>
@@ -635,7 +635,7 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span style={{ fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
-            {Math.round(pct)}<span className="text-lg opacity-60">%</span>
+            {Math.round(pct)}<span className="text-lg" style={{ color: 'var(--text-secondary)' }}>%</span>
           </span>
         </div>
       </div>
@@ -661,7 +661,7 @@ function Sparkline({ pulse }: { pulse: UserPulse }) {
   void pulse;
   return (
     <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-      <div className="text-[11px] text-center" style={{ color: 'var(--text-muted)' }}>
+      <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
         Тренд за 6 месяцев — скоро (после первого месяца замеров)
       </div>
     </div>
@@ -748,7 +748,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: meta.color }} />
             <div>
               <div className="text-sm font-medium">{meta.label}</div>
-              <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{meta.range}</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{meta.range}</div>
             </div>
             <div
               style={{
@@ -768,7 +768,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
       <h3
         className="font-bold uppercase mb-2.5"
         style={{
-          fontSize: 11,
+          fontSize: 12,
           letterSpacing: '0.18em',
           color: 'var(--text-muted)',
         }}
@@ -784,7 +784,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
           <div key={p.key}>
             <div className="flex justify-between mb-1">
               <span style={{ color: 'var(--text-secondary)' }}>{p.label}</span>
-              <span style={{ color: LEVEL_META[p.key].color, fontWeight: 700, fontSize: 11 }}>
+              <span style={{ color: LEVEL_META[p.key].color, fontWeight: 700, fontSize: 12 }}>
                 {p.count} / {total} · {Math.round(p.share)}%
               </span>
             </div>
@@ -901,7 +901,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
               </span>
               <span
                 className="font-bold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 rounded-md"
-                style={{ fontSize: 13 }}
+                style={{ fontSize: 14 }}
               >
                 +{gainPerCourse(course)}%
               </span>
@@ -961,7 +961,7 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
               </span>
               <span
                 className="text-emerald-400 font-bold"
-                style={{ fontSize: 13 }}
+                style={{ fontSize: 14 }}
               >
                 +{Math.ceil(gap)}% →
               </span>
@@ -1191,7 +1191,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
               </div>
               {/* Полоска-распределение под радаром */}
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-                <div className="text-[11px] uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
+                <div className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
                   Распределение
                 </div>
                 <RoleDistributionBar members={mem} />
@@ -1217,7 +1217,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
             >
               <h3
                 className="font-bold uppercase mb-3"
-                style={{ fontSize: 11, letterSpacing: '0.18em', color: 'var(--text-muted)' }}
+                style={{ fontSize: 12, letterSpacing: '0.18em', color: 'var(--text-muted)' }}
               >
                 {label} ({mem.length})
               </h3>

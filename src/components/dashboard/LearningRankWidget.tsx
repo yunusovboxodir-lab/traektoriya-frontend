@@ -368,8 +368,8 @@ export function LearningRankWidget() {
                   #{my_rank}
                 </div>
                 <div>
-                  {/* opacity 0.85 → 0.92: на светлой теме давало ~4.0:1 (ниже AA на 10px) */}
-                  <p className="text-[11px] uppercase tracking-widest" style={{ color: 'var(--color-rm)', opacity: 0.92 }}>
+                  {/* пол читабельности: 11px → text-xs, opacity убран (контраст токеном цвета) */}
+                  <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--color-rm)' }}>
                     Твой ранг
                   </p>
                   <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
@@ -480,7 +480,7 @@ function PodiumPlayer({
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          fontSize: isChampion ? 13 : 11,
+          fontSize: isChampion ? 14 : 12,
         }}
         title={entry.full_name}
       >
@@ -490,16 +490,16 @@ function PodiumPlayer({
       {/* Контекст: регион · дилер · СВ */}
       {orgLine(entry) && (
         <div
-          className="text-[10px] text-center w-full mt-0.5"
+          className="text-xs text-center w-full mt-0.5"
           style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
           title={orgLine(entry)}
         >
           {orgLine(entry)}
         </div>
       )}
-      {/* Уровень — было text-[9px] (UX-прогон 2026-07-02: тир-бейджи нечитаемы мелкими) → 11px */}
+      {/* Уровень — пол читабельности 12px (text-xs) */}
       <span
-        className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-medium"
+        className="inline-block mt-0.5 px-1.5 py-0.5 rounded text-xs font-medium"
         style={{ background: lvl.bg, color: lvl.color }}
       >
         {levelName(entry.current_level)}
@@ -517,8 +517,8 @@ function PodiumPlayer({
               <span style={{ color: 'var(--color-rm)' }}>{Math.round(entry.total_score)}</span>
               <span style={{ color: 'var(--text-muted)', fontSize: '0.75em' }}> /100</span>
             </div>
-            {/* было text-[9px] — UX-прогон 2026-07-02: подпись мелкая → 11px */}
-            <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+            {/* пол читабельности: 12px (text-xs) */}
+            <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
               📚 {Math.round(entry.learning_score ?? 0)}
               <span className="mx-1">·</span>
               🔥 {Math.round(entry.activity_score ?? 0)}
@@ -527,7 +527,7 @@ function PodiumPlayer({
             </div>
           </>
         ) : (
-          <div className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
             {entry.courses_completed} курс · {entry.avg_quiz_score}%
           </div>
         )}
@@ -570,17 +570,17 @@ function LeaderboardRow({
           style={{ color: isMe ? 'var(--color-rm)' : 'var(--text-primary)' }}
         >
           {entry.full_name || entry.employee_id}
-          {/* opacity 0.8 → 0.95: на золотом tint светлой темы давало ~3.45:1 (ниже AA) */}
-          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)', opacity: 0.95 }}>(вы)</span>}
+          {/* opacity на тексте запрещён — цвет токеном без прозрачности */}
+          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)' }}>(вы)</span>}
         </p>
         {orgLine(entry) && (
-          <p className="truncate text-[11px] mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
+          <p className="truncate text-xs mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
             {orgLine(entry)}
           </p>
         )}
-        {/* было text-[10px] — UX-прогон 2026-07-02: тир-бейджи мелкие → 11px */}
+        {/* пол читабельности: тир-бейджи 12px (text-xs) */}
         <span
-          className="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium mt-0.5"
+          className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium mt-0.5"
           style={{ background: cfg.bg, color: cfg.color }}
         >
           {levelName(entry.current_level)}
@@ -597,8 +597,8 @@ function LeaderboardRow({
             >
               {Math.round(entry.total_score)}
             </p>
-            {/* было text-[9px] — подпись breakdown → 11px */}
-            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
+            {/* пол читабельности: breakdown 12px (text-xs) */}
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
               📚{Math.round(entry.learning_score ?? 0)} · 🔥{Math.round(entry.activity_score ?? 0)} · ⏱{Math.round(entry.streak_score ?? 0)}
             </p>
           </>
@@ -607,7 +607,7 @@ function LeaderboardRow({
             <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
               {entry.courses_completed}
             </p>
-            <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{entry.avg_quiz_score}%</p>
           </>
         )}
       </div>

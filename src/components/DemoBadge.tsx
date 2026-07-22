@@ -24,7 +24,7 @@ export function DemoBadge({ className, style }: DemoBadgeProps) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        fontSize: 9,
+        fontSize: 12, // пол читабельности 12px (Кодекс 01c §3)
         fontWeight: 700,
         letterSpacing: '0.1em',
         textTransform: 'uppercase',

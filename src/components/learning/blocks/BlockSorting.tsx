@@ -48,7 +48,7 @@ export function BlockSorting({ data, accent, accentSoft, onAnswer, onReady }: Pr
   return (
     <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u{1F522}'} {t.blocks.sortOrder}</>}>
         <div className="text-sm font-bold mb-1">{bl(data.title, lang)}</div>
-        <div className={`text-[11px] mb-3 ${allDone ? 'text-status-success-fg font-semibold' : 'text-fg-subtle'}`}>
+        <div className={`text-xs mb-3 ${allDone ? 'text-status-success-fg font-semibold' : 'text-fg-subtle'}`}>
           {allDone ? `\u2705 ${t.blocks.correctOrder}` : (bl(data.subtitle, lang) || t.blocks.tapInOrder)}
         </div>
 
@@ -77,7 +77,7 @@ export function BlockSorting({ data, accent, accentSoft, onAnswer, onReady }: Pr
                 >
                   {isPlaced ? item.correctPosition : '?'}
                 </span>
-                <span className="text-[13px]">{bl(item.label, lang)}</span>
+                <span className="text-sm">{bl(item.label, lang)}</span>
               </div>
             );
           })}

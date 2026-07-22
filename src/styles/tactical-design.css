@@ -244,16 +244,14 @@
 
 * { box-sizing: border-box; }
 
-html, body {
-  margin: 0;
-  background: var(--bg-0);
-  color: var(--text-0);
-  font-family: var(--font-body);
-  font-size: 13px;
-  line-height: 1.4;
-  min-height: 100vh;
-  overflow-x: auto;
-}
+/* ГЛОБАЛЬНАЯ УТЕЧКА УБРАНА (2026-07-22, «пол читабельности», Кодекс 01c §3):
+   раньше здесь стояло html, body { font-size: 13px; ... } — файл попадает в общий
+   бандл и перебивал html { font-size: 17px } из index.css НА ВСЕХ страницах.
+   Базовая типографика тактических страниц перевешена на .tactical-root (ниже,
+   секция Layout). Все размеры в этом файле заданы в px — от корневого
+   font-size не зависят, пересчёт не нужен. Фоновые правила body { ... } ниже
+   не трогали (отдельный вопрос, фон на тактических страницах перекрывается
+   собственным фоном .tactical-root). */
 
 body {
   background:
@@ -311,8 +309,8 @@ body::after {
   display: flex; align-items: baseline; gap: 12px;
 }
 .sb-mod-num { color: var(--cyan); font-weight: 700; }
-.sb-mod-name { color: var(--text-0); font-weight: 700; font-size: 13px; }
-.sb-mod-sub { color: var(--text-2); font-size: 10px; }
+.sb-mod-name { color: var(--text-0); font-weight: 700; font-size: 14px; }
+.sb-mod-sub { color: var(--text-2); font-size: 11px; }
 .brand { display: flex; align-items: center; gap: 12px; }
 .brand-logo {
   width: 38px; height: 38px; border-radius: 4px;
@@ -335,11 +333,17 @@ body::after {
 }
 .brand-tag {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 8px;
+  /* 8 → 11px: HUD-микрометка бренда (пол читабельности, плотность сохранена).
+     nowrap + ellipsis — чтобы укрупнение не переносило тэглайн на 2-ю строку
+     и не раздувало statusbar по высоте. */
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--text-3);
   margin-top: 3px;
   text-transform: lowercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ============ BRAND BUTTON + NAV MENU ============ */
@@ -418,7 +422,7 @@ body::after {
 }
 .nav-section {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.28em;
   color: var(--brass);
   padding: 4px 16px 10px;
@@ -472,7 +476,7 @@ body::after {
 }
 .nav-label-sub {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--text-3);
 }
@@ -487,7 +491,7 @@ body::after {
   display: flex;
   justify-content: space-between;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--text-3);
   padding: 12px 16px;
@@ -495,7 +499,7 @@ body::after {
   margin-top: 6px;
 }
 .sb-divider { width: 1px; height: 22px; background: var(--line); }
-.sb-meta { color: var(--text-2); font-size: 10px; display: flex; align-items: center; gap: 8px; }
+.sb-meta { color: var(--text-2); font-size: 11px; display: flex; align-items: center; gap: 8px; }
 .sb-meta strong { color: var(--text-0); font-weight: 500; letter-spacing: 0.18em; }
 .sb-pulse {
   width: 7px; height: 7px; border-radius: 50%;
@@ -518,7 +522,7 @@ body::after {
   color: var(--text-1);
   padding: 6px 14px;
   font-family: inherit;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   cursor: pointer;
   border-radius: 2px;
@@ -533,7 +537,7 @@ body::after {
   border-radius: 3px;
   overflow: hidden;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   margin-right: 4px;
   background: var(--bg-elevated);
@@ -635,7 +639,7 @@ body::after {
   display: flex;
   gap: 24px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text-3);
 }
@@ -712,21 +716,21 @@ body::after {
 }
 .panel-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--cyan);
   font-weight: 700;
 }
 .panel-code {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text-3);
 }
 .divider { height: 1px; background: var(--line-soft); margin: 16px 0; }
 .section-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.22em;
   color: var(--text-3);
   margin-bottom: 10px;
@@ -755,7 +759,7 @@ body::after {
 }
 .hero-role {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text-2);
   margin-top: 4px;
@@ -803,7 +807,7 @@ body::after {
 }
 .metric-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--text-3);
 }
@@ -817,7 +821,7 @@ body::after {
   gap: 4px;
 }
 .metric-unit {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--text-2);
   letter-spacing: 0.05em;
@@ -843,7 +847,7 @@ body::after {
   /* Числовое значение статистики (13px) — данные, не HUD-лейбл. Mono запрещён
      <14px (17_game_layer §в/ж.3) → наследуем body-шрифт (Golos). */
   font-weight: 700;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-0);
 }
 
@@ -858,7 +862,7 @@ body::after {
   color: var(--text-1);
   padding: 8px 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-align: left;
   display: flex;
@@ -876,14 +880,26 @@ body::after {
   box-shadow: 0 0 12px color-mix(in oklch, var(--c) 30%, transparent);
 }
 .chip-num { color: var(--c); font-weight: 700; }
-.chip-name { color: var(--text-1); font-weight: 600; flex: 1; font-size: 9px; }
+/* 9 → 11px (HUD-микрометка); min-width:0 + ellipsis — flex-ребёнок, при
+   укрупнении длинные имена территорий не должны распирать чип (2 колонки). */
+.chip-name {
+  color: var(--text-1);
+  font-weight: 600;
+  flex: 1;
+  font-size: 11px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .chip-count {
   /* Число курсов территории — данные, не лейбл. Родитель .zone-chip задаёт
      Mono — сбрасываем на body-шрифт (17_game_layer §в/ж.3). */
   font-family: var(--font-body);
   color: var(--c);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
   background: color-mix(in oklch, var(--c) 15%, transparent);
   padding: 1px 6px;
   border-radius: 1px;
@@ -900,7 +916,7 @@ body::after {
   font-size: 12px;
 }
 .team-id { color: var(--text-1); }
-.team-role { color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 9px; }
+.team-role { color: var(--text-3); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 .team-bar {
   height: 4px;
   background: var(--bg-surface);
@@ -914,7 +930,8 @@ body::after {
 }
 .team-pct {
   /* Процент прогресса — данные, не лейбл (17_game_layer §в/ж.3). */
-  font-size: 11px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--text-1);
   font-weight: 600;
@@ -944,7 +961,7 @@ body::after {
   padding: 14px 18px;
   border-bottom: 1px solid var(--line-soft);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
 }
 .map-toolbar-title {
@@ -953,12 +970,12 @@ body::after {
 }
 .map-toolbar-meta {
   color: var(--text-3);
-  font-size: 9px;
+  font-size: 11px;
 }
 .map-toolbar-spacer { flex: 1; }
 .map-coord {
   color: var(--text-3);
-  font-size: 9px;
+  font-size: 11px;
 }
 .map-canvas {
   position: relative;
@@ -971,7 +988,7 @@ body::after {
   padding: 12px 18px;
   border-top: 1px solid var(--line-soft);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   color: var(--text-2);
   flex-wrap: wrap;
@@ -1000,7 +1017,7 @@ body::after {
   border: 1px solid var(--line);
   border-radius: 3px;
   padding: 14px;
-  font-size: 11px;
+  font-size: 12px;
   z-index: 5;
   box-shadow: 0 8px 30px oklch(0.05 0.02 250 / 0.7);
 }
@@ -1012,7 +1029,7 @@ body::after {
 .nd-head {
   display: flex; justify-content: space-between; align-items: baseline;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   color: var(--text-3);
   margin-bottom: 6px;
@@ -1021,11 +1038,12 @@ body::after {
 .nd-stats {
   display: flex; gap: 14px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-2);
   margin-bottom: 12px;
 }
-.nd-stats b { color: var(--text-0); font-weight: 500; }
+/* Числа внутри — данные, не лейбл: Mono запрещён <14px (17_game_layer §в/ж.3). */
+.nd-stats b { color: var(--text-0); font-weight: 500; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
 .nd-actions { display: flex; gap: 6px; }
 .nd-btn {
   flex: 1;
@@ -1034,7 +1052,7 @@ body::after {
   color: var(--text-1);
   padding: 8px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   cursor: pointer;
   border-radius: 2px;
@@ -1050,7 +1068,7 @@ body::after {
 /* ============ RECS ============ */
 .recs-meta {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--text-3);
   margin-bottom: 12px;
@@ -1089,7 +1107,7 @@ body::after {
 .rec-head {
   display: flex; justify-content: space-between; align-items: center;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   margin-bottom: 4px;
 }
@@ -1098,14 +1116,16 @@ body::after {
   border: 1px solid;
   padding: 1px 6px;
   border-radius: 1px;
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
 }
-.rec-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.rec-title { font-size: 14px; font-weight: 600; line-height: 1.3; }
 .rec-sub { color: var(--text-2); font-weight: 400; }
 .rec-foot {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  /* +XP и минуты — числовые данные: Mono запрещён <14px (17_game_layer §в/ж.3). */
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
   color: var(--text-2);
   margin-top: 4px;
   display: flex; gap: 6px; align-items: baseline;
@@ -1134,7 +1154,7 @@ body::after {
   color: var(--text-2);
   padding: 10px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.2em;
   cursor: pointer;
   border-radius: 2px;
@@ -1161,12 +1181,12 @@ body::after {
 .award-row.locked .award-medal { filter: none; }
 .award-head {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.15em;
   color: var(--text-3);
 }
 .award-name { font-size: 14px; font-weight: 700; margin: 2px 0; }
-.award-sub { font-size: 11px; color: var(--text-2); }
+.award-sub { font-size: 12px; color: var(--text-2); }
 
 /* Tweaks panel host overrides */
 .tweaks-panel {
@@ -1186,7 +1206,10 @@ body::after {
   background-attachment: fixed;
   color: var(--text-0);
   font-family: var(--font-body);
-  font-size: 13px;
+  /* Базовый размер тактических страниц: был 13px глобально (html, body) —
+     перевешен сюда и поднят до пола читабельности (13 → 14, Кодекс 01c §3 п.7). */
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .tactical-main {

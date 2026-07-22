@@ -47,7 +47,7 @@ export function AssortmentAcademyPage() {
           onClick={() => navigate('/learning')}
           style={{
             background: 'none', border: 'none', color: 'var(--brass)', cursor: 'pointer',
-            fontFamily: 'JetBrains Mono, monospace', fontSize: 12, padding: 0, marginBottom: 14,
+            fontSize: 12, padding: 0, marginBottom: 14,
           }}
         >
           {lang === 'uz' ? "← O'qish xaritasiga" : '← К карте обучения'}
@@ -71,7 +71,7 @@ export function AssortmentAcademyPage() {
             <div style={{ flex: 1, height: 8, background: 'var(--bg-elevated)', borderRadius: 6, overflow: 'hidden' }}>
               <div style={{ width: `${pct}%`, height: '100%', background: '#E67E22', transition: 'width .3s' }} />
             </div>
-            <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--brass)' }}>
+            <span style={{ fontSize: 12, color: 'var(--brass)', fontVariantNumeric: 'tabular-nums' }}>
               {completed}/{courses.length} · {pct}%
             </span>
           </div>
@@ -90,7 +90,7 @@ export function AssortmentAcademyPage() {
           <div key={lvl.level} style={{ marginBottom: 18 }}>
             <div
               style={{
-                fontFamily: 'JetBrains Mono, monospace', fontSize: 11, letterSpacing: '0.14em',
+                fontSize: 12, fontWeight: 600, letterSpacing: '0.14em',
                 textTransform: 'uppercase', color: 'var(--brass)', margin: '14px 0 8px',
               }}
             >
@@ -116,7 +116,7 @@ export function AssortmentAcademyPage() {
                     style={{
                       width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      fontFamily: 'JetBrains Mono, monospace', fontSize: 12, fontWeight: 700,
+                      fontSize: 12, fontWeight: 700, fontVariantNumeric: 'tabular-nums',
                       background: done ? 'rgba(80,180,120,0.18)' : 'var(--bg-elevated)',
                       color: done ? 'var(--success, #57b884)' : 'var(--brass)',
                       border: `1px solid ${done ? 'var(--success, #57b884)' : 'var(--line)'}`,
@@ -133,7 +133,7 @@ export function AssortmentAcademyPage() {
                       {done && c.quiz_score != null ? ` · ${lang === 'uz' ? 'natija' : 'результат'} ${c.quiz_score}%` : ''}
                     </span>
                   </span>
-                  <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 12, color: 'var(--brass)' }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--brass)' }}>
                     {done ? (lang === 'uz' ? 'Qayta' : 'Повторить') : (lang === 'uz' ? 'Boshlash' : 'Начать')}
                   </span>
                 </button>

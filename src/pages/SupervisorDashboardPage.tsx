@@ -500,7 +500,7 @@ function TeamTab({
                         <span className="text-green-500 text-xs">✅ Нет</span>
                       ) : (
                         agent.weak_zones.map((z, i) => (
-                          <span key={i} className="bg-red-50 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-medium">
+                          <span key={i} className="bg-red-50 text-red-700 text-xs px-1.5 py-0.5 rounded font-medium">
                             {z}
                           </span>
                         ))
@@ -569,7 +569,7 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                   <div className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${info.bg} ${info.color} font-medium`}>
                     {info.label}
                   </div>
-                  <div className="text-[10px] text-gray-400 mt-1">{ld.percentage}%</div>
+                  <div className="text-xs text-gray-400 mt-1">{ld.percentage}%</div>
                 </div>
               );
             })}
@@ -644,7 +644,7 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                       {m.needs_attention ? (
                         <div className="flex flex-wrap gap-1">
                           {m.attention_reasons.map((r, i) => (
-                            <span key={i} className="bg-red-100 text-red-700 text-[10px] px-1.5 py-0.5 rounded font-medium">
+                            <span key={i} className="bg-red-100 text-red-700 text-xs px-1.5 py-0.5 rounded font-medium">
                               {r === 'no_training' ? '📚 Нет обучения' :
                                r === 'low_score' ? '📉 Низкие оценки' :
                                r === 'low_completion' ? '⚠️ Мало курсов' :

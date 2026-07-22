@@ -114,7 +114,7 @@ export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspot
 
               {/* Label on check */}
               {showLabels && (isClicked || (checked && isCorrectSpot)) && (
-                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold bg-black/75 text-white px-1.5 py-0.5 rounded">
+                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-bold bg-black/75 text-white px-1.5 py-0.5 rounded">
                   {spot.label}
                 </span>
               )}

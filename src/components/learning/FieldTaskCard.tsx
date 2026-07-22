@@ -49,7 +49,7 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
             {task.criteria.map((criterion, i) => (
               <div key={i} className="flex items-start gap-3">
                 <div className="w-5 h-5 rounded border-2 border-amber-300 bg-white flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-[10px] text-amber-400">{i + 1}</span>
+                  <span className="text-xs text-amber-400">{i + 1}</span>
                 </div>
                 <span className="text-sm text-amber-800">{bl(criterion, lang)}</span>
               </div>

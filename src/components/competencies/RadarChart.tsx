@@ -155,7 +155,7 @@ export function RadarChart({
             x={cx}
             y={cy - level * maxR - 4}
             textAnchor="middle"
-            style={{ fontSize: '9px', fill: 'var(--text-muted)', fontWeight: 500 }}
+            style={{ fontSize: '12px', fill: 'var(--text-muted)', fontWeight: 500 }}
           >
             {Math.round(level * 100)}
           </text>
@@ -229,7 +229,7 @@ export function RadarChart({
                 textAnchor={anchor}
                 dominantBaseline="central"
                 style={{
-                  fontSize: '11px',
+                  fontSize: '12px',
                   fill: 'var(--text-primary)',
                   fontWeight: 600,
                   fontFamily: "'Inter','Golos Text',sans-serif",
@@ -247,7 +247,7 @@ export function RadarChart({
                   textAnchor={anchor}
                   dominantBaseline="central"
                   style={{
-                    fontSize: '11px',
+                    fontSize: '12px',
                     fill: 'var(--text-primary)',
                     fontWeight: 600,
                     fontFamily: "'Inter','Golos Text',sans-serif",
@@ -305,7 +305,7 @@ export function RadarChart({
           {/* было хардкод #C8A84B — на светлой теме ≈2.3:1 на --bg-elevated
               (UX-прогон 2026-07-02). --color-rm уже даёт ≥4.5:1 в обеих темах */}
           <div style={{
-            fontSize: 13,
+            fontSize: 14,
             fontWeight: 700,
             color: 'var(--color-rm)',
             marginBottom: 6,
@@ -324,7 +324,7 @@ export function RadarChart({
               marginTop: 8,
               paddingTop: 6,
               borderTop: '1px solid var(--border)',
-              fontSize: 11,
+              fontSize: 12,
               color: '#E5C76B',
             }}>
               Клик — открыть курсы

@@ -31,7 +31,7 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
   return (
     <BlockCard accent={accent} accentSoft={accentSoft} label={<>{'\u{1F4AC}'} {t.blocks.whatSay}</>}>
         {/* Situation */}
-        <div className="bg-status-info-bg rounded-xl p-3 mb-3 text-[13px] leading-relaxed">
+        <div className="bg-status-info-bg rounded-xl p-3 mb-3 text-sm leading-relaxed">
           <span dangerouslySetInnerHTML={{ __html: bl(data.situation, lang) }} />
         </div>
 
@@ -55,10 +55,10 @@ export function BlockDialogueChoice({ data, accent, accentSoft, onAnswer, onRead
               <div
                 key={i}
                 onClick={() => handleSelect(i)}
-                className={`flex items-start gap-2.5 p-3 border-2 rounded-xl cursor-pointer text-[13px] leading-snug
+                className={`flex items-start gap-2.5 p-3 border-2 rounded-xl cursor-pointer text-sm leading-snug
                   transition-all active:scale-[0.98] ${optClass} ${selected !== null ? 'pointer-events-none' : ''}`}
               >
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0 ${letterClass}`}>
+                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${letterClass}`}>
                   {opt.letter}
                 </span>
                 <span>{bl(opt.text, lang)}</span>

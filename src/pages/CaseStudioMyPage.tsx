@@ -91,10 +91,10 @@ export function CaseStudioMyPage() {
 
       {/* Hero card with total XP */}
       <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, var(--success), #0B7568)', color: 'var(--text-inverse)' }}>
-        <div className="text-sm uppercase tracking-wider mb-1" style={{ opacity: 0.8 }}>Всего XP</div>
+        <div className="text-sm uppercase tracking-wider mb-1">Всего XP</div>
         <div className="text-5xl font-bold mb-2">{stats.total_xp}</div>
         {myRank && (
-          <div className="text-sm" style={{ opacity: 0.9 }}>
+          <div className="text-sm">
             Место в лидерборде: <strong>#{myRank}</strong> из {leaderboard.length}
           </div>
         )}

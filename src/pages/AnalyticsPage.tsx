@@ -307,7 +307,7 @@ export function AnalyticsPage() {
                   >
                     <span>{icon}</span>
                     {t(labelKey)}
-                    <span className="ml-auto text-gray-400 text-[10px]">.xlsx</span>
+                    <span className="ml-auto text-gray-400 text-xs">.xlsx</span>
                   </button>
                 ))}
               </div>

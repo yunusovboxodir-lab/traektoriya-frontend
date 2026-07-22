@@ -136,7 +136,7 @@ export function MobileAdminGate({ children }: Props) {
       <p
         className="mt-8"
         style={{
-          fontSize: 10,
+          fontSize: 12, // пол читабельности 12px
           letterSpacing: '0.2em',
           color: 'var(--text-muted)',
           textTransform: 'uppercase',

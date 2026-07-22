@@ -48,20 +48,20 @@ export function BlockMistakeAnalysis({ data, accent, accentSoft, onAnswer, onRea
 
             return (
               <div key={i} className="border border-border-default rounded-xl p-3">
-                <div className="text-[13px] leading-snug mb-2.5">{bl(item.label, lang)}</div>
+                <div className="text-sm leading-snug mb-2.5">{bl(item.label, lang)}</div>
 
                 {!answered ? (
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleJudge(i, true)}
-                      className="flex-1 py-2 rounded-lg border-2 border-status-danger-fg text-status-danger-fg text-[13px] font-semibold
+                      className="flex-1 py-2 rounded-lg border-2 border-status-danger-fg text-status-danger-fg text-sm font-semibold
                         transition-all active:scale-[0.98]"
                     >
                       {t.blocks.violation}
                     </button>
                     <button
                       onClick={() => handleJudge(i, false)}
-                      className="flex-1 py-2 rounded-lg border-2 border-status-success-fg text-status-success-fg text-[13px] font-semibold
+                      className="flex-1 py-2 rounded-lg border-2 border-status-success-fg text-status-success-fg text-sm font-semibold
                         transition-all active:scale-[0.98]"
                     >
                       {t.blocks.byStandard}
@@ -80,7 +80,7 @@ export function BlockMistakeAnalysis({ data, accent, accentSoft, onAnswer, onRea
           })}
         </div>
 
-        <div className="text-[11px] text-fg-subtle text-center mt-3">
+        <div className="text-xs text-fg-subtle text-center mt-3">
           {answeredCount} / {data.items.length}
         </div>
     </BlockCard>

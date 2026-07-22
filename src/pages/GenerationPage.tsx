@@ -1097,7 +1097,7 @@ function WizardGeneration() {
                   >
                     {isDone ? <IconCheck className="w-4 h-4" /> : s.num}
                   </div>
-                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-1.5 whitespace-nowrap ${isActive ? 'text-bg-accent font-medium' : 'text-fg-subtle'}`}>
+                  <span className={`text-xs mt-1 sm:mt-1.5 whitespace-nowrap ${isActive ? 'text-bg-accent font-medium' : 'text-fg-subtle'}`}>
                     {s.label}
                   </span>
                 </div>
@@ -1460,7 +1460,7 @@ function StepCompetencies({
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium text-fg-default leading-tight">{comp.name}</p>
                             {comp.domain && (
-                              <span className="text-[10px] text-fg-subtle">{comp.domain}</span>
+                              <span className="text-xs text-fg-subtle">{comp.domain}</span>
                             )}
                           </div>
                           <button

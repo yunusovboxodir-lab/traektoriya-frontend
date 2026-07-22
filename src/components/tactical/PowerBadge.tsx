@@ -124,15 +124,18 @@ export function PowerBadge() {
         }}
       >
         <span style={{ fontSize: 14, lineHeight: 1 }}>⚡</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-0)', letterSpacing: '0.02em' }}>
+        {/* Число мощи — данные: 13 → 14px, Golos + tabular-nums (Mono <14px запрещён) */}
+        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-0)', letterSpacing: '0.02em', fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>
           {data.power.toLocaleString('ru-RU')}
         </span>
+        {/* 10 → 12px (tracking 0.08em < 0.1em — не HUD-исключение, пол 12);
+            opacity с текста убран (иерархия — цветом токена) */}
         <span
           className="power-badge-tier"
           style={{
-            fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
+            fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase',
             color: tier.color, padding: '2px 7px', borderRadius: 5,
-            border: `1px solid ${tier.color}`, opacity: 0.95,
+            border: `1px solid ${tier.color}`,
           }}
         >
           {isUz ? tier.uz : tier.ru}
@@ -175,7 +178,7 @@ export function PowerBadge() {
             <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-0)' }}>
               ⚡ {data.power.toLocaleString('ru-RU')}
             </span>
-            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: tier.color }}>
+            <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: tier.color }}>
               {isUz ? tier.uz : tier.ru}
             </span>
           </div>
@@ -184,7 +187,8 @@ export function PowerBadge() {
           <div style={{ height: 6, borderRadius: 3, background: 'var(--border)', overflow: 'hidden', marginBottom: 4 }}>
             <div style={{ height: '100%', width: `${span}%`, background: next ? next.color : tier.color, transition: 'width 0.4s' }} />
           </div>
-          <div style={{ fontSize: 10, color: 'var(--text-2, #8a93a3)', marginBottom: 12 }}>
+          {/* Числа в строке — данные: Golos + tabular-nums, пол 12px */}
+          <div style={{ fontSize: 12, color: 'var(--text-2, #8a93a3)', marginBottom: 12, fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>
             {next
               ? (isUz
                   ? `${next.uz}gacha: ${data.to_next_tier.toLocaleString('ru-RU')} ⚡`
@@ -193,7 +197,7 @@ export function PowerBadge() {
           </div>
 
           {/* Шпаргалка — из чего складывается Мощь (всегда видна в поповере). */}
-          <div style={{ fontSize: 10, color: 'var(--text-2, #8a93a3)', lineHeight: 1.5, marginBottom: 10 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-2, #8a93a3)', lineHeight: 1.5, marginBottom: 10, fontFamily: 'var(--font-body)' }}>
             {isUz
               ? 'Kuch = Biznes + O‘qish + Yutuqlar + Seriya. Doim yig‘iladi, darajani belgilaydi.'
               : 'Мощь = Бизнес + Обучение + Достижения + Серия. Копится всегда — задаёт тир.'}
@@ -204,8 +208,9 @@ export function PowerBadge() {
             {rows.map((r) => (
               <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 13, width: 18, textAlign: 'center' }}>{r.icon}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-1, #aeb4c2)', flex: 1 }}>{r.label}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: r.color }}>
+                <span style={{ fontSize: 12, color: 'var(--text-1, #aeb4c2)', flex: 1 }}>{r.label}</span>
+                {/* Значение — данные: Golos + tabular-nums (Mono <14px запрещён) */}
+                <span style={{ fontSize: 12, fontWeight: 700, color: r.color, fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>
                   {r.value.toLocaleString('ru-RU')}
                 </span>
               </div>

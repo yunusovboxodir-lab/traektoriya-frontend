@@ -105,7 +105,7 @@ export function MobileBottomNav() {
                 </span>
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 12, // пол читабельности 12px
                     fontWeight: active ? 700 : 500,
                     letterSpacing: '0.04em',
                     fontFamily: 'var(--font-body)',

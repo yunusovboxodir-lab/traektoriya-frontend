@@ -178,7 +178,7 @@ export function TeamLearningTab() {
               return (
                 <div
                   key={ld.level}
-                  className={`${cfg.bar} flex items-center justify-center text-white text-[10px] font-bold transition-all`}
+                  className={`${cfg.bar} flex items-center justify-center text-white text-xs font-bold transition-all`}
                   style={{ width: `${ld.percentage}%`, minWidth: ld.percentage > 0 ? '28px' : 0 }}
                   title={`${t(`team.learning.levels.${ld.level}`)}: ${ld.count}`}
                 >
@@ -314,7 +314,7 @@ function MemberLearningCard({
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-gray-900 truncate text-sm">{m.name}</span>
             {/* Level badge */}
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${levelCfg.bg} ${levelCfg.color}`}>
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${levelCfg.bg} ${levelCfg.color}`}>
               {t(`team.learning.levels.${m.current_level}`)}
             </span>
             {/* Attention icon */}
@@ -337,7 +337,7 @@ function MemberLearningCard({
                   style={{ width: `${Math.min(m.completion_percentage, 100)}%` }}
                 />
               </div>
-              <span className="text-[11px] text-gray-500 whitespace-nowrap">
+              <span className="text-xs text-gray-500 whitespace-nowrap">
                 {m.courses_completed}/{m.courses_total}
               </span>
             </div>
@@ -348,7 +348,7 @@ function MemberLearningCard({
             </span>
 
             {/* Activity */}
-            <span className={`text-[11px] hidden sm:inline ${
+            <span className={`text-xs hidden sm:inline ${
               m.days_since_activity <= 3 ? 'text-emerald-500' : m.days_since_activity <= 7 ? 'text-gray-400' : 'text-red-400'
             }`}>
               {activityText}
@@ -400,7 +400,7 @@ function MemberLearningCard({
           {m.attention_reasons.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-1.5">
               {m.attention_reasons.map(reason => (
-                <span key={reason} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-[11px] font-medium">
+                <span key={reason} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-medium">
                   <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -428,8 +428,8 @@ function DetailStat({
   return (
     <div className={`text-center p-3 ${bg} rounded-xl`}>
       <div className={`text-lg font-bold ${color}`}>{value}</div>
-      <div className="text-[11px] text-gray-500">{label}</div>
-      <div className={`text-[10px] ${color} opacity-70`}>{sub}</div>
+      <div className="text-xs text-gray-500">{label}</div>
+      <div className={`text-xs ${color}`}>{sub}</div>
     </div>
   );
 }

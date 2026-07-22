@@ -13,7 +13,7 @@ import type { StatCardDef } from './charts';
 function AllTimeBadge() {
   return (
     <span
-      className="ml-2 align-middle inline-block px-2 py-0.5 rounded text-[11px] font-medium"
+      className="ml-2 align-middle inline-block px-2 py-0.5 rounded text-xs font-medium"
       style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
     >
       за всё время

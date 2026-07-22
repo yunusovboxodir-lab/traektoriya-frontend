@@ -457,7 +457,7 @@ function HpvTab({
               <h3 className={`text-sm font-semibold ${card.text}`}>{card.title}</h3>
             </div>
             <p className={`text-sm leading-relaxed ${card.text}`}>
-              {card.value || <span className="italic opacity-60">{t('productDetail.notSpecified')}</span>}
+              {card.value || <span className="italic">{t('productDetail.notSpecified')}</span>}
             </p>
           </div>
         ))}
