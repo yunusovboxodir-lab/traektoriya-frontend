@@ -196,8 +196,8 @@ export function LearningRankWidget() {
               {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
             </h2>
             {/* Шпаргалка — всегда видимая строка «как считается рейтинг» под заголовком.
-                text-xs (12px) — UX-прогон 2026-07-02: 11px на грани читаемости в светлой теме. */}
-            <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
+                Кодекс 01c §3 п.9: формула = содержимое, читают → text-sm (14px). */}
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
               <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Рейтинг обучения:</span>{' '}
               <span className="font-semibold" style={{ color: 'var(--success)' }}>{fLearning}</span>
               {' + '}
@@ -208,7 +208,7 @@ export function LearningRankWidget() {
           </div>
           <Link
             to="/learning"
-            className="text-xs font-medium transition-colors"
+            className="text-sm font-medium transition-colors"
             style={{ color: 'var(--color-rm)' }}
           >
             {t('dashboard.leaderboard.goToLearning') || 'К обучению'} →
@@ -220,7 +220,7 @@ export function LearningRankWidget() {
           {/* Role selector — только admin */}
           {isAdmin && (
             <div
-              className="inline-flex rounded-lg p-1"
+              className="inline-flex flex-wrap rounded-lg p-1"
               style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
             >
               {ROLE_OPTIONS.map((r) => (
@@ -228,7 +228,7 @@ export function LearningRankWidget() {
                   key={r.value}
                   type="button"
                   onClick={() => setSelectedRole(r.value)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                  className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${
                     selectedRole === r.value
                       ? 'bg-amber-400 text-[#0a1929]'
                       : ''
@@ -245,7 +245,7 @@ export function LearningRankWidget() {
 
           {/* Period selector */}
           <div
-            className="inline-flex rounded-lg p-1"
+            className="inline-flex flex-wrap rounded-lg p-1"
             style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}
           >
             {PERIOD_OPTIONS.map((p) => (
@@ -253,7 +253,7 @@ export function LearningRankWidget() {
                 key={p.value}
                 type="button"
                 onClick={() => setPeriod(p.value)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-all ${
                   period === p.value
                     ? 'bg-amber-400 text-[#0a1929]'
                     : ''
@@ -471,26 +471,25 @@ function PodiumPlayer({
       >
         {initials}
       </div>
-      {/* Имя */}
+      {/* Имя — содержимое, читают → 14px (Кодекс 01c §3 п.9); truncate сохранён */}
       <div
-        className="text-xs font-semibold text-center w-full"
+        className="text-sm font-semibold text-center w-full"
         style={{
           color: 'var(--text-primary)',
           maxWidth: '100%',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          fontSize: isChampion ? 14 : 12,
         }}
         title={entry.full_name}
       >
         {entry.full_name || entry.employee_id}
         {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>★</span>}
       </div>
-      {/* Контекст: регион · дилер · СВ */}
+      {/* Контекст: регион · дилер · СВ — содержимое → text-sm; truncate сохранён */}
       {orgLine(entry) && (
         <div
-          className="text-xs text-center w-full mt-0.5"
+          className="text-sm text-center w-full mt-0.5"
           style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
           title={orgLine(entry)}
         >
@@ -574,7 +573,7 @@ function LeaderboardRow({
           {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)' }}>(вы)</span>}
         </p>
         {orgLine(entry) && (
-          <p className="truncate text-xs mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
+          <p className="truncate text-sm mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
             {orgLine(entry)}
           </p>
         )}

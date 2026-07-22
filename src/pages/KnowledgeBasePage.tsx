@@ -265,14 +265,14 @@ function FolderSidebar({
                       key={cat}
                       type="button"
                       onClick={() => { setActiveFilter(type); setActiveCategory(cat); }}
-                      className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-xs transition-colors ${
+                      className={`w-full flex items-center justify-between px-2 py-1.5 rounded text-sm transition-colors ${
                         activeCategory === cat
                           ? 'bg-bg-accent text-fg-on-accent font-medium'
                           : 'hover:bg-bg-muted text-fg-muted'
                       }`}
                     >
-                      <span className="truncate">{cat}</span>
-                      <span className="text-fg-subtle">{catCount}</span>
+                      <span className="truncate min-w-0">{cat}</span>
+                      <span className="text-fg-subtle text-xs flex-shrink-0">{catCount}</span>
                     </button>
                   );
                 })}
@@ -858,7 +858,7 @@ export function KnowledgeBasePage() {
           />
           {/* ---- Bulk Action Bar ---- */}
           {canWrite && selectedIds.size > 0 && (
-            <div className="mb-3 flex items-center gap-3 bg-bg-muted border border-border-accent rounded-xl px-4 py-3">
+            <div className="mb-3 flex flex-wrap items-center gap-3 bg-bg-muted border border-border-accent rounded-xl px-4 py-3">
               <span className="text-sm font-medium text-fg-default">
                 {t('kb.selected', { count: selectedIds.size })} {pluralize(selectedIds.size, 'документ', 'документа', 'документов')}
               </span>
@@ -866,7 +866,7 @@ export function KnowledgeBasePage() {
                 <button
                   type="button"
                   onClick={() => { setShowBulkEdit(true); setBulkDocType(''); setBulkCategory(''); setBulkCategoryClear(false); }}
-                  className="px-3 py-1.5 text-xs font-medium text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm font-medium text-fg-on-accent bg-bg-accent hover:bg-bg-accent-hover rounded-lg transition-colors"
                 >
                   {t('kb.changeTypePosition')}
                 </button>
@@ -876,14 +876,14 @@ export function KnowledgeBasePage() {
                       type="button"
                       onClick={handleBulkDelete}
                       disabled={isBulkUpdating}
-                      className="px-3 py-1.5 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded-lg transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 text-sm font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded-lg transition-colors disabled:opacity-50"
                     >
                       {isBulkUpdating ? t('kb.deleting') : t('kb.yesDelete')}
                     </button>
                     <button
                       type="button"
                       onClick={() => setBulkDeleteConfirm(false)}
-                      className="px-3 py-1.5 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded-lg transition-colors"
+                      className="px-3 py-1.5 text-sm font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded-lg transition-colors"
                     >
                       {t('kb.cancel')}
                     </button>
@@ -892,7 +892,7 @@ export function KnowledgeBasePage() {
                   <button
                     type="button"
                     onClick={() => setBulkDeleteConfirm(true)}
-                    className="px-3 py-1.5 text-xs font-medium text-status-danger-fg bg-status-danger-bg hover:bg-status-danger-bg rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-sm font-medium text-status-danger-fg bg-status-danger-bg hover:bg-status-danger-bg rounded-lg transition-colors"
                   >
                     {t('kb.delete')}
                   </button>
@@ -1057,14 +1057,14 @@ export function KnowledgeBasePage() {
                               <button
                                 type="button"
                                 onClick={() => handleDelete(doc.id)}
-                                className="px-2 py-1 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
+                                className="px-2 py-1 text-sm font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
                               >
                                 {t('kb.yes')}
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setDeleteConfirmId(null)}
-                                className="px-2 py-1 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
+                                className="px-2 py-1 text-sm font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
                               >
                                 {t('kb.no')}
                               </button>
@@ -1148,14 +1148,14 @@ export function KnowledgeBasePage() {
                           <button
                             type="button"
                             onClick={() => handleDelete(doc.id)}
-                            className="px-2 py-1 text-xs font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
+                            className="px-2 py-1 text-sm font-medium text-bg-canvas bg-status-danger-fg hover:opacity-90 rounded transition-colors"
                           >
                             {t('kb.yes')}
                           </button>
                           <button
                             type="button"
                             onClick={() => setDeleteConfirmId(null)}
-                            className="px-2 py-1 text-xs font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
+                            className="px-2 py-1 text-sm font-medium text-fg-muted bg-bg-muted hover:bg-bg-surface-raised rounded transition-colors"
                           >
                             {t('kb.no')}
                           </button>

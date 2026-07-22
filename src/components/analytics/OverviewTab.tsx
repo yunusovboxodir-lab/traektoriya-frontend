@@ -242,10 +242,10 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                       </div>
                     </td>
                     <td className="py-2.5 pr-4 hidden sm:table-cell">
-                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[entry.role] ?? entry.role}</span>
+                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[entry.role] ?? entry.role}</span>
                     </td>
                     <td className="py-2.5 pr-4 hidden md:table-cell">
-                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{entry.region ?? '—'}</span>
+                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{entry.region ?? '—'}</span>
                     </td>
                     <td className="py-2.5 text-right">
                       <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
@@ -327,7 +327,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {byRole.map((r) => (
                     <div key={r.role} className="rounded-lg p-3" style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}>
-                      <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[r.role] ?? r.role}</div>
+                      <div className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[r.role] ?? r.role}</div>
                       <div className="flex items-baseline gap-3 text-sm">
                         <span style={{ color: 'var(--text-primary)' }}><strong>{r.completed}</strong> / {r.enrolled}</span>
                         <span style={{ color: 'var(--text-muted)' }}>ср. {r.avg_score}%</span>
@@ -357,7 +357,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                       {byCourse.map((c) => (
                         <tr key={c.course_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                           <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{c.title}</td>
-                          <td className="py-2 pl-4 hidden sm:table-cell text-xs" style={{ color: 'var(--text-muted)' }}>{c.role ? (ROLE_LABELS[c.role] ?? c.role) : '—'}</td>
+                          <td className="py-2 pl-4 hidden sm:table-cell text-sm" style={{ color: 'var(--text-muted)' }}>{c.role ? (ROLE_LABELS[c.role] ?? c.role) : '—'}</td>
                           <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.enrolled}</td>
                           <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.completed}</td>
                         </tr>

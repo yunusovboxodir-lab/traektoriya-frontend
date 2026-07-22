@@ -95,9 +95,9 @@ const LEVEL_LABELS: Record<string, { label: string; color: string; bg: string }>
 };
 
 const TrendIcon = ({ trend, change }: { trend: string; change: number }) => {
-  if (trend === 'up') return <span className="text-green-600 font-bold text-xs">▲ +{change.toFixed(1)}</span>;
-  if (trend === 'down') return <span className="text-red-600 font-bold text-xs">▼ {change.toFixed(1)}</span>;
-  return <span className="text-gray-400 text-xs">— стабильно</span>;
+  if (trend === 'up') return <span className="text-green-600 font-bold text-sm">▲ +{change.toFixed(1)}</span>;
+  if (trend === 'down') return <span className="text-red-600 font-bold text-sm">▼ {change.toFixed(1)}</span>;
+  return <span className="text-gray-400 text-sm">— стабильно</span>;
 };
 
 // =============================================================================
@@ -258,11 +258,11 @@ export function SupervisorDashboardPage() {
         title={`👔 ${t('supervisor.title') || 'Моя команда'}`}
         subtitle={`${teamData.team_name} • ${teamData.agent_count} сотрудников`}
         actions={
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="flex bg-gray-100 rounded-lg p-0.5">
               <button
                 onClick={() => setTab('team')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   tab === 'team' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -270,7 +270,7 @@ export function SupervisorDashboardPage() {
               </button>
               <button
                 onClick={() => setTab('learning')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   tab === 'learning' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -279,7 +279,7 @@ export function SupervisorDashboardPage() {
             </div>
             <button
               onClick={() => setShowAssign(true)}
-              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm text-xs font-medium"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm text-sm font-medium"
             >
               📝 Назначить курс
             </button>
@@ -311,9 +311,9 @@ export function SupervisorDashboardPage() {
                 </span>
                 <div className="flex-1">
                   <span className="font-medium text-sm">{item.agent_name}</span>
-                  <span className="text-gray-500 text-xs ml-2">— {item.reason}</span>
+                  <span className="text-gray-500 text-sm ml-2">— {item.reason}</span>
                 </div>
-                <span className="text-xs text-gray-500">{item.details}</span>
+                <span className="text-sm text-gray-500">{item.details}</span>
               </div>
             ))}
           </div>
@@ -338,7 +338,7 @@ export function SupervisorDashboardPage() {
       {teamData.bonuses.total > 0 && (
         <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
           <h3 className="font-bold text-green-800 text-sm mb-2">🎁 Командные бонусы: +{teamData.bonuses.total}%</h3>
-          <div className="flex gap-4 text-xs text-green-700">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-green-700">
             {teamData.bonuses.all_trained_bonus > 0 && <span>✅ Все обучены: +{teamData.bonuses.all_trained_bonus}%</span>}
             {teamData.bonuses.no_underperformers_bonus > 0 && <span>💪 Нет отстающих: +{teamData.bonuses.no_underperformers_bonus}%</span>}
             {teamData.bonuses.trend_bonus > 0 && <span>📈 Рост команды: +{teamData.bonuses.trend_bonus}%</span>}
@@ -487,20 +487,20 @@ function TeamTab({
                   </td>
                   <td className="text-center px-3 py-3">
                     {agent.last_training_days > 999 ? (
-                      <span className="text-gray-400 text-xs">—</span>
+                      <span className="text-gray-400 text-sm">—</span>
                     ) : agent.last_training_days > 10 ? (
-                      <span className="text-red-500 text-xs font-medium">{agent.last_training_days}д назад</span>
+                      <span className="text-red-500 text-sm font-medium">{agent.last_training_days}д назад</span>
                     ) : (
-                      <span className="text-green-600 text-xs font-medium">{agent.last_training_days}д назад</span>
+                      <span className="text-green-600 text-sm font-medium">{agent.last_training_days}д назад</span>
                     )}
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-1">
                       {agent.weak_zones.length === 0 ? (
-                        <span className="text-green-500 text-xs">✅ Нет</span>
+                        <span className="text-green-500 text-sm">✅ Нет</span>
                       ) : (
                         agent.weak_zones.map((z, i) => (
-                          <span key={i} className="bg-red-50 text-red-700 text-xs px-1.5 py-0.5 rounded font-medium">
+                          <span key={i} className="bg-red-50 text-red-700 text-sm px-1.5 py-0.5 rounded font-medium">
                             {z}
                           </span>
                         ))
@@ -626,18 +626,18 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                     </td>
                     <td className="text-center px-3 py-3">
                       {m.days_since_activity > 999 ? (
-                        <span className="text-gray-400 text-xs">Нет данных</span>
+                        <span className="text-gray-400 text-sm">Нет данных</span>
                       ) : m.days_since_activity > 7 ? (
-                        <span className="text-red-500 text-xs font-medium">{m.days_since_activity}д</span>
+                        <span className="text-red-500 text-sm font-medium">{m.days_since_activity}д</span>
                       ) : (
-                        <span className="text-green-600 text-xs font-medium">{m.days_since_activity}д</span>
+                        <span className="text-green-600 text-sm font-medium">{m.days_since_activity}д</span>
                       )}
                     </td>
                     <td className="text-center px-3 py-3">
                       {m.current_streak_days > 0 ? (
-                        <span className="text-orange-500 font-medium text-xs">🔥 {m.current_streak_days}д</span>
+                        <span className="text-orange-500 font-medium text-sm">🔥 {m.current_streak_days}д</span>
                       ) : (
-                        <span className="text-gray-400 text-xs">—</span>
+                        <span className="text-gray-400 text-sm">—</span>
                       )}
                     </td>
                     <td className="px-3 py-3">

@@ -61,7 +61,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
       {/* Creator + Source */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         {task.creator_name && (
-          <span className="text-xs text-fg-subtle flex items-center gap-1">
+          <span className="text-sm text-fg-subtle flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -69,7 +69,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
           </span>
         )}
         {task.assignee_name && (
-          <span className="text-xs text-fg-subtle flex items-center gap-1">
+          <span className="text-sm text-fg-subtle flex items-center gap-1">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -91,7 +91,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
 
       {/* Description */}
       {task.description && (
-        <p className="text-xs text-fg-subtle mb-3 line-clamp-2 pl-0.5">{pickTaskI18n(task, lang, 'description')}</p>
+        <p className="text-sm text-fg-subtle mb-3 line-clamp-2 pl-0.5">{pickTaskI18n(task, lang, 'description')}</p>
       )}
 
       {/* Meta row */}
@@ -122,11 +122,11 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
       </div>
 
       {/* Action buttons */}
-      <div className="flex gap-1.5 pt-2 border-t border-border-default" onClick={(e) => e.stopPropagation()}>
+      <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border-default" onClick={(e) => e.stopPropagation()}>
         {task.status !== 'in_progress' && task.status !== 'done' && (
           <button
             onClick={() => onStatusChange(task.id, 'in_progress')}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-status-info-bg text-status-info-fg rounded-lg hover:opacity-80 transition-colors font-medium"
+            className="flex items-center gap-1 text-sm px-2.5 py-1.5 bg-status-info-bg text-status-info-fg rounded-lg hover:opacity-80 transition-colors font-medium"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <polygon points="5 3 19 12 5 21 5 3" />
@@ -137,7 +137,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
         {task.status === 'in_progress' && (
           <button
             onClick={() => onStatusChange(task.id, 'review')}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-status-warning-bg text-status-warning-fg rounded-lg hover:bg-status-warning-bg transition-colors font-medium"
+            className="flex items-center gap-1 text-sm px-2.5 py-1.5 bg-status-warning-bg text-status-warning-fg rounded-lg hover:bg-status-warning-bg transition-colors font-medium"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
@@ -149,7 +149,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
         {task.status !== 'done' && !(task.extra_data?.requires_sv_review === true && !isManager) && (
           <button
             onClick={() => onStatusChange(task.id, 'done')}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-status-success-bg text-status-success-fg rounded-lg hover:bg-status-success-bg transition-colors font-medium"
+            className="flex items-center gap-1 text-sm px-2.5 py-1.5 bg-status-success-bg text-status-success-fg rounded-lg hover:bg-status-success-bg transition-colors font-medium"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <polyline points="20 6 9 17 4 12" />
@@ -160,7 +160,7 @@ function TaskCard({ task, onStatusChange, onCardClick, isManager }: { task: Task
         {task.status === 'done' && (
           <button
             onClick={() => onStatusChange(task.id, 'todo')}
-            className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-bg-muted text-fg-subtle rounded-lg hover:bg-bg-surface-raised transition-colors font-medium"
+            className="flex items-center gap-1 text-sm px-2.5 py-1.5 bg-bg-muted text-fg-subtle rounded-lg hover:bg-bg-surface-raised transition-colors font-medium"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
               <path d="M3 12a9 9 0 109-9" /><polyline points="3 3 3 9 9 9" transform="translate(0, -3)" />
@@ -294,7 +294,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Extra data (KPI bonus etc.) */}
           {task.extra_data?.kpi_bonus != null && (
             <div className="bg-status-success-bg border border-status-success-fg rounded-xl p-3">
-              <div className="text-xs font-medium text-status-success-fg">KPI бонус: +{String(task.extra_data.kpi_bonus)}%</div>
+              <div className="text-sm font-medium text-status-success-fg">KPI бонус: +{String(task.extra_data.kpi_bonus)}%</div>
             </div>
           )}
         </div>
@@ -493,12 +493,12 @@ export function TasksPage() {
     <TacticalShell title={t('tasks.title')} subtitle={t('tasks.subtitle')}>
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-end gap-3 mb-6">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Scope toggle */}
           <div className="flex bg-bg-muted rounded-lg p-0.5">
             <button
               onClick={() => setScope('my')}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                 scope === 'my'
                   ? 'bg-bg-accent text-fg-on-accent shadow-sm'
                   : 'text-fg-subtle hover:text-fg-default'
@@ -509,7 +509,7 @@ export function TasksPage() {
             {isManager && (
               <button
                 onClick={() => setScope('all')}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   scope === 'all'
                     ? 'bg-bg-accent text-fg-on-accent shadow-sm'
                     : 'text-fg-subtle hover:text-fg-default'
@@ -525,7 +525,7 @@ export function TasksPage() {
           <button
             onClick={() => handleGenerate('learning')}
             disabled={!!generating}
-            className="inline-flex items-center gap-1.5 bg-role-sales text-bg-canvas px-3 py-2 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-xs font-medium"
+            className="inline-flex items-center gap-1.5 bg-role-sales text-bg-canvas px-3 py-2 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-sm font-medium"
             title={t('tasks.generate.tooltipLearning')}
           >
             {generating === 'learning' ? (
@@ -541,7 +541,7 @@ export function TasksPage() {
             <button
               onClick={() => handleGenerate('practical')}
               disabled={!!generating}
-              className="inline-flex items-center gap-1.5 bg-status-warning-fg text-bg-canvas px-3 py-2 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-xs font-medium"
+              className="inline-flex items-center gap-1.5 bg-status-warning-fg text-bg-canvas px-3 py-2 rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm text-sm font-medium"
               title={t('tasks.generate.tooltipPractical')}
             >
               {generating === 'practical' ? (
@@ -602,7 +602,7 @@ export function TasksPage() {
             <div className="text-sm font-medium text-fg-default">
               {norm.all_met ? t('tasks.norm.allMet') : t('tasks.norm.notMet')}
             </div>
-            <div className="text-xs text-fg-subtle">
+            <div className="text-sm text-fg-subtle">
               {t('tasks.norm.description', { met: norm.norm_met_count ?? 0, total: norm.norm_total ?? 0 })}
             </div>
           </div>
@@ -670,7 +670,7 @@ export function TasksPage() {
               )}
               <div>
                 <label className="block text-sm font-medium text-fg-muted mb-1.5">{t('tasks.create.priorityLabel')}</label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {(['low', 'medium', 'high', 'urgent'] as const).map((p) => {
                     const s = PRIORITY_STYLES[p];
                     return (
@@ -678,7 +678,7 @@ export function TasksPage() {
                         key={p}
                         type="button"
                         onClick={() => setNewPriority(p)}
-                        className={`flex-1 py-2 rounded-lg text-xs font-medium border transition-all ${
+                        className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
                           newPriority === p
                             ? `${s.bg} ${s.text} ${s.border} ring-2 ring-offset-1 ring-border-accent`
                             : 'bg-bg-muted text-fg-subtle border-border-default hover:bg-bg-surface-raised'

@@ -501,7 +501,7 @@ function SectionView({
           type="button"
           onClick={() => setMicroOnly((v) => !v)}
           aria-pressed={microOnly}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold transition-all"
           style={{
             background: microOnly ? 'var(--color-rm-bg)' : 'var(--bg-card)',
             color: microOnly ? 'var(--color-rm)' : 'var(--text-secondary)',
@@ -547,7 +547,7 @@ function LevelBlock({
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm" style={{ border: '1px solid var(--border)', background: level.is_unlocked ? 'var(--bg-card)' : 'var(--bg-surface)' }}>
       {/* Level header */}
-      <div className="flex items-center gap-3 px-5 py-3.5" style={{ borderBottom: '1px solid var(--border)' }}>
+      <div className="flex flex-wrap items-center gap-3 px-5 py-3.5" style={{ borderBottom: '1px solid var(--border)' }}>
         <div
           className="w-2.5 h-2.5 rounded-full ring-4 ring-opacity-20"
           style={{ backgroundColor: levelColor, boxShadow: `0 0 0 4px ${levelColor}33` }}
@@ -560,8 +560,8 @@ function LevelBlock({
           </span>
         )}
         {!level.is_unlocked && level.unlock_message && (
-          <span className="ml-auto text-xs flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+          <span className="ml-auto text-sm flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             {level.unlock_message}
           </span>
         )}

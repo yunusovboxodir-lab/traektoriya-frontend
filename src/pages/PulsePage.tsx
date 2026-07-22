@@ -679,7 +679,7 @@ function Benchmark({ pulse }: { pulse: UserPulse }) {
   const color = delta >= 0 ? '#4ADE80' : '#EF4444';
   return (
     <div
-      className="mt-3 px-3 py-2.5 rounded-md text-xs leading-snug border-l-4 border-amber-400"
+      className="mt-3 px-3 py-2.5 rounded-md text-sm leading-snug border-l-4 border-amber-400"
       style={{ background: 'rgba(200,168,75,0.06)', color: 'var(--text-secondary)' }}
     >
       Средний РМ Узбекистана: <strong className="text-amber-300">{benchAvg}%</strong>
@@ -863,7 +863,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
           <h3 style={{ fontSize: 18, fontWeight: 700 }}>
             {lang === 'uz' && weakest.competency_name_uz ? weakest.competency_name_uz : weakest.competency_name}
           </h3>
-          <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+          <div className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
             Сейчас: <strong className="text-red-400">{Math.round(weakest.pulse_pct)}%</strong>
             {nextLvl && <> · до {nextLvl} осталось +{Math.ceil(gapToNext)} п.п.</>}
           </div>
@@ -934,7 +934,7 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
 
   return (
     <Card title="⚡ Быстрые победы">
-      <p className="text-xs mb-3.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
+      <p className="text-sm mb-3.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
         Самые дешёвые переходы на следующий уровень — закрой одно действие → +1 в счётчик уровня.
       </p>
       {wins.length === 0 ? (
@@ -997,7 +997,7 @@ function OrbitalPanel({ pulse }: { pulse: UserPulse }) {
           <circle cx="50" cy="55" r="5" fill="var(--text-muted)" />
           <circle cx="90" cy="65" r="9" fill="#C8A84B" />
         </svg>
-        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           Ты в <strong className="text-amber-300">{rankText}</strong> сотрудников этой роли.
           {pct < 76 && (
             <><br />До <strong className="text-amber-300">Мастера</strong> осталось +{Math.ceil(76 - pct)} п.п.</>
@@ -1282,11 +1282,11 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
           <div className="text-xs uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
             Слабые места
           </div>
-          <div className="flex flex-col gap-1 text-xs">
+          <div className="flex flex-col gap-1 text-sm">
             {weakest.map((c) => (
-              <div key={c.id} className="flex items-center justify-between">
-                <span className="truncate" style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
-                <span style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontWeight: 700 }}>
+              <div key={c.id} className="flex items-center justify-between gap-2">
+                <span className="truncate min-w-0" style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
+                <span className="flex-shrink-0" style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontWeight: 700 }}>
                   {Math.round(c.pct)}%
                 </span>
               </div>
