@@ -21,7 +21,25 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run API smoke
+        id: smoke
         env:
           # Пароль демо-админа — из GitHub Secret (fallback в скрипте = admin123)
           SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
-        run: python scripts/smoke/qa_check.py
+        run: |
+          set -o pipefail
+          python scripts/smoke/qa_check.py 2>&1 | tee smoke_out.txt
+
+      # Лечение «сигнальной усталости» (аудит 2026-07-16: smoke был красным с 23.06,
+      # и никто не видел): при провале — алерт владельцу в Telegram с именами ассертов.
+      - name: Alert to Telegram on failure
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_ALERT_CHAT_ID }}
+        run: |
+          FAILS=$(grep -E "^\s*FAIL" smoke_out.txt | head -6 || echo "лог недоступен")
+          curl -s -m 20 "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            --data-urlencode chat_id="${TG_CHAT}" \
+            --data-urlencode text="🟠 SMOKE ПРОДА КРАСНЫЙ ($(date -u '+%d.%m %H:%M UTC')):
+          ${FAILS}
+          Подробности: github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"

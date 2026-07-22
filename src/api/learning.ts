@@ -556,6 +556,10 @@ export interface LeaderboardEntry {
     tasks_rate: number;
     achievements: number;
   };
+  // Организационный контекст для карточки (added 2026-07-20)
+  region?: string | null;
+  dealer_name?: string | null;
+  supervisor_name?: string | null;
 }
 
 export type LeaderboardPeriod = 'month' | 'quarter' | 'half_year' | 'year';

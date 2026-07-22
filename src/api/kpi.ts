@@ -133,6 +133,18 @@ export interface ChampionshipResponse {
   note?: string;
 }
 
+/**
+ * Рейтинг одной команды из GET /api/v1/kpi/team-rating/all.
+ * Массив отсортирован по rating (место = индекс + 1).
+ */
+export interface TeamRatingEntry {
+  team_id: string;
+  team_name: string;
+  rating: number;
+  supervisor_name?: string;
+  member_count?: number;
+}
+
 export const kpiApi = {
   getMyKPI: (period?: string) =>
     api.get('/api/v1/kpi/my', { params: period ? { period } : {} }),
@@ -147,7 +159,9 @@ export const kpiApi = {
     api.get('/api/v1/kpi/leaderboard/aggregate', { params }),
 
   getTeamRatings: (period?: string) =>
-    api.get('/api/v1/kpi/team-rating/all', { params: period ? { period } : {} }),
+    api.get<TeamRatingEntry[] | { teams: TeamRatingEntry[] }>('/api/v1/kpi/team-rating/all', {
+      params: period ? { period } : {},
+    }),
 
   calculate: (userId?: string, period?: string) =>
     api.post('/api/v1/kpi/calculate', { user_id: userId, period }),

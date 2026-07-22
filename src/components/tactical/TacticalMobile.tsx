@@ -19,7 +19,8 @@ import { NODES as DEFAULT_NODES, ZONES as DEFAULT_ZONES, STATE_STYLES, EDGES as 
 import type { MapEdge, MapNode, MapZone, NodeState } from './types';
 import { useLangStore } from '../../stores/langStore';
 import { GuidesPanel } from '../onboarding/GuidesPanel';
-import { DemoBadge } from '../DemoBadge';
+import { useLearningHero, tierLabel } from '../../hooks/useLearningHero';
+import type { LearningHeroData } from '../../hooks/useLearningHero';
 
 const TERRITORY_NUMERAL: Record<string, string> = {
   stazher: 'I',
@@ -116,13 +117,14 @@ function _MobileTopBar_DEPRECATED() {
 interface HeroStripProps {
   name: string;
   pct: number;
-  xp: number;
-  streak: number;
-  league: string;
-  rank: number;
+  hero: LearningHeroData;
+  lang: 'ru' | 'uz';
 }
 
-function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
+// Реальный hero-заголовок: Мощь + тир (лига) + серия + ранг обучения.
+// Числа берутся из useLearningHero (power/my + leaderboard) — без хардкода.
+function HeroStrip({ name, pct, hero, lang }: HeroStripProps) {
+  const league = tierLabel(hero.tier, lang);
   return (
     <div style={{
       padding: '10px 16px 12px', flexShrink: 0,
@@ -157,49 +159,65 @@ function HeroStrip({ name, pct, xp, streak, league, rank }: HeroStripProps) {
             fontFamily: "'Cinzel', serif", fontSize: 14, fontWeight: 600,
             color: 'var(--text-primary)',
           }}>{name}</span>
-          <span style={{
-            fontSize: 8, color: 'var(--text-muted)',
-            letterSpacing: '0.1em',
-          }}>ТП · LVL {Math.floor(xp / 300)}</span>
         </div>
-        {/* pct/xp — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
+        {/* pct пути + Мощь — реальные данные (Мощь из /power/my) */}
         <div style={{
           fontSize: 9, color: 'var(--text-secondary)',
           letterSpacing: '0.02em', marginTop: 2,
         }}>
-          {pct}% ПУТИ · {xp.toLocaleString('ru')} XP
+          {pct}% {lang === 'uz' ? 'YOʻL' : 'ПУТИ'}
+          {hero.power != null && (
+            <> · {hero.power.toLocaleString('ru')} {lang === 'uz' ? 'QUVVAT' : 'МОЩЬ'}</>
+          )}
         </div>
       </div>
       <div style={{
         display: 'flex', flexDirection: 'column',
         alignItems: 'flex-end', gap: 3, flexShrink: 0,
       }}>
-        {/* xp, streak, league, rank — демо-данные */}
-        <DemoBadge style={{ marginBottom: 2 }} />
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          padding: '3px 7px', borderRadius: 99,
-          background: 'oklch(0.30 0.10 70 / 0.30)',
-          border: '1px solid oklch(0.65 0.13 75 / 0.5)',
-        }}>
-          <svg width="11" height="11" viewBox="0 0 12 12">
-            <path d="M6 1 L8 4.5 L11 5 L8.5 7.5 L9 11 L6 9.5 L3 11 L3.5 7.5 L1 5 L4 4.5 Z"
-              fill="oklch(0.78 0.13 75)" stroke="oklch(0.95 0.10 88)" strokeWidth="0.5" />
-          </svg>
-          <span style={{
-            fontSize: 9, fontWeight: 700, color: 'oklch(0.92 0.10 80)',
-            fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
-          }}>{league}</span>
-        </div>
-        {/* streak/rank — числовые данные, не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 9,
-        }}>
-          <span style={{ color: 'oklch(0.78 0.14 55)' }}>🔥{streak}</span>
-          <span style={{ color: 'var(--text-muted)' }}>·</span>
-          <span style={{ color: 'var(--text-primary)' }}>#{rank}</span>
-        </div>
+        {hero.loading ? (
+          // Скелетон вместо фейка, пока грузятся Мощь/ранг.
+          <div style={{
+            width: 78, height: 34, borderRadius: 8,
+            background: 'var(--bg-overlay)',
+          }} className="animate-pulse" />
+        ) : (
+          <>
+            {league && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '3px 7px', borderRadius: 99,
+                background: 'oklch(0.30 0.10 70 / 0.30)',
+                border: '1px solid oklch(0.65 0.13 75 / 0.5)',
+              }}>
+                <svg width="11" height="11" viewBox="0 0 12 12">
+                  <path d="M6 1 L8 4.5 L11 5 L8.5 7.5 L9 11 L6 9.5 L3 11 L3.5 7.5 L1 5 L4 4.5 Z"
+                    fill="oklch(0.78 0.13 75)" stroke="oklch(0.95 0.10 88)" strokeWidth="0.5" />
+                </svg>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, color: 'oklch(0.92 0.10 80)',
+                  fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}>{league}</span>
+              </div>
+            )}
+            {/* серия/ранг — реальные (streak из power, rank из leaderboard). rank=null → «—». */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              fontSize: 9,
+            }}>
+              {hero.streakDays != null && hero.streakDays > 0 && (
+                <>
+                  <span style={{ color: 'oklch(0.78 0.14 55)' }}>🔥{hero.streakDays}</span>
+                  <span style={{ color: 'var(--text-muted)' }}>·</span>
+                </>
+              )}
+              <span style={{ color: 'var(--text-primary)' }}>
+                {hero.rank != null ? `#${hero.rank}` : '—'}
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -231,8 +249,10 @@ function DailyQuestBanner() {
       display: 'flex', alignItems: 'center', gap: 10,
       padding: '9px 12px',
       background: 'var(--bg-card)',
+      // Единый border-цвет + акцентный левый край через box-shadow inset
+      // (нельзя смешивать shorthand `border` и longhand `borderLeft` — React warning).
       border: '1px solid oklch(0.45 0.10 220 / 0.4)',
-      borderLeft: '2px solid var(--brass)',
+      boxShadow: 'inset 2px 0 0 0 var(--brass)',
       borderRadius: 8,
     }}>
       <svg width="20" height="20" viewBox="0 0 20 20" style={{ flexShrink: 0 }}>
@@ -254,13 +274,11 @@ function DailyQuestBanner() {
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2,
       }}>
-        {/* +50 XP — числовые данные (награда), не HUD-лейбл: Mono запрещён <14px (17_game_layer §в/ж.3) */}
+        {/* +50 XP — фиксированная награда за закрытие раздела (штатная механика квеста). */}
         <span style={{
           fontSize: 11, fontWeight: 700, color: 'var(--brass)',
           letterSpacing: '0.02em',
         }}>+50 XP</span>
-        {/* Бонус +50XP — фейковая заглушка */}
-        <DemoBadge />
         <span style={{
           fontSize: 8, color: 'var(--text-muted)',
           fontFamily: "'JetBrains Mono', monospace",
@@ -457,8 +475,10 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
       background: selected
         ? `linear-gradient(90deg, ${zone.accent}25, var(--bg-surface))`
         : 'var(--bg-card)',
+      // Акцентный левый край через box-shadow inset — не смешиваем shorthand
+      // `border` с longhand `borderLeft` (React warning на карте обучения).
       border: `1px solid ${selected ? s.stroke : 'var(--border)'}`,
-      borderLeft: `3px solid ${s.stroke || zone.accent}`,
+      boxShadow: `inset 3px 0 0 0 ${s.stroke || zone.accent}`,
       borderRadius: 9, cursor: 'pointer', textAlign: 'left',
       transition: 'background 0.18s, border-color 0.18s',
     }}>
@@ -606,66 +626,10 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
 }
 
 // =============================================================================
-// Friends activity strip
+// FriendsStrip (лента «Активность команды») УДАЛЕНА 2026-07-16.
+// Показывала вымышленных Аишу/Тимура/Лейлу — реального эндпоинта активности
+// команды нет, честность важнее украшения (Фаза 4 плана лечения).
 // =============================================================================
-function FriendsStrip() {
-  const lang = useLangStore((s) => s.lang);
-  const t = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
-  const items = [
-    { name: t('Аиша', 'Oysha'), action: t('взяла Эксперта', 'Ekspert oldi'), when: t('2м', '2d'), avatar: 'А', tint: 'oklch(0.74 0.13 200)' },
-    { name: t('Тимур', 'Temur'), action: t('прошёл ПР-04', "PR-04 o'tdi"), when: t('12м', '12d'), avatar: 'Т', tint: 'oklch(0.78 0.14 75)' },
-    { name: t('Лейла', 'Layla'), action: t('15-дневный streak', '15-kunlik seriya'), when: t('1ч', '1s'), avatar: 'Л', tint: 'oklch(0.78 0.15 30)' },
-  ];
-  return (
-    <div style={{
-      padding: '14px 16px 16px', flexShrink: 0,
-      borderTop: '1px solid var(--border)',
-    }}>
-      <div style={{
-        display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-        marginBottom: 10,
-      }}>
-        <span style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          fontFamily: "'JetBrains Mono', monospace", fontSize: 9,
-          color: 'var(--text-muted)', letterSpacing: '0.16em',
-        }}>
-          {t('АКТИВНОСТЬ КОМАНДЫ', "JAMOA FAOLIYATI")}
-          {/* Друзья (Аиша/Тимур/Лейла) — демо-мок */}
-          <DemoBadge />
-        </span>
-        <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 500 }}>{t('Все', 'Barchasi')} →</span>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {items.map((it, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <div style={{
-              width: 26, height: 26, borderRadius: '50%', flexShrink: 0,
-              background: `linear-gradient(135deg, ${it.tint}40, var(--bg-card))`,
-              border: `1px solid ${it.tint}80`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'Cinzel', serif", fontSize: 11, fontWeight: 600,
-              color: it.tint,
-            }}>
-              {it.avatar}
-            </div>
-            <div style={{
-              flex: 1, minWidth: 0, fontSize: 11,
-              color: 'var(--text-primary)', lineHeight: 1.3,
-            }}>
-              <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{it.name}</span>
-              <span style={{ color: 'var(--text-secondary)' }}> {it.action}</span>
-            </div>
-            <span style={{
-              fontSize: 9, color: 'var(--text-muted)',
-              fontFamily: "'JetBrains Mono', monospace", flexShrink: 0,
-            }}>{it.when}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // =============================================================================
 // Bottom sheet — village detail
@@ -933,6 +897,7 @@ export function TacticalMobile({
   roleSelector,
 }: TacticalMobileProps) {
   const lang = useLangStore((s) => s.lang);
+  const hero = useLearningHero();
 
   // Fallback на mock если nodes отсутствует или пуст и не идёт загрузка
   const useMock = (!nodes || nodes.length === 0) && !loading;
@@ -993,14 +958,16 @@ export function TacticalMobile({
             {roleSelector}
           </div>
         )}
-        <HeroStrip
-          name={operatorName}
-          pct={pct}
-          xp={2480}
-          streak={17}
-          league="ЗОЛОТО II"
-          rank={7}
-        />
+        {/* Hero скрыт для ролей без личного учебного прогресса
+            (admin/superadmin/commercial_dir) — hidden из useLearningHero. */}
+        {!hero.hidden && (
+          <HeroStrip
+            name={operatorName}
+            pct={pct}
+            hero={hero}
+            lang={lang}
+          />
+        )}
         <DailyQuestBanner />
         {loading ? (
           <div style={{ padding: 30, textAlign: 'center', color: 'var(--text-muted)', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '0.18em', fontSize: 11 }}>
@@ -1025,7 +992,6 @@ export function TacticalMobile({
             />
           </>
         )}
-        <FriendsStrip />
       </div>
       {/* MobileTabBar убран 2026-05-04 — теперь глобальный MobileBottomNav в App.tsx */}
       {sheetOpen && selected && selectedZone && (

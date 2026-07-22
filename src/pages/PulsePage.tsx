@@ -83,6 +83,35 @@ function nextLevelLabel(pct: number): string | null {
   return LEVEL_META[levelByPct(t)].label;
 }
 
+// Пороги «здоровья» для полоски-распределения (как в ShelfScan «Распределение агентов»).
+// ⚠️ ОТДЕЛЬНЫЕ от уровней компетенций (76/51/26): здесь бизнес-сегменты ≥70 / 30–69 / <30.
+const HEALTH_BUCKETS = [
+  { key: 'ge70', label: '≥70%', color: '#22C55E' },
+  { key: 'mid', label: '30–69%', color: '#C8A84B' },
+  { key: 'lt30', label: '<30%', color: '#E1626F' },
+  { key: 'nodata', label: 'Без данных', color: '#9CA3AF' },
+] as const;
+
+type HealthKey = (typeof HEALTH_BUCKETS)[number]['key'];
+
+function healthBucket(m: SubordinatePulseEntry): HealthKey {
+  const hasData = m.overall_pulse > 0 || (m.competencies?.some((c) => c.pct > 0) ?? false);
+  if (!hasData) return 'nodata';
+  if (m.overall_pulse >= 70) return 'ge70';
+  if (m.overall_pulse >= 30) return 'mid';
+  return 'lt30';
+}
+
+// Порядок и русские подписи ролей для колонок Пульса команды
+const ROLE_ORDER = ['regional_manager', 'supervisor', 'sales_rep'] as const;
+const ROLE_LABEL_RU: Record<string, string> = {
+  regional_manager: 'Региональные менеджеры',
+  supervisor: 'Супервайзеры',
+  sales_rep: 'Торговые представители',
+  commercial_dir: 'Коммерческие директора',
+  dealer: 'Дилеры',
+};
+
 // ============================================================================
 // Главный компонент
 // ============================================================================
@@ -1066,185 +1095,146 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
   );
 }
 
-// ─── TeamPulseView ──────────────────────────────────────────────────────────
+// ─── RoleDistributionBar — сегментированная полоска «здоровья» (как в ShelfScan) ──
 
-function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
-  // Превращаем competency_averages в RadarDataPoint для общего радара команды
-  const teamRadarData: RadarDataPoint[] = data.competency_averages.map((c) => ({
-    label: c.name,
-    value: c.avg_pct,
-    level: c.level,
-    id: c.id,
-  }));
-
-  // Распределение участников по уровням
-  const levelCounts = useMemo(() => {
-    const counts = { master: 0, expert: 0, practitioner: 0, trainee: 0 };
-    data.members.forEach((m) => {
-      counts[levelByPct(m.overall_pulse)]++;
-    });
-    return counts;
-  }, [data]);
-
-  const teamLevel = levelByPct(data.avg_pulse);
+function RoleDistributionBar({ members }: { members: SubordinatePulseEntry[] }) {
+  const counts: Record<HealthKey, number> = { ge70: 0, mid: 0, lt30: 0, nodata: 0 };
+  members.forEach((m) => { counts[healthBucket(m)]++; });
+  const total = members.length || 1;
 
   return (
-    <>
-      {/* TOP: Сводный радар + распределение людей */}
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-5">
-        <Card title="Средний пульс команды">
-          <div className="flex flex-col items-center gap-3">
-            <div className="relative w-[180px] h-[180px]">
-              <svg viewBox="0 0 200 200" className="w-full h-full">
-                <circle cx="100" cy="100" r="80" fill="none" stroke="var(--border)" strokeWidth="14" />
-                <circle
-                  cx="100" cy="100" r="80"
-                  fill="none"
-                  stroke={LEVEL_META[teamLevel].color}
-                  strokeWidth="14"
-                  strokeLinecap="round"
-                  strokeDasharray={`${(data.avg_pulse / 100) * (2 * Math.PI * 80)} ${2 * Math.PI * 80}`}
-                  transform="rotate(-90 100 100)"
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span style={{ fontSize: 42, fontWeight: 800, lineHeight: 1, color: 'var(--text-primary)' }}>
-                  {Math.round(data.avg_pulse)}<span className="text-lg opacity-60">%</span>
-                </span>
-              </div>
-            </div>
-            <span
-              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full border text-sm font-semibold"
-              style={{ background: LEVEL_META[teamLevel].bg, borderColor: LEVEL_META[teamLevel].color + '66', color: LEVEL_META[teamLevel].color }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: LEVEL_META[teamLevel].color }} />
-              {LEVEL_META[teamLevel].label} · команда
-            </span>
-            <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-              Среднее по {data.members_count} {data.members_count === 1 ? 'подчинённому' : 'подчинённым'}
-            </div>
-          </div>
-
-          <div className="mt-5 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-            <div className="text-[11px] uppercase tracking-widest mb-3" style={{ color: 'var(--text-muted)' }}>
-              Распределение
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              {(Object.keys(LEVEL_META) as LevelKey[]).map((k) => (
-                <div
-                  key={k}
-                  className="flex items-center justify-between px-2.5 py-2 rounded-lg border"
-                  style={{ background: LEVEL_META[k].bg, borderColor: LEVEL_META[k].color + '40' }}
-                >
-                  <span style={{ color: LEVEL_META[k].color }}>{LEVEL_META[k].label}</span>
-                  <strong style={{ color: LEVEL_META[k].color }}>
-                    {levelCounts[k]}
-                  </strong>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Сводная карта · средние по команде">
-          <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
-            <RadarChart
-              data={teamRadarData}
-              size={420}
-              targetValues={70}
-              fillColor="rgba(200, 168, 75, 0.15)"
-              strokeColor="#C8A84B"
+    <div>
+      <div className="flex h-2.5 rounded-full overflow-hidden" style={{ background: 'var(--bg-overlay)' }}>
+        {HEALTH_BUCKETS.map((b) =>
+          counts[b.key] > 0 ? (
+            <div
+              key={b.key}
+              style={{ width: `${(counts[b.key] / total) * 100}%`, background: b.color }}
+              title={`${b.label}: ${counts[b.key]}`}
             />
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 h-0.5 bg-amber-400" />
-              Средний по команде
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 border-t-2 border-dashed border-amber-400" />
-              Целевой профиль (70%)
-            </span>
-          </div>
-        </Card>
-
-        <Card title="Топ-3 / Худшие-3">
-          <TopBottomList members={data.members} />
-        </Card>
+          ) : null
+        )}
       </div>
-
-      {/* Полный список членов команды */}
-      <div
-        className="rounded-2xl p-5"
-        style={{
-          background: `linear-gradient(180deg, var(--bg-card), var(--bg-surface))`,
-          border: '1px solid var(--border)',
-        }}
-      >
-        <h3
-          className="font-bold uppercase mb-4"
-          style={{
-            fontSize: 11,
-            letterSpacing: '0.18em',
-            color: 'var(--text-muted)',
-          }}
-        >
-          Все подчинённые ({data.members.length}) — отсортировано по пульсу
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {data.members.map((m, idx) => (
-            <MemberCard key={m.user_id} member={m} rank={idx + 1} />
-          ))}
-        </div>
+      <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-xs">
+        {HEALTH_BUCKETS.map((b) => (
+          <span key={b.key} className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+            <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
+            {b.label} <strong style={{ color: 'var(--text-primary)' }}>{counts[b.key]}</strong>
+          </span>
+        ))}
       </div>
-    </>
+    </div>
   );
 }
 
-// ─── TopBottomList — мини-список топов и аутсайдеров ────────────────────────
+// ─── TeamPulseView ──────────────────────────────────────────────────────────
+// Каскадный обзор по ролям: на КАЖДУЮ подчинённую роль (РМ/СВ/ТП) — свой радар
+// компетенций, под ним полоска-распределение, а ниже — отдельная колонка-список
+// участников. Количество колонок = число подчинённых ролей (1, 2 или 3).
 
-function TopBottomList({ members }: { members: SubordinatePulseEntry[] }) {
-  if (members.length === 0) return null;
-  const top = members.slice(0, 3);
-  const bottom = members.length > 3 ? members.slice(-3).reverse() : [];
+function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
+  const toRadar = (avgs: SubordinatesPulseResponse['competency_averages']): RadarDataPoint[] =>
+    avgs.map((c) => ({ label: c.name, value: c.avg_pct, level: c.level, id: c.id }));
+
+  // Радары приходят с бэка сгруппированными по роли (competency_averages_by_role)
+  const roleGroups = (data.competency_averages_by_role ?? []).filter(
+    (g) => g.competency_averages.length > 0
+  );
+
+  // Члены — группируем по роли и сортируем по пульсу (desc) внутри каждой
+  const membersByRole = useMemo(() => {
+    const acc: Record<string, SubordinatePulseEntry[]> = {};
+    data.members.forEach((m) => { (acc[m.role] ||= []).push(m); });
+    Object.values(acc).forEach((arr) => arr.sort((a, b) => b.overall_pulse - a.overall_pulse));
+    return acc;
+  }, [data]);
+
+  // Порядок ролей: сперва канонический (РМ→СВ→ТП), потом всё прочее
+  const roles = useMemo(() => {
+    const present = new Set([...Object.keys(membersByRole), ...roleGroups.map((g) => g.role)]);
+    const ordered = ROLE_ORDER.filter((r) => present.has(r));
+    const extra = [...present].filter((r) => !ROLE_ORDER.includes(r as (typeof ROLE_ORDER)[number]));
+    return [...ordered, ...extra];
+  }, [membersByRole, roleGroups]);
+
+  const gridCols =
+    roles.length >= 3 ? 'md:grid-cols-2 xl:grid-cols-3' : roles.length === 2 ? 'md:grid-cols-2' : '';
 
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        {/* было text-[10px] — UX-прогон 2026-07-02: подпись мелкая → 12px */}
-        <div className="text-xs uppercase tracking-widest text-emerald-300 mb-2">
-          🏆 Лидеры
-        </div>
-        {top.map((m, i) => (
-          <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
-            {/* было хардкод #C8A84B/#9CA3AF/#C08A4A — на светлой теме ≈2.2-2.9:1 (UX-прогон
-                2026-07-02). Токены --medal-* переопределены в index.css под ≥4.5:1 */}
-            <span className="w-6 text-center font-bold" style={{ color: i === 0 ? 'var(--medal-gold)' : i === 1 ? 'var(--medal-silver)' : 'var(--medal-bronze)' }}>{i + 1}</span>
-            <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
-            <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontWeight: 700 }}>
-              {Math.round(m.overall_pulse)}%
-            </span>
-          </div>
-        ))}
+    <>
+      {/* Радар + полоска-распределение — на каждую роль */}
+      <div className={`grid grid-cols-1 ${gridCols} gap-5`}>
+        {roles.map((r) => {
+          const g = roleGroups.find((x) => x.role === r);
+          const mem = membersByRole[r] ?? [];
+          const avg = mem.length ? mem.reduce((s, m) => s + m.overall_pulse, 0) / mem.length : 0;
+          const label = ROLE_LABEL_RU[r] ?? g?.role_ru ?? r;
+          return (
+            <Card key={r} title={`Сводная карта · ${label}`}>
+              <div className="text-xs text-center mb-1" style={{ color: 'var(--text-muted)' }}>
+                {mem.length} чел · средний пульс {Math.round(g?.avg_pulse ?? avg)}%
+              </div>
+              <div className="relative flex items-center justify-center" style={{ minHeight: 320 }}>
+                {g ? (
+                  <RadarChart
+                    data={toRadar(g.competency_averages)}
+                    size={300}
+                    targetValues={70}
+                    fillColor="rgba(200, 168, 75, 0.15)"
+                    strokeColor="#C8A84B"
+                  />
+                ) : (
+                  <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
+                    Нет данных по компетенциям
+                  </div>
+                )}
+              </div>
+              {/* Полоска-распределение под радаром */}
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="text-[11px] uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
+                  Распределение
+                </div>
+                <RoleDistributionBar members={mem} />
+              </div>
+            </Card>
+          );
+        })}
       </div>
-      {bottom.length > 0 && (
-        <div className="pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-          {/* было text-[10px] → 12px */}
-          <div className="text-xs uppercase tracking-widest text-red-400 mb-2">
-            Нужна помощь
-          </div>
-          {bottom.map((m) => (
-            <div key={m.user_id} className="flex items-center gap-3 py-1.5 text-sm">
-              <span className="w-6 text-center" style={{ color: 'var(--text-muted)' }}>↓</span>
-              <span className="flex-1 truncate" style={{ color: 'var(--text-primary)' }}>{m.full_name || m.employee_id}</span>
-              <span style={{ color: LEVEL_META[levelByPct(m.overall_pulse)].color, fontWeight: 700 }}>
-                {Math.round(m.overall_pulse)}%
-              </span>
+
+      {/* Списки подчинённых — отдельная колонка на каждую роль */}
+      <div className={`grid grid-cols-1 ${gridCols} gap-5 mt-5`}>
+        {roles.map((r) => {
+          const mem = membersByRole[r] ?? [];
+          const label = ROLE_LABEL_RU[r] ?? r;
+          return (
+            <div
+              key={r}
+              className="rounded-2xl p-4"
+              style={{
+                background: `linear-gradient(180deg, var(--bg-card), var(--bg-surface))`,
+                border: '1px solid var(--border)',
+              }}
+            >
+              <h3
+                className="font-bold uppercase mb-3"
+                style={{ fontSize: 11, letterSpacing: '0.18em', color: 'var(--text-muted)' }}
+              >
+                {label} ({mem.length})
+              </h3>
+              <div className="flex flex-col gap-3">
+                {mem.length === 0 ? (
+                  <div className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>
+                    Нет подчинённых
+                  </div>
+                ) : (
+                  mem.map((m, idx) => <MemberCard key={m.user_id} member={m} rank={idx + 1} />)
+                )}
+              </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }
 

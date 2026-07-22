@@ -50,6 +50,8 @@ const SELF_LEARNING_ROLES = new Set(['sales_rep', 'supervisor', 'regional_manage
 // Кнопки-переходы в шапке карты (Кейсотека / Чемпионат / Зал славы).
 // Один конфиг вместо трёх скопированных кнопок с инлайн-стилями (дедуп 2026-07-11).
 const HEADER_LINKS = [
+  // Академия ассортимента (main, 37d31ce): отдельное обучение по продуктам
+  { path: '/learning/assortment', accent: '#E67E22', label_ru: 'Ассортимент', label_uz: 'Assortiment', title_ru: "Ассортимент N'Medov — отдельный курс по продуктам", title_uz: "N'Medov assortimenti — mahsulotlar boʻyicha alohida kurs" },
   { path: '/case-studio', accent: 'var(--brass)', label_ru: 'Кейсотека', label_uz: 'Keyslar bazasi', title_ru: 'Кейсотека', title_uz: 'Keyslar bazasi' },
   { path: '/learning/championship-2026', accent: 'var(--gold, #f2c660)', label_ru: 'Чемпионат 2026', label_uz: 'Chempionat 2026', title_ru: 'Чемпионат 2026 · живые результаты', title_uz: 'Chempionat 2026 · jonli natijalari' },
   { path: '/learning/hall-of-fame', accent: 'var(--brass)', label_ru: 'История 2025', label_uz: 'Tarix 2025', title_ru: 'Зал славы · Кубок 2025', title_uz: 'Shon-shuhrat zali · Kubok 2025' },

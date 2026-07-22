@@ -7,7 +7,7 @@ import { Panel, Stat, ProgressBar, RingProgress } from './Panel';
 import { ZONES as DEFAULT_ZONES } from './data';
 import type { MapZone } from './types';
 import { useLangStore } from '../../stores/langStore';
-import { DemoBadge } from '../DemoBadge';
+import { useLearningHero, tierLabel } from '../../hooks/useLearningHero';
 
 const ZONE_TINTS = [
   'var(--level-1)', // T1 Стажёр — зелёный/золотой
@@ -41,6 +41,7 @@ export function HeroPanel({
   doneCourses,
 }: HeroPanelProps) {
   const lang = useLangStore((s) => s.lang);
+  const hero = useLearningHero();
   const ZONES = zones && zones.length > 0 ? zones : DEFAULT_ZONES;
   const total = totalCourses ?? 32;
   const done = doneCourses ?? 12;
@@ -75,20 +76,34 @@ export function HeroPanel({
         </div>
       </div>
 
+      {/* Блок личного прогресса (эшелон/серия/рейтинг) скрыт для ролей без
+          собственного учебного прогресса (admin/superadmin/commercial_dir) —
+          hero.hidden. Статистика курсов и навигация по территориям остаются. */}
+      {!hero.hidden && (
+      <>
       <div className="divider" />
 
-      {/* Rank + ring */}
+      {/* Rank + ring — эшелон = реальный тир Мощи (из /power/my). */}
       <div className="hero-rank">
-        <RingProgress value={overallPct} label={t('ПРАКТИК', 'PRAKTIK')} />
+        <RingProgress value={overallPct} label={hero.tier ? tierLabel(hero.tier, lang) : ''} />
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'JetBrains Mono, monospace', fontSize: 10, letterSpacing: '0.18em', color: 'var(--text-muted)' }}>
             {t('ТЕКУЩИЙ ЭШЕЛОН', 'JORIY ESHELON')}
-            <DemoBadge />
           </div>
-          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'var(--brass)' }}>{t('Практик', 'Praktik')}</div>
-          <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
-            {t('след. рубеж', 'keyingi bosqich')}: <span style={{ color: 'var(--success)' }}>{t('Эксперт', 'Ekspert')}</span>
-          </div>
+          {hero.loading ? (
+            <div className="animate-pulse" style={{ width: 90, height: 22, borderRadius: 6, background: 'var(--bg-overlay)', marginTop: 4 }} />
+          ) : (
+            <>
+              <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4, color: 'var(--brass)' }}>
+                {hero.tier ? tierLabel(hero.tier, lang) : '—'}
+              </div>
+              {hero.power != null && (
+                <div style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>
+                  {t('Мощь', 'Quvvat')}: <span style={{ color: 'var(--success)' }}>{hero.power.toLocaleString('ru')}</span>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -98,24 +113,35 @@ export function HeroPanel({
 
       <div className="divider" />
 
-      {/* Streak — демо-данные (серия/время/рейтинг захардкожены) */}
-      <div className="streak-row" style={{ position: 'relative' }}>
-        <DemoBadge style={{ position: 'absolute', top: 0, right: 0 }} />
+      {/* Серия + рейтинг обучения — реальные (streak из /power/my, ранг из
+          leaderboard). «Время сегодня» убрано — реального источника нет. */}
+      <div className="streak-row">
         <div>
           <div className="metric-label">{t('СЕРИЯ', 'SERIYA')}</div>
-          <div className="metric-val"><span className="streak-icon">▲</span>5 <span className="metric-unit">{t('дн.', 'kun')}</span></div>
+          {hero.loading ? (
+            <div className="animate-pulse" style={{ width: 40, height: 20, borderRadius: 4, background: 'var(--bg-overlay)', marginTop: 4 }} />
+          ) : (
+            <div className="metric-val">
+              {hero.streakDays != null && hero.streakDays > 0 && <span className="streak-icon">▲</span>}
+              {hero.streakDays ?? 0} <span className="metric-unit">{t('дн.', 'kun')}</span>
+            </div>
+          )}
         </div>
         <div>
-          <div className="metric-label">{t('ВРЕМЯ СЕГОДНЯ', 'BUGUNGI VAQT')}</div>
-          <div className="metric-val">42<span className="metric-unit">{t('мин', 'daq')}</span></div>
-        </div>
-        <div>
-          <div className="metric-label">{t('РЕЙТИНГ', 'REYTING')}</div>
-          <div className="metric-val">#7<span className="metric-unit">/142</span></div>
+          <div className="metric-label">{t('РЕЙТИНГ ОБУЧЕНИЯ', 'OʻQISH REYTINGI')}</div>
+          {hero.loading ? (
+            <div className="animate-pulse" style={{ width: 48, height: 20, borderRadius: 4, background: 'var(--bg-overlay)', marginTop: 4 }} />
+          ) : hero.rank != null ? (
+            <div className="metric-val">#{hero.rank}{hero.totalInGroup != null && <span className="metric-unit">/{hero.totalInGroup}</span>}</div>
+          ) : (
+            <div className="metric-val">—</div>
+          )}
         </div>
       </div>
 
       <div className="divider" />
+      </>
+      )}
 
       {/* Stats */}
       <div className="section-label">{t('СТАТИСТИКА', 'STATISTIKA')}</div>

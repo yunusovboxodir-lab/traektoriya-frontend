@@ -15,38 +15,13 @@
  *   обучения (LearningRankWidget) скрыт целиком — СВ не соревнуется как ученик среди
  *   своих ТП. Командный разрез живёт на отдельной странице «Команда» (SupervisorDashboardPage).
  */
-import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
-import { TacticalShell, TacticalPanel, TacticalButton } from '../components/tactical/shell';
+import { SupervisorTeamWidget } from '../components/dashboard/SupervisorTeamWidget';
+import { TacticalShell } from '../components/tactical/shell';
 import { formatDateLong } from '../utils/formatDate';
-
-/**
- * Карточка-переход на «Команду» для супервайзера. Без неё дашборд СВ был
- * полностью пустым, когда нет квестов (LearningRank скрыт для СВ по Кодексу 08,
- * DailyQuests самоскрывается) — UX-прогон 2026-07-12.
- */
-function SupervisorTeamShortcut() {
-  const lang = useLangStore((s) => s.lang);
-  const navigate = useNavigate();
-  return (
-    <TacticalPanel
-      label="TEAM"
-      title={lang === 'uz' ? 'Jamoa' : 'Команда'}
-    >
-      <p style={{ color: 'var(--text-1)', fontSize: 14, marginBottom: 14 }}>
-        {lang === 'uz'
-          ? 'KPI, o‘qish jarayoni va jamoangiz reytingi — jamoaviy panelda.'
-          : 'KPI, прогресс обучения и рейтинг ваших ТП — на командной панели.'}
-      </p>
-      <TacticalButton onClick={() => navigate('/team')}>
-        {lang === 'uz' ? 'Jamoa paneliga' : 'К командной панели'}
-      </TacticalButton>
-    </TacticalPanel>
-  );
-}
 
 export function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -79,12 +54,16 @@ export function DashboardPage() {
           </>
         ) : (
           <>
-            {/* Рейтинг сотрудников — виджет сам себе карточка с заголовком «Рейтинг обучения».
-                Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27).
-                Для supervisor скрыт целиком — командный разрез живёт на странице «Команда»,
-                СВ не соревнуется как ученик среди своих ТП (Кодекс 08, находка ux-qa №14). */}
-            {!isSupervisor && <LearningRankWidget />}
-            {isSupervisor && <SupervisorTeamShortcut />}
+            {/* Для supervisor личный рейтинг обучения скрыт (СВ не соревнуется как
+                ученик среди своих ТП, Кодекс 08). Вместо пустоты — командный блок:
+                место команды в рейтинге + CTA на «Команду» и «Пульс команды». */}
+            {isSupervisor ? (
+              <SupervisorTeamWidget />
+            ) : (
+              /* Рейтинг сотрудников — виджет сам себе карточка с заголовком «Рейтинг обучения».
+                 Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27). */
+              <LearningRankWidget />
+            )}
 
             {/* Квесты дня — ежедневная петля (P1). Виджет сам рендерит панель и скрывается, если квестов нет. */}
             <DailyQuestsWidget />
