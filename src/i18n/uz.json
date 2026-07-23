@@ -450,6 +450,27 @@
       "descMicro": "Tanlangan «Mikro (≤7 daq)» filtrida kurslar yoʻq. Darajadagi barcha mavjud kurslarni koʻrish uchun filtrni tozalang.",
       "descDefault": "Trener tayinlaganda bu darajadagi kurslar paydo boʻladi.",
       "ctaResetFilter": "Filtrni tozalash"
+    },
+    "fieldTask": {
+      "title": "Dala topshirigʻi",
+      "subtitle": "Marshrutdagi amaliy topshiriq",
+      "deadline": "Bajarish muddati:",
+      "day1": "kun",
+      "day2": "kun",
+      "day5": "kun",
+      "criteria": "Baholash mezonlari:",
+      "accept": "Tushunarli, bajaraman"
+    },
+    "flashcards": {
+      "allDone": "Kartochkalar takrorlandi!",
+      "remembered": "Eslab qoldim",
+      "toRepeat": "Takrorlashga",
+      "title": "Takrorlash uchun kartochkalar",
+      "tapToFlip": "Kartochkani aylantirish uchun bosing",
+      "tapToSeeAnswer": "Javobni koʻrish uchun bosing →",
+      "answer": "Javob",
+      "remember": "Eslayman",
+      "repeat": "Takrorlash"
     }
   },
   "kpi": {
@@ -1320,5 +1341,78 @@
     "sales_rep": "Savdo vakillari",
     "commercial_dir": "Kommersiya direktorlari",
     "dealer": "Dilerlar"
+  },
+  "caseStudioForms": {
+    "actionLabels": {
+      "scenario_created": "Keys yaratish",
+      "solution_added": "Yechim taklif qilish",
+      "rating_given": "Baholash",
+      "top3_winner": "TOP-3 dagi yechim",
+      "scenario_popular": "50+ baholi keys"
+    },
+    "xpBreakdown": "Harakatlar boʻyicha XP taqsimoti",
+    "my": {
+      "noData": "Maʼlumot yoʻq",
+      "backToCases": "← Keysotekaga",
+      "title": "Keysotekadagi mening XP",
+      "intro": "Ballar nima uchun berilishi — sahifa pastida. Qancha koʻp yozsangiz va baholasangiz, liderbordda shuncha yuqori boʻlasiz.",
+      "totalXp": "Jami XP",
+      "rankLabel": "Liderborddagi oʻrin:",
+      "statCases": "Yaratilgan keyslar",
+      "statSolutions": "Taklif qilingan yechimlar",
+      "statRatings": "Berilgan baholar",
+      "statTop3": "TOP-3 dagi yechimlar",
+      "noActions": "Hozircha birorta harakat yoʻq.",
+      "createFirst": "Birinchi keysni yaratish",
+      "howToEarn": "XP qanday topiladi",
+      "earnCreate": "Keys yaratish (status=published)",
+      "earnSolution": "Yechim taklif qilish (haftasiga 5 tagacha)",
+      "earnRating": "Baho qoʻyish (haftasiga 20 tagacha)",
+      "earnTop3": "Yechim TOP-3 ga kirdi (kamida 3 baho)",
+      "earnPopular": "Keys 50+ baho toʻpladi",
+      "bonus100": "+100 XP bonus",
+      "bonus200": "+200 XP bonus"
+    }
+  },
+  "moderation": {
+    "status": {
+      "all": "Barcha statuslar",
+      "draft": "Qoralama",
+      "generating": "Generatsiya",
+      "review": "Tekshiruvda",
+      "approved": "Tasdiqlangan",
+      "published": "Chop etilgan",
+      "rejected": "Rad etilgan"
+    },
+    "type": {
+      "all": "Barcha turlar",
+      "lesson": "Dars",
+      "quiz": "Kviz",
+      "video": "Video",
+      "practice": "Amaliyot",
+      "case_study": "Keys",
+      "summary": "Yakun"
+    },
+    "difficulty": {
+      "beginner": "Boshlangʻich",
+      "intermediate": "Oʻrta",
+      "advanced": "Ilgʻor",
+      "expert": "Ekspert"
+    },
+    "search": "Qidiruv",
+    "searchPlaceholder": "Nomi boʻyicha qidiruv...",
+    "find": "Topish",
+    "statusLabel": "Status",
+    "typeLabel": "Tur",
+    "found": "Topildi:",
+    "pageOf": "Sahifa {page} / {total}",
+    "notFound": "Kontent topilmadi",
+    "tryFilters": "Filtrlarni oʻzgartirib koʻring",
+    "colTitle": "Nomi",
+    "colDifficulty": "Murakkablik",
+    "colMedia": "Media",
+    "colUpdated": "Yangilangan",
+    "filesN": "{n} fayl",
+    "next": "Oldinga"
   }
 }

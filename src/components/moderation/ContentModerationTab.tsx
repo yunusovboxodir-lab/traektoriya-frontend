@@ -2,24 +2,26 @@ import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { coursesApi, type ContentItem } from '../../api/courses';
 import { LessonEditor } from './LessonEditor';
+import { useT } from '../../stores/langStore';
 
+// label → labelKey: тексты живут в словарях src/i18n (i18n)
 const STATUS_OPTIONS = [
-  { value: '', label: 'Все статусы' },
-  { value: 'draft', label: 'Черновик' },
-  { value: 'review', label: 'На проверке' },
-  { value: 'approved', label: 'Утверждён' },
-  { value: 'published', label: 'Опубликован' },
-  { value: 'rejected', label: 'Отклонён' },
+  { value: '', labelKey: 'moderation.status.all' },
+  { value: 'draft', labelKey: 'moderation.status.draft' },
+  { value: 'review', labelKey: 'moderation.status.review' },
+  { value: 'approved', labelKey: 'moderation.status.approved' },
+  { value: 'published', labelKey: 'moderation.status.published' },
+  { value: 'rejected', labelKey: 'moderation.status.rejected' },
 ];
 
 const CONTENT_TYPE_OPTIONS = [
-  { value: '', label: 'Все типы' },
-  { value: 'lesson', label: 'Урок' },
-  { value: 'quiz', label: 'Квиз' },
-  { value: 'video', label: 'Видео' },
-  { value: 'practice', label: 'Практика' },
-  { value: 'case_study', label: 'Кейс' },
-  { value: 'summary', label: 'Итог' },
+  { value: '', labelKey: 'moderation.type.all' },
+  { value: 'lesson', labelKey: 'moderation.type.lesson' },
+  { value: 'quiz', labelKey: 'moderation.type.quiz' },
+  { value: 'video', labelKey: 'moderation.type.video' },
+  { value: 'practice', labelKey: 'moderation.type.practice' },
+  { value: 'case_study', labelKey: 'moderation.type.case_study' },
+  { value: 'summary', labelKey: 'moderation.type.summary' },
 ];
 
 const STATUS_STYLE: Record<string, React.CSSProperties> = {
@@ -31,32 +33,33 @@ const STATUS_STYLE: Record<string, React.CSSProperties> = {
   rejected:   { background: 'var(--danger-bg)',    color: 'var(--danger)' },
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Черновик',
-  generating: 'Генерация',
-  review: 'На проверке',
-  approved: 'Утверждён',
-  published: 'Опубликован',
-  rejected: 'Отклонён',
+const STATUS_KEYS: Record<string, string> = {
+  draft: 'moderation.status.draft',
+  generating: 'moderation.status.generating',
+  review: 'moderation.status.review',
+  approved: 'moderation.status.approved',
+  published: 'moderation.status.published',
+  rejected: 'moderation.status.rejected',
 };
 
-const TYPE_LABELS: Record<string, string> = {
-  lesson: 'Урок',
-  quiz: 'Квиз',
-  video: 'Видео',
-  practice: 'Практика',
-  case_study: 'Кейс',
-  summary: 'Итог',
+const TYPE_KEYS: Record<string, string> = {
+  lesson: 'moderation.type.lesson',
+  quiz: 'moderation.type.quiz',
+  video: 'moderation.type.video',
+  practice: 'moderation.type.practice',
+  case_study: 'moderation.type.case_study',
+  summary: 'moderation.type.summary',
 };
 
-const DIFFICULTY_LABELS: Record<number, string> = {
-  1: 'Начальный',
-  2: 'Средний',
-  3: 'Продвинутый',
-  4: 'Экспертный',
+const DIFFICULTY_KEYS: Record<number, string> = {
+  1: 'moderation.difficulty.beginner',
+  2: 'moderation.difficulty.intermediate',
+  3: 'moderation.difficulty.advanced',
+  4: 'moderation.difficulty.expert',
 };
 
 export function ContentModerationTab() {
+  const t = useT();
   const [items, setItems] = useState<ContentItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -111,14 +114,14 @@ export function ContentModerationTab() {
         <div className="flex flex-wrap gap-3 items-end">
           {/* Search */}
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Поиск</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{t('moderation.search')}</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                placeholder="Поиск по названию..."
+                placeholder={t('moderation.searchPlaceholder')}
                 className="flex-1 rounded-lg px-3 py-2 text-sm focus:outline-none"
                 style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
               />
@@ -127,14 +130,14 @@ export function ContentModerationTab() {
                 className="px-3 py-2 rounded-lg text-sm"
                 style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}
               >
-                Найти
+                {t('moderation.find')}
               </button>
             </div>
           </div>
 
           {/* Status filter */}
           <div className="w-40">
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Статус</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{t('moderation.statusLabel')}</label>
             <select
               value={statusFilter}
               onChange={e => { setStatusFilter(e.target.value); setPage(0); }}
@@ -142,14 +145,14 @@ export function ContentModerationTab() {
               style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
             >
               {STATUS_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
           </div>
 
           {/* Type filter */}
           <div className="w-36">
-            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>Тип</label>
+            <label className="block text-xs font-medium mb-1" style={{ color: 'var(--text-muted)' }}>{t('moderation.typeLabel')}</label>
             <select
               value={typeFilter}
               onChange={e => { setTypeFilter(e.target.value); setPage(0); }}
@@ -157,7 +160,7 @@ export function ContentModerationTab() {
               style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
             >
               {CONTENT_TYPE_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -167,11 +170,11 @@ export function ContentModerationTab() {
       {/* Stats bar */}
       <div className="flex items-center justify-between mb-3 px-1">
         <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-          Найдено: <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{total}</span> элементов
+          {t('moderation.found')} <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>{total}</span>
         </p>
         {totalPages > 1 && (
           <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-            Страница {page + 1} из {totalPages}
+            {t('moderation.pageOf', { page: page + 1, total: totalPages })}
           </p>
         )}
       </div>
@@ -180,13 +183,13 @@ export function ContentModerationTab() {
       {loading ? (
         <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <div className="animate-spin w-8 h-8 border-2 border-t-transparent rounded-full mx-auto mb-2" style={{ borderColor: 'var(--info)', borderTopColor: 'transparent' }} />
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Загрузка...</p>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{t('common.loading')}</p>
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <div className="text-3xl mb-2" style={{ color: 'var(--text-muted)' }}>–</div>
-          <p style={{ color: 'var(--text-secondary)' }}>Контент не найден</p>
-          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Попробуйте изменить фильтры</p>
+          <p style={{ color: 'var(--text-secondary)' }}>{t('moderation.notFound')}</p>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>{t('moderation.tryFilters')}</p>
         </div>
       ) : (
         <>
@@ -195,12 +198,12 @@ export function ContentModerationTab() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)' }}>
-                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>Название</th>
-                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>Тип</th>
-                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Статус</th>
-                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Сложность</th>
-                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>Медиа</th>
-                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>Обновлён</th>
+                  <th className="px-4 py-3 font-medium text-left" style={{ color: 'var(--text-muted)' }}>{t('moderation.colTitle')}</th>
+                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>{t('moderation.typeLabel')}</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>{t('moderation.statusLabel')}</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>{t('moderation.colDifficulty')}</th>
+                  <th className="px-4 py-3 font-medium text-left w-24" style={{ color: 'var(--text-muted)' }}>{t('moderation.colMedia')}</th>
+                  <th className="px-4 py-3 font-medium text-left w-28" style={{ color: 'var(--text-muted)' }}>{t('moderation.colUpdated')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -223,21 +226,21 @@ export function ContentModerationTab() {
                     </td>
                     <td className="px-4 py-3">
                       <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                        {TYPE_LABELS[item.content_type] || item.content_type}
+                        {TYPE_KEYS[item.content_type] ? t(TYPE_KEYS[item.content_type]) : item.content_type}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={STATUS_STYLE[item.status] || { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-                        {STATUS_LABELS[item.status] || item.status}
+                        {STATUS_KEYS[item.status] ? t(STATUS_KEYS[item.status]) : item.status}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
-                      {DIFFICULTY_LABELS[item.difficulty_level] || `Ур. ${item.difficulty_level}`}
+                      {DIFFICULTY_KEYS[item.difficulty_level] ? t(DIFFICULTY_KEYS[item.difficulty_level]) : `Ур. ${item.difficulty_level}`}
                     </td>
                     <td className="px-4 py-3">
                       {item.media_urls && item.media_urls.length > 0 ? (
                         <span className="inline-flex items-center gap-1 text-xs" style={{ color: 'var(--info)' }}>
-                          {item.media_urls.length} файл
+                          {t('moderation.filesN', { n: item.media_urls.length })}
                         </span>
                       ) : (
                         <span className="text-xs" style={{ color: 'var(--text-muted)' }}>—</span>
@@ -264,14 +267,14 @@ export function ContentModerationTab() {
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="font-medium text-sm flex-1" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
                   <span className="px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0" style={STATUS_STYLE[item.status] || { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-                    {STATUS_LABELS[item.status] || item.status}
+                    {STATUS_KEYS[item.status] ? t(STATUS_KEYS[item.status]) : item.status}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  <span>{TYPE_LABELS[item.content_type] || item.content_type}</span>
-                  <span>{DIFFICULTY_LABELS[item.difficulty_level]}</span>
+                  <span>{TYPE_KEYS[item.content_type] ? t(TYPE_KEYS[item.content_type]) : item.content_type}</span>
+                  <span>{DIFFICULTY_KEYS[item.difficulty_level] ? t(DIFFICULTY_KEYS[item.difficulty_level]) : ''}</span>
                   {item.media_urls && item.media_urls.length > 0 && (
-                    <span style={{ color: 'var(--info)' }}>{item.media_urls.length} файл</span>
+                    <span style={{ color: 'var(--info)' }}>{t('moderation.filesN', { n: item.media_urls.length })}</span>
                   )}
                   <span className="ml-auto">{formatDate(item.updated_at)}</span>
                 </div>
@@ -288,7 +291,7 @@ export function ContentModerationTab() {
                 className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
                 style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
               >
-                Назад
+                {t('common.back')}
               </button>
               {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
                 let pageNum: number;
@@ -321,7 +324,7 @@ export function ContentModerationTab() {
                 className="px-3 py-1.5 rounded-lg text-sm disabled:opacity-40"
                 style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
               >
-                Вперёд
+                {t('moderation.next')}
               </button>
             </div>
           )}

@@ -1,4 +1,4 @@
-import { useLangStore } from '../../stores/langStore';
+import { useLangStore, useT } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
 
@@ -16,6 +16,7 @@ interface FieldTaskCardProps {
 
 export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
   const lang = useLangStore((s) => s.lang);
+  const t = useT();
   return (
     <div className="animate-fadeIn">
       {/* Header */}
@@ -24,8 +25,8 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
           📋
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900">Полевое задание</h3>
-          <p className="text-xs text-gray-400">Практическое задание на маршруте</p>
+          <h3 className="text-lg font-bold text-gray-900">{t('learning.fieldTask.title')}</h3>
+          <p className="text-xs text-gray-400">{t('learning.fieldTask.subtitle')}</p>
         </div>
       </div>
 
@@ -39,12 +40,12 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Срок выполнения: <strong>{task.deadline_days} {task.deadline_days === 1 ? 'день' : task.deadline_days < 5 ? 'дня' : 'дней'}</strong></span>
+          <span>{t('learning.fieldTask.deadline')} <strong>{task.deadline_days} {task.deadline_days === 1 ? t('learning.fieldTask.day1') : task.deadline_days < 5 ? t('learning.fieldTask.day2') : t('learning.fieldTask.day5')}</strong></span>
         </div>
 
         {/* Criteria checklist */}
         <div className="bg-white/60 rounded-xl p-4">
-          <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-3">Критерии оценки:</p>
+          <p className="text-xs font-semibold text-amber-700 uppercase tracking-wider mb-3">{t('learning.fieldTask.criteria')}</p>
           <div className="space-y-2.5">
             {task.criteria.map((criterion, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -63,7 +64,7 @@ export function FieldTaskCard({ task, onComplete }: FieldTaskCardProps) {
         onClick={onComplete}
         className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-amber-200 transition-all flex items-center justify-center gap-2"
       >
-        <span>Понятно, выполню</span>
+        <span>{t('learning.fieldTask.accept')}</span>
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>

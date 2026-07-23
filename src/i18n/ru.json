@@ -450,6 +450,27 @@
       "descMicro": "В выбранном фильтре «Микро (≤7 мин)» нет курсов. Сбросьте фильтр, чтобы увидеть все доступные курсы уровня.",
       "descDefault": "Курсы на этом уровне появятся, когда тренер их назначит.",
       "ctaResetFilter": "Сбросить фильтр"
+    },
+    "fieldTask": {
+      "title": "Полевое задание",
+      "subtitle": "Практическое задание на маршруте",
+      "deadline": "Срок выполнения:",
+      "day1": "день",
+      "day2": "дня",
+      "day5": "дней",
+      "criteria": "Критерии оценки:",
+      "accept": "Понятно, выполню"
+    },
+    "flashcards": {
+      "allDone": "Карточки повторены!",
+      "remembered": "Запомнил",
+      "toRepeat": "На повторение",
+      "title": "Карточки для повторения",
+      "tapToFlip": "Нажмите на карточку, чтобы перевернуть",
+      "tapToSeeAnswer": "Нажмите, чтобы увидеть ответ →",
+      "answer": "Ответ",
+      "remember": "Помню",
+      "repeat": "Повторить"
     }
   },
   "kpi": {
@@ -1320,5 +1341,78 @@
     "sales_rep": "Торговые представители",
     "commercial_dir": "Коммерческие директора",
     "dealer": "Дилеры"
+  },
+  "caseStudioForms": {
+    "actionLabels": {
+      "scenario_created": "Создание кейса",
+      "solution_added": "Предложение решения",
+      "rating_given": "Оценка",
+      "top3_winner": "Решение в TOP-3",
+      "scenario_popular": "Кейс с 50+ оценок"
+    },
+    "xpBreakdown": "Разбивка XP по действиям",
+    "my": {
+      "noData": "Нет данных",
+      "backToCases": "← К Кейсотеке",
+      "title": "Мой XP в Кейсотеке",
+      "intro": "За что начисляются баллы — внизу страницы. Чем больше пишешь и оцениваешь, тем выше в лидерборде.",
+      "totalXp": "Всего XP",
+      "rankLabel": "Место в лидерборде:",
+      "statCases": "Создано кейсов",
+      "statSolutions": "Предложено решений",
+      "statRatings": "Поставлено оценок",
+      "statTop3": "Решения в TOP-3",
+      "noActions": "Пока нет ни одного действия.",
+      "createFirst": "Создать первый кейс",
+      "howToEarn": "Как заработать XP",
+      "earnCreate": "Создать кейс (status=published)",
+      "earnSolution": "Предложить решение (cap 5/неделю)",
+      "earnRating": "Поставить оценку (cap 20/неделю)",
+      "earnTop3": "Решение попало в TOP-3 (мин. 3 оценки)",
+      "earnPopular": "Кейс собрал 50+ оценок",
+      "bonus100": "+100 XP бонус",
+      "bonus200": "+200 XP бонус"
+    }
+  },
+  "moderation": {
+    "status": {
+      "all": "Все статусы",
+      "draft": "Черновик",
+      "generating": "Генерация",
+      "review": "На проверке",
+      "approved": "Утверждён",
+      "published": "Опубликован",
+      "rejected": "Отклонён"
+    },
+    "type": {
+      "all": "Все типы",
+      "lesson": "Урок",
+      "quiz": "Квиз",
+      "video": "Видео",
+      "practice": "Практика",
+      "case_study": "Кейс",
+      "summary": "Итог"
+    },
+    "difficulty": {
+      "beginner": "Начальный",
+      "intermediate": "Средний",
+      "advanced": "Продвинутый",
+      "expert": "Экспертный"
+    },
+    "search": "Поиск",
+    "searchPlaceholder": "Поиск по названию...",
+    "find": "Найти",
+    "statusLabel": "Статус",
+    "typeLabel": "Тип",
+    "found": "Найдено:",
+    "pageOf": "Страница {page} из {total}",
+    "notFound": "Контент не найден",
+    "tryFilters": "Попробуйте изменить фильтры",
+    "colTitle": "Название",
+    "colDifficulty": "Сложность",
+    "colMedia": "Медиа",
+    "colUpdated": "Обновлён",
+    "filesN": "{n} файл",
+    "next": "Вперёд"
   }
 }

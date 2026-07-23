@@ -13,15 +13,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 import type { LeaderboardEntry, MyStats } from '../types/caseStudio';
 import { SkeletonCard } from '@/components/ui';
 
-const ACTION_LABELS: Record<string, string> = {
-  scenario_created: 'Создание кейса',
-  solution_added: 'Предложение решения',
-  rating_given: 'Оценка',
-  top3_winner: 'Решение в TOP-3',
-  scenario_popular: 'Кейс с 50+ оценок',
+// Ключи словаря (src/i18n/*.json) — сами тексты живут в словарях
+const ACTION_LABEL_KEYS: Record<string, string> = {
+  scenario_created: 'caseStudioForms.actionLabels.scenario_created',
+  solution_added: 'caseStudioForms.actionLabels.solution_added',
+  rating_given: 'caseStudioForms.actionLabels.rating_given',
+  top3_winner: 'caseStudioForms.actionLabels.top3_winner',
+  scenario_popular: 'caseStudioForms.actionLabels.scenario_popular',
 };
 
 const ACTION_POINTS: Record<string, number> = {
@@ -34,6 +36,7 @@ const ACTION_POINTS: Record<string, number> = {
 
 export function CaseStudioMyPage() {
   const navigate = useNavigate();
+  const t = useT();
   const user = useAuthStore((s) => s.user);
   const [stats, setStats] = useState<MyStats | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -65,10 +68,10 @@ export function CaseStudioMyPage() {
     );
   }
   if (error) {
-    return <div className="max-w-3xl mx-auto p-6 text-red-600">Ошибка: {error}</div>;
+    return <div className="max-w-3xl mx-auto p-6 text-red-600">{t('common.error')}: {error}</div>;
   }
   if (!stats) {
-    return <div className="max-w-3xl mx-auto p-6">Нет данных</div>;
+    return <div className="max-w-3xl mx-auto p-6">{t('caseStudioForms.my.noData')}</div>;
   }
 
   const totalActions =
@@ -81,40 +84,40 @@ export function CaseStudioMyPage() {
         className="text-sm mb-4"
         style={{ color: 'var(--text-muted)' }}
       >
-        ← К Кейсотеке
+        {t('caseStudioForms.my.backToCases')}
       </button>
 
-      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Мой XP в Кейсотеке</h1>
+      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('caseStudioForms.my.title')}</h1>
       <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
-        За что начисляются баллы — внизу страницы. Чем больше пишешь и оцениваешь, тем выше в лидерборде.
+        {t('caseStudioForms.my.intro')}
       </p>
 
       {/* Hero card with total XP */}
       <div className="rounded-2xl p-6 mb-6" style={{ background: 'linear-gradient(135deg, var(--success), #0B7568)', color: 'var(--text-inverse)' }}>
-        <div className="text-sm uppercase tracking-wider mb-1">Всего XP</div>
+        <div className="text-sm uppercase tracking-wider mb-1">{t('caseStudioForms.my.totalXp')}</div>
         <div className="text-5xl font-bold mb-2">{stats.total_xp}</div>
         {myRank && (
           <div className="text-sm">
-            Место в лидерборде: <strong>#{myRank}</strong> из {leaderboard.length}
+            {t('caseStudioForms.my.rankLabel')} <strong>#{myRank}</strong> / {leaderboard.length}
           </div>
         )}
       </div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        <StatCard label="Создано кейсов" value={stats.scenarios_created} />
-        <StatCard label="Предложено решений" value={stats.solutions_added} />
-        <StatCard label="Поставлено оценок" value={stats.ratings_given} />
-        <StatCard label="Решения в TOP-3" value={stats.top3_solutions} />
+        <StatCard label={t('caseStudioForms.my.statCases')} value={stats.scenarios_created} />
+        <StatCard label={t('caseStudioForms.my.statSolutions')} value={stats.solutions_added} />
+        <StatCard label={t('caseStudioForms.my.statRatings')} value={stats.ratings_given} />
+        <StatCard label={t('caseStudioForms.my.statTop3')} value={stats.top3_solutions} />
         <StatCard label="Популярные кейсы" value={stats.popular_scenarios} />
         <StatCard label="Всего действий" value={totalActions} />
       </div>
 
       {/* XP breakdown by action */}
       <div className="rounded-lg p-5 mb-6" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-        <h2 className="font-medium mb-4" style={{ color: 'var(--text-primary)' }}>Разбивка XP по действиям</h2>
+        <h2 className="font-medium mb-4" style={{ color: 'var(--text-primary)' }}>{t('caseStudioForms.xpBreakdown')}</h2>
         <div className="space-y-2">
-          {Object.keys(ACTION_LABELS).map((action) => {
+          {Object.keys(ACTION_LABEL_KEYS).map((action) => {
             const xp = stats.by_action[action] || 0;
             if (xp === 0) return null;
             const points = ACTION_POINTS[action];
@@ -122,7 +125,7 @@ export function CaseStudioMyPage() {
             return (
               <div key={action} className="flex items-center justify-between py-2 last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
                 <div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{ACTION_LABELS[action]}</div>
+                  <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{t(ACTION_LABEL_KEYS[action])}</div>
                   <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     {count}× × +{points} XP
                   </div>
@@ -135,13 +138,13 @@ export function CaseStudioMyPage() {
           })}
           {totalActions === 0 && (
             <div className="text-center py-6" style={{ color: 'var(--text-muted)' }}>
-              <p className="mb-3">Пока нет ни одного действия.</p>
+              <p className="mb-3">{t('caseStudioForms.my.noActions')}</p>
               <button
                 onClick={() => navigate('/case-studio/new')}
                 className="px-4 py-2 rounded-lg text-sm font-medium"
                 style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-strong)' }}
               >
-                Создать первый кейс
+                {t('caseStudioForms.my.createFirst')}
               </button>
             </div>
           )}
@@ -150,27 +153,27 @@ export function CaseStudioMyPage() {
 
       {/* How to earn XP */}
       <div className="rounded-lg p-5" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-        <h2 className="font-medium mb-3" style={{ color: 'var(--text-primary)' }}>Как заработать XP</h2>
+        <h2 className="font-medium mb-3" style={{ color: 'var(--text-primary)' }}>{t('caseStudioForms.my.howToEarn')}</h2>
         <ul className="space-y-2 text-sm">
           <li className="flex justify-between">
-            <span style={{ color: 'var(--text-secondary)' }}>Создать кейс (status=published)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnCreate')}</span>
             <span className="font-medium" style={{ color: 'var(--success)' }}>+50 XP</span>
           </li>
           <li className="flex justify-between">
-            <span style={{ color: 'var(--text-secondary)' }}>Предложить решение (cap 5/неделю)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnSolution')}</span>
             <span className="font-medium" style={{ color: 'var(--success)' }}>+20 XP</span>
           </li>
           <li className="flex justify-between">
-            <span style={{ color: 'var(--text-secondary)' }}>Поставить оценку (cap 20/неделю)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnRating')}</span>
             <span className="font-medium" style={{ color: 'var(--success)' }}>+5 XP</span>
           </li>
           <li className="flex justify-between">
-            <span style={{ color: 'var(--text-secondary)' }}>Решение попало в TOP-3 (мин. 3 оценки)</span>
-            <span className="font-medium" style={{ color: 'var(--success)' }}>+100 XP бонус</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnTop3')}</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>{t('caseStudioForms.my.bonus100')}</span>
           </li>
           <li className="flex justify-between">
-            <span style={{ color: 'var(--text-secondary)' }}>Кейс собрал 50+ оценок</span>
-            <span className="font-medium" style={{ color: 'var(--success)' }}>+200 XP бонус</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnPopular')}</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>{t('caseStudioForms.my.bonus200')}</span>
           </li>
         </ul>
       </div>
