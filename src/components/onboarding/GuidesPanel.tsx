@@ -66,12 +66,12 @@ export function GuidesPanel() {
       }}>
         <span aria-hidden="true">🎁</span>
         {lang === 'uz' ? 'Platforma bo‘yicha gid' : 'Гид по платформе'}
-        <span style={{ opacity: 0.75, letterSpacing: '0.02em', textTransform: 'none' }}>
+        <span style={{ color: 'var(--text-secondary)', letterSpacing: '0.02em', textTransform: 'none' }}>
           {unseenCount > 0
             ? `· ${guides.length - unseenCount}/${guides.length}`
             : `· ${guides.length} ✓`}
         </span>
-        <span aria-hidden="true" style={{ fontSize: 9 }}>▾</span>
+        <span aria-hidden="true" style={{ fontSize: 12 }}>▾</span>
       </summary>
 
       <div style={{
