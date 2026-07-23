@@ -1,0 +1,32 @@
+# Гейты качества кода (2026-07-23).
+# Пол читабельности 12px и tactical-шрифты — на error в самом ESLint (падают в lint).
+# i18n-долг (русские хардкоды в JSX) — на warn, поэтому держится отдельным
+# базлайн-гейтом: число не должно расти. См. scripts/check_i18n_baseline.mjs.
+name: quality-gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Установка зависимостей
+        run: npm ci
+
+      - name: TypeScript
+        run: npx tsc -b
+
+      - name: Гейты (пол 12px, tactical-шрифты, i18n-базлайн)
+        run: node scripts/check_i18n_baseline.mjs

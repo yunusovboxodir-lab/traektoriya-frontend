@@ -176,6 +176,7 @@ export interface SubordinatePulseEntry {
   competencies: Array<{
     id: string;
     name: string;
+    name_uz?: string | null; // бэк начнёт отдавать после правки _competency_averages
     pct: number;
     level: string;
   }>;
@@ -184,6 +185,7 @@ export interface SubordinatePulseEntry {
 export interface CompetencyAverage {
   id: string;
   name: string;
+  name_uz?: string | null; // бэк начнёт отдавать после правки _competency_averages
   avg_pct: number;
   level: string;
 }

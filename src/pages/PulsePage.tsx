@@ -102,15 +102,8 @@ function healthBucket(m: SubordinatePulseEntry): HealthKey {
   return 'lt30';
 }
 
-// Порядок и русские подписи ролей для колонок Пульса команды
+// Порядок ролей для колонок Пульса команды (подписи — i18n rolesPlural.*)
 const ROLE_ORDER = ['regional_manager', 'supervisor', 'sales_rep'] as const;
-const ROLE_LABEL_RU: Record<string, string> = {
-  regional_manager: 'Региональные менеджеры',
-  supervisor: 'Супервайзеры',
-  sales_rep: 'Торговые представители',
-  commercial_dir: 'Коммерческие директора',
-  dealer: 'Дилеры',
-};
 
 // ============================================================================
 // Главный компонент
@@ -295,7 +288,7 @@ export function PulsePage() {
       <div className="space-y-5" style={{ color: 'var(--text-primary)' }}>
         <PulseHeader
           title={lang === 'uz' ? 'Jamoa pulsi' : 'Пульс команды'}
-          subtitle={`${headerName} · ${getRoleLabel(user?.role || '', lang)} · ${teamData?.members_count ?? 0} ${(teamData?.members_count ?? 0) === 1 ? 'подчинённый' : 'подчинённых'}`}
+          subtitle={`${headerName} · ${getRoleLabel(user?.role || '', lang)} · ${t((teamData?.members_count ?? 0) === 1 ? 'pulse.subordinateOne' : 'pulse.subordinatesMany', { n: teamData?.members_count ?? 0 })}`}
           view={view}
           setView={setView}
           canViewTeam={canViewTeam}
@@ -316,15 +309,15 @@ export function PulsePage() {
         ) : !teamData || teamData.members_count === 0 ? (
           <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>
             <div className="text-5xl mb-4">👥</div>
-            <p className="text-lg">У вас пока нет подчинённых для каскадного обзора</p>
-            <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>Нажмите «Я» чтобы вернуться к личному пульсу</p>
+            <p className="text-lg">{t('pulse.noSubsCascade')}</p>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{t('pulse.backToMe')}</p>
           </div>
         ) : (
           <TeamPulseView data={teamData} />
         )}
         {canViewTeam && (
           <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-            Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> — переключить «Я ↔ Команда»
+            {t('pulse.hint')} <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> {t('pulse.hotkeyToggle')}
           </div>
         )}
       </div>
@@ -427,7 +420,7 @@ export function PulsePage() {
       {/* Подсказка с горячими клавишами */}
       {canViewTeam && (
         <div className="text-center text-xs mt-2" style={{ color: 'var(--text-muted)' }}>
-          Подсказка: <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> — переключить «Я ↔ Команда»
+          {t('pulse.hint')} <kbd style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }} className="px-1.5 py-0.5 rounded font-mono text-xs">M</kbd> {t('pulse.hotkeyToggle')}
         </div>
       )}
     </div>
@@ -507,6 +500,7 @@ function PulseHeader({
   isAdmin, selectedRole, setSelectedRole,
   teamUsers, selectedUserId, setSelectedUserId, lang,
 }: PulseHeaderProps) {
+  const t = useT();
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -544,7 +538,7 @@ function PulseHeader({
                 : { color: 'var(--text-secondary)' }
               }
             >
-              Я
+              {t('pulse.viewMe')}
             </button>
             <button
               type="button"
@@ -559,7 +553,7 @@ function PulseHeader({
                 : { color: 'var(--text-secondary)' }
               }
             >
-              Команда
+              {t('pulse.viewTeam')}
             </button>
           </div>
         )}
@@ -1133,8 +1127,21 @@ function RoleDistributionBar({ members }: { members: SubordinatePulseEntry[] }) 
 // участников. Количество колонок = число подчинённых ролей (1, 2 или 3).
 
 function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
+
+  // Роли с готовым множественным числом в словаре (rolesPlural.*)
+  const PLURAL_ROLES = new Set(['regional_manager', 'supervisor', 'sales_rep', 'commercial_dir', 'dealer']);
+  const roleLabel = (r: string, roleRu?: string | null) =>
+    PLURAL_ROLES.has(r) ? t(`rolesPlural.${r}`) : (roleRu ?? r);
+
   const toRadar = (avgs: SubordinatesPulseResponse['competency_averages']): RadarDataPoint[] =>
-    avgs.map((c) => ({ label: c.name, value: c.avg_pct, level: c.level, id: c.id }));
+    avgs.map((c) => ({
+      label: lang === 'uz' && c.name_uz ? c.name_uz : c.name,
+      value: c.avg_pct,
+      level: c.level,
+      id: c.id,
+    }));
 
   // Радары приходят с бэка сгруппированными по роли (competency_averages_by_role)
   const roleGroups = (data.competency_averages_by_role ?? []).filter(
@@ -1168,11 +1175,11 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
           const g = roleGroups.find((x) => x.role === r);
           const mem = membersByRole[r] ?? [];
           const avg = mem.length ? mem.reduce((s, m) => s + m.overall_pulse, 0) / mem.length : 0;
-          const label = ROLE_LABEL_RU[r] ?? g?.role_ru ?? r;
+          const label = roleLabel(r, g?.role_ru);
           return (
-            <Card key={r} title={`Сводная карта · ${label}`}>
+            <Card key={r} title={`${t('pulse.summaryMap')} · ${label}`}>
               <div className="text-xs text-center mb-1" style={{ color: 'var(--text-muted)' }}>
-                {mem.length} чел · средний пульс {Math.round(g?.avg_pulse ?? avg)}%
+                {t('pulse.membersAvg', { n: mem.length, pct: Math.round(g?.avg_pulse ?? avg) })}
               </div>
               <div className="relative flex items-center justify-center" style={{ minHeight: 320 }}>
                 {g ? (
@@ -1185,14 +1192,14 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
                   />
                 ) : (
                   <div className="text-sm" style={{ color: 'var(--text-muted)' }}>
-                    Нет данных по компетенциям
+                    {t('pulse.noCompData')}
                   </div>
                 )}
               </div>
               {/* Полоска-распределение под радаром */}
               <div className="mt-3 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
                 <div className="text-xs uppercase tracking-widest mb-2" style={{ color: 'var(--text-muted)' }}>
-                  Распределение
+                  {t('pulse.distribution')}
                 </div>
                 <RoleDistributionBar members={mem} />
               </div>
@@ -1205,7 +1212,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
       <div className={`grid grid-cols-1 ${gridCols} gap-5 mt-5`}>
         {roles.map((r) => {
           const mem = membersByRole[r] ?? [];
-          const label = ROLE_LABEL_RU[r] ?? r;
+          const label = roleLabel(r, roleGroups.find((x) => x.role === r)?.role_ru);
           return (
             <div
               key={r}
@@ -1224,7 +1231,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
               <div className="flex flex-col gap-3">
                 {mem.length === 0 ? (
                   <div className="text-sm text-center py-6" style={{ color: 'var(--text-muted)' }}>
-                    Нет подчинённых
+                    {t('pulse.noSubs')}
                   </div>
                 ) : (
                   mem.map((m, idx) => <MemberCard key={m.user_id} member={m} rank={idx + 1} />)

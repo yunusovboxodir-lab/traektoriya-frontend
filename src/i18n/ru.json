@@ -110,7 +110,21 @@
     "noCourses": "Курсы не привязаны",
     "loadError": "Ошибка загрузки пульса",
     "viewRole": "Показать Pulse для роли",
-    "viewDetails": "Подробнее →"
+    "viewDetails": "Подробнее →",
+    "summaryMap": "Сводная карта",
+    "membersAvg": "{n} чел · средний пульс {pct}%",
+    "distribution": "Распределение",
+    "healthNoData": "Без данных",
+    "noCompData": "Нет данных по компетенциям",
+    "noSubs": "Нет подчинённых",
+    "noSubsCascade": "У вас пока нет подчинённых для каскадного обзора",
+    "subordinateOne": "{n} подчинённый",
+    "subordinatesMany": "{n} подчинённых",
+    "viewMe": "Я",
+    "viewTeam": "Команда",
+    "backToMe": "Нажмите «Я», чтобы вернуться к личному пульсу",
+    "hint": "Подсказка:",
+    "hotkeyToggle": "— переключить «Я ↔ Команда»"
   },
   "ai": {
     "tabGeneration": "Генерация",
@@ -1299,5 +1313,12 @@
       "changeStatus": "Не удалось изменить статус",
       "saveFailed": "Не удалось сохранить"
     }
+  },
+  "rolesPlural": {
+    "regional_manager": "Региональные менеджеры",
+    "supervisor": "Супервайзеры",
+    "sales_rep": "Торговые представители",
+    "commercial_dir": "Коммерческие директора",
+    "dealer": "Дилеры"
   }
 }

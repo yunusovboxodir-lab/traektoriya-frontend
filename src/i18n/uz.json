@@ -110,7 +110,21 @@
     "noCourses": "Kurslar bogʻlanmagan",
     "loadError": "Pulsni yuklashda xato",
     "viewRole": "Rol uchun Pulsni koʻrsatish",
-    "viewDetails": "Batafsil →"
+    "viewDetails": "Batafsil →",
+    "summaryMap": "Umumiy xarita",
+    "membersAvg": "{n} kishi · oʻrtacha puls {pct}%",
+    "distribution": "Taqsimot",
+    "healthNoData": "Maʼlumot yoʻq",
+    "noCompData": "Kompetensiyalar boʻyicha maʼlumot yoʻq",
+    "noSubs": "Xodimlar yoʻq",
+    "noSubsCascade": "Kaskadli koʻrik uchun hali xodimlaringiz yoʻq",
+    "subordinateOne": "{n} xodim",
+    "subordinatesMany": "{n} xodim",
+    "viewMe": "Men",
+    "viewTeam": "Jamoa",
+    "backToMe": "Shaxsiy pulsga qaytish uchun «Men» tugmasini bosing",
+    "hint": "Maslahat:",
+    "hotkeyToggle": "— «Men ↔ Jamoa» rejimini almashtirish"
   },
   "ai": {
     "tabGeneration": "Generatsiya",
@@ -1299,5 +1313,12 @@
       "changeStatus": "Holatni oʻzgartirib boʻlmadi",
       "saveFailed": "Saqlab boʻlmadi"
     }
+  },
+  "rolesPlural": {
+    "regional_manager": "Hududiy menejerlar",
+    "supervisor": "Supervayzerlar",
+    "sales_rep": "Savdo vakillari",
+    "commercial_dir": "Kommersiya direktorlari",
+    "dealer": "Dilerlar"
   }
 }
