@@ -1790,5 +1790,99 @@
     "unknownBlockType": "Nomaʼlum blok turi",
     "moveUp": "Yuqoriga",
     "moveDown": "Pastga"
+  },
+  "caseStudio": {
+    "roles": {
+      "sales_rep": "TP",
+      "supervisor": "SV",
+      "regional_manager": "RM",
+      "commercial_dir": "KD",
+      "admin": "Admin",
+      "trainer": "Trener",
+      "superadmin": "Superadmin"
+    },
+    "speakers": {
+      "client": "Mijoz",
+      "other": "Boshqa"
+    },
+    "status": {
+      "draft": "Qoralama",
+      "published": "Nashr qilingan",
+      "archived": "Arxivda"
+    },
+    "title": "Keyslar bazasi",
+    "subtitle": "Real vaziyatlar bazasi + peer-review. Top-3 yechim etalon boʻladi.",
+    "createCase": "Keys yaratish",
+    "myXp": "Mening XP",
+    "tabs": {
+      "scenarios": "Keyslar",
+      "leaderboard": "Liderbord",
+      "categories": "Kategoriyalar"
+    },
+    "filters": {
+      "role": "Rol",
+      "category": "Kategoriya",
+      "all": "Barchasi",
+      "onlyEtalon": "Faqat etalonli keyslar",
+      "found": "Topildi:"
+    },
+    "emptyList": "Hozircha keyslar yoʻq. Birinchi boʻling — oʻz etalon keysingizni yarating.",
+    "hasSolution": "+ yechim",
+    "views": "{n} marta koʻrilgan",
+    "myStats": "Mening koʻrsatkichlarim",
+    "stats": {
+      "cases": "Keyslar",
+      "solutions": "Yechimlar",
+      "ratings": "Baholar",
+      "top3": "TOP-3 da"
+    },
+    "table": {
+      "name": "Ism",
+      "role": "Rol"
+    },
+    "leaderboardEmpty": "Liderbord hozircha boʻsh. Birinchi keysni yarating!",
+    "addCategory": "Kategoriya qoʻshish",
+    "categoryDisabled": "oʻchirilgan",
+    "notFound": "Keys topilmadi",
+    "toList": "Keyslar roʻyxatiga",
+    "backToList": "← Keyslar roʻyxatiga",
+    "forRole": "{role} uchun",
+    "starsRatings": "★ {n} baho",
+    "situation": "Vaziyat",
+    "dialogue": "Dialog",
+    "publish": "Nashr qilish",
+    "archive": "Arxivlash",
+    "deleteCase": "Keysni oʻchirish",
+    "assignTeamTask": "Jamoaga vazifa qoʻyish",
+    "assign": {
+      "modalDesc": "Har bir xodim Kanbanda «Keysni oʻrgan» vazifasini + TG-xabarnoma oladi.",
+      "toWhom": "Kimga?",
+      "roleSalesReps": "Savdo vakillari (TP)",
+      "roleSupervisors": "Supervayzerlar (SV)",
+      "roleRegionalManagers": "Hududiy menejerlar (RM)",
+      "roleCommercialDirs": "Tijorat direktorlari (KD)",
+      "dueDays": "Muddat (kun)",
+      "priority": "Muhimlik",
+      "priorityLow": "Past",
+      "priorityMedium": "Oʻrta",
+      "priorityHigh": "Yuqori",
+      "creating": "Yaratilmoqda…",
+      "create": "Vazifalar yaratish"
+    },
+    "solutionsTitle": "Yechimlar ({n})",
+    "noSolutions": "Hozircha yechimlar yoʻq. Birinchi boʻling — quyida oʻz yondashuvingizni taklif eting.",
+    "etalonTop": "Etalon TOP-{n}",
+    "fromAuthor": "Keys muallifidan",
+    "rateCase": "Keysni baholash:",
+    "rateSolution": "Yechimni baholash:",
+    "starsAria": "{n} yulduz",
+    "thanksRating": "Baho uchun rahmat! +5 XP",
+    "addComment": "+ Izoh",
+    "commentPlaceholder": "Ixtiyoriy: bahoga izoh…",
+    "proposeSolution": "Oʻz yechimingizni taklif eting",
+    "solutionPlaceholder": "Bu vaziyatga oʻz yondashuvingizni yozing (kamida 20 belgi)…",
+    "xpForSolution": "Taklif uchun +20 XP",
+    "sending": "Yuborilmoqda…",
+    "submitSolution": "Yechim taklif qilish"
   }
 }

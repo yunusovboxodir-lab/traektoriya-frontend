@@ -1790,5 +1790,99 @@
     "unknownBlockType": "Неизвестный тип блока",
     "moveUp": "Вверх",
     "moveDown": "Вниз"
+  },
+  "caseStudio": {
+    "roles": {
+      "sales_rep": "ТП",
+      "supervisor": "СВ",
+      "regional_manager": "РМ",
+      "commercial_dir": "КД",
+      "admin": "Админ",
+      "trainer": "Тренер",
+      "superadmin": "Суперадмин"
+    },
+    "speakers": {
+      "client": "Клиент",
+      "other": "Другой"
+    },
+    "status": {
+      "draft": "Черновик",
+      "published": "Опубликован",
+      "archived": "В архиве"
+    },
+    "title": "Кейсотека",
+    "subtitle": "База реальных сценариев + peer-review. Топ-3 решения становятся эталонами.",
+    "createCase": "Создать кейс",
+    "myXp": "Мой XP",
+    "tabs": {
+      "scenarios": "Кейсы",
+      "leaderboard": "Лидерборд",
+      "categories": "Категории"
+    },
+    "filters": {
+      "role": "Роль",
+      "category": "Категория",
+      "all": "Все",
+      "onlyEtalon": "Только с эталонами",
+      "found": "Найдено:"
+    },
+    "emptyList": "Кейсов пока нет. Будь первым — создай свой эталонный сценарий.",
+    "hasSolution": "+ решение",
+    "views": "{n} просмотров",
+    "myStats": "Мои показатели",
+    "stats": {
+      "cases": "Кейсов",
+      "solutions": "Решений",
+      "ratings": "Оценок",
+      "top3": "В TOP-3"
+    },
+    "table": {
+      "name": "Имя",
+      "role": "Роль"
+    },
+    "leaderboardEmpty": "Лидерборд пока пуст. Создай первый кейс!",
+    "addCategory": "Добавить категорию",
+    "categoryDisabled": "отключена",
+    "notFound": "Кейс не найден",
+    "toList": "К списку кейсов",
+    "backToList": "← К списку кейсов",
+    "forRole": "Для роли: {role}",
+    "starsRatings": "★ {n} оценок",
+    "situation": "Ситуация",
+    "dialogue": "Диалог",
+    "publish": "Опубликовать",
+    "archive": "Архивировать",
+    "deleteCase": "Удалить кейс",
+    "assignTeamTask": "Поставить задачу команде",
+    "assign": {
+      "modalDesc": "Каждый получит задачу «Изучи кейс» в Kanban + TG-уведомление.",
+      "toWhom": "Кому?",
+      "roleSalesReps": "Торговые представители (ТП)",
+      "roleSupervisors": "Супервайзеры (СВ)",
+      "roleRegionalManagers": "Региональные менеджеры (РМ)",
+      "roleCommercialDirs": "Коммерческие директора (КД)",
+      "dueDays": "Срок (дней)",
+      "priority": "Приоритет",
+      "priorityLow": "Низкий",
+      "priorityMedium": "Средний",
+      "priorityHigh": "Высокий",
+      "creating": "Создаю…",
+      "create": "Создать задачи"
+    },
+    "solutionsTitle": "Решения ({n})",
+    "noSolutions": "Пока нет решений. Будь первым — предложи свой подход ниже.",
+    "etalonTop": "Эталон TOP-{n}",
+    "fromAuthor": "От автора кейса",
+    "rateCase": "Оценить кейс:",
+    "rateSolution": "Оценить решение:",
+    "starsAria": "{n} звёзд",
+    "thanksRating": "Спасибо за оценку! +5 XP",
+    "addComment": "+ Комментарий",
+    "commentPlaceholder": "Опционально: комментарий к оценке…",
+    "proposeSolution": "Предложить своё решение",
+    "solutionPlaceholder": "Опиши свой подход к этой ситуации (минимум 20 символов)…",
+    "xpForSolution": "+20 XP за предложение",
+    "sending": "Отправляю…",
+    "submitSolution": "Предложить решение"
   }
 }

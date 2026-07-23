@@ -15,7 +15,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
-import { useLangStore } from '../stores/langStore';
+import { useLangStore, useT } from '../stores/langStore';
 import { pickLang } from '../utils/pickLang';
 import type {
   CaseCategory,
@@ -28,20 +28,21 @@ import { SkeletonLine, SkeletonCard } from '@/components/ui';
 
 type Tab = 'scenarios' | 'leaderboard' | 'categories';
 
-const ROLE_LABELS: Record<string, string> = {
-  sales_rep: 'ТП',
-  supervisor: 'СВ',
-  regional_manager: 'РМ',
-  commercial_dir: 'КД',
-  admin: 'Админ',
-  trainer: 'Тренер',
-  superadmin: 'Суперадмин',
+// Лейблы ролей/статусов — через словарь (labelKey + t() в рендере)
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  sales_rep: 'caseStudio.roles.sales_rep',
+  supervisor: 'caseStudio.roles.supervisor',
+  regional_manager: 'caseStudio.roles.regional_manager',
+  commercial_dir: 'caseStudio.roles.commercial_dir',
+  admin: 'caseStudio.roles.admin',
+  trainer: 'caseStudio.roles.trainer',
+  superadmin: 'caseStudio.roles.superadmin',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Черновик',
-  published: 'Опубликован',
-  archived: 'В архиве',
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  draft: 'caseStudio.status.draft',
+  published: 'caseStudio.status.published',
+  archived: 'caseStudio.status.archived',
 };
 
 // STATUS_BADGE: published/archived используем токены через инлайн-стиль;
@@ -68,7 +69,7 @@ function formatDate(iso: string | null): string {
 export function CaseStudioPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const lang = useLangStore((s) => s.lang);
+  const t = useT();
   const [tab, setTab] = useState<Tab>('scenarios');
 
   const canCreateScenario =
@@ -86,10 +87,10 @@ export function CaseStudioPage() {
             className="text-3xl font-semibold"
             style={{ color: 'var(--text-primary)' }}
           >
-            {lang === 'uz' ? 'Keyslar bazasi' : 'Кейсотека'}
+            {t('caseStudio.title')}
           </div>
           <p className="mt-1" style={{ color: 'var(--text-muted)' }}>
-            База реальных сценариев + peer-review. Топ-3 решения становятся эталонами.
+            {t('caseStudio.subtitle')}
           </p>
         </div>
         <div className="flex gap-2">
@@ -98,7 +99,7 @@ export function CaseStudioPage() {
               onClick={() => navigate('/case-studio/new')}
               className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700"
             >
-              Создать кейс
+              {t('caseStudio.createCase')}
             </button>
           )}
           <button
@@ -106,7 +107,7 @@ export function CaseStudioPage() {
             className="px-4 py-2 rounded-lg"
             style={{ border: '1px solid var(--border-strong)', color: 'var(--text-secondary)' }}
           >
-            Мой XP
+            {t('caseStudio.myXp')}
           </button>
         </div>
       </div>
@@ -115,22 +116,22 @@ export function CaseStudioPage() {
       <div className="mb-6 flex gap-6" style={{ borderBottom: '1px solid var(--border)' }}>
         {(
           [
-            { key: 'scenarios' as Tab, label: 'Кейсы' },
-            { key: 'leaderboard' as Tab, label: 'Лидерборд' },
-            { key: 'categories' as Tab, label: 'Категории' },
+            { key: 'scenarios' as Tab, labelKey: 'caseStudio.tabs.scenarios' },
+            { key: 'leaderboard' as Tab, labelKey: 'caseStudio.tabs.leaderboard' },
+            { key: 'categories' as Tab, labelKey: 'caseStudio.tabs.categories' },
           ]
-        ).map((t) => (
+        ).map((tb) => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
             className="pb-3 -mb-px text-sm font-medium border-b-2 transition-colors"
             style={
-              tab === t.key
+              tab === tb.key
                 ? { borderColor: 'var(--color-rm)', color: 'var(--text-primary)' }
                 : { borderColor: 'transparent', color: 'var(--text-muted)' }
             }
           >
-            {t.label}
+            {t(tb.labelKey)}
           </button>
         ))}
       </div>
@@ -149,6 +150,7 @@ export function CaseStudioPage() {
 function ScenariosTab() {
   const navigate = useNavigate();
   const lang = useLangStore((s) => s.lang);
+  const t = useT();
   const [scenarios, setScenarios] = useState<CaseScenario[]>([]);
   const [categories, setCategories] = useState<CaseCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -201,29 +203,29 @@ function ScenariosTab() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4 items-end">
         <div>
-          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>Роль</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{t('caseStudio.filters.role')}</label>
           <select
             value={filterRole}
             onChange={(e) => setFilterRole(e.target.value as CaseTargetRole | '')}
             className="rounded px-3 py-1.5 text-sm"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', colorScheme: 'dark light' }}
           >
-            <option value="">Все</option>
-            <option value="sales_rep">ТП</option>
-            <option value="supervisor">СВ</option>
-            <option value="regional_manager">РМ</option>
-            <option value="commercial_dir">КД</option>
+            <option value="">{t('caseStudio.filters.all')}</option>
+            <option value="sales_rep">{t('caseStudio.roles.sales_rep')}</option>
+            <option value="supervisor">{t('caseStudio.roles.supervisor')}</option>
+            <option value="regional_manager">{t('caseStudio.roles.regional_manager')}</option>
+            <option value="commercial_dir">{t('caseStudio.roles.commercial_dir')}</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>Категория</label>
+          <label className="block text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{t('caseStudio.filters.category')}</label>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             className="rounded px-3 py-1.5 text-sm min-w-[200px]"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)', colorScheme: 'dark light' }}
           >
-            <option value="">Все</option>
+            <option value="">{t('caseStudio.filters.all')}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.icon ? `${c.icon} ` : ''}{c.label_ru}
@@ -238,10 +240,10 @@ function ScenariosTab() {
             onChange={(e) => setOnlyEtalon(e.target.checked)}
             className="rounded"
           />
-          Только с эталонами
+          {t('caseStudio.filters.onlyEtalon')}
         </label>
         <div className="ml-auto text-sm" style={{ color: 'var(--text-muted)' }}>
-          Найдено: <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{scenarios.length}</span>
+          {t('caseStudio.filters.found')} <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{scenarios.length}</span>
         </div>
       </div>
 
@@ -252,12 +254,12 @@ function ScenariosTab() {
           <SkeletonCard lines={2} />
         </div>
       )}
-      {error && <p className="text-red-600 py-4">Ошибка: {error}</p>}
+      {error && <p className="text-red-600 py-4">{t('common.error')}: {error}</p>}
 
       {!loading && !error && scenarios.length === 0 && (
         <div className="rounded-lg p-6 text-center" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
           <p style={{ color: 'var(--text-secondary)' }}>
-            Кейсов пока нет. Будь первым — создай свой эталонный сценарий.
+            {t('caseStudio.emptyList')}
           </p>
         </div>
       )}
@@ -292,15 +294,15 @@ function ScenariosTab() {
                       </span>
                     )}
                     <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--info-bg)', color: 'var(--info)', borderColor: 'var(--info)' }}>
-                      {ROLE_LABELS[s.target_role] || s.target_role}
+                      {ROLE_LABEL_KEYS[s.target_role] ? t(ROLE_LABEL_KEYS[s.target_role]) : s.target_role}
                     </span>
                     {s.has_author_solution && (
                       <span className="px-2 py-0.5 text-xs rounded-full border" style={{ background: 'var(--success-bg)', color: 'var(--success)', borderColor: 'var(--success)' }}>
-                        + решение
+                        {t('caseStudio.hasSolution')}
                       </span>
                     )}
                     <span className="px-2 py-0.5 text-xs rounded-full border" style={STATUS_BADGE_STYLE[s.status]}>
-                      {STATUS_LABELS[s.status]}
+                      {STATUS_LABEL_KEYS[s.status] && t(STATUS_LABEL_KEYS[s.status])}
                     </span>
                   </div>
                   <h3 className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{pickLang(s, lang, 'title')}</h3>
@@ -312,8 +314,8 @@ function ScenariosTab() {
               <div className="flex justify-between text-xs" style={{ color: 'var(--text-muted)' }}>
                 <span>{formatDate(s.created_at)}</span>
                 <span>
-                  {s.ratings_count > 0 && <>★ {s.ratings_count}</>}
-                  {s.views_count > 0 && <span className="ml-2">{s.views_count} просмотров</span>}
+                  {s.ratings_count > 0 && <>{'★ '}{s.ratings_count}</>}
+                  {s.views_count > 0 && <span className="ml-2">{t('caseStudio.views', { n: s.views_count })}</span>}
                 </span>
               </div>
             </button>
@@ -329,6 +331,7 @@ function ScenariosTab() {
 // ---------------------------------------------------------------------------
 
 function LeaderboardTab() {
+  const t = useT();
   const [rows, setRows] = useState<LeaderboardEntry[]>([]);
   const [my, setMy] = useState<MyStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -357,13 +360,13 @@ function LeaderboardTab() {
     <div>
       {my && (
         <div className="rounded-lg p-4 mb-6" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-          <h3 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Мои показатели</h3>
+          <h3 className="font-medium mb-2" style={{ color: 'var(--text-primary)' }}>{t('caseStudio.myStats')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-            <Stat label="Всего XP" value={my.total_xp} highlight />
-            <Stat label="Кейсов" value={my.scenarios_created} />
-            <Stat label="Решений" value={my.solutions_added} />
-            <Stat label="Оценок" value={my.ratings_given} />
-            <Stat label="В TOP-3" value={my.top3_solutions} />
+            <Stat label={t('caseStudioForms.my.totalXp')} value={my.total_xp} highlight />
+            <Stat label={t('caseStudio.stats.cases')} value={my.scenarios_created} />
+            <Stat label={t('caseStudio.stats.solutions')} value={my.solutions_added} />
+            <Stat label={t('caseStudio.stats.ratings')} value={my.ratings_given} />
+            <Stat label={t('caseStudio.stats.top3')} value={my.top3_solutions} />
           </div>
         </div>
       )}
@@ -372,12 +375,12 @@ function LeaderboardTab() {
         <thead className="text-xs uppercase" style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
           <tr>
             <th className="text-left py-2 font-medium">#</th>
-            <th className="text-left py-2 font-medium">Имя</th>
-            <th className="text-left py-2 font-medium">Роль</th>
+            <th className="text-left py-2 font-medium">{t('caseStudio.table.name')}</th>
+            <th className="text-left py-2 font-medium">{t('caseStudio.table.role')}</th>
             <th className="text-right py-2 font-medium">XP</th>
-            <th className="text-right py-2 font-medium">Кейсов</th>
-            <th className="text-right py-2 font-medium">Решений</th>
-            <th className="text-right py-2 font-medium">TOP-3</th>
+            <th className="text-right py-2 font-medium">{t('caseStudio.stats.cases')}</th>
+            <th className="text-right py-2 font-medium">{t('caseStudio.stats.solutions')}</th>
+            <th className="text-right py-2 font-medium">{'TOP-3'}</th>
           </tr>
         </thead>
         <tbody>
@@ -395,7 +398,7 @@ function LeaderboardTab() {
                 {r.full_name || r.employee_id || '—'}
               </td>
               <td className="py-2" style={{ color: 'var(--text-secondary)' }}>
-                {ROLE_LABELS[r.role || ''] || r.role || '—'}
+                {ROLE_LABEL_KEYS[r.role || ''] ? t(ROLE_LABEL_KEYS[r.role || '']) : r.role || '—'}
               </td>
               <td className="py-2 text-right font-medium" style={{ color: 'var(--text-primary)' }}>{r.total_xp}</td>
               <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{r.scenarios_count}</td>
@@ -406,7 +409,7 @@ function LeaderboardTab() {
           {rows.length === 0 && (
             <tr>
               <td colSpan={7} className="py-4 text-center" style={{ color: 'var(--text-muted)' }}>
-                Лидерборд пока пуст. Создай первый кейс!
+                {t('caseStudio.leaderboardEmpty')}
               </td>
             </tr>
           )}
@@ -433,6 +436,7 @@ function Stat({ label, value, highlight }: { label: string; value: number; highl
 
 function CategoriesTab({ canManage }: { canManage: boolean }) {
   const navigate = useNavigate();
+  const t = useT();
   const [categories, setCategories] = useState<CaseCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -461,7 +465,7 @@ function CategoriesTab({ canManage }: { canManage: boolean }) {
             onClick={() => navigate('/case-studio/categories/new')}
             className="px-3 py-1.5 text-sm bg-stone-800 text-white rounded hover:bg-stone-700"
           >
-            Добавить категорию
+            {t('caseStudio.addCategory')}
           </button>
         </div>
       )}
@@ -493,7 +497,7 @@ function CategoriesTab({ canManage }: { canManage: boolean }) {
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{c.code}</span>
                   {!c.is_active && (
                     <span className="text-xs px-2 py-0.5 rounded-full border" style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)', borderColor: 'var(--border)' }}>
-                      отключена
+                      {t('caseStudio.categoryDisabled')}
                     </span>
                   )}
                 </div>
@@ -508,7 +512,7 @@ function CategoriesTab({ canManage }: { canManage: boolean }) {
                         className="text-xs px-1.5 py-0.5 rounded"
                         style={{ background: 'var(--bg-overlay)', color: 'var(--text-secondary)' }}
                       >
-                        {ROLE_LABELS[r] || r}
+                        {ROLE_LABEL_KEYS[r] ? t(ROLE_LABEL_KEYS[r]) : r}
                       </span>
                     ))}
                   </div>
@@ -523,7 +527,7 @@ function CategoriesTab({ canManage }: { canManage: boolean }) {
                 onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-primary)')}
                 onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)')}
               >
-                Редактировать
+                {t('common.actions.edit')}
               </button>
             )}
           </div>
