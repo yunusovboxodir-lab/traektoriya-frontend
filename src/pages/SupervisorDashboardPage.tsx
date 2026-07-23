@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api/client';
-import { useT, useLangStore } from '../stores/langStore';
+import { useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { PageHeader, RowActions } from '@/components/ui';
 import { BookOpen, Eye, Mail, Users } from 'lucide-react';
@@ -87,17 +87,19 @@ interface TeamLearningData {
 // Helpers
 // =============================================================================
 
-const LEVEL_LABELS: Record<string, { label: string; color: string; bg: string }> = {
-  trainee: { label: 'Стажёр', color: 'text-gray-600', bg: 'bg-gray-100' },
-  practitioner: { label: 'Практик', color: 'text-blue-600', bg: 'bg-blue-100' },
-  expert: { label: 'Эксперт', color: 'text-purple-600', bg: 'bg-purple-100' },
-  master: { label: 'Мастер', color: 'text-amber-600', bg: 'bg-amber-100' },
+// Подписи уровней — ключи словаря (реюз pulse.*), t() в рендере
+const LEVEL_LABELS: Record<string, { labelKey: string; color: string; bg: string }> = {
+  trainee: { labelKey: 'pulse.trainee', color: 'text-gray-600', bg: 'bg-gray-100' },
+  practitioner: { labelKey: 'pulse.practitioner', color: 'text-blue-600', bg: 'bg-blue-100' },
+  expert: { labelKey: 'pulse.expert', color: 'text-purple-600', bg: 'bg-purple-100' },
+  master: { labelKey: 'pulse.master', color: 'text-amber-600', bg: 'bg-amber-100' },
 };
 
 const TrendIcon = ({ trend, change }: { trend: string; change: number }) => {
-  if (trend === 'up') return <span className="text-green-600 font-bold text-sm">▲ +{change.toFixed(1)}</span>;
-  if (trend === 'down') return <span className="text-red-600 font-bold text-sm">▼ {change.toFixed(1)}</span>;
-  return <span className="text-gray-400 text-sm">— стабильно</span>;
+  const t = useT();
+  if (trend === 'up') return <span className="text-green-600 font-bold text-sm">{'▲'} +{change.toFixed(1)}</span>;
+  if (trend === 'down') return <span className="text-red-600 font-bold text-sm">{'▼'} {change.toFixed(1)}</span>;
+  return <span className="text-gray-400 text-sm">{'—'} {t('supervisor.trendStable')}</span>;
 };
 
 // =============================================================================
@@ -106,7 +108,6 @@ const TrendIcon = ({ trend, change }: { trend: string; change: number }) => {
 
 export function SupervisorDashboardPage() {
   const t = useT();
-  const lang = useLangStore((s) => s.lang);
   const user = useAuthStore((s) => s.user);
   const [tab, setTab] = useState<'team' | 'learning'>('team');
   const [teamData, setTeamData] = useState<MyTeamData | null>(null);
@@ -149,7 +150,9 @@ export function SupervisorDashboardPage() {
       if (axiosErr?.response?.status === 404) {
         setNoTeam(true);
       } else {
-        setError(axiosErr?.response?.data?.detail || axiosErr?.message || 'Ошибка загрузки данных');
+        // Ключ словаря как fallback (t() в рендере) — не тянем t в loadData,
+        // чтобы не делать её реактивной (exhaustive-deps в useEffect)
+        setError(axiosErr?.response?.data?.detail || axiosErr?.message || 'supervisor.loadError');
       }
     } finally {
       setLoading(false);
@@ -165,7 +168,7 @@ export function SupervisorDashboardPage() {
         agent_id: assignAgentId,
         course_id: assignCourseId,
       });
-      setAssignMsg(res.data.message || 'Курс назначен');
+      setAssignMsg(res.data.message || t('supervisor.assignSuccess'));
       setTimeout(() => {
         setShowAssign(false);
         setAssignMsg(null);
@@ -173,7 +176,7 @@ export function SupervisorDashboardPage() {
         setAssignCourseId('');
       }, 2000);
     } catch {
-      setAssignMsg('Ошибка назначения курса');
+      setAssignMsg(t('supervisor.assignError'));
     } finally {
       setAssigning(false);
     }
@@ -215,24 +218,10 @@ export function SupervisorDashboardPage() {
           <Users size={26} style={{ color: 'var(--text-muted)' }} />
         </div>
         <p className="font-medium text-lg mb-2" style={{ color: 'var(--text-primary)' }}>
-          {isSupervisorRole
-            ? (t('supervisor.noTeam.title') !== 'supervisor.noTeam.title'
-                ? t('supervisor.noTeam.title')
-                : (lang === 'uz' ? 'Sizda hali jamoa yo‘q' : 'У вас пока нет команды'))
-            : (t('supervisor.noTeam.otherRoleTitle') !== 'supervisor.noTeam.otherRoleTitle'
-                ? t('supervisor.noTeam.otherRoleTitle')
-                : 'Раздел для супервайзеров')}
+          {isSupervisorRole ? t('supervisor.noTeam.title') : t('supervisor.noTeam.otherRoleTitle')}
         </p>
         <p className="text-sm max-w-md mx-auto" style={{ color: 'var(--text-muted)' }}>
-          {isSupervisorRole
-            ? (t('supervisor.noTeam.desc') !== 'supervisor.noTeam.desc'
-                ? t('supervisor.noTeam.desc')
-                : (lang === 'uz'
-                    ? 'Administrator sizga hali jamoa biriktirmagan. Tayinlash uchun murojaat qiling.'
-                    : 'Администратор ещё не назначил вам команду. Обратитесь к нему для назначения.'))
-            : (t('supervisor.noTeam.otherRoleDesc') !== 'supervisor.noTeam.otherRoleDesc'
-                ? t('supervisor.noTeam.otherRoleDesc')
-                : 'В этом табе супервайзер видит свою команду. Под вашей ролью команды нет — используйте таб «Администрирование» для работы с сотрудниками.')}
+          {isSupervisorRole ? t('supervisor.noTeam.desc') : t('supervisor.noTeam.otherRoleDesc')}
         </p>
       </div>
     );
@@ -241,10 +230,10 @@ export function SupervisorDashboardPage() {
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-        <div className="text-4xl mb-3">⚠️</div>
-        <p className="text-red-700 font-medium">{error}</p>
+        <div className="text-4xl mb-3">{'⚠️'}</div>
+        <p className="text-red-700 font-medium">{error === 'supervisor.loadError' ? t(error) : error}</p>
         <button onClick={loadData} className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium">
-          Повторить
+          {t('common.retry')}
         </button>
       </div>
     );
@@ -255,8 +244,8 @@ export function SupervisorDashboardPage() {
   return (
     <div>
       <PageHeader
-        title={`👔 ${t('supervisor.title') || 'Моя команда'}`}
-        subtitle={`${teamData.team_name} • ${teamData.agent_count} сотрудников`}
+        title={`👔 ${t('supervisor.title')}`}
+        subtitle={`${teamData.team_name} • ${t('supervisor.employeesCount', { n: teamData.agent_count })}`}
         actions={
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex bg-gray-100 rounded-lg p-0.5">
@@ -266,7 +255,7 @@ export function SupervisorDashboardPage() {
                   tab === 'team' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                📊 KPI & Команда
+                📊 {t('supervisor.tabTeam')}
               </button>
               <button
                 onClick={() => setTab('learning')}
@@ -274,14 +263,14 @@ export function SupervisorDashboardPage() {
                   tab === 'learning' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
-                📚 Обучение
+                📚 {t('nav.learning')}
               </button>
             </div>
             <button
               onClick={() => setShowAssign(true)}
               className="inline-flex items-center gap-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-2 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-sm text-sm font-medium"
             >
-              📝 Назначить курс
+              📝 {t('common.actions.assignCourse')}
             </button>
           </div>
         }
@@ -289,16 +278,16 @@ export function SupervisorDashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <SummaryCard icon="👥" label="Сотрудники" value={teamData.agent_count} color="text-gray-700" bg="bg-gray-50" />
-        <SummaryCard icon="📈" label="Средний KPI" value={`${teamData.avg_kpi}%`} color="text-blue-600" bg="bg-blue-50" />
-        <SummaryCard icon="🏆" label="Место в рейтинге" value={`#${teamData.team_rank}`} color="text-amber-600" bg="bg-amber-50" />
-        <SummaryCard icon="⚠️" label="Требуют внимания" value={teamData.attention_needed.length} color="text-red-600" bg="bg-red-50" />
+        <SummaryCard icon="👥" label={t('supervisor.employees')} value={teamData.agent_count} color="text-gray-700" bg="bg-gray-50" />
+        <SummaryCard icon="📈" label={t('supervisor.avgKpi')} value={`${teamData.avg_kpi}%`} color="text-blue-600" bg="bg-blue-50" />
+        <SummaryCard icon="🏆" label={t('supervisor.rankPlace')} value={`#${teamData.team_rank}`} color="text-amber-600" bg="bg-amber-50" />
+        <SummaryCard icon="⚠️" label={t('supervisor.needAttention')} value={teamData.attention_needed.length} color="text-red-600" bg="bg-red-50" />
       </div>
 
       {/* Attention Banner */}
       {teamData.attention_needed.length > 0 && (
         <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4">
-          <h3 className="font-bold text-red-800 text-sm mb-2">🚨 Требуют внимания</h3>
+          <h3 className="font-bold text-red-800 text-sm mb-2">🚨 {t('supervisor.needAttention')}</h3>
           <div className="space-y-2">
             {teamData.attention_needed.map((item, i) => (
               <div key={i} className={`flex items-center gap-3 p-2.5 rounded-lg ${
@@ -337,11 +326,11 @@ export function SupervisorDashboardPage() {
       {/* Bonuses Banner */}
       {teamData.bonuses.total > 0 && (
         <div className="mt-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4">
-          <h3 className="font-bold text-green-800 text-sm mb-2">🎁 Командные бонусы: +{teamData.bonuses.total}%</h3>
+          <h3 className="font-bold text-green-800 text-sm mb-2">🎁 {t('supervisor.bonusesTitle', { n: teamData.bonuses.total })}</h3>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-green-700">
-            {teamData.bonuses.all_trained_bonus > 0 && <span>✅ Все обучены: +{teamData.bonuses.all_trained_bonus}%</span>}
-            {teamData.bonuses.no_underperformers_bonus > 0 && <span>💪 Нет отстающих: +{teamData.bonuses.no_underperformers_bonus}%</span>}
-            {teamData.bonuses.trend_bonus > 0 && <span>📈 Рост команды: +{teamData.bonuses.trend_bonus}%</span>}
+            {teamData.bonuses.all_trained_bonus > 0 && <span>{'✅'} {t('supervisor.bonusAllTrained', { n: teamData.bonuses.all_trained_bonus })}</span>}
+            {teamData.bonuses.no_underperformers_bonus > 0 && <span>💪 {t('supervisor.bonusNoUnderperf', { n: teamData.bonuses.no_underperformers_bonus })}</span>}
+            {teamData.bonuses.trend_bonus > 0 && <span>📈 {t('supervisor.bonusTrend', { n: teamData.bonuses.trend_bonus })}</span>}
           </div>
         </div>
       )}
@@ -351,51 +340,51 @@ export function SupervisorDashboardPage() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-gray-900">📝 Назначить курс</h3>
+              <h3 className="text-lg font-bold text-gray-900">📝 {t('common.actions.assignCourse')}</h3>
               <button onClick={() => setShowAssign(false)} className="text-gray-400 hover:text-gray-600">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}><path d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Сотрудник</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('supervisor.employee')}</label>
                 <select
                   value={assignAgentId}
                   onChange={e => setAssignAgentId(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Выберите сотрудника</option>
+                  <option value="">{t('supervisor.selectEmployee')}</option>
                   {teamData.agents.map(a => (
                     <option key={a.id} value={a.id}>{a.name} ({a.employee_id})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">ID курса</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t('supervisor.courseId')}</label>
                 <input
                   type="text"
                   value={assignCourseId}
                   onChange={e => setAssignCourseId(e.target.value)}
-                  placeholder="UUID курса"
+                  placeholder={t('supervisor.courseUuid')}
                   className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               {assignMsg && (
                 <div className={`p-3 rounded-lg text-sm font-medium ${
-                  assignMsg.includes('Ошибка') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
+                  assignMsg === t('supervisor.assignError') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'
                 }`}>{assignMsg}</div>
               )}
             </div>
             <div className="flex gap-3 justify-end mt-6">
               <button onClick={() => setShowAssign(false)} className="px-4 py-2.5 text-sm text-gray-600 hover:text-gray-800 font-medium rounded-xl hover:bg-gray-100">
-                Отмена
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleAssignCourse}
                 disabled={!assignAgentId || !assignCourseId || assigning}
                 className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-5 py-2.5 rounded-xl hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 text-sm font-medium shadow-sm"
               >
-                {assigning ? 'Назначаю...' : 'Назначить'}
+                {assigning ? t('supervisor.assignSaving') : t('supervisor.assignSubmit')}
               </button>
             </div>
           </div>
@@ -445,12 +434,12 @@ function TeamTab({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="text-left px-4 py-3 font-semibold text-gray-600">Сотрудник</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600">{t('supervisor.employee')}</th>
               <th className="text-center px-3 py-3 font-semibold text-gray-600">KPI</th>
-              <th className="text-center px-3 py-3 font-semibold text-gray-600">Тренд</th>
-              <th className="text-center px-3 py-3 font-semibold text-gray-600">Уровень</th>
-              <th className="text-center px-3 py-3 font-semibold text-gray-600">Обучение</th>
-              <th className="text-left px-3 py-3 font-semibold text-gray-600">Слабые зоны</th>
+              <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('supervisor.trend')}</th>
+              <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('pulse.level')}</th>
+              <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('nav.learning')}</th>
+              <th className="text-left px-3 py-3 font-semibold text-gray-600">{t('supervisor.weakZones')}</th>
               <th className="text-right px-3 py-3 font-semibold text-gray-600 w-12"></th>
             </tr>
           </thead>
@@ -482,22 +471,22 @@ function TeamTab({
                   </td>
                   <td className="text-center px-3 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelInfo.bg} ${levelInfo.color}`}>
-                      {levelInfo.label}
+                      {t(levelInfo.labelKey)}
                     </span>
                   </td>
                   <td className="text-center px-3 py-3">
                     {agent.last_training_days > 999 ? (
                       <span className="text-gray-400 text-sm">—</span>
                     ) : agent.last_training_days > 10 ? (
-                      <span className="text-red-500 text-sm font-medium">{agent.last_training_days}д назад</span>
+                      <span className="text-red-500 text-sm font-medium">{t('supervisor.daysAgo', { n: agent.last_training_days })}</span>
                     ) : (
-                      <span className="text-green-600 text-sm font-medium">{agent.last_training_days}д назад</span>
+                      <span className="text-green-600 text-sm font-medium">{t('supervisor.daysAgo', { n: agent.last_training_days })}</span>
                     )}
                   </td>
                   <td className="px-3 py-3">
                     <div className="flex flex-wrap gap-1">
                       {agent.weak_zones.length === 0 ? (
-                        <span className="text-green-500 text-sm">✅ Нет</span>
+                        <span className="text-green-500 text-sm">{'✅'} {t('common.no')}</span>
                       ) : (
                         agent.weak_zones.map((z, i) => (
                           <span key={i} className="bg-red-50 text-red-700 text-sm px-1.5 py-0.5 rounded font-medium">
@@ -542,23 +531,24 @@ function TeamTab({
 }
 
 function LearningTab({ data }: { data: TeamLearningData | null }) {
-  if (!data) return <div className="text-center text-gray-400 py-12">Нет данных</div>;
+  const t = useT();
+  if (!data) return <div className="text-center text-gray-400 py-12">{t('supervisor.noData')}</div>;
 
   return (
     <div className="space-y-6">
       {/* Learning Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <MiniCard label="Участников" value={data.total_members} />
-        <MiniCard label="Ср. прохождение" value={`${data.avg_completion_percentage}%`} />
-        <MiniCard label="Ср. оценка" value={`${data.avg_quiz_score}%`} />
-        <MiniCard label="Активны (7д)" value={data.active_learners_7d} />
-        <MiniCard label="Требуют внимания" value={data.members_needing_attention} alert={data.members_needing_attention > 0} />
+        <MiniCard label={t('supervisor.members')} value={data.total_members} />
+        <MiniCard label={t('supervisor.avgCompletion')} value={`${data.avg_completion_percentage}%`} />
+        <MiniCard label={t('supervisor.avgScore')} value={`${data.avg_quiz_score}%`} />
+        <MiniCard label={t('supervisor.active7d')} value={data.active_learners_7d} />
+        <MiniCard label={t('supervisor.needAttention')} value={data.members_needing_attention} alert={data.members_needing_attention > 0} />
       </div>
 
       {/* Level Distribution */}
       {data.level_distribution.length > 0 && (
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
-          <h3 className="font-bold text-sm text-gray-700 mb-3">📊 Распределение по уровням</h3>
+          <h3 className="font-bold text-sm text-gray-700 mb-3">📊 {t('supervisor.levelDistribution')}</h3>
           <div className="flex gap-3">
             {data.level_distribution.map(ld => {
               const info = LEVEL_LABELS[ld.level] || LEVEL_LABELS.trainee;
@@ -567,7 +557,7 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                   {/* Число чернилами — идентичность уровня несёт бейдж ниже (dataviz-ревизия 2026-07-12) */}
                   <div className="text-2xl font-bold text-gray-900 tabular-nums">{ld.count}</div>
                   <div className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${info.bg} ${info.color} font-medium`}>
-                    {info.label}
+                    {t(info.labelKey)}
                   </div>
                   <div className="text-xs text-gray-400 mt-1">{ld.percentage}%</div>
                 </div>
@@ -583,13 +573,13 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 font-semibold text-gray-600">Сотрудник</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600">Уровень</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600">Пройдено</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600">Ср. оценка</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600">Активность</th>
-                <th className="text-center px-3 py-3 font-semibold text-gray-600">Стрик</th>
-                <th className="text-left px-3 py-3 font-semibold text-gray-600">Статус</th>
+                <th className="text-left px-4 py-3 font-semibold text-gray-600">{t('supervisor.employee')}</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('pulse.level')}</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('supervisor.completed')}</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('supervisor.avgScore')}</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('supervisor.activity')}</th>
+                <th className="text-center px-3 py-3 font-semibold text-gray-600">{t('supervisor.streak')}</th>
+                <th className="text-left px-3 py-3 font-semibold text-gray-600">{t('org.col.status')}</th>
               </tr>
             </thead>
             <tbody>
@@ -605,7 +595,7 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                     </td>
                     <td className="text-center px-3 py-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${levelInfo.bg} ${levelInfo.color}`}>
-                        {levelInfo.label}
+                        {t(levelInfo.labelKey)}
                       </span>
                     </td>
                     <td className="text-center px-3 py-3">
@@ -626,16 +616,16 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                     </td>
                     <td className="text-center px-3 py-3">
                       {m.days_since_activity > 999 ? (
-                        <span className="text-gray-400 text-sm">Нет данных</span>
+                        <span className="text-gray-400 text-sm">{t('supervisor.noData')}</span>
                       ) : m.days_since_activity > 7 ? (
-                        <span className="text-red-500 text-sm font-medium">{m.days_since_activity}д</span>
+                        <span className="text-red-500 text-sm font-medium">{t('supervisor.daysShort', { n: m.days_since_activity })}</span>
                       ) : (
-                        <span className="text-green-600 text-sm font-medium">{m.days_since_activity}д</span>
+                        <span className="text-green-600 text-sm font-medium">{t('supervisor.daysShort', { n: m.days_since_activity })}</span>
                       )}
                     </td>
                     <td className="text-center px-3 py-3">
                       {m.current_streak_days > 0 ? (
-                        <span className="text-orange-500 font-medium text-sm">🔥 {m.current_streak_days}д</span>
+                        <span className="text-orange-500 font-medium text-sm">🔥 {t('supervisor.daysShort', { n: m.current_streak_days })}</span>
                       ) : (
                         <span className="text-gray-400 text-sm">—</span>
                       )}
@@ -645,15 +635,15 @@ function LearningTab({ data }: { data: TeamLearningData | null }) {
                         <div className="flex flex-wrap gap-1">
                           {m.attention_reasons.map((r, i) => (
                             <span key={i} className="bg-red-100 text-red-700 text-xs px-1.5 py-0.5 rounded font-medium">
-                              {r === 'no_training' ? '📚 Нет обучения' :
-                               r === 'low_score' ? '📉 Низкие оценки' :
-                               r === 'low_completion' ? '⚠️ Мало курсов' :
-                               r === 'low_lms' ? '📊 Низкий LMS' : r}
+                              {r === 'no_training' ? `📚 ${t('supervisor.reasonNoTraining')}` :
+                               r === 'low_score' ? `📉 ${t('supervisor.reasonLowScore')}` :
+                               r === 'low_completion' ? `⚠️ ${t('supervisor.reasonLowCompletion')}` :
+                               r === 'low_lms' ? `📊 ${t('supervisor.reasonLowLms')}` : r}
                             </span>
                           ))}
                         </div>
                       ) : (
-                        <span className="text-green-500 text-xs">✅ Ок</span>
+                        <span className="text-green-500 text-xs">{'✅'} {t('supervisor.statusOk')}</span>
                       )}
                     </td>
                   </tr>

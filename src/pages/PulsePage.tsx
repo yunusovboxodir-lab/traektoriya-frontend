@@ -44,17 +44,18 @@ const SUBORDINATE_ROLES: Record<string, string> = {
   superadmin: 'regional_manager',
 };
 
+// Подписи ролей — ключи словаря (pulse.role*), t() в рендере
 const PULSE_ROLES = [
-  { value: 'regional_manager', label: { ru: 'Региональный менеджер', uz: 'Mintaqa menejeri' } },
-  { value: 'supervisor', label: { ru: 'Супервайзер', uz: 'Supervayzer' } },
-  { value: 'sales_rep', label: { ru: 'Торговый представитель', uz: 'Savdo vakili' } },
+  { value: 'regional_manager', labelKey: 'pulse.roleRegionalManager' },
+  { value: 'supervisor', labelKey: 'pulse.roleSupervisor' },
+  { value: 'sales_rep', labelKey: 'pulse.roleSalesRep' },
 ];
 
 const LEVEL_META = {
-  master: { label: 'Мастер', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
-  expert: { label: 'Эксперт', range: '51–75%', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
-  practitioner: { label: 'Практик', range: '26–50%', color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
-  trainee: { label: 'Стажёр', range: '0–25%', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
+  master: { labelKey: 'pulse.master', range: '76–100%', color: '#4ADE80', bg: 'rgba(74,222,128,0.15)' },
+  expert: { labelKey: 'pulse.expert', range: '51–75%', color: '#60A5FA', bg: 'rgba(96,165,250,0.15)' },
+  practitioner: { labelKey: 'pulse.practitioner', range: '26–50%', color: '#FBBF24', bg: 'rgba(251,191,36,0.15)' },
+  trainee: { labelKey: 'pulse.trainee', range: '0–25%', color: '#EF4444', bg: 'rgba(239,68,68,0.15)' },
 } as const;
 
 type LevelKey = keyof typeof LEVEL_META;
@@ -77,19 +78,21 @@ function nextLevelThreshold(pct: number): number | null {
   return 26;
 }
 
-function nextLevelLabel(pct: number): string | null {
-  const t = nextLevelThreshold(pct);
-  if (t === null) return null;
-  return LEVEL_META[levelByPct(t)].label;
+// Возвращает КЛЮЧ словаря (pulse.master и т.д.) — перевод через t() в рендере
+function nextLevelLabelKey(pct: number): string | null {
+  const thr = nextLevelThreshold(pct);
+  if (thr === null) return null;
+  return LEVEL_META[levelByPct(thr)].labelKey;
 }
 
 // Пороги «здоровья» для полоски-распределения (как в ShelfScan «Распределение агентов»).
 // ⚠️ ОТДЕЛЬНЫЕ от уровней компетенций (76/51/26): здесь бизнес-сегменты ≥70 / 30–69 / <30.
+// label: null у nodata → подпись из словаря (pulse.healthNoData) через t() в рендере
 const HEALTH_BUCKETS = [
   { key: 'ge70', label: '≥70%', color: '#22C55E' },
   { key: 'mid', label: '30–69%', color: '#C8A84B' },
   { key: 'lt30', label: '<30%', color: '#E1626F' },
-  { key: 'nodata', label: 'Без данных', color: '#9CA3AF' },
+  { key: 'nodata', label: null, color: '#9CA3AF' },
 ] as const;
 
 type HealthKey = (typeof HEALTH_BUCKETS)[number]['key'];
@@ -175,7 +178,7 @@ export function PulsePage() {
       if (err.response?.status === 404) {
         setPulse(null);
       } else {
-        setError('Ошибка загрузки');
+        setError('pulse.loadError'); // ключ словаря — t() в рендере
       }
     } finally {
       setLoading(false);
@@ -191,7 +194,7 @@ export function PulsePage() {
     setTeamError(null);
     pulseApi.getSubordinatesPulse()
       .then((res) => setTeamData(res.data))
-      .catch(() => setTeamError('Не удалось загрузить пульс команды'))
+      .catch(() => setTeamError('pulse.teamLoadError')) // ключ словаря — t() в рендере
       .finally(() => setTeamLoading(false));
   }, [view, canViewTeam]);
 
@@ -261,23 +264,23 @@ export function PulsePage() {
   if (error) {
     return (
       <div className="text-center py-20">
-        <p className="text-red-400 mb-4">{error}</p>
+        <p className="text-red-400 mb-4">{t(error)}</p>
         <button
           onClick={loadPulse}
           className="px-4 py-2 rounded-lg border border-amber-500/40 text-amber-400 hover:bg-amber-500/10 transition-colors"
         >
-          {t('common.retry') || 'Повторить'}
+          {t('common.retry')}
         </button>
       </div>
     );
   }
 
   if (!pulse || pulse.competencies.length === 0) {
-    return <EmptyPulse isAdmin={isAdmin} selectedRole={selectedRole} setSelectedRole={setSelectedRole} lang={lang} t={t} />;
+    return <EmptyPulse isAdmin={isAdmin} selectedRole={selectedRole} setSelectedRole={setSelectedRole} t={t} />;
   }
 
   const headerName = isAdmin && teamUsers.find((u) => u.id === selectedUserId)?.full_name
-    || (user?.full_name || 'Профиль');
+    || (user?.full_name || t('nav.profile'));
 
   // ============================================================================
   // Team view branch
@@ -287,8 +290,8 @@ export function PulsePage() {
     return (
       <div className="space-y-5" style={{ color: 'var(--text-primary)' }}>
         <PulseHeader
-          title={lang === 'uz' ? 'Jamoa pulsi' : 'Пульс команды'}
-          subtitle={`${headerName} · ${getRoleLabel(user?.role || '', lang)} · ${t((teamData?.members_count ?? 0) === 1 ? 'pulse.subordinateOne' : 'pulse.subordinatesMany', { n: teamData?.members_count ?? 0 })}`}
+          title={t('pulse.teamTitle')}
+          subtitle={`${headerName} · ${getRoleLabel(user?.role || '', t)} · ${t((teamData?.members_count ?? 0) === 1 ? 'pulse.subordinateOne' : 'pulse.subordinatesMany', { n: teamData?.members_count ?? 0 })}`}
           view={view}
           setView={setView}
           canViewTeam={canViewTeam}
@@ -298,14 +301,13 @@ export function PulsePage() {
           teamUsers={teamUsers}
           selectedUserId={selectedUserId}
           setSelectedUserId={setSelectedUserId}
-          lang={lang}
         />
         {teamLoading ? (
           <div className="flex items-center justify-center py-32">
             <div className="animate-spin h-10 w-10 border-2 border-amber-500 border-t-transparent rounded-full" />
           </div>
         ) : teamError ? (
-          <div className="text-center py-20 text-red-400">{teamError}</div>
+          <div className="text-center py-20 text-red-400">{t(teamError)}</div>
         ) : !teamData || teamData.members_count === 0 ? (
           <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>
             <div className="text-5xl mb-4">👥</div>
@@ -333,8 +335,8 @@ export function PulsePage() {
 
       {/* ─── HEADER ─── */}
       <PulseHeader
-        title={lang === 'uz' ? 'Kompetensiyalar pulsi' : 'Пульс компетенций'}
-        subtitle={`${headerName} · ${getRoleLabel(isAdmin ? selectedRole : (user?.role || ''), lang)}`}
+        title={t('pulse.pageTitle')}
+        subtitle={`${headerName} · ${getRoleLabel(isAdmin ? selectedRole : (user?.role || ''), t)}`}
         view={view}
         setView={setView}
         canViewTeam={canViewTeam}
@@ -344,21 +346,20 @@ export function PulsePage() {
         teamUsers={teamUsers}
         selectedUserId={selectedUserId}
         setSelectedUserId={setSelectedUserId}
-        lang={lang}
       />
 
       {/* ─── MAIN GRID 3 columns ─── */}
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-5">
 
         {/* COL 1: Общий пульс */}
-        <Card title="Общий пульс">
+        <Card title={t('pulse.overallPulse')}>
           <OverallGauge pulse={pulse} levelKey={overallLevel} />
           <Sparkline pulse={pulse} />
           <Benchmark pulse={pulse} />
         </Card>
 
         {/* COL 2: Радар */}
-        <Card title="Карта компетенций · 8 направлений">
+        <Card title={t('pulse.radarTitle')}>
           <RadarBlock
             data={radarData}
             onPointClick={(_, datum) => datum.id && drillCompetency(datum.id)}
@@ -368,12 +369,12 @@ export function PulsePage() {
               return (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Курсы</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{t('pulse.courses')}</span>
                     <span>{comp.courses_completed}/{comp.courses_total}</span>
                   </div>
                   {comp.avg_quiz_score !== null && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Тесты</span>
+                      <span style={{ color: 'var(--text-muted)' }}>{t('pulse.tests')}</span>
                       <span>{Math.round(comp.avg_quiz_score)}%</span>
                     </div>
                   )}
@@ -388,7 +389,7 @@ export function PulsePage() {
           {/* KPI разбивка по 4 компонентам (Scoring v2.0, Этап 2) */}
           <KPIBreakdownCard />
 
-          <Card title="Уровень компетенций">
+          <Card title={t('pulse.levelsTitle')}>
             <LevelDistribution counts={levelCounts} total={pulse.competencies.length} />
           </Card>
         </div>
@@ -431,9 +432,9 @@ export function PulsePage() {
 // Sub-components
 // ============================================================================
 
-function getRoleLabel(role: string, lang: string): string {
+function getRoleLabel(role: string, t: (k: string) => string): string {
   const r = PULSE_ROLES.find((x) => x.value === role);
-  if (r) return lang === 'uz' ? r.label.uz : r.label.ru;
+  if (r) return t(r.labelKey);
   return role;
 }
 
@@ -492,13 +493,12 @@ interface PulseHeaderProps {
   teamUsers: Array<{ id: string; full_name: string; employee_id: string }>;
   selectedUserId: string;
   setSelectedUserId: (id: string) => void;
-  lang: string;
 }
 
 function PulseHeader({
   title, subtitle, view, setView, canViewTeam,
   isAdmin, selectedRole, setSelectedRole,
-  teamUsers, selectedUserId, setSelectedUserId, lang,
+  teamUsers, selectedUserId, setSelectedUserId,
 }: PulseHeaderProps) {
   const t = useT();
   return (
@@ -510,7 +510,7 @@ function PulseHeader({
             className="text-amber-400 font-bold uppercase"
             style={{ fontSize: 12, letterSpacing: '0.2em' }}
           >
-            ★ Pulse
+            {'★ Pulse'}
           </span>
         </div>
         <h1 style={{ fontFamily: "'Unbounded',sans-serif", fontSize: 28, fontWeight: 700, color: 'var(--text-primary)' }}>
@@ -573,7 +573,7 @@ function PulseHeader({
             >
               {PULSE_ROLES.map((r) => (
                 <option key={r.value} value={r.value}>
-                  {lang === 'uz' ? r.label.uz : r.label.ru}
+                  {t(r.labelKey)}
                 </option>
               ))}
             </select>
@@ -588,7 +588,7 @@ function PulseHeader({
                 colorScheme: 'dark light',
               }}
             >
-              <option value="">Вся команда (среднее)</option>
+              <option value="">{t('pulse.allTeamAvg')}</option>
               {teamUsers.map((u) => (
                 <option key={u.id} value={u.id}>
                   {u.full_name || u.employee_id}
@@ -605,6 +605,7 @@ function PulseHeader({
 // ─── OverallGauge ───────────────────────────────────────────────────────────
 
 function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKey }) {
+  const t = useT();
   const meta = LEVEL_META[levelKey];
   const pct = pulse.overall_pulse;
   const r = 80;
@@ -638,10 +639,10 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
         style={{ background: meta.bg, borderColor: meta.color + '66', color: meta.color }}
       >
         <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
-        {meta.label} · {meta.range}
+        {t(meta.labelKey)} {'·'} {meta.range}
       </span>
       <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-        {Math.round(pulse.total_earned)} / {Math.round(pulse.total_max)} баллов · {pulse.competencies.length} компетенций
+        {t('pulse.gaugeStats', { earned: Math.round(pulse.total_earned), max: Math.round(pulse.total_max), n: pulse.competencies.length })}
       </div>
     </div>
   );
@@ -652,11 +653,12 @@ function OverallGauge({ pulse, levelKey }: { pulse: UserPulse; levelKey: LevelKe
 function Sparkline({ pulse }: { pulse: UserPulse }) {
   // TODO: Backend endpoint /pulse/user/{id}/history даст реальные точки.
   // Пока показываем заглушку «новый дашборд → нет истории» с приглашением вернуться позже.
+  const t = useT();
   void pulse;
   return (
     <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
       <div className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-        Тренд за 6 месяцев — скоро (после первого месяца замеров)
+        {t('pulse.trendSoon')}
       </div>
     </div>
   );
@@ -667,6 +669,7 @@ function Sparkline({ pulse }: { pulse: UserPulse }) {
 function Benchmark({ pulse }: { pulse: UserPulse }) {
   // Пока без реального бенчмарка — TODO backend
   // Логика-заглушка: показываем «средний по роли = 50» и дельту
+  const t = useT();
   const benchAvg = 50;
   const delta = Math.round(pulse.overall_pulse - benchAvg);
   const sign = delta >= 0 ? '+' : '';
@@ -676,9 +679,9 @@ function Benchmark({ pulse }: { pulse: UserPulse }) {
       className="mt-3 px-3 py-2.5 rounded-md text-sm leading-snug border-l-4 border-amber-400"
       style={{ background: 'rgba(200,168,75,0.06)', color: 'var(--text-secondary)' }}
     >
-      Средний РМ Узбекистана: <strong className="text-amber-300">{benchAvg}%</strong>
-      <span className="mx-2">·</span>
-      <strong style={{ color }}>{sign}{delta} п.п. {delta >= 0 ? 'выше' : 'ниже'} среднего</strong>
+      {t('pulse.benchAvg')} <strong className="text-amber-300">{benchAvg}%</strong>
+      <span className="mx-2">{'·'}</span>
+      <strong style={{ color }}>{sign}{delta} {t(delta >= 0 ? 'pulse.benchAbove' : 'pulse.benchBelow')}</strong>
     </div>
   );
 }
@@ -692,6 +695,7 @@ interface RadarBlockProps {
 }
 
 function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
+  const t = useT();
   return (
     <div>
       <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
@@ -707,13 +711,13 @@ function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
       <div className="flex flex-wrap items-center justify-center gap-5 mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
         <span className="inline-flex items-center gap-1.5">
           <span className="w-4 h-0.5 bg-blue-400" />
-          Твой пульс
+          {t('pulse.legendYou')}
         </span>
         <span className="inline-flex items-center gap-1.5">
           <span className="w-4 border-t-2 border-dashed border-amber-400" />
-          Целевой профиль (70%)
+          {t('pulse.legendTarget')}
         </span>
-        <span style={{ color: 'var(--warning)' }}>клик на точку — открыть курсы</span>
+        <span style={{ color: 'var(--warning)' }}>{t('pulse.legendClickHint')}</span>
       </div>
     </div>
   );
@@ -722,6 +726,7 @@ function RadarBlock({ data, onPointClick, tooltipExtra }: RadarBlockProps) {
 // ─── LevelDistribution ──────────────────────────────────────────────────────
 
 function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>; total: number }) {
+  const t = useT();
   const masterShare = (counts.master / total) * 100;
   const expertShare = ((counts.master + counts.expert) / total) * 100;
   const practitionerShare = ((counts.master + counts.expert + counts.practitioner) / total) * 100;
@@ -741,7 +746,7 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
           >
             <span className="w-2.5 h-2.5 rounded-full" style={{ background: meta.color }} />
             <div>
-              <div className="text-sm font-medium">{meta.label}</div>
+              <div className="text-sm font-medium">{t(meta.labelKey)}</div>
               <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{meta.range}</div>
             </div>
             <div
@@ -767,13 +772,13 @@ function LevelDistribution({ counts, total }: { counts: Record<LevelKey, number>
           color: 'var(--text-muted)',
         }}
       >
-        Покрытие уровней
+        {t('pulse.levelCoverage')}
       </h3>
       <div className="flex flex-col gap-3 text-xs">
         {[
-          { key: 'master' as LevelKey, label: 'Мастер', share: masterShare, count: counts.master },
-          { key: 'expert' as LevelKey, label: 'Эксперт+', share: expertShare, count: counts.master + counts.expert },
-          { key: 'practitioner' as LevelKey, label: 'Практик+', share: practitionerShare, count: counts.master + counts.expert + counts.practitioner },
+          { key: 'master' as LevelKey, label: t('pulse.master'), share: masterShare, count: counts.master },
+          { key: 'expert' as LevelKey, label: `${t('pulse.expert')}+`, share: expertShare, count: counts.master + counts.expert },
+          { key: 'practitioner' as LevelKey, label: `${t('pulse.practitioner')}+`, share: practitionerShare, count: counts.master + counts.expert + counts.practitioner },
         ].map((p) => (
           <div key={p.key}>
             <div className="flex justify-between mb-1">
@@ -805,6 +810,7 @@ interface FocusPanelProps {
 }
 
 function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProps) {
+  const t = useT();
   // Самая слабая компетенция (с минимальным pulse_pct)
   const weakest = useMemo(() => {
     return [...pulse.competencies].sort((a, b) => a.pulse_pct - b.pulse_pct)[0];
@@ -834,12 +840,12 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
     return Math.round((course.weight / weakest.score_max) * 100);
   };
 
-  const nextLvl = nextLevelLabel(weakest.pulse_pct);
+  const nextLvlKey = nextLevelLabelKey(weakest.pulse_pct);
   const nextThr = nextLevelThreshold(weakest.pulse_pct);
   const gapToNext = nextThr ? nextThr - weakest.pulse_pct : 0;
 
   return (
-    <Card title="🎯 Рекомендуемый фокус" accent="red">
+    <Card title={`🎯 ${t('pulse.focusTitle')}`} accent="red">
       <div className="flex items-center gap-3.5 mb-4">
         <div
           className="w-11 h-11 rounded-xl flex items-center justify-center text-2xl"
@@ -852,14 +858,14 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
           <div
             className="text-xs font-bold uppercase tracking-widest mb-0.5 text-red-400"
           >
-            Самая слабая компетенция
+            {t('pulse.weakestComp')}
           </div>
           <h3 style={{ fontSize: 18, fontWeight: 700 }}>
             {lang === 'uz' && weakest.competency_name_uz ? weakest.competency_name_uz : weakest.competency_name}
           </h3>
           <div className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
-            Сейчас: <strong className="text-red-400">{Math.round(weakest.pulse_pct)}%</strong>
-            {nextLvl && <> · до {nextLvl} осталось +{Math.ceil(gapToNext)} п.п.</>}
+            {t('pulse.now')} <strong className="text-red-400">{Math.round(weakest.pulse_pct)}%</strong>
+            {nextLvlKey && <> {'·'} {t('pulse.toNextLevel', { level: t(nextLvlKey), n: Math.ceil(gapToNext) })}</>}
           </div>
         </div>
       </div>
@@ -870,7 +876,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
         </div>
       ) : actions.length === 0 ? (
         <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>
-          Все курсы по этой компетенции уже пройдены
+          {t('pulse.allCoursesDone')}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -890,7 +896,7 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
                   {lang === 'uz' && course.title_uz ? course.title_uz : course.title_ru}
                 </span>
                 <span className="text-xs mt-0.5 block" style={{ color: 'var(--text-muted)' }}>
-                  Уровень: {course.level} · вес {course.weight}
+                  {t('pulse.level')}: {course.level} {'·'} {t('pulse.weight')} {course.weight}
                 </span>
               </span>
               <span
@@ -910,9 +916,10 @@ function FocusPanel({ pulse, targetUserId, lang, onCourseClick }: FocusPanelProp
 // ─── QuickWinsPanel ─────────────────────────────────────────────────────────
 
 function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId: string) => void }) {
+  const t = useT();
   // Top-3 «дешёвых» переходов: компетенция, у которой ближе всего до следующего уровня
   const wins = useMemo(() => {
-    type Win = { comp: CompetencyPulse; gap: number; nextLevel: string };
+    type Win = { comp: CompetencyPulse; gap: number; nextLevelKey: string };
     const items: Win[] = [];
     for (const c of pulse.competencies) {
       const thr = nextLevelThreshold(c.pulse_pct);
@@ -920,24 +927,24 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
       items.push({
         comp: c,
         gap: thr - c.pulse_pct,
-        nextLevel: LEVEL_META[levelByPct(thr)].label,
+        nextLevelKey: LEVEL_META[levelByPct(thr)].labelKey,
       });
     }
     return items.sort((a, b) => a.gap - b.gap).slice(0, 3);
   }, [pulse]);
 
   return (
-    <Card title="⚡ Быстрые победы">
+    <Card title={`⚡ ${t('pulse.quickWinsTitle')}`}>
       <p className="text-sm mb-3.5 leading-snug" style={{ color: 'var(--text-secondary)' }}>
-        Самые дешёвые переходы на следующий уровень — закрой одно действие → +1 в счётчик уровня.
+        {t('pulse.quickWinsDesc')}
       </p>
       {wins.length === 0 ? (
         <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>
-          Все компетенции на максимальном уровне
+          {t('pulse.allMaxLevel')}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
-          {wins.map(({ comp, gap, nextLevel }) => (
+          {wins.map(({ comp, gap, nextLevelKey }) => (
             <button
               key={comp.competency_id}
               type="button"
@@ -947,17 +954,17 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
             >
               <span>
                 <span className="text-sm leading-tight font-semibold block mb-0.5">
-                  {comp.competency_name} · {Math.round(comp.pulse_pct)}% → {nextLevel}
+                  {comp.competency_name} {'·'} {Math.round(comp.pulse_pct)}% {'→'} {t(nextLevelKey)}
                 </span>
                 <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                  {comp.courses_completed}/{comp.courses_total} курсов закрыто
+                  {t('pulse.coursesClosed', { done: comp.courses_completed, total: comp.courses_total })}
                 </span>
               </span>
               <span
                 className="text-emerald-400 font-bold"
                 style={{ fontSize: 14 }}
               >
-                +{Math.ceil(gap)}% →
+                +{Math.ceil(gap)}% {'→'}
               </span>
             </button>
           ))}
@@ -970,19 +977,20 @@ function QuickWinsPanel({ pulse, onClick }: { pulse: UserPulse; onClick: (compId
 // ─── OrbitalPanel ───────────────────────────────────────────────────────────
 
 function OrbitalPanel({ pulse }: { pulse: UserPulse }) {
+  const t = useT();
   // Заглушка ранга — пока без реального бэкенд-ranking, считаем по overall_pulse
   // 80+ = топ-10%, 60+ = топ-30%, 40+ = средние, ниже = последние 30%
   const pct = pulse.overall_pulse;
-  const rankText = pct >= 80
-    ? 'топ-10%'
+  const rankKey = pct >= 80
+    ? 'pulse.rankTop10'
     : pct >= 60
-      ? 'топ-30%'
+      ? 'pulse.rankTop30'
       : pct >= 40
-        ? 'средняя группа'
-        : 'нижняя треть';
+        ? 'pulse.rankMid'
+        : 'pulse.rankBottom';
 
   return (
-    <Card title="🪐 Твоя орбита">
+    <Card title={`🪐 ${t('pulse.orbitTitle')}`}>
       <div className="flex flex-col items-center text-center">
         <svg viewBox="0 0 180 130" className="w-44 h-32 my-2">
           <ellipse cx="90" cy="65" rx="70" ry="35" fill="none" stroke="var(--border)" strokeWidth="1" />
@@ -992,9 +1000,9 @@ function OrbitalPanel({ pulse }: { pulse: UserPulse }) {
           <circle cx="90" cy="65" r="9" fill="#C8A84B" />
         </svg>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          Ты в <strong className="text-amber-300">{rankText}</strong> сотрудников этой роли.
+          {t('pulse.orbitPre')} <strong className="text-amber-300">{t(rankKey)}</strong> {t('pulse.orbitPost')}
           {pct < 76 && (
-            <><br />До <strong className="text-amber-300">Мастера</strong> осталось +{Math.ceil(76 - pct)} п.п.</>
+            <><br />{t('pulse.orbitToMasterPre')} <strong className="text-amber-300">{t('pulse.masterGen')}</strong> {t('pulse.orbitToMasterPost', { n: Math.ceil(76 - pct) })}</>
           )}
         </p>
       </div>
@@ -1013,6 +1021,7 @@ interface DrilldownProps {
 }
 
 function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProps) {
+  const t = useT();
   if (!comp) return null;
   return (
     <div
@@ -1026,13 +1035,13 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
         <div>
           {/* было text-[10px] → 12px */}
           <div className="text-xs uppercase tracking-widest text-amber-400 font-bold mb-1">
-            Drill-down
+            {'Drill-down'}
           </div>
           <h3 className="text-lg font-bold">
             {lang === 'uz' && comp.competency_name_uz ? comp.competency_name_uz : comp.competency_name}
           </h3>
           <div className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            {Math.round(comp.pulse_pct)}% · {comp.courses_completed}/{comp.courses_total} курсов
+            {Math.round(comp.pulse_pct)}% {'·'} {t('pulse.coursesCount', { done: comp.courses_completed, total: comp.courses_total })}
           </div>
         </div>
         <button
@@ -1040,7 +1049,7 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
           onClick={onClose}
           className="p-1 -mr-2 transition-colors"
           style={{ color: 'var(--text-muted)' }}
-          aria-label="Закрыть"
+          aria-label={t('common.close')}
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1053,7 +1062,7 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
           <div className="animate-spin h-6 w-6 border-2 border-amber-400 border-t-transparent rounded-full" />
         </div>
       ) : courses.length === 0 ? (
-        <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>Курсы не привязаны к этой компетенции</div>
+        <div className="text-center py-6 text-sm" style={{ color: 'var(--text-muted)' }}>{t('pulse.drillNoCourses')}</div>
       ) : (
         <div className="grid gap-1.5">
           {courses.map((c) => (
@@ -1076,7 +1085,7 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
               </div>
               <div className="flex items-center gap-3 text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
                 <span className="px-2 py-0.5 rounded font-mono" style={{ background: 'var(--bg-overlay)' }}>{c.level}</span>
-                <span>вес {c.weight}</span>
+                <span>{t('pulse.weight')} {c.weight}</span>
                 {c.quiz_score !== null && (
                   <span className="text-blue-400 font-semibold">{c.quiz_score}%</span>
                 )}
@@ -1092,9 +1101,11 @@ function DrilldownPanel({ comp, courses, loading, lang, onClose }: DrilldownProp
 // ─── RoleDistributionBar — сегментированная полоска «здоровья» (как в ShelfScan) ──
 
 function RoleDistributionBar({ members }: { members: SubordinatePulseEntry[] }) {
+  const t = useT();
   const counts: Record<HealthKey, number> = { ge70: 0, mid: 0, lt30: 0, nodata: 0 };
   members.forEach((m) => { counts[healthBucket(m)]++; });
   const total = members.length || 1;
+  const bucketLabel = (b: (typeof HEALTH_BUCKETS)[number]): string => b.label ?? t('pulse.healthNoData');
 
   return (
     <div>
@@ -1104,7 +1115,7 @@ function RoleDistributionBar({ members }: { members: SubordinatePulseEntry[] }) 
             <div
               key={b.key}
               style={{ width: `${(counts[b.key] / total) * 100}%`, background: b.color }}
-              title={`${b.label}: ${counts[b.key]}`}
+              title={`${bucketLabel(b)}: ${counts[b.key]}`}
             />
           ) : null
         )}
@@ -1113,7 +1124,7 @@ function RoleDistributionBar({ members }: { members: SubordinatePulseEntry[] }) 
         {HEALTH_BUCKETS.map((b) => (
           <span key={b.key} className="inline-flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
             <span className="w-2 h-2 rounded-full" style={{ background: b.color }} />
-            {b.label} <strong style={{ color: 'var(--text-primary)' }}>{counts[b.key]}</strong>
+            {bucketLabel(b)} <strong style={{ color: 'var(--text-primary)' }}>{counts[b.key]}</strong>
           </span>
         ))}
       </div>
@@ -1248,6 +1259,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
 // ─── MemberCard — карточка одного подчинённого ──────────────────────────────
 
 function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: number }) {
+  const t = useT();
   const lvl = levelByPct(member.overall_pulse);
   const meta = LEVEL_META[lvl];
 
@@ -1272,7 +1284,7 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
             {Math.round(member.overall_pulse)}%
           </div>
           {/* было text-[10px] → 12px */}
-          <div className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{meta.label}</div>
+          <div className="text-xs uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{t(meta.labelKey)}</div>
         </div>
       </div>
 
@@ -1287,7 +1299,7 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
         <div>
           {/* было text-[10px] → 12px */}
           <div className="text-xs uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-muted)' }}>
-            Слабые места
+            {t('pulse.weakSpots')}
           </div>
           <div className="flex flex-col gap-1 text-sm">
             {weakest.map((c) => (
@@ -1308,19 +1320,18 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
 // ─── EmptyPulse ─────────────────────────────────────────────────────────────
 
 function EmptyPulse({
-  isAdmin, selectedRole, setSelectedRole, lang, t,
+  isAdmin, selectedRole, setSelectedRole, t,
 }: {
   isAdmin: boolean;
   selectedRole: string;
   setSelectedRole: (r: string) => void;
-  lang: string;
   t: (k: string) => string;
 }) {
   return (
     <div className="space-y-4">
       {isAdmin && (
         <div className="flex flex-wrap items-center gap-3 mb-4">
-          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Роль:</span>
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('pulse.roleLabel')}</span>
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
@@ -1334,7 +1345,7 @@ function EmptyPulse({
           >
             {PULSE_ROLES.map((r) => (
               <option key={r.value} value={r.value}>
-                {lang === 'uz' ? r.label.uz : r.label.ru}
+                {t(r.labelKey)}
               </option>
             ))}
           </select>
@@ -1344,8 +1355,8 @@ function EmptyPulse({
         <svg className="w-12 h-12 mx-auto mb-4 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
         </svg>
-        <p className="text-lg">{t('pulse.noData') || 'Данные пульса пока недоступны'}</p>
-        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{t('pulse.noDataHint') || 'Компетенции ещё не настроены для этой роли'}</p>
+        <p className="text-lg">{t('pulse.noData')}</p>
+        <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>{t('pulse.noDataHint')}</p>
       </div>
     </div>
   );
