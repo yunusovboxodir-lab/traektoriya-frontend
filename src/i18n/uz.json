@@ -1254,6 +1254,71 @@
       "descUser": "Treningga qoʻshilish uchun trener mashgʻulot boshida bergan kirish kodini kiriting.",
       "ctaCreate": "Sessiya yaratish",
       "ctaJoin": "Kirish kodini kiritish"
+    },
+    "sessionsCount": {
+      "one": "{n} ta sessiya",
+      "few": "{n} ta sessiya",
+      "many": "{n} ta sessiya"
+    },
+    "filters": {
+      "all": "Barchasi"
+    },
+    "status": {
+      "draft": "Qoralama",
+      "active": "Faol",
+      "preOpen": "PRE-test ochiq",
+      "preClosed": "PRE-test yopiq",
+      "postOpen": "POST-test ochiq",
+      "completed": "Yakunlangan"
+    },
+    "card": {
+      "participants": "{n} ishtirokchi"
+    },
+    "create": {
+      "subtitle": "Dastur, hudud/diler va sanani tanlang — nomi avtomatik yaratiladi.",
+      "program": "Dastur",
+      "templatesFallback": "(shablonlar yuklanmadi — roʻyxatga fallback)",
+      "loadingPrograms": "Dasturlar yuklanmoqda...",
+      "programMeta": "({q} ta savol, {min} daqiqa)",
+      "customNoTemplate": "Custom (shablonsiz)",
+      "region": "Hudud",
+      "selectRegion": "— Hududni tanlang —",
+      "dealer": "Diler",
+      "selectRegionFirst": "Avval hududni tanlang",
+      "loadingDealers": "Dilerlar yuklanmoqda...",
+      "noDealers": "Bu hududda dilerlar yoʻq",
+      "selectDealer": "— Dilerni tanlang —",
+      "date": "Sana",
+      "autoTitleLabel": "Nomi (avtomatik yaratiladi):",
+      "advanced": "Qoʻshimcha parametrlar",
+      "presentationUrl": "Tashqi taqdimotga havola",
+      "presentationHint": "Faqat dasturning ichki slaydlari oʻrniga tashqi slaydlarni (Google Slides) koʻrsatmoqchi boʻlsangiz kerak.",
+      "creating": "Yaratilmoqda...",
+      "submit": "Yaratish",
+      "submitAndLaunch": "Yaratish va ishga tushirish →"
+    },
+    "detail": {
+      "notFound": "Sessiya topilmadi",
+      "accessCode": "Kirish kodi",
+      "revertHint": "Agar tasodifan juda oldinga oʻtib ketgan boʻlsangiz — oldingi statusga qaytarish mumkin",
+      "revertTo": "← Qaytarish: {status}",
+      "advanceTo": "Oʻtkazish: {status} →",
+      "presentation": "Taqdimot",
+      "testResults": "Ishtirokchilar — test natijalari",
+      "participant": "Ishtirokchi",
+      "growth": "Oʻsish",
+      "gameResults": "Oʻyin natijalari",
+      "team": "Jamoa",
+      "participants": "Ishtirokchilar",
+      "points": "Ball",
+      "rank": "Oʻrin"
+    },
+    "join": {
+      "backToList": "← Roʻyxatga qaytish",
+      "title": "Sessiya kodini kiriting",
+      "hint": "Kodni mashgʻulot boshida trener aytadi",
+      "joining": "Ulanmoqda...",
+      "submit": "Qoʻshilish"
     }
   },
   "offlinePrograms": {
@@ -1265,6 +1330,31 @@
       "title": "Hozircha trening dasturlari yoʻq",
       "desc": "Birinchi shablonni yarating — slaydlar, savollar va dashbordni belgilang. Dasturni oflayn sessiyalar uchun ishlatish mumkin boʻladi.",
       "ctaCreate": "Dastur yaratish"
+    },
+    "delete": {
+      "title": "Dastur oʻchirilsinmi?",
+      "confirm": "«{title}» butunlay oʻchiriladi.",
+      "deleting": "Oʻchirilmoqda...",
+      "action": "Dasturni oʻchirish"
+    },
+    "card": {
+      "minutes": "{n} daqiqa",
+      "questions": "{n} ta savol",
+      "maxScore": "max {n} ball",
+      "code": "Kod:"
+    },
+    "form": {
+      "code": "Kod (unikal, lotin harflarida)",
+      "titleRu": "Nomi (RU)",
+      "titleUz": "Nomi (UZ)",
+      "icon": "Ikonka",
+      "color": "Rang (hex)",
+      "targetRole": "Maqsadli rol",
+      "duration": "Davomiyligi (daqiqa)",
+      "numQuestions": "Savollar soni",
+      "maxScore": "Maks. ball",
+      "creating": "Yaratilmoqda...",
+      "submit": "Yaratish"
     }
   },
   "supervisor": {

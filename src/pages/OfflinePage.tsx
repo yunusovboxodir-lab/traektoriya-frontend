@@ -26,13 +26,14 @@ const ROLE_HIERARCHY: Record<string, number> = {
 
 const STATUS_FLOW = ['draft', 'active', 'pre_open', 'pre_closed', 'post_open', 'completed'] as const;
 
-const STATUS_LABELS: Record<string, string> = {
-  draft: 'Черновик',
-  active: 'Активна',
-  pre_open: 'PRE-тест открыт',
-  pre_closed: 'PRE-тест закрыт',
-  post_open: 'POST-тест открыт',
-  completed: 'Завершена',
+// Ключи словаря для статусов (offline.status.*) — сам текст берётся через t() в рендере
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  draft: 'offline.status.draft',
+  active: 'offline.status.active',
+  pre_open: 'offline.status.preOpen',
+  pre_closed: 'offline.status.preClosed',
+  post_open: 'offline.status.postOpen',
+  completed: 'offline.status.completed',
 };
 
 const PROGRAM_COLORS: Record<string, string> = {
@@ -53,6 +54,7 @@ type View = 'list' | 'detail' | 'join';
 // ---------------------------------------------------------------------------
 
 function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const t = useT();
   const [program, setProgram] = useState('DSPM');
   const [regionId, setRegionId] = useState('');
   const [dealerId, setDealerId] = useState('');
@@ -154,14 +156,14 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="bg-bg-surface rounded-xl shadow-xl w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-lg font-semibold mb-1">Создать сессию</h2>
-        <p className="text-xs text-fg-subtle mb-4">Выберите программу, регион/дилера и дату — название создастся автоматически.</p>
+        <h2 className="text-lg font-semibold mb-1">{t('offline.actions.createSession')}</h2>
+        <p className="text-xs text-fg-subtle mb-4">{t('offline.create.subtitle')}</p>
         <form onSubmit={(e) => { e.preventDefault(); submit(true); }} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-fg-muted mb-1">
-              Программа
+              {t('offline.create.program')}
               {!loadingPrograms && programs.length === 0 && (
-                <span className="ml-2 text-xs text-status-warning-fg">(шаблоны не загрузились — fallback на список)</span>
+                <span className="ml-2 text-xs text-status-warning-fg">{t('offline.create.templatesFallback')}</span>
               )}
             </label>
             <select
@@ -171,22 +173,22 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus disabled:bg-bg-muted"
             >
               {loadingPrograms ? (
-                <option>Загрузка программ...</option>
+                <option>{t('offline.create.loadingPrograms')}</option>
               ) : programs.length > 0 ? (
                 <>
                   {programs.map((p) => (
                     <option key={p.id} value={p.code}>
-                      {p.icon ? `${p.icon} ` : ''}{p.title} ({p.num_questions} вопр., {p.duration_minutes} мин)
+                      {p.icon ? `${p.icon} ` : ''}{p.title} {t('offline.create.programMeta', { q: p.num_questions, min: p.duration_minutes })}
                     </option>
                   ))}
-                  <option value="Custom">Custom (без шаблона)</option>
+                  <option value="Custom">{t('offline.create.customNoTemplate')}</option>
                 </>
               ) : (
                 <>
                   <option value="DSPM">DSPM</option>
-                  <option value="7 Qadam">7 Qadam</option>
+                  <option value="7 Qadam">{'7 Qadam'}</option>
                   <option value="ADKAR">ADKAR</option>
-                  <option value="Custom">Custom</option>
+                  <option value="Custom">{'Custom'}</option>
                 </>
               )}
             </select>
@@ -196,13 +198,13 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
           </div>
           {/* Регион */}
           <div>
-            <label className="block text-sm font-medium text-fg-muted mb-1">Регион</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">{t('offline.create.region')}</label>
             <select
               value={regionId}
               onChange={(e) => setRegionId(e.target.value)}
               className="w-full border border-border-strong rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-border-focus focus:border-border-focus"
             >
-              <option value="">— Выберите регион —</option>
+              <option value="">{t('offline.create.selectRegion')}</option>
               {regions.map((r) => (
                 <option key={r.id} value={r.id}>{r.name}</option>
               ))}
@@ -211,7 +213,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Дилер (зависит от региона) */}
           <div>
-            <label className="block text-sm font-medium text-fg-muted mb-1">Дилер</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">{t('offline.create.dealer')}</label>
             <select
               value={dealerId}
               onChange={(e) => setDealerId(e.target.value)}
@@ -220,12 +222,12 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
             >
               <option value="">
                 {!regionId
-                  ? 'Сначала выберите регион'
+                  ? t('offline.create.selectRegionFirst')
                   : loadingDealers
-                    ? 'Загрузка дилеров...'
+                    ? t('offline.create.loadingDealers')
                     : dealers.length === 0
-                      ? 'В этом регионе нет дилеров'
-                      : '— Выберите дилера —'}
+                      ? t('offline.create.noDealers')
+                      : t('offline.create.selectDealer')}
               </option>
               {dealers.map((d) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
@@ -235,7 +237,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Дата */}
           <div>
-            <label className="block text-sm font-medium text-fg-muted mb-1">Дата</label>
+            <label className="block text-sm font-medium text-fg-muted mb-1">{t('offline.create.date')}</label>
             <input
               type="date"
               value={date}
@@ -246,7 +248,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
 
           {/* Предпросмотр автоназвания */}
           <div className="bg-bg-muted border border-border-default rounded-lg px-3 py-2">
-            <p className="text-xs text-fg-subtle mb-0.5">Название (создастся автоматически):</p>
+            <p className="text-xs text-fg-subtle mb-0.5">{t('offline.create.autoTitleLabel')}</p>
             <p className="text-sm font-medium text-fg-default break-words">{buildTitle()}</p>
           </div>
 
@@ -258,11 +260,11 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               className="flex items-center gap-1 text-sm text-fg-subtle hover:text-fg-default"
             >
               <ChevronDown size={14} className={`transition-transform ${showAdvanced ? 'rotate-180' : ''}`} />
-              Расширенные параметры
+              {t('offline.create.advanced')}
             </button>
             {showAdvanced && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-fg-muted mb-1">Ссылка на внешнюю презентацию</label>
+                <label className="block text-sm font-medium text-fg-muted mb-1">{t('offline.create.presentationUrl')}</label>
                 <input
                   type="url"
                   value={presentationUrl}
@@ -271,7 +273,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
                   placeholder="https://docs.google.com/presentation/..."
                 />
                 <p className="mt-1 text-xs text-fg-subtle">
-                  Нужна только если хотите показать внешние слайды (Google Slides) вместо встроенных слайдов программы.
+                  {t('offline.create.presentationHint')}
                 </p>
               </div>
             )}
@@ -280,7 +282,7 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
           {/* Кнопки */}
           <div className="flex justify-end gap-3 pt-2">
             <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-fg-muted hover:text-fg-default">
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="button"
@@ -288,14 +290,14 @@ function CreateSessionModal({ onClose, onCreated }: { onClose: () => void; onCre
               disabled={saving || !program}
               className="px-4 py-2 text-sm bg-bg-surface border border-border-strong text-fg-muted rounded-lg hover:bg-bg-muted disabled:opacity-50"
             >
-              {saving ? 'Создание...' : 'Создать'}
+              {saving ? t('offline.create.creating') : t('offline.create.submit')}
             </button>
             <button
               type="submit"
               disabled={saving || !program}
               className="px-4 py-2 text-sm bg-bg-accent text-fg-on-accent rounded-lg hover:bg-bg-accent-hover disabled:opacity-50"
             >
-              {saving ? 'Создание...' : 'Создать и запустить →'}
+              {saving ? t('offline.create.creating') : t('offline.create.submitAndLaunch')}
             </button>
           </div>
         </form>
@@ -330,9 +332,9 @@ function SessionCard({ session, onClick }: { session: OfflineSession; onClick: (
         </div>
         <div className="flex items-center justify-between">
           <span className="text-xs px-2 py-0.5 rounded bg-bg-muted text-fg-muted">
-            {STATUS_LABELS[session.status] || session.status}
+            {STATUS_LABEL_KEYS[session.status] ? t(STATUS_LABEL_KEYS[session.status]) : session.status}
           </span>
-          <span className="text-xs text-fg-subtle">{session.participant_count} уч.</span>
+          <span className="text-xs text-fg-subtle">{t('offline.card.participants', { n: session.participant_count })}</span>
         </div>
       </button>
       <div className="mt-3">
@@ -363,8 +365,12 @@ function SessionDetail({
   isAdmin: boolean;
   onBack: () => void;
 }) {
+  const t = useT();
   const [session, setSession] = useState<(OfflineSession & { test_results: OfflineTestResult[]; game_results: OfflineGameResult[] }) | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Локализованный лейбл статуса с fallback на сырое значение
+  const statusLabel = (st: string) => (STATUS_LABEL_KEYS[st] ? t(STATUS_LABEL_KEYS[st]) : st);
 
   const loadSession = useCallback(async () => {
     setLoading(true);
@@ -385,7 +391,7 @@ function SessionDetail({
   const handleStatusChange = async (newStatus: string) => {
     try {
       await offlineApi.updateStatus(sessionId, newStatus);
-      toast.success(`Статус изменён: ${STATUS_LABELS[newStatus] || newStatus}`);
+      toast.success(`Статус изменён: ${statusLabel(newStatus)}`);
       loadSession();
     } catch {
       toast.error('Ошибка изменения статуса');
@@ -403,9 +409,9 @@ function SessionDetail({
   if (!session) {
     return (
       <div className="text-center py-20 text-fg-subtle">
-        Сессия не найдена
+        {t('offline.detail.notFound')}
         <button onClick={onBack} className="block mx-auto mt-4 text-bg-accent hover:underline text-sm">
-          Назад
+          {t('common.back')}
         </button>
       </div>
     );
@@ -443,13 +449,13 @@ function SessionDetail({
           rel="noreferrer"
           className="flex-shrink-0 px-4 py-2 text-sm bg-fg-default hover:opacity-90 text-bg-surface rounded-lg font-semibold transition-colors"
         >
-          🖥 Запустить на проекторе
+          {'🖥'} {t('offline.actions.runProjector')}
         </a>
       </div>
 
       {/* Код доступа */}
       <div className="bg-status-info-bg border border-border-default rounded-xl p-6 text-center">
-        <p className="text-sm text-status-info-fg mb-1">Код доступа</p>
+        <p className="text-sm text-status-info-fg mb-1">{t('offline.detail.accessCode')}</p>
         <p className="text-4xl font-bold tracking-widest text-status-info-fg">{session.access_code}</p>
       </div>
 
@@ -471,7 +477,7 @@ function SessionDetail({
                         : 'bg-bg-muted text-fg-subtle'
                   }`}
                 >
-                  {STATUS_LABELS[st]}
+                  {statusLabel(st)}
                 </div>
               </div>
             );
@@ -483,9 +489,9 @@ function SessionDetail({
               <button
                 onClick={() => handleStatusChange(prevStatus)}
                 className="px-4 py-2 text-sm bg-bg-surface border border-border-strong text-fg-muted rounded-lg hover:bg-bg-muted"
-                title="Если случайно перешёл слишком далеко — можно вернуть на предыдущий статус"
+                title={t('offline.detail.revertHint')}
               >
-                ← Вернуть в: {STATUS_LABELS[prevStatus]}
+                {t('offline.detail.revertTo', { status: statusLabel(prevStatus) })}
               </button>
             )}
             {nextStatus && (
@@ -493,7 +499,7 @@ function SessionDetail({
                 onClick={() => handleStatusChange(nextStatus)}
                 className="px-4 py-2 text-sm bg-bg-accent text-fg-on-accent rounded-lg hover:bg-bg-accent-hover"
               >
-                Перевести в: {STATUS_LABELS[nextStatus]} →
+                {t('offline.detail.advanceTo', { status: statusLabel(nextStatus) })}
               </button>
             )}
           </div>
@@ -504,12 +510,12 @@ function SessionDetail({
       {session.presentation_url && (
         <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
           <div className="p-3 border-b border-border-default">
-            <h3 className="text-sm font-medium text-fg-muted">Презентация</h3>
+            <h3 className="text-sm font-medium text-fg-muted">{t('offline.detail.presentation')}</h3>
           </div>
           <iframe
             src={session.presentation_url}
             className="w-full h-[400px]"
-            title="Презентация"
+            title={t('offline.detail.presentation')}
             allowFullScreen
           />
         </div>
@@ -519,16 +525,16 @@ function SessionDetail({
       {userMap.size > 0 && (
         <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
           <div className="p-3 border-b border-border-default">
-            <h3 className="text-sm font-medium text-fg-muted">Участники — результаты тестов</h3>
+            <h3 className="text-sm font-medium text-fg-muted">{t('offline.detail.testResults')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-bg-muted text-fg-muted text-xs">
-                  <th className="text-left px-4 py-2">Участник</th>
-                  <th className="text-center px-4 py-2">PRE %</th>
-                  <th className="text-center px-4 py-2">POST %</th>
-                  <th className="text-center px-4 py-2">Рост</th>
+                  <th className="text-left px-4 py-2">{t('offline.detail.participant')}</th>
+                  <th className="text-center px-4 py-2">{'PRE %'}</th>
+                  <th className="text-center px-4 py-2">{'POST %'}</th>
+                  <th className="text-center px-4 py-2">{t('offline.detail.growth')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -556,16 +562,16 @@ function SessionDetail({
       {session.game_results.length > 0 && (
         <div className="bg-bg-surface rounded-xl border border-border-default overflow-hidden">
           <div className="p-3 border-b border-border-default">
-            <h3 className="text-sm font-medium text-fg-muted">Игровые результаты</h3>
+            <h3 className="text-sm font-medium text-fg-muted">{t('offline.detail.gameResults')}</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-bg-muted text-fg-muted text-xs">
-                  <th className="text-left px-4 py-2">Команда</th>
-                  <th className="text-center px-4 py-2">Участники</th>
-                  <th className="text-center px-4 py-2">Очки</th>
-                  <th className="text-center px-4 py-2">Место</th>
+                  <th className="text-left px-4 py-2">{t('offline.detail.team')}</th>
+                  <th className="text-center px-4 py-2">{t('offline.detail.participants')}</th>
+                  <th className="text-center px-4 py-2">{t('offline.detail.points')}</th>
+                  <th className="text-center px-4 py-2">{t('offline.detail.rank')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -657,9 +663,13 @@ export function OfflinePage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <PageHeader
           title={t('offline.title')}
-          subtitle={`${sessions.length} ${sessions.length === 1 ? 'сессия' : sessions.length < 5 ? 'сессии' : 'сессий'}${
-            isAdmin ? ' · ' + t('offline.subtitleAdmin') : ''
-          }`}
+          subtitle={`${
+            sessions.length === 1
+              ? t('offline.sessionsCount.one', { n: sessions.length })
+              : sessions.length < 5
+                ? t('offline.sessionsCount.few', { n: sessions.length })
+                : t('offline.sessionsCount.many', { n: sessions.length })
+          }${isAdmin ? ' · ' + t('offline.subtitleAdmin') : ''}`}
           actions={
             isAdmin ? (
               <>
@@ -702,7 +712,7 @@ export function OfflinePage() {
                   : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
-              {p === 'all' ? 'Все' : p}
+              {p === 'all' ? t('offline.filters.all') : p}
             </button>
           ))}
         </div>
@@ -750,10 +760,10 @@ export function OfflinePage() {
     return (
       <div className="max-w-md mx-auto px-4 py-20 text-center space-y-6">
         <button onClick={() => setView('list')} className="text-bg-accent hover:underline text-sm">
-          &larr; Назад к списку
+          {t('offline.join.backToList')}
         </button>
-        <h2 className="text-xl font-semibold text-fg-default">Введите код сессии</h2>
-        <p className="text-sm text-fg-subtle">Код вам сообщит тренер в начале занятия</p>
+        <h2 className="text-xl font-semibold text-fg-default">{t('offline.join.title')}</h2>
+        <p className="text-sm text-fg-subtle">{t('offline.join.hint')}</p>
         <input
           type="text"
           value={joinCode}
@@ -767,7 +777,7 @@ export function OfflinePage() {
           disabled={joinCode.length < 4 || joining}
           className="w-full px-4 py-3 bg-bg-accent text-fg-on-accent rounded-xl hover:bg-bg-accent-hover disabled:opacity-50 font-medium"
         >
-          {joining ? 'Подключение...' : 'Присоединиться'}
+          {joining ? t('offline.join.joining') : t('offline.join.submit')}
         </button>
       </div>
     );

@@ -128,9 +128,9 @@ export function OfflineProgramsPage() {
       {deletingProgram && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => !deleting && setDeletingProgram(null)}>
           <div className="rounded-2xl max-w-sm w-full p-6" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }} onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Удалить программу?</h2>
+            <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{t('offlinePrograms.delete.title')}</h2>
             <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>
-              «{deletingProgram.title}» будет удалена безвозвратно.
+              {t('offlinePrograms.delete.confirm', { title: deletingProgram.title })}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -139,7 +139,7 @@ export function OfflineProgramsPage() {
                 className="px-4 py-2 rounded-lg text-sm"
                 style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'var(--bg-card)' }}
               >
-                Отмена
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleDelete}
@@ -147,7 +147,7 @@ export function OfflineProgramsPage() {
                 className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
                 style={{ background: 'var(--danger)', color: '#fff' }}
               >
-                {deleting ? 'Удаление...' : 'Удалить'}
+                {deleting ? t('offlinePrograms.delete.deleting') : t('common.actions.delete')}
               </button>
             </div>
           </div>
@@ -158,6 +158,7 @@ export function OfflineProgramsPage() {
 }
 
 function ProgramCard({ program, onClick, onDelete }: { program: Program; onClick: () => void; onDelete: () => void }) {
+  const t = useT();
   return (
     <div
       className="rounded-2xl p-5 hover:border-amber-400 hover:shadow-md transition-all relative"
@@ -170,7 +171,7 @@ function ProgramCard({ program, onClick, onDelete }: { program: Program; onClick
         style={{ color: 'var(--text-muted)' }}
         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; (e.currentTarget as HTMLButtonElement).style.background = 'var(--danger-bg)'; }}
         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-        title="Удалить программу"
+        title={t('offlinePrograms.delete.action')}
       >
         <Trash2 size={14} />
       </button>
@@ -191,12 +192,12 @@ function ProgramCard({ program, onClick, onDelete }: { program: Program; onClick
         )}
         <div className="flex flex-wrap gap-2 text-xs">
           <Tag label={program.target_role.toUpperCase()} />
-          <Tag label={`${program.duration_minutes} мин`} />
-          <Tag label={`${program.num_questions} вопросов`} />
-          <Tag label={`max ${program.max_score} б`} />
+          <Tag label={t('offlinePrograms.card.minutes', { n: program.duration_minutes })} />
+          <Tag label={t('offlinePrograms.card.questions', { n: program.num_questions })} />
+          <Tag label={t('offlinePrograms.card.maxScore', { n: program.max_score })} />
         </div>
         <div className="mt-3 pt-3 text-xs" style={{ borderTop: '1px solid var(--border)', color: 'var(--text-muted)' }}>
-          Код: <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)' }}>{program.code}</code>
+          {t('offlinePrograms.card.code')} <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)' }}>{program.code}</code>
         </div>
       </button>
     </div>
@@ -212,6 +213,7 @@ function Tag({ label }: { label: string }) {
 }
 
 function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCreated: () => void }) {
+  const t = useT();
   const [code, setCode] = useState('');
   const [title, setTitle] = useState('');
   const [titleUz, setTitleUz] = useState('');
@@ -245,40 +247,40 @@ function CreateProgramModal({ onClose, onCreated }: { onClose: () => void; onCre
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="rounded-2xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto" style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)' }}>
-        <h2 className="text-2xl font-serif mb-4" style={{ color: 'var(--text-primary)' }}>Создать программу</h2>
+        <h2 className="text-2xl font-serif mb-4" style={{ color: 'var(--text-primary)' }}>{t('offlinePrograms.createProgram')}</h2>
         {error && <div className="rounded p-2 text-sm mb-3" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', color: 'var(--danger)' }}>{error}</div>}
 
         <div className="space-y-3">
-          <Field label="Код (уникальный, латиницей)" value={code} onChange={setCode} placeholder="adkar | my_program" />
-          <Field label="Название (RU)" value={title} onChange={setTitle} />
-          <Field label="Название (UZ)" value={titleUz} onChange={setTitleUz} />
+          <Field label={t('offlinePrograms.form.code')} value={code} onChange={setCode} placeholder="adkar | my_program" />
+          <Field label={t('offlinePrograms.form.titleRu')} value={title} onChange={setTitle} />
+          <Field label={t('offlinePrograms.form.titleUz')} value={titleUz} onChange={setTitleUz} />
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Иконка" value={icon} onChange={setIcon} placeholder="🎯" />
-            <Field label="Цвет (hex)" value={themeColor} onChange={setThemeColor} />
+            <Field label={t('offlinePrograms.form.icon')} value={icon} onChange={setIcon} placeholder="🎯" />
+            <Field label={t('offlinePrograms.form.color')} value={themeColor} onChange={setThemeColor} />
           </div>
           <div>
-            <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Целевая роль</label>
+            <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlinePrograms.form.targetRole')}</label>
             <select className="w-full px-3 py-2 rounded-lg text-sm" value={targetRole}
               onChange={(e) => setTargetRole(e.target.value)}>
-              <option value="sales_rep">Торговый представитель</option>
-              <option value="supervisor">Супервайзер</option>
-              <option value="regional_manager">Региональный менеджер</option>
-              <option value="all">Все роли</option>
+              <option value="sales_rep">{t('pulse.roleSalesRep')}</option>
+              <option value="supervisor">{t('pulse.roleSupervisor')}</option>
+              <option value="regional_manager">{t('pulse.roleRegionalManager')}</option>
+              <option value="all">{t('team.allRoles')}</option>
             </select>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <NumberField label="Длительность (мин)" value={duration} onChange={setDuration} />
-            <NumberField label="Кол-во вопросов" value={numQuestions} onChange={setNumQuestions} />
-            <NumberField label="Макс. балл" value={maxScore} onChange={setMaxScore} />
+            <NumberField label={t('offlinePrograms.form.duration')} value={duration} onChange={setDuration} />
+            <NumberField label={t('offlinePrograms.form.numQuestions')} value={numQuestions} onChange={setNumQuestions} />
+            <NumberField label={t('offlinePrograms.form.maxScore')} value={maxScore} onChange={setMaxScore} />
           </div>
         </div>
 
         <div className="flex gap-2 mt-6">
-          <button onClick={onClose} className="flex-1 px-4 py-2 rounded-lg" style={{ border: '1px solid var(--border)', color: 'var(--text-primary)', background: 'var(--bg-card)' }}>Отмена</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2 rounded-lg" style={{ border: '1px solid var(--border)', color: 'var(--text-primary)', background: 'var(--bg-card)' }}>{t('common.cancel')}</button>
           <button onClick={submit} disabled={busy || !code || !title}
             className="flex-1 px-4 py-2 rounded-lg disabled:opacity-40"
             style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
-            {busy ? 'Создание...' : 'Создать'}
+            {busy ? t('offlinePrograms.form.creating') : t('offlinePrograms.form.submit')}
           </button>
         </div>
       </div>

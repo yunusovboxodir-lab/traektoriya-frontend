@@ -27,6 +27,7 @@ const I18N = {
     info: 'В POST-тесте впишите то же имя — результаты свяжутся',
     errorNoSession: 'Сессия не найдена. Проверьте код или отсканируйте QR заново.',
     errorClosed: 'Сессия закрыта для этой фазы.',
+    errorNoProgram: 'Программа не привязана к сессии. Свяжитесь с тренером.',
     msg: {
       top: '🏆 Отличный результат!',
       good: '👍 Хорошая база. Тренинг закрепит концепции.',
@@ -48,6 +49,7 @@ const I18N = {
     info: 'POST-testda xuddi shu ismni yozing — natijalar bog\'lanadi',
     errorNoSession: 'Sessiya topilmadi. Kodni tekshiring yoki QR-kodni qayta skanerlang.',
     errorClosed: 'Sessiya bu faza uchun yopiq.',
+    errorNoProgram: 'Dastur sessiyaga bogʻlanmagan. Trener bilan bogʻlaning.',
     msg: {
       top: '🏆 Ajoyib natija!',
       good: '👍 Yaxshi asos. Trening tushunchani mustahkamlaydi.',
@@ -86,7 +88,7 @@ export function OfflineMobileTestPage() {
         }
         if (!res.data.program) {
           setScreen('error');
-          setErrorMsg('Программа не привязана к сессии. Свяжитесь с тренером.');
+          setErrorMsg(t.errorNoProgram);
           return;
         }
         setInfo(res.data);
@@ -95,7 +97,7 @@ export function OfflineMobileTestPage() {
         setErrorMsg(t.errorNoSession);
       }
     })();
-  }, [accessCode, t.errorNoSession]);
+  }, [accessCode, t.errorNoSession, t.errorNoProgram]);
 
   const program = info?.program;
   const session = info?.session;
@@ -186,7 +188,7 @@ export function OfflineMobileTestPage() {
       {/* Screens */}
       {screen === 'error' && (
         <div className="rounded-2xl p-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-          <div className="p-3 rounded-lg text-sm" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>⚠️ {errorMsg}</div>
+          <div className="p-3 rounded-lg text-sm" style={{ background: 'var(--danger-bg)', color: 'var(--danger)' }}>{'⚠️'} {errorMsg}</div>
         </div>
       )}
 
@@ -208,7 +210,7 @@ export function OfflineMobileTestPage() {
                 className="w-full px-4 py-3 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-amber-400" />
             </div>
             <div className="text-sm rounded-lg p-3 flex gap-2" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
-              <span>i</span>
+              <span>{'i'}</span>
               <span>{t.info}</span>
             </div>
           </div>
@@ -299,7 +301,7 @@ export function OfflineMobileTestPage() {
       )}
 
       <div className="text-center text-xs tracking-widest font-semibold mt-6" style={{ color: 'var(--text-muted)' }}>
-        N'MEDOV SALES ACADEMY • 2026
+        {"N'MEDOV SALES ACADEMY • 2026"}
       </div>
     </div>
   );
