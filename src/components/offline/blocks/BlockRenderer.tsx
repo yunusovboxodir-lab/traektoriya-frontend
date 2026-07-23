@@ -63,9 +63,9 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
       return (
         <h1
           style={{ color: textPrimary }}
-          className={`font-bold ${
+          className={`font-bold break-words ${
             isProjector
-              ? 'text-5xl md:text-6xl lg:text-7xl leading-tight'
+              ? 'text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-tight'
               : 'text-3xl leading-tight'
           } mb-4 ${ALIGN_CLASSES[block.align ?? 'left']}`}
         >
@@ -116,7 +116,7 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
               )}
               <h4
                 style={{ color: textPrimary }}
-                className={`font-bold mb-1 ${isProjector ? 'text-xl' : 'text-base'}`}
+                className={`font-bold mb-1 break-words ${isProjector ? 'text-xl' : 'text-base'}`}
               >
                 {pickLang(card.title, card.title_uz, lang)}
               </h4>
@@ -292,9 +292,9 @@ export function BlockRenderer({ block, lang, size = 'projector' }: Props) {
           )}
           <h1
             style={{ color: textPrimary, letterSpacing: '-0.02em' }}
-            className={`font-bold text-center ${
+            className={`font-bold text-center break-words max-w-full ${
               isProjector
-                ? 'text-6xl md:text-7xl lg:text-8xl leading-none'
+                ? 'text-4xl sm:text-5xl md:text-7xl lg:text-8xl leading-tight md:leading-none'
                 : 'text-4xl leading-tight'
             } mb-4`}
           >
