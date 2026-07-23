@@ -19,25 +19,26 @@ import {
   type PulsePipelineStatus,
 } from '../api/pulsePipeline';
 import { PageHeader, Button } from '@/components/ui';
+import { useT } from '../stores/langStore';
 import { Trash2 } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
-// Константы
+// Константы (labelKey → перевод через t() в рендере)
 // ---------------------------------------------------------------------------
 
 const ROLE_OPTIONS = [
-  { value: 'sales_rep', label: 'Торговый представитель (ТП)' },
-  { value: 'supervisor', label: 'Супервайзер (СВ)' },
-  { value: 'regional_manager', label: 'Региональный менеджер (РМ)' },
-  { value: 'commercial_dir', label: 'Коммерческий директор (КД)' },
-  { value: 'dealer', label: 'Дилер' },
+  { value: 'sales_rep', labelKey: 'pipeline.roles.salesRep' },
+  { value: 'supervisor', labelKey: 'pipeline.roles.supervisor' },
+  { value: 'regional_manager', labelKey: 'pipeline.roles.regionalManager' },
+  { value: 'commercial_dir', labelKey: 'pipeline.roles.commercialDir' },
+  { value: 'dealer', labelKey: 'pipeline.roles.dealer' },
 ];
 
-const LEVEL_LABELS: Record<string, string> = {
-  trainee: 'Стажёр',
-  practitioner: 'Практик',
-  expert: 'Эксперт',
-  master: 'Мастер',
+const LEVEL_LABEL_KEYS: Record<string, string> = {
+  trainee: 'pulse.trainee',
+  practitioner: 'pulse.practitioner',
+  expert: 'pulse.expert',
+  master: 'pulse.master',
 };
 
 const LEVEL_COLORS: Record<string, string> = {
@@ -57,11 +58,11 @@ const STAGE_TO_STEP: Record<string, number> = {
 };
 
 const COURSE_TYPES = [
-  { value: 'work_standard', label: 'Стандарт работы' },
-  { value: 'product_knowledge', label: 'Знание продукта' },
-  { value: 'merchandising', label: 'Мерчандайзинг' },
-  { value: 'objection_handling', label: 'Возражения' },
-  { value: 'soft_skill', label: 'Soft skill' },
+  { value: 'work_standard', labelKey: 'pipeline.courseTypes.workStandard' },
+  { value: 'product_knowledge', labelKey: 'pipeline.courseTypes.productKnowledge' },
+  { value: 'merchandising', labelKey: 'pipeline.courseTypes.merchandising' },
+  { value: 'objection_handling', labelKey: 'pipeline.courseTypes.objectionHandling' },
+  { value: 'soft_skill', labelKey: 'pipeline.courseTypes.softSkill' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -71,6 +72,7 @@ const COURSE_TYPES = [
 export function PulsePipelinePage() {
   const { jobId: urlJobId } = useParams<{ jobId?: string }>();
   const navigate = useNavigate();
+  const t = useT();
 
   const [jobId, setJobId] = useState<string | null>(urlJobId || localStorage.getItem('pulse_pipeline_job_id'));
   const [status, setStatus] = useState<PulsePipelineStatus | null>(null);
@@ -97,10 +99,10 @@ export function PulsePipelinePage() {
         setStatus(null);
         setCurrentStep(1);
       } else {
-        setError(err.response?.data?.detail || 'Ошибка загрузки статуса');
+        setError(err.response?.data?.detail || t('pipeline.errors.loadStatus'));
       }
     }
-  }, [jobId]);
+  }, [jobId, t]);
 
   useEffect(() => {
     if (jobId) {
@@ -132,13 +134,13 @@ export function PulsePipelinePage() {
     <div className="max-w-6xl mx-auto px-4 py-6">
       <PageHeader
         title="Pulse Pipeline"
-        subtitle="Создание Pulse для роли через AI: ДИ → компетенции → курсы → контент"
+        subtitle={t('pipeline.subtitle')}
         actions={jobId && (
           <button
             onClick={startNewPipeline}
             className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted"
           >
-            Новый пайплайн
+            {t('pipeline.newPipeline')}
           </button>
         )}
       />
@@ -149,8 +151,8 @@ export function PulsePipelinePage() {
       {/* Error banner */}
       {error && (
         <div className="bg-status-danger-bg border border-status-danger-fg text-status-danger-fg px-4 py-3 rounded-lg mb-4">
-          <strong>Ошибка:</strong> {error}
-          <button onClick={() => setError(null)} className="ml-3 underline">закрыть</button>
+          <strong>{t('common.error')}:</strong> {error}
+          <button onClick={() => setError(null)} className="ml-3 underline">{t('common.close')}</button>
         </div>
       )}
 
@@ -223,12 +225,13 @@ export function PulsePipelinePage() {
 // ---------------------------------------------------------------------------
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
+  const t = useT();
   const steps = [
-    { num: 1, label: 'Старт' },
-    { num: 2, label: 'Компетенции' },
-    { num: 3, label: 'Курсы' },
-    { num: 4, label: 'Контент' },
-    { num: 5, label: 'Готово' },
+    { num: 1, label: t('pipeline.steps.start') },
+    { num: 2, label: t('pipeline.steps.competencies') },
+    { num: 3, label: t('pulse.courses') },
+    { num: 4, label: t('pipeline.steps.content') },
+    { num: 5, label: t('pipeline.steps.done') },
   ];
 
   return (
@@ -283,13 +286,14 @@ function Step1Start({
   setLoading: (l: boolean) => void;
   loading: boolean;
 }) {
+  const t = useT();
   const [documentId, setDocumentId] = useState('');
   const [targetRole, setTargetRole] = useState('supervisor');
   const [standardsIds, setStandardsIds] = useState('');
 
   const handleStart = async () => {
     if (!documentId.trim()) {
-      setError('Введите UUID документа должностной инструкции');
+      setError(t('pipeline.step1.uuidRequired'));
       return;
     }
     setLoading(true);
@@ -308,7 +312,7 @@ function Step1Start({
       onCreated(res.data.job_id);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка запуска пайплайна');
+      setError(err.response?.data?.detail || t('pipeline.errors.start'));
     } finally {
       setLoading(false);
     }
@@ -316,15 +320,14 @@ function Step1Start({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-fg-default">Шаг 1: Запуск пайплайна</h2>
+      <h2 className="text-xl font-bold text-fg-default">{t('pipeline.step1.title')}</h2>
       <p className="text-sm text-fg-muted">
-        Загрузите ДИ должности и стандарты в раздел Документы (если ещё не сделали),
-        затем введите UUID документа здесь.
+        {t('pipeline.step1.hint')}
       </p>
 
       <div>
         <label className="block text-sm font-medium text-fg-muted mb-1">
-          Целевая роль
+          {t('pipeline.step1.targetRole')}
         </label>
         <select
           value={targetRole}
@@ -333,7 +336,7 @@ function Step1Start({
         >
           {ROLE_OPTIONS.map((r) => (
             <option key={r.value} value={r.value}>
-              {r.label}
+              {t(r.labelKey)}
             </option>
           ))}
         </select>
@@ -341,7 +344,7 @@ function Step1Start({
 
       <div>
         <label className="block text-sm font-medium text-fg-muted mb-1">
-          UUID документа должностной инструкции
+          {t('pipeline.step1.documentUuid')}
         </label>
         <input
           type="text"
@@ -354,7 +357,7 @@ function Step1Start({
 
       <div>
         <label className="block text-sm font-medium text-fg-muted mb-1">
-          UUID документов стандартов (опционально, через запятую)
+          {t('pipeline.step1.standardsUuid')}
         </label>
         <input
           type="text"
@@ -364,7 +367,7 @@ function Step1Start({
           className="w-full px-3 py-2 border border-border-strong rounded-md font-mono text-sm"
         />
         <p className="text-xs text-fg-subtle mt-1">
-          Стандарты используются для RAG-контекста при генерации курсов
+          {t('pipeline.step1.standardsHint')}
         </p>
       </div>
 
@@ -373,7 +376,7 @@ function Step1Start({
         disabled={loading}
         className="w-full bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 text-fg-on-accent font-medium py-2.5 rounded-md transition-colors"
       >
-        {loading ? 'AI извлекает компетенции (до 60 сек)...' : 'Запустить пайплайн'}
+        {loading ? t('pipeline.step1.extracting') : t('pipeline.step1.startButton')}
       </button>
     </div>
   );
@@ -396,6 +399,7 @@ function Step2Competencies({
   setError: (e: string | null) => void;
   reload: () => void;
 }) {
+  const t = useT();
   const initialComps = status.output_data?.draft_competencies || [];
   const [competencies, setCompetencies] = useState<DraftCompetency[]>(initialComps);
   const [saving, setSaving] = useState(false);
@@ -441,7 +445,7 @@ function Step2Competencies({
       reload();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка сохранения');
+      setError(err.response?.data?.detail || t('pipeline.errors.save'));
     } finally {
       setSaving(false);
     }
@@ -449,7 +453,7 @@ function Step2Competencies({
 
   const handleApprove = async () => {
     if (competencies.length < 4 || competencies.length > 12) {
-      setError(`Должно быть от 4 до 12 компетенций (сейчас: ${competencies.length})`);
+      setError(t('pipeline.step2.countError', { count: competencies.length }));
       return;
     }
     setSaving(true);
@@ -462,7 +466,7 @@ function Step2Competencies({
       onApproved();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка утверждения');
+      setError(err.response?.data?.detail || t('pipeline.errors.approve'));
     } finally {
       setSaving(false);
     }
@@ -472,15 +476,14 @@ function Step2Competencies({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-fg-default">
-          Шаг 2: Компетенции ({competencies.length})
+          {t('pipeline.step2.title', { count: competencies.length })}
         </h2>
         <span className="text-sm text-fg-subtle">
-          {status.output_data?.role_name_extracted && `Роль: ${status.output_data.role_name_extracted}`}
+          {status.output_data?.role_name_extracted && t('pipeline.step2.role', { role: status.output_data.role_name_extracted })}
         </span>
       </div>
       <p className="text-sm text-fg-muted">
-        AI извлёк {initialComps.length} компетенций из ДИ. Проверь, отредактируй
-        или удали ненужные. Должно быть от 4 до 12 компетенций.
+        {t('pipeline.step2.hint', { count: initialComps.length })}
       </p>
 
       {/* Desktop: таблица (sm+) */}
@@ -488,10 +491,10 @@ function Step2Competencies({
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-bg-muted text-left text-xs text-fg-subtle uppercase">
-              <th className="px-3 py-2 border-b border-border-default">Название RU</th>
-              <th className="px-3 py-2 border-b border-border-default">Название UZ</th>
-              <th className="px-3 py-2 border-b border-border-default">Описание</th>
-              <th className="px-3 py-2 border-b border-border-default w-20">Сложность</th>
+              <th className="px-3 py-2 border-b border-border-default">{t('pipeline.nameRu')}</th>
+              <th className="px-3 py-2 border-b border-border-default">{t('pipeline.nameUz')}</th>
+              <th className="px-3 py-2 border-b border-border-default">{t('pipeline.description')}</th>
+              <th className="px-3 py-2 border-b border-border-default w-20">{t('pipeline.difficulty')}</th>
               <th className="px-3 py-2 border-b border-border-default w-12"></th>
             </tr>
           </thead>
@@ -528,17 +531,17 @@ function Step2Competencies({
                     onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
                     className="w-full px-2 py-1 border border-border-default rounded"
                   >
-                    <option value={1}>1 - Стажёр</option>
-                    <option value={2}>2 - Практик</option>
-                    <option value={3}>3 - Эксперт</option>
-                    <option value={4}>4 - Мастер</option>
+                    <option value={1}>{`1 - ${t('pulse.trainee')}`}</option>
+                    <option value={2}>{`2 - ${t('pulse.practitioner')}`}</option>
+                    <option value={3}>{`3 - ${t('pulse.expert')}`}</option>
+                    <option value={4}>{`4 - ${t('pulse.master')}`}</option>
                   </select>
                 </td>
                 <td className="px-2 py-1 text-center">
                   <button
                     onClick={() => removeRow(idx)}
                     className="text-status-danger-fg hover:opacity-80 text-lg"
-                    title="Удалить"
+                    title={t('common.actions.delete')}
                   >
                     ×
                   </button>
@@ -557,7 +560,7 @@ function Step2Competencies({
             className="rounded-md border border-border-default p-3 space-y-2 bg-bg-surface"
           >
             <div>
-              <label className="block text-sm font-medium text-fg-subtle mb-1">Название RU</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.nameRu')}</label>
               <input
                 type="text"
                 value={c.name}
@@ -566,7 +569,7 @@ function Step2Competencies({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-fg-subtle mb-1">Название UZ</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.nameUz')}</label>
               <input
                 type="text"
                 value={c.name_uz || ''}
@@ -575,7 +578,7 @@ function Step2Competencies({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-fg-subtle mb-1">Описание</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.description')}</label>
               <textarea
                 value={c.description}
                 onChange={(e) => updateField(idx, 'description', e.target.value)}
@@ -584,16 +587,16 @@ function Step2Competencies({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-fg-subtle mb-1">Сложность</label>
+              <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.difficulty')}</label>
               <select
                 value={c.suggested_difficulty || 2}
                 onChange={(e) => updateField(idx, 'suggested_difficulty', parseInt(e.target.value))}
                 className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
               >
-                <option value={1}>1 - Стажёр</option>
-                <option value={2}>2 - Практик</option>
-                <option value={3}>3 - Эксперт</option>
-                <option value={4}>4 - Мастер</option>
+                <option value={1}>{`1 - ${t('pulse.trainee')}`}</option>
+                <option value={2}>{`2 - ${t('pulse.practitioner')}`}</option>
+                <option value={3}>{`3 - ${t('pulse.expert')}`}</option>
+                <option value={4}>{`4 - ${t('pulse.master')}`}</option>
               </select>
             </div>
             <div className="pt-1">
@@ -603,7 +606,7 @@ function Step2Competencies({
                 leftIcon={<Trash2 size={14} />}
                 onClick={() => removeRow(idx)}
               >
-                Удалить
+                {t('common.actions.delete')}
               </Button>
             </div>
           </div>
@@ -615,14 +618,14 @@ function Step2Competencies({
           onClick={addRow}
           className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted"
         >
-          + Добавить компетенцию
+          {t('pipeline.step2.addCompetency')}
         </button>
         <button
           onClick={saveDraft}
           disabled={saving}
           className="px-3 py-1.5 text-sm border border-border-strong rounded-md hover:bg-bg-muted disabled:opacity-50"
         >
-          Сохранить черновик
+          {t('pipeline.step2.saveDraft')}
         </button>
       </div>
 
@@ -631,7 +634,7 @@ function Step2Competencies({
         disabled={saving || competencies.length < 4}
         className="w-full bg-status-success-fg hover:opacity-90 disabled:opacity-50 text-bg-canvas font-medium py-2.5 rounded-md"
       >
-        {saving ? 'Сохранение...' : 'Утвердить и перейти к курсам →'}
+        {saving ? t('pipeline.saving') : t('pipeline.step2.approveButton')}
       </button>
     </div>
   );
@@ -654,6 +657,7 @@ function Step3Courses({
   setError: (e: string | null) => void;
   reload: () => void;
 }) {
+  const t = useT();
   const draftCourses = status.output_data?.draft_courses || [];
   const [courses, setCourses] = useState<DraftCourse[]>(draftCourses);
   const [generating, setGenerating] = useState(false);
@@ -680,7 +684,7 @@ function Step3Courses({
       reload();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка генерации курсов');
+      setError(err.response?.data?.detail || t('pipeline.errors.generateCourses'));
     } finally {
       setGenerating(false);
     }
@@ -731,17 +735,16 @@ function Step3Courses({
     // Минимум 15 на территорию
     const shortage = Object.entries(territoryCounts).filter(([, count]) => count < 15);
     if (shortage.length > 0) {
-      const msg = shortage.map(([level, c]) => `${LEVEL_LABELS[level]}: ${c}/15`).join(', ');
-      if (!confirm(`Внимание: в некоторых территориях меньше 15 курсов (${msg}). Продолжить?`)) {
+      const msg = shortage.map(([level, c]) => `${t(LEVEL_LABEL_KEYS[level])}: ${c}/15`).join(', ');
+      if (!confirm(t('pipeline.step3.confirmShortage', { list: msg }))) {
         return;
       }
     }
 
-    if (!confirm(
-      `Будет создано ${courses.length} курсов и запущена генерация контента через Claude Opus 4.6.\n\n` +
-      `Оценка стоимости: ~$${estimatedCost?.toFixed(2) || '?'}\n` +
-      `Время: 30-90 минут.\n\nПродолжить?`
-    )) {
+    if (!confirm(t('pipeline.step3.confirmStart', {
+      count: courses.length,
+      cost: estimatedCost?.toFixed(2) || '?',
+    }))) {
       return;
     }
 
@@ -757,7 +760,7 @@ function Step3Courses({
       onApproved();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка утверждения');
+      setError(err.response?.data?.detail || t('pipeline.errors.approve'));
     } finally {
       setSaving(false);
     }
@@ -767,15 +770,14 @@ function Step3Courses({
   if (courses.length === 0) {
     return (
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-fg-default">Шаг 3: Генерация курсов</h2>
+        <h2 className="text-xl font-bold text-fg-default">{t('pipeline.step3.titleGenerate')}</h2>
         <p className="text-sm text-fg-muted">
-          AI сгенерирует список курсов на основе утверждённых компетенций
-          ({status.output_data?.approved_competency_ids?.length || 0} компетенций).
+          {t('pipeline.step3.generateHint', { count: status.output_data?.approved_competency_ids?.length || 0 })}
         </p>
 
         <div>
           <label className="block text-sm font-medium text-fg-muted mb-1">
-            Минимум курсов на каждую территорию
+            {t('pipeline.step3.minPerTerritory')}
           </label>
           <input
             type="number"
@@ -786,7 +788,7 @@ function Step3Courses({
             className="w-32 px-3 py-2 border border-border-strong rounded-md"
           />
           <p className="text-xs text-fg-subtle mt-1">
-            Итого минимум {minPerTerritory * 4} курсов на роль (4 территории)
+            {t('pipeline.step3.totalMin', { count: minPerTerritory * 4 })}
           </p>
         </div>
 
@@ -795,7 +797,7 @@ function Step3Courses({
           disabled={generating}
           className="w-full bg-bg-accent hover:bg-bg-accent-hover disabled:opacity-50 text-fg-on-accent font-medium py-2.5 rounded-md"
         >
-          {generating ? 'AI генерирует список курсов (60-120 сек)...' : 'Сгенерировать курсы'}
+          {generating ? t('pipeline.step3.generating') : t('pipeline.step3.generateButton')}
         </button>
       </div>
     );
@@ -814,11 +816,11 @@ function Step3Courses({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold text-fg-default">
-          Шаг 3: Курсы ({courses.length})
+          {t('pipeline.step3.title', { count: courses.length })}
         </h2>
         {estimatedCost && (
           <span className="text-sm text-fg-muted">
-            Оценка стоимости генерации контента: <strong>${estimatedCost.toFixed(2)}</strong>
+            {t('pipeline.step3.costEstimate')} <strong>${estimatedCost.toFixed(2)}</strong>
           </span>
         )}
       </div>
@@ -833,9 +835,9 @@ function Step3Courses({
               key={level}
               className={`p-3 rounded-lg border-2 ${ok ? 'border-status-success-fg bg-status-success-bg' : 'border-status-danger-fg bg-status-danger-bg'}`}
             >
-              <div className="text-xs text-fg-muted">{LEVEL_LABELS[level]}</div>
+              <div className="text-xs text-fg-muted">{t(LEVEL_LABEL_KEYS[level])}</div>
               <div className={`text-lg font-bold ${ok ? 'text-status-success-fg' : 'text-status-danger-fg'}`}>
-                {count} / 15
+                {`${count} / 15`}
               </div>
             </div>
           );
@@ -846,7 +848,7 @@ function Step3Courses({
       {(['trainee', 'practitioner', 'expert', 'master'] as const).map((level) => (
         <details key={level} open className="border border-border-default rounded-lg">
           <summary className={`px-3 py-2 cursor-pointer font-medium ${LEVEL_COLORS[level]}`}>
-            {LEVEL_LABELS[level]} ({grouped[level].length})
+            {t(LEVEL_LABEL_KEYS[level])} ({grouped[level].length})
           </summary>
           <div className="p-2 space-y-1">
             {grouped[level].map((course) => {
@@ -860,7 +862,7 @@ function Step3Courses({
                         type="text"
                         value={course.title_ru}
                         onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
-                        placeholder="Название RU"
+                        placeholder={t('pipeline.nameRu')}
                         className="px-2 py-1 border border-border-default rounded text-sm"
                       />
                       <input
@@ -876,7 +878,7 @@ function Step3Courses({
                         className="px-2 py-1 border border-border-default rounded text-sm"
                       >
                         {COURSE_TYPES.map((ct) => (
-                          <option key={ct.value} value={ct.value}>{ct.label}</option>
+                          <option key={ct.value} value={ct.value}>{t(ct.labelKey)}</option>
                         ))}
                       </select>
                       <select
@@ -884,15 +886,15 @@ function Step3Courses({
                         onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
                         className="px-2 py-1 border border-border-default rounded text-sm"
                       >
-                        <option value={1}>Вес 1 - базовый</option>
-                        <option value={2}>Вес 2 - стандартный</option>
-                        <option value={3}>Вес 3 - важный</option>
-                        <option value={4}>Вес 4 - критический</option>
+                        <option value={1}>{t('pipeline.weight1')}</option>
+                        <option value={2}>{t('pipeline.weight2')}</option>
+                        <option value={3}>{t('pipeline.weight3')}</option>
+                        <option value={4}>{t('pipeline.weight4')}</option>
                       </select>
                       <textarea
                         value={course.short_description_ru || ''}
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
-                        placeholder="Краткое описание"
+                        placeholder={t('pipeline.shortDescription')}
                         rows={1}
                         className="md:col-span-2 px-2 py-1 border border-border-default rounded text-sm"
                       />
@@ -900,7 +902,7 @@ function Step3Courses({
                     <button
                       onClick={() => removeCourse(idx)}
                       className="text-status-danger-fg hover:opacity-80 text-lg"
-                      title="Удалить"
+                      title={t('common.actions.delete')}
                     >
                       ×
                     </button>
@@ -909,17 +911,17 @@ function Step3Courses({
                   {/* Mobile: card-layout с явной кнопкой "Удалить" (<sm) */}
                   <div className="block sm:hidden space-y-2">
                     <div>
-                      <label className="block text-sm font-medium text-fg-subtle mb-1">Название RU</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.nameRu')}</label>
                       <input
                         type="text"
                         value={course.title_ru}
                         onChange={(e) => updateCourse(idx, 'title_ru', e.target.value)}
-                        placeholder="Название RU"
+                        placeholder={t('pipeline.nameRu')}
                         className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-fg-subtle mb-1">Nomi UZ</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">{'Nomi UZ'}</label>
                       <input
                         type="text"
                         value={course.title_uz || ''}
@@ -929,36 +931,36 @@ function Step3Courses({
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-fg-subtle mb-1">Тип курса</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.courseType')}</label>
                       <select
                         value={course.course_type}
                         onChange={(e) => updateCourse(idx, 'course_type', e.target.value)}
                         className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       >
                         {COURSE_TYPES.map((ct) => (
-                          <option key={ct.value} value={ct.value}>{ct.label}</option>
+                          <option key={ct.value} value={ct.value}>{t(ct.labelKey)}</option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-fg-subtle mb-1">Вес</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.weightLabel')}</label>
                       <select
                         value={course.weight}
                         onChange={(e) => updateCourse(idx, 'weight', parseInt(e.target.value))}
                         className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       >
-                        <option value={1}>Вес 1 - базовый</option>
-                        <option value={2}>Вес 2 - стандартный</option>
-                        <option value={3}>Вес 3 - важный</option>
-                        <option value={4}>Вес 4 - критический</option>
+                        <option value={1}>{t('pipeline.weight1')}</option>
+                        <option value={2}>{t('pipeline.weight2')}</option>
+                        <option value={3}>{t('pipeline.weight3')}</option>
+                        <option value={4}>{t('pipeline.weight4')}</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-fg-subtle mb-1">Краткое описание</label>
+                      <label className="block text-sm font-medium text-fg-subtle mb-1">{t('pipeline.shortDescription')}</label>
                       <textarea
                         value={course.short_description_ru || ''}
                         onChange={(e) => updateCourse(idx, 'short_description_ru', e.target.value)}
-                        placeholder="Краткое описание"
+                        placeholder={t('pipeline.shortDescription')}
                         rows={2}
                         className="w-full px-2 py-1.5 border border-border-default rounded text-sm"
                       />
@@ -970,7 +972,7 @@ function Step3Courses({
                         leftIcon={<Trash2 size={14} />}
                         onClick={() => removeCourse(idx)}
                       >
-                        Удалить
+                        {t('common.actions.delete')}
                       </Button>
                     </div>
                   </div>
@@ -981,7 +983,7 @@ function Step3Courses({
               onClick={() => addCourse(level)}
               className="w-full px-3 py-1.5 text-sm border border-dashed border-border-strong rounded hover:bg-bg-muted"
             >
-              + Добавить курс в {LEVEL_LABELS[level]}
+              {t('pipeline.step3.addCourse', { level: t(LEVEL_LABEL_KEYS[level]) })}
             </button>
           </div>
         </details>
@@ -993,8 +995,8 @@ function Step3Courses({
         className="w-full bg-status-success-fg hover:opacity-90 disabled:opacity-50 text-bg-canvas font-medium py-3 rounded-md"
       >
         {saving
-          ? 'Создание курсов и запуск генерации...'
-          : `Утвердить ${courses.length} курсов и запустить генерацию контента →`}
+          ? t('pipeline.step3.creating')
+          : t('pipeline.step3.approveButton', { count: courses.length })}
       </button>
     </div>
   );
@@ -1015,6 +1017,7 @@ function Step4Generation({
   onDone: () => void;
   setError: (e: string | null) => void;
 }) {
+  const t = useT();
   const generation = status.output_data?.generation;
   const total = generation?.items_total || 0;
   const completed = generation?.items_completed || 0;
@@ -1035,22 +1038,21 @@ function Step4Generation({
       await pulsePipelineApi.retryCourse(jobId, courseId);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
-      setError(err.response?.data?.detail || 'Ошибка retry');
+      setError(err.response?.data?.detail || t('pipeline.errors.retry'));
     }
   };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-fg-default">Шаг 4: Генерация контента (Opus 4.6)</h2>
+      <h2 className="text-xl font-bold text-fg-default">{t('pipeline.step4.title')}</h2>
       <p className="text-sm text-fg-muted">
-        Claude Opus 4.6 генерирует полный контент для каждого курса (RU + UZ).
-        Это может занять 30-90 минут. Можно закрыть страницу — генерация продолжится.
+        {t('pipeline.step4.hint')}
       </p>
 
       {/* Big progress bar */}
       <div>
         <div className="flex justify-between text-sm mb-1">
-          <span className="font-medium text-fg-muted">{status.current_step || 'Идёт обработка...'}</span>
+          <span className="font-medium text-fg-muted">{status.current_step || t('pipeline.step4.processing')}</span>
           <span className="text-fg-muted">{completed} / {total}</span>
         </div>
         <div className="w-full bg-bg-muted rounded-full h-3 overflow-hidden">
@@ -1059,22 +1061,22 @@ function Step4Generation({
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="text-xs text-fg-subtle mt-1">{Math.round(progress)}% выполнено</div>
+        <div className="text-xs text-fg-subtle mt-1">{t('pipeline.step4.percentDone', { percent: Math.round(progress) })}</div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-bg-muted rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-fg-default">{total}</div>
-          <div className="text-xs text-fg-subtle">всего</div>
+          <div className="text-xs text-fg-subtle">{t('pipeline.step4.total')}</div>
         </div>
         <div className="bg-status-success-bg rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-status-success-fg">{completed - failed.length}</div>
-          <div className="text-xs text-fg-subtle">успешно</div>
+          <div className="text-xs text-fg-subtle">{t('pipeline.step4.success')}</div>
         </div>
         <div className="bg-status-danger-bg rounded-lg p-3 text-center">
           <div className="text-2xl font-bold text-status-danger-fg">{failed.length}</div>
-          <div className="text-xs text-fg-subtle">ошибок</div>
+          <div className="text-xs text-fg-subtle">{t('pipeline.step4.failed')}</div>
         </div>
       </div>
 
@@ -1082,24 +1084,24 @@ function Step4Generation({
       {failed.length > 0 && (
         <div className="border border-border-default rounded-lg p-3">
           <h3 className="text-sm font-medium text-status-danger-fg mb-2">
-            Не удалось сгенерировать ({failed.length}):
+            {t('pipeline.step4.failedTitle', { count: failed.length })}
           </h3>
           <ul className="space-y-1 text-xs">
             {failed.slice(0, 10).map((f, i) => (
               <li key={i} className="flex items-center justify-between">
                 <span className="font-mono text-fg-muted">
-                  {f.course_id.slice(0, 8)}... ({f.language})
+                  {`${f.course_id.slice(0, 8)}... (${f.language})`}
                 </span>
                 <button
                   onClick={() => handleRetry(f.course_id)}
                   className="text-bg-accent hover:underline"
                 >
-                  Повторить
+                  {t('common.retry')}
                 </button>
               </li>
             ))}
             {failed.length > 10 && (
-              <li className="text-fg-subtle italic">и ещё {failed.length - 10}...</li>
+              <li className="text-fg-subtle italic">{t('pipeline.step4.andMore', { count: failed.length - 10 })}</li>
             )}
           </ul>
         </div>
@@ -1107,8 +1109,8 @@ function Step4Generation({
 
       {isDone && (
         <div className="bg-status-success-bg border border-status-success-fg rounded-lg p-4 text-center">
-          <p className="text-status-success-fg font-medium">Генерация завершена!</p>
-          <p className="text-sm text-fg-muted mt-1">Переходим к финальному шагу...</p>
+          <p className="text-status-success-fg font-medium">{t('pipeline.step4.doneTitle')}</p>
+          <p className="text-sm text-fg-muted mt-1">{t('pipeline.step4.doneHint')}</p>
         </div>
       )}
     </div>
@@ -1128,6 +1130,7 @@ function Step5Done({
   status: PulsePipelineStatus;
   onNewPipeline: () => void;
 }) {
+  const t = useT();
   const targetRole = status.output_data?.target_role;
   const competencies = status.output_data?.approved_competency_ids?.length || 0;
   const courses = status.output_data?.created_course_ids?.length || 0;
@@ -1139,29 +1142,29 @@ function Step5Done({
   return (
     <div className="space-y-4">
       <div className="text-center py-6">
-        <div className="text-5xl mb-3">✓</div>
-        <h2 className="text-2xl font-bold text-fg-default">Pulse создан!</h2>
-        <p className="text-fg-muted mt-1">Роль <strong>{targetRole}</strong> готова к использованию</p>
+        <div className="text-5xl mb-3">{'✓'}</div>
+        <h2 className="text-2xl font-bold text-fg-default">{t('pipeline.step5.title')}</h2>
+        <p className="text-fg-muted mt-1">{t('pipeline.step5.rolePrefix')} <strong>{targetRole}</strong> {t('pipeline.step5.roleReady')}</p>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-status-info-bg rounded-lg p-4 text-center">
           <div className="text-3xl font-bold text-status-info-fg">{competencies}</div>
-          <div className="text-sm text-fg-muted">компетенций</div>
+          <div className="text-sm text-fg-muted">{t('pipeline.step5.competencies')}</div>
         </div>
         <div className="bg-status-success-bg rounded-lg p-4 text-center">
           <div className="text-3xl font-bold text-status-success-fg">{courses}</div>
-          <div className="text-sm text-fg-muted">курсов создано</div>
+          <div className="text-sm text-fg-muted">{t('pipeline.step5.coursesCreated')}</div>
         </div>
         <div className="bg-bg-muted rounded-lg p-4 text-center">
           <div className="text-3xl font-bold text-role-sales">{success}</div>
-          <div className="text-sm text-fg-muted">контент готов</div>
+          <div className="text-sm text-fg-muted">{t('pipeline.step5.contentReady')}</div>
         </div>
       </div>
 
       {failed > 0 && (
         <div className="bg-status-warning-bg border border-status-warning-fg text-status-warning-fg px-4 py-3 rounded-lg text-sm">
-          <strong>{failed}</strong> курсов не удалось сгенерировать. Используй кнопку "Повторить" на шаге 4.
+          <strong>{failed}</strong> {t('pipeline.step5.failedNote')}
         </div>
       )}
 
@@ -1171,14 +1174,14 @@ function Step5Done({
             href={`/learning?section=${sectionId}`}
             className="flex-1 bg-bg-accent hover:bg-bg-accent-hover text-fg-on-accent text-center font-medium py-2.5 rounded-md"
           >
-            Перейти к курсам
+            {t('pipeline.step5.goToCourses')}
           </a>
         )}
         <button
           onClick={onNewPipeline}
           className="flex-1 border border-border-strong hover:bg-bg-muted text-fg-muted font-medium py-2.5 rounded-md"
         >
-          Новый пайплайн
+          {t('pipeline.newPipeline')}
         </button>
       </div>
     </div>

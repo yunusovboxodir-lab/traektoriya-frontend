@@ -1414,5 +1414,107 @@
     "colUpdated": "Yangilangan",
     "filesN": "{n} fayl",
     "next": "Oldinga"
+  },
+  "pipeline": {
+    "subtitle": "AI orqali rol uchun Pulse yaratish: lavozim yoʻriqnomasi → kompetensiyalar → kurslar → kontent",
+    "newPipeline": "Yangi payplayn",
+    "saving": "Saqlanmoqda...",
+    "nameRu": "Nomi RU",
+    "nameUz": "Nomi UZ",
+    "description": "Tavsif",
+    "difficulty": "Murakkablik",
+    "shortDescription": "Qisqa tavsif",
+    "courseType": "Kurs turi",
+    "weightLabel": "Ogʻirlik",
+    "weight1": "Ogʻirlik 1 - bazaviy",
+    "weight2": "Ogʻirlik 2 - standart",
+    "weight3": "Ogʻirlik 3 - muhim",
+    "weight4": "Ogʻirlik 4 - kritik",
+    "roles": {
+      "salesRep": "Savdo vakili (TP)",
+      "supervisor": "Supervayzer (SV)",
+      "regionalManager": "Hududiy menejer (RM)",
+      "commercialDir": "Kommersiya direktori (KD)",
+      "dealer": "Diler"
+    },
+    "courseTypes": {
+      "workStandard": "Ish standarti",
+      "productKnowledge": "Mahsulotni bilish",
+      "merchandising": "Merchandayzing",
+      "objectionHandling": "Eʼtirozlar",
+      "softSkill": "Soft skill"
+    },
+    "steps": {
+      "start": "Start",
+      "competencies": "Kompetensiyalar",
+      "content": "Kontent",
+      "done": "Tayyor"
+    },
+    "errors": {
+      "loadStatus": "Statusni yuklashda xato",
+      "start": "Payplaynni ishga tushirishda xato",
+      "save": "Saqlashda xato",
+      "approve": "Tasdiqlashda xato",
+      "generateCourses": "Kurslarni generatsiya qilishda xato",
+      "retry": "Qayta urinishda xato"
+    },
+    "step1": {
+      "title": "1-qadam: Payplaynni ishga tushirish",
+      "hint": "Lavozim yoʻriqnomasi va standartlarni Hujjatlar boʻlimiga yuklang (agar hali qilmagan boʻlsangiz), soʻng hujjat UUID sini shu yerga kiriting.",
+      "targetRole": "Maqsadli rol",
+      "documentUuid": "Lavozim yoʻriqnomasi hujjatining UUID si",
+      "standardsUuid": "Standart hujjatlarining UUID lari (ixtiyoriy, vergul bilan)",
+      "standardsHint": "Standartlar kurslarni generatsiya qilishda RAG-kontekst uchun ishlatiladi",
+      "uuidRequired": "Lavozim yoʻriqnomasi hujjatining UUID sini kiriting",
+      "extracting": "AI kompetensiyalarni ajratmoqda (60 sekundgacha)...",
+      "startButton": "Payplaynni ishga tushirish"
+    },
+    "step2": {
+      "title": "2-qadam: Kompetensiyalar ({count})",
+      "role": "Rol: {role}",
+      "hint": "AI lavozim yoʻriqnomasidan {count} ta kompetensiya ajratdi. Tekshiring, tahrirlang yoki keraksizlarini oʻchiring. 4 tadan 12 tagacha kompetensiya boʻlishi kerak.",
+      "countError": "4 tadan 12 tagacha kompetensiya boʻlishi kerak (hozir: {count})",
+      "addCompetency": "+ Kompetensiya qoʻshish",
+      "saveDraft": "Qoralamani saqlash",
+      "approveButton": "Tasdiqlash va kurslarga oʻtish →"
+    },
+    "step3": {
+      "titleGenerate": "3-qadam: Kurslarni generatsiya qilish",
+      "generateHint": "AI tasdiqlangan kompetensiyalar asosida kurslar roʻyxatini yaratadi ({count} ta kompetensiya).",
+      "minPerTerritory": "Har bir hudud uchun minimal kurslar soni",
+      "totalMin": "Jami rol uchun kamida {count} ta kurs (4 ta hudud)",
+      "generating": "AI kurslar roʻyxatini yaratmoqda (60-120 sek)...",
+      "generateButton": "Kurslarni generatsiya qilish",
+      "title": "3-qadam: Kurslar ({count})",
+      "costEstimate": "Kontent generatsiyasi taxminiy narxi:",
+      "confirmShortage": "Diqqat: baʼzi hududlarda 15 tadan kam kurs bor ({list}). Davom etamizmi?",
+      "confirmStart": "{count} ta kurs yaratiladi va Claude Opus 4.6 orqali kontent generatsiyasi ishga tushiriladi.\n\nTaxminiy narx: ~${cost}\nVaqt: 30-90 daqiqa.\n\nDavom etamizmi?",
+      "addCourse": "+ {level} hududiga kurs qoʻshish",
+      "creating": "Kurslar yaratilmoqda va generatsiya ishga tushmoqda...",
+      "approveButton": "{count} ta kursni tasdiqlash va kontent generatsiyasini boshlash →"
+    },
+    "step4": {
+      "title": "4-qadam: Kontent generatsiyasi (Opus 4.6)",
+      "hint": "Claude Opus 4.6 har bir kurs uchun toʻliq kontent yaratadi (RU + UZ). Bu 30-90 daqiqa olishi mumkin. Sahifani yopsangiz ham generatsiya davom etadi.",
+      "processing": "Qayta ishlanmoqda...",
+      "percentDone": "{percent}% bajarildi",
+      "total": "jami",
+      "success": "muvaffaqiyatli",
+      "failed": "xato",
+      "failedTitle": "Generatsiya qilib boʻlmadi ({count}):",
+      "andMore": "yana {count} ta...",
+      "doneTitle": "Generatsiya yakunlandi!",
+      "doneHint": "Yakuniy qadamga oʻtmoqdamiz..."
+    },
+    "step5": {
+      "title": "Pulse yaratildi!",
+      "rolePrefix": "Rol",
+      "roleReady": "foydalanishga tayyor",
+      "competencies": "kompetensiya",
+      "coursesCreated": "kurs yaratildi",
+      "contentReady": "kontent tayyor",
+      "failedNote": "kursni generatsiya qilib boʻlmadi. 4-qadamdagi \"Qayta urinish\" tugmasidan foydalaning.",
+      "goToCourses": "Kurslarga oʻtish"
+    }
   }
 }
