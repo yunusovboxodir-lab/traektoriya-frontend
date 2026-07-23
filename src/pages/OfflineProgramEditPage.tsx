@@ -10,36 +10,39 @@ import { emptyBlock, emptySlide } from '../types/offlineProgram';
 import { SkeletonCard } from '@/components/ui';
 import { BlockRenderer } from '../components/offline/blocks/BlockRenderer';
 import { BlockEditor } from '../components/offline/blocks/BlockEditor';
+import { useT } from '../stores/langStore';
 
 type Tab = 'meta' | 'slides' | 'questions' | 'categories';
 
-const SLIDE_TYPES: Array<{ v: SlideType; t: string }> = [
-  { v: 'intro', t: 'Интро' },
-  { v: 'content', t: 'Контент' },
-  { v: 'test_pre', t: 'Перед PRE' },
-  { v: 'dashboard_pre', t: 'Дашборд PRE (QR)' },
-  { v: 'dashboard_pre_result', t: 'Результаты PRE' },
-  { v: 'test_post', t: 'Перед POST' },
-  { v: 'dashboard_post', t: 'Дашборд POST (QR)' },
-  { v: 'dashboard_growth', t: 'Рост ДО/ПОСЛЕ' },
-  { v: 'closing', t: 'Закрытие' },
+// Метки — через labelKey + t() в рендере (i18n, Кодекс 10_bilingual)
+const SLIDE_TYPES: Array<{ v: SlideType; labelKey: string }> = [
+  { v: 'intro', labelKey: 'offlineEdit.slideTypes.intro' },
+  { v: 'content', labelKey: 'offlineEdit.slideTypes.content' },
+  { v: 'test_pre', labelKey: 'offlineEdit.slideTypes.test_pre' },
+  { v: 'dashboard_pre', labelKey: 'offlineEdit.slideTypes.dashboard_pre' },
+  { v: 'dashboard_pre_result', labelKey: 'offlineEdit.slideTypes.dashboard_pre_result' },
+  { v: 'test_post', labelKey: 'offlineEdit.slideTypes.test_post' },
+  { v: 'dashboard_post', labelKey: 'offlineEdit.slideTypes.dashboard_post' },
+  { v: 'dashboard_growth', labelKey: 'offlineEdit.slideTypes.dashboard_growth' },
+  { v: 'closing', labelKey: 'offlineEdit.slideTypes.closing' },
 ];
 
-const BLOCK_TYPES: Array<{ v: Block['type']; t: string; icon: string }> = [
-  { v: 'heading_h1', t: 'H1', icon: '🅗' },
-  { v: 'heading_h2', t: 'H2', icon: '🅗' },
-  { v: 'paragraph', t: 'Параграф', icon: '¶' },
-  { v: 'cards_grid', t: 'Карточки', icon: '🃏' },
-  { v: 'numbered_list', t: 'Шаги', icon: '①' },
-  { v: 'callout', t: 'Выноска', icon: '💡' },
-  { v: 'comparison', t: 'Сравнение', icon: '⚖️' },
-  { v: 'quote', t: 'Цитата', icon: '❝' },
-  { v: 'image', t: 'Изображение', icon: '🖼' },
+const BLOCK_TYPES: Array<{ v: Block['type']; labelKey: string; icon: string }> = [
+  { v: 'heading_h1', labelKey: 'offlineEdit.blockTypes.h1', icon: '🅗' },
+  { v: 'heading_h2', labelKey: 'offlineEdit.blockTypes.h2', icon: '🅗' },
+  { v: 'paragraph', labelKey: 'offlineEdit.blockLabels.paragraph', icon: '¶' },
+  { v: 'cards_grid', labelKey: 'offlineEdit.blockLabels.cards_grid', icon: '🃏' },
+  { v: 'numbered_list', labelKey: 'offlineEdit.blockTypes.steps', icon: '①' },
+  { v: 'callout', labelKey: 'offlineEdit.blockLabels.callout', icon: '💡' },
+  { v: 'comparison', labelKey: 'offlineEdit.blockLabels.comparison', icon: '⚖️' },
+  { v: 'quote', labelKey: 'offlineEdit.blockLabels.quote', icon: '❝' },
+  { v: 'image', labelKey: 'offlineEdit.blockLabels.image', icon: '🖼' },
 ];
 
 export function OfflineProgramEditPage() {
   const { programId } = useParams();
   const navigate = useNavigate();
+  const t = useT();
   const [tab, setTab] = useState<Tab>('meta');
   const [program, setProgram] = useState<Program | null>(null);
   const [loading, setLoading] = useState(true);
@@ -73,9 +76,9 @@ export function OfflineProgramEditPage() {
   if (error || !program) {
     return (
       <div className="p-8 text-center">
-        <p className="mb-4" style={{ color: error ? 'var(--danger)' : 'var(--text-primary)' }}>{error || 'Программа не найдена'}</p>
+        <p className="mb-4" style={{ color: error ? 'var(--danger)' : 'var(--text-primary)' }}>{error ? t('offlineEdit.loadError') : t('offlineEdit.notFound')}</p>
         <button onClick={() => navigate('/activities/programs')} className="text-sm underline" style={{ color: 'var(--info)' }}>
-          К списку программ
+          {t('offlineEdit.backToList')}
         </button>
       </div>
     );
@@ -88,17 +91,17 @@ export function OfflineProgramEditPage() {
         <div>
           <button onClick={() => navigate('/activities/programs')}
             className="text-sm mb-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }}>
-            ← К списку программ
+            ← {t('offlineEdit.backToList')}
           </button>
           <h1 className="text-3xl font-serif flex items-center gap-3" style={{ color: 'var(--text-primary)' }}>
             <span>{program.icon}</span>
             <span>{program.title}</span>
           </h1>
-          <code className="text-sm" style={{ color: 'var(--text-muted)' }}>code: {program.code}</code>
+          <code className="text-sm" style={{ color: 'var(--text-muted)' }}>{`code: ${program.code}`}</code>
         </div>
         {savedAt && (
           <div className="text-xs text-green-700">
-            ✓ Сохранено {savedAt.toLocaleTimeString()}
+            {t('offlineEdit.savedAt', { time: savedAt.toLocaleTimeString() })}
           </div>
         )}
       </div>
@@ -106,13 +109,13 @@ export function OfflineProgramEditPage() {
       {/* Tabs */}
       <div className="mb-6" style={{ borderBottom: '1px solid var(--border)' }}>
         <nav className="flex gap-1">
-          {(['meta', 'slides', 'questions', 'categories'] as Tab[]).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
+          {(['meta', 'slides', 'questions', 'categories'] as Tab[]).map((tb) => (
+            <button key={tb} onClick={() => setTab(tb)}
               className={`px-4 py-2 text-sm font-semibold border-b-2 -mb-px ${
-                tab === t ? 'border-amber-500' : 'border-transparent hover:opacity-80'
+                tab === tb ? 'border-amber-500' : 'border-transparent hover:opacity-80'
               }`}
-              style={{ color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)' }}>
-              {tabLabel(t)} {tabBadge(t, program)}
+              style={{ color: tab === tb ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+              {t(tabLabelKey(tb))} {tabBadge(tb, program)}
             </button>
           ))}
         </nav>
@@ -135,8 +138,13 @@ export function OfflineProgramEditPage() {
   );
 }
 
-function tabLabel(t: Tab): string {
-  return { meta: 'Метаданные', slides: 'Слайды', questions: 'Вопросы', categories: 'Категории' }[t];
+function tabLabelKey(tb: Tab): string {
+  return {
+    meta: 'offlineEdit.tabs.meta',
+    slides: 'offlineEdit.tabs.slides',
+    questions: 'offlineEdit.tabs.questions',
+    categories: 'offlineEdit.tabs.categories',
+  }[tb];
 }
 
 function tabBadge(t: Tab, p: Program): string {
@@ -153,6 +161,7 @@ function tabBadge(t: Tab, p: Program): string {
 function MetaTab({ program, onSaved, saving, setSaving }: {
   program: Program; onSaved: (p: Program) => void; saving: boolean; setSaving: (v: boolean) => void;
 }) {
+  const t = useT();
   const [form, setForm] = useState<Partial<Program>>({
     title: program.title,
     title_uz: program.title_uz || '',
@@ -180,35 +189,35 @@ function MetaTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="space-y-4 max-w-2xl">
       <div className="grid grid-cols-2 gap-4">
-        <FieldText label="Название (RU)" value={form.title || ''} onChange={(title) => setForm({ ...form, title })} />
-        <FieldText label="Название (UZ)" value={form.title_uz || ''} onChange={(title_uz) => setForm({ ...form, title_uz })} />
+        <FieldText label={t('offlinePrograms.form.titleRu')} value={form.title || ''} onChange={(title) => setForm({ ...form, title })} />
+        <FieldText label={t('offlinePrograms.form.titleUz')} value={form.title_uz || ''} onChange={(title_uz) => setForm({ ...form, title_uz })} />
       </div>
-      <FieldTextArea label="Описание (RU)" value={form.description || ''} onChange={(description) => setForm({ ...form, description })} />
-      <FieldTextArea label="Описание (UZ)" value={form.description_uz || ''} onChange={(description_uz) => setForm({ ...form, description_uz })} />
+      <FieldTextArea label={t('offlineEdit.descRu')} value={form.description || ''} onChange={(description) => setForm({ ...form, description })} />
+      <FieldTextArea label={t('offlineEdit.descUz')} value={form.description_uz || ''} onChange={(description_uz) => setForm({ ...form, description_uz })} />
       <div className="grid grid-cols-3 gap-4">
-        <FieldNumber label="Длительность (мин)" value={form.duration_minutes ?? 90} onChange={(v) => setForm({ ...form, duration_minutes: v })} />
-        <FieldNumber label="Кол-во вопросов" value={form.num_questions ?? 8} onChange={(v) => setForm({ ...form, num_questions: v })} />
-        <FieldNumber label="Макс. балл" value={form.max_score ?? 24} onChange={(v) => setForm({ ...form, max_score: v })} />
+        <FieldNumber label={t('offlinePrograms.form.duration')} value={form.duration_minutes ?? 90} onChange={(v) => setForm({ ...form, duration_minutes: v })} />
+        <FieldNumber label={t('offlinePrograms.form.numQuestions')} value={form.num_questions ?? 8} onChange={(v) => setForm({ ...form, num_questions: v })} />
+        <FieldNumber label={t('offlinePrograms.form.maxScore')} value={form.max_score ?? 24} onChange={(v) => setForm({ ...form, max_score: v })} />
       </div>
       <div className="grid grid-cols-3 gap-4">
-        <FieldText label="Иконка" value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} placeholder="🎯" />
-        <FieldText label="Цвет темы" value={form.theme_color || ''} onChange={(theme_color) => setForm({ ...form, theme_color })} placeholder="#c9a961" />
+        <FieldText label={t('offlinePrograms.form.icon')} value={form.icon || ''} onChange={(icon) => setForm({ ...form, icon })} placeholder="🎯" />
+        <FieldText label={t('offlineEdit.themeColor')} value={form.theme_color || ''} onChange={(theme_color) => setForm({ ...form, theme_color })} placeholder="#c9a961" />
         <div>
-          <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Целевая роль</label>
+          <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlinePrograms.form.targetRole')}</label>
           <select className="w-full px-3 py-2 rounded-lg text-sm"
             value={form.target_role}
             onChange={(e) => setForm({ ...form, target_role: e.target.value })}>
-            <option value="sales_rep">Торговый представитель</option>
-            <option value="supervisor">Супервайзер</option>
-            <option value="regional_manager">Региональный менеджер</option>
-            <option value="all">Все роли</option>
+            <option value="sales_rep">{t('offlineEdit.roles.sales_rep')}</option>
+            <option value="supervisor">{t('roles.supervisor')}</option>
+            <option value="regional_manager">{t('offlineEdit.roles.regional_manager')}</option>
+            <option value="all">{t('offlineEdit.roles.all')}</option>
           </select>
         </div>
       </div>
       <button onClick={save} disabled={saving}
         className="px-6 py-2 rounded-lg disabled:opacity-40"
         style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
-        {saving ? 'Сохранение...' : 'Сохранить'}
+        {saving ? t('offlineEdit.saving') : t('common.save')}
       </button>
     </div>
   );
@@ -221,6 +230,7 @@ function MetaTab({ program, onSaved, saving, setSaving }: {
 function SlidesTab({ program, onSaved, saving, setSaving }: {
   program: Program; onSaved: (slides: Slide[]) => void; saving: boolean; setSaving: (v: boolean) => void;
 }) {
+  const t = useT();
   const [slides, setSlides] = useState<Slide[]>(program.slides || []);
   const [activeIdx, setActiveIdx] = useState(0);
   const [previewLang, setPreviewLang] = useState<'ru' | 'uz'>('ru');
@@ -240,7 +250,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
   };
 
   const removeSlide = (idx: number) => {
-    if (!confirm('Удалить слайд?')) return;
+    if (!confirm(t('offlineEdit.confirmDeleteSlide'))) return;
     const next = slides.filter((_, i) => i !== idx).map((s, i) => ({ ...s, order_index: i }));
     setSlides(next);
     setActiveIdx(Math.min(activeIdx, next.length - 1));
@@ -305,8 +315,8 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
       {/* Left: slide list */}
       <div className="col-span-3 rounded-xl p-3 max-h-[70vh] overflow-y-auto" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
         <div className="flex justify-between items-center mb-3">
-          <span className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>Слайды</span>
-          <button onClick={addSlide} className="text-sm px-2 py-1 bg-amber-500 text-white rounded">+ Добавить</button>
+          <span className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>{t('offlineEdit.tabs.slides')}</span>
+          <button onClick={addSlide} className="text-sm px-2 py-1 bg-amber-500 text-white rounded">{t('offlineEdit.addSlide')}</button>
         </div>
         {slides.map((s, i) => (
           <div key={i} className="flex items-center gap-1 mb-1 px-2 py-2 rounded-lg cursor-pointer"
@@ -324,7 +334,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
         <button onClick={save} disabled={saving}
           className="w-full mt-3 px-3 py-2 rounded-lg text-sm disabled:opacity-40"
           style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
-          {saving ? 'Сохранение...' : 'Сохранить все слайды'}
+          {saving ? t('offlineEdit.saving') : t('offlineEdit.saveAllSlides')}
         </button>
       </div>
 
@@ -334,15 +344,15 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
           <>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <div>
-                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Тип слайда</label>
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.slideType')}</label>
                 <select className="w-full px-3 py-2 rounded-lg text-sm"
                   value={active.slide_type}
                   onChange={(e) => updateActive({ slide_type: e.target.value as SlideType })}>
-                  {SLIDE_TYPES.map((t) => <option key={t.v} value={t.v}>{t.t}</option>)}
+                  {SLIDE_TYPES.map((st) => <option key={st.v} value={st.v}>{t(st.labelKey)}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Стиль фона (CSS)</label>
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.bgStyle')}</label>
                 <input className="w-full px-3 py-2 rounded-lg text-sm"
                   value={active.bg_style || ''}
                   onChange={(e) => updateActive({ bg_style: e.target.value })}
@@ -364,13 +374,13 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
               ))}
 
               <div className="mt-2 pt-3" style={{ borderTop: '1px solid var(--border)' }}>
-                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>Добавить блок:</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.addBlockLabel')}</div>
                 <div className="flex flex-wrap gap-2">
                   {BLOCK_TYPES.map((b) => (
                     <button key={b.v} onClick={() => addBlock(b.v)}
                       className="text-sm px-3 py-1.5 rounded hover:border-amber-400"
                       style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                      {b.icon} {b.t}
+                      {b.icon} {t(b.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -378,14 +388,14 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
             </div>
           </>
         ) : (
-          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Выберите или добавьте слайд</div>
+          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.selectOrAddSlide')}</div>
         )}
       </div>
 
       {/* Right: preview */}
       <div className="col-span-4">
         <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Превью</span>
+          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.preview')}</span>
           <div className="flex gap-1 rounded p-0.5" style={{ background: 'var(--bg-elevated)' }}>
             {(['ru', 'uz'] as const).map((l) => (
               <button key={l} onClick={() => setPreviewLang(l)}
@@ -404,7 +414,7 @@ function SlidesTab({ program, onSaved, saving, setSaving }: {
             <BlockRenderer key={i} block={b} lang={previewLang} size="preview" />
           ))}
           {active && active.blocks.length === 0 && (
-            <div className="text-center py-12 text-sm" style={{ color: 'var(--text-muted)' }}>Нет блоков. Добавьте слева.</div>
+            <div className="text-center py-12 text-sm" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.noBlocks')}</div>
           )}
         </div>
       </div>
@@ -425,6 +435,7 @@ function slideShortLabel(s: Slide): string {
 function QuestionsTab({ program, onSaved, saving, setSaving }: {
   program: Program; onSaved: (qs: Question[]) => void; saving: boolean; setSaving: (v: boolean) => void;
 }) {
+  const t = useT();
   const [questions, setQuestions] = useState<Question[]>(program.questions || []);
   const categories = program.categories || [];
 
@@ -455,7 +466,7 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
   };
 
   const remove = (idx: number) => {
-    if (!confirm('Удалить вопрос?')) return;
+    if (!confirm(t('offlineEdit.confirmDeleteQuestion'))) return;
     setQuestions(questions.filter((_, i) => i !== idx).map((q, i) => ({ ...q, order_index: i })));
   };
 
@@ -473,12 +484,12 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="space-y-4">
       <div className="flex justify-between">
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Один тест проходит и в PRE и в POST. {questions.length} из {program.num_questions} в банке.</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('offlineEdit.questionsHint', { count: questions.length, total: program.num_questions })}</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-sm px-3 py-1.5 rounded hover:border-amber-400" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Вопрос</button>
+          <button onClick={add} className="text-sm px-3 py-1.5 rounded hover:border-amber-400" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{t('offlineEdit.addQuestion')}</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
             style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
-            {saving ? 'Сохранение...' : 'Сохранить вопросы'}
+            {saving ? t('offlineEdit.saving') : t('offlineEdit.saveQuestions')}
           </button>
         </div>
       </div>
@@ -487,27 +498,27 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
         {questions.map((q, qi) => (
           <div key={qi} className="rounded-xl p-4" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
             <div className="flex justify-between items-start mb-3">
-              <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>ВОПРОС #{qi + 1}</span>
-              <button onClick={() => remove(qi)} className="text-sm text-red-600">Удалить</button>
+              <span className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.questionN', { n: qi + 1 })}</span>
+              <button onClick={() => remove(qi)} className="text-sm text-red-600">{t('common.actions.delete')}</button>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <FieldTextArea label="Вопрос (RU)" value={q.question} onChange={(question) => update(qi, { ...q, question })} />
-              <FieldTextArea label="Вопрос (UZ)" value={q.question_uz || ''} onChange={(question_uz) => update(qi, { ...q, question_uz })} />
+              <FieldTextArea label={t('offlineEdit.questionRu')} value={q.question} onChange={(question) => update(qi, { ...q, question })} />
+              <FieldTextArea label={t('offlineEdit.questionUz')} value={q.question_uz || ''} onChange={(question_uz) => update(qi, { ...q, question_uz })} />
             </div>
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div>
-                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Категория</label>
+                <label className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.category')}</label>
                 <select className="w-full px-3 py-2 rounded-lg text-sm"
                   value={q.category || ''}
                   onChange={(e) => update(qi, { ...q, category: e.target.value || null })}>
-                  <option value="">— без категории —</option>
+                  <option value="">{t('offlineEdit.noCategory')}</option>
                   {categories.map((c) => <option key={c.code} value={c.code}>{c.label}</option>)}
                 </select>
               </div>
-              <FieldNumber label="Макс. балл" value={q.max_score} onChange={(max_score) => update(qi, { ...q, max_score })} />
+              <FieldNumber label={t('offlinePrograms.form.maxScore')} value={q.max_score} onChange={(max_score) => update(qi, { ...q, max_score })} />
             </div>
             <div className="space-y-2">
-              <span className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>Опции (4 варианта, балл = 0..max)</span>
+              <span className="text-xs font-semibold uppercase" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.optionsHint')}</span>
               {q.options.map((o, oi) => (
                 <div key={oi} className="grid grid-cols-12 gap-2 items-center">
                   <span className="col-span-1 text-xs text-center" style={{ color: 'var(--text-muted)' }}>{String.fromCharCode(65 + oi)}</span>
@@ -534,6 +545,7 @@ function QuestionsTab({ program, onSaved, saving, setSaving }: {
 function CategoriesTab({ program, onSaved, saving, setSaving }: {
   program: Program; onSaved: (cats: Category[]) => void; saving: boolean; setSaving: (v: boolean) => void;
 }) {
+  const t = useT();
   const [cats, setCats] = useState<Category[]>(program.categories || []);
 
   const update = (idx: number, c: Category) => {
@@ -547,7 +559,7 @@ function CategoriesTab({ program, onSaved, saving, setSaving }: {
   }]);
 
   const remove = (idx: number) => {
-    if (!confirm('Удалить категорию?')) return;
+    if (!confirm(t('offlineEdit.confirmDeleteCategory'))) return;
     setCats(cats.filter((_, i) => i !== idx));
   };
 
@@ -565,12 +577,12 @@ function CategoriesTab({ program, onSaved, saving, setSaving }: {
   return (
     <div className="space-y-3">
       <div className="flex justify-between">
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Категории — для радар-диаграммы и breakdown (привязка через `Question.category`)</p>
+        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{t('offlineEdit.categoriesHint')}</p>
         <div className="flex gap-2">
-          <button onClick={add} className="text-sm px-3 py-1.5 rounded" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>+ Категория</button>
+          <button onClick={add} className="text-sm px-3 py-1.5 rounded" style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>{t('offlineEdit.addCategory')}</button>
           <button onClick={save} disabled={saving} className="px-4 py-2 rounded-lg text-sm disabled:opacity-40"
             style={{ background: 'var(--color-rm)', color: 'var(--text-inverse)' }}>
-            {saving ? 'Сохранение...' : 'Сохранить'}
+            {saving ? t('offlineEdit.saving') : t('common.save')}
           </button>
         </div>
       </div>
@@ -579,11 +591,11 @@ function CategoriesTab({ program, onSaved, saving, setSaving }: {
         {cats.map((c, i) => (
           <div key={i} className="grid grid-cols-12 gap-2 items-center rounded-lg p-3" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <input className="col-span-2 px-2 py-1.5 rounded text-sm"
-              value={c.code} onChange={(e) => update(i, { ...c, code: e.target.value })} placeholder="код" />
+              value={c.code} onChange={(e) => update(i, { ...c, code: e.target.value })} placeholder={t('offlineEdit.codePh')} />
             <input className="col-span-3 px-2 py-1.5 rounded text-sm"
-              value={c.label} onChange={(e) => update(i, { ...c, label: e.target.value })} placeholder="Название (RU)" />
+              value={c.label} onChange={(e) => update(i, { ...c, label: e.target.value })} placeholder={t('offlinePrograms.form.titleRu')} />
             <input className="col-span-3 px-2 py-1.5 rounded text-sm"
-              value={c.label_uz || ''} onChange={(e) => update(i, { ...c, label_uz: e.target.value })} placeholder="Название (UZ)" />
+              value={c.label_uz || ''} onChange={(e) => update(i, { ...c, label_uz: e.target.value })} placeholder={t('offlinePrograms.form.titleUz')} />
             <input type="color" className="col-span-1 h-9 rounded"
               value={c.color} onChange={(e) => update(i, { ...c, color: e.target.value })} />
             <input type="number" className="col-span-2 px-2 py-1.5 rounded text-sm"

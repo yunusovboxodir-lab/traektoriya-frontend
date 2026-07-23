@@ -2,6 +2,7 @@
  * Редактор одного блока. Поля RU + UZ для всех текстовых элементов.
  */
 import type { Block, CardItem, NumberedListItem } from '../../../types/offlineProgram';
+import { useT } from '../../../stores/langStore';
 
 interface Props {
   block: Block;
@@ -17,18 +18,19 @@ const inputCls =
 const labelCls = 'text-xs font-semibold uppercase tracking-wide';
 
 export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }: Props) {
+  const t = useT();
   const renderFields = () => {
     switch (block.type) {
       case 'heading_h1':
       case 'heading_h2':
         return (
           <>
-            <TextField label="Заголовок (RU)" value={block.text}
+            <TextField label={t('offlineEdit.headingRu')} value={block.text}
               onChange={(text) => onChange({ ...block, text })} />
-            <TextField label="Заголовок (UZ)" value={block.text_uz || ''}
+            <TextField label={t('offlineEdit.headingUz')} value={block.text_uz || ''}
               onChange={(text_uz) => onChange({ ...block, text_uz })} />
-            <SelectField label="Выравнивание" value={block.align ?? 'left'}
-              options={[{ v: 'left', t: 'Слева' }, { v: 'center', t: 'По центру' }]}
+            <SelectField label={t('offlineEdit.align')} value={block.align ?? 'left'}
+              options={[{ v: 'left', t: t('offlineEdit.alignLeft') }, { v: 'center', t: t('offlineEdit.alignCenter') }]}
               onChange={(align) => onChange({ ...block, align: align as 'left' | 'center' })} />
           </>
         );
@@ -36,9 +38,9 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
       case 'paragraph':
         return (
           <>
-            <TextAreaField label="Текст (RU)" value={block.text}
+            <TextAreaField label={t('offlineEdit.textRu')} value={block.text}
               onChange={(text) => onChange({ ...block, text })} />
-            <TextAreaField label="Текст (UZ)" value={block.text_uz || ''}
+            <TextAreaField label={t('offlineEdit.textUz')} value={block.text_uz || ''}
               onChange={(text_uz) => onChange({ ...block, text_uz })} />
           </>
         );
@@ -46,17 +48,17 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
       case 'callout':
         return (
           <>
-            <SelectField label="Тип" value={block.variant}
+            <SelectField label={t('offlineEdit.calloutType')} value={block.variant}
               options={[
-                { v: 'info', t: 'Инфо (синий)' },
-                { v: 'warning', t: 'Внимание (жёлтый)' },
-                { v: 'success', t: 'Успех (зелёный)' },
-                { v: 'danger', t: 'Опасно (красный)' },
+                { v: 'info', t: t('offlineEdit.calloutInfo') },
+                { v: 'warning', t: t('offlineEdit.calloutWarning') },
+                { v: 'success', t: t('offlineEdit.calloutSuccess') },
+                { v: 'danger', t: t('offlineEdit.calloutDanger') },
               ]}
               onChange={(variant) => onChange({ ...block, variant: variant as 'info' | 'warning' | 'success' | 'danger' })} />
-            <TextAreaField label="Текст (RU)" value={block.text}
+            <TextAreaField label={t('offlineEdit.textRu')} value={block.text}
               onChange={(text) => onChange({ ...block, text })} />
-            <TextAreaField label="Текст (UZ)" value={block.text_uz || ''}
+            <TextAreaField label={t('offlineEdit.textUz')} value={block.text_uz || ''}
               onChange={(text_uz) => onChange({ ...block, text_uz })} />
           </>
         );
@@ -75,30 +77,30 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
 
         return (
           <>
-            <SelectField label="Колонки" value={String(block.columns)}
+            <SelectField label={t('offlineEdit.columns')} value={String(block.columns)}
               options={[{ v: '2', t: '2' }, { v: '3', t: '3' }, { v: '4', t: '4' }]}
               onChange={(v) => setColumns(Number(v) as 2 | 3 | 4)} />
             <div className="space-y-3 mt-3">
               {block.cards.map((card, i) => (
                 <div key={i} className="rounded-lg p-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Карточка #{i + 1}</span>
+                    <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.cardN', { n: i + 1 })}</span>
                     <button type="button" onClick={() => removeCard(i)} className="text-xs text-red-600 hover:underline">
-                      Удалить
+                      {t('common.actions.delete')}
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
-                    <TextField label="Иконка" value={card.icon || ''}
+                    <TextField label={t('offlinePrograms.form.icon')} value={card.icon || ''}
                       onChange={(icon) => updateCard(i, { ...card, icon })} placeholder="🎯" />
-                    <TextField label="Цвет акцента" value={card.color || ''}
+                    <TextField label={t('offlineEdit.accentColor')} value={card.color || ''}
                       onChange={(color) => updateCard(i, { ...card, color })} placeholder="#c9a961" />
-                    <TextField label="Заголовок (RU)" value={card.title}
+                    <TextField label={t('offlineEdit.headingRu')} value={card.title}
                       onChange={(title) => updateCard(i, { ...card, title })} />
-                    <TextField label="Заголовок (UZ)" value={card.title_uz || ''}
+                    <TextField label={t('offlineEdit.headingUz')} value={card.title_uz || ''}
                       onChange={(title_uz) => updateCard(i, { ...card, title_uz })} />
-                    <TextAreaField label="Текст (RU)" value={card.body || ''}
+                    <TextAreaField label={t('offlineEdit.textRu')} value={card.body || ''}
                       onChange={(body) => updateCard(i, { ...card, body })} />
-                    <TextAreaField label="Текст (UZ)" value={card.body_uz || ''}
+                    <TextAreaField label={t('offlineEdit.textUz')} value={card.body_uz || ''}
                       onChange={(body_uz) => updateCard(i, { ...card, body_uz })} />
                   </div>
                 </div>
@@ -106,7 +108,7 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
               <button type="button" onClick={addCard}
                 className="w-full py-2 border-2 border-dashed rounded-lg text-sm hover:border-amber-400 hover:text-amber-700"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-                + Добавить карточку
+                {t('offlineEdit.addCard')}
               </button>
             </div>
           </>
@@ -116,11 +118,11 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
       case 'quote':
         return (
           <>
-            <TextAreaField label="Цитата (RU)" value={block.text}
+            <TextAreaField label={t('offlineEdit.quoteRu')} value={block.text}
               onChange={(text) => onChange({ ...block, text })} />
-            <TextAreaField label="Цитата (UZ)" value={block.text_uz || ''}
+            <TextAreaField label={t('offlineEdit.quoteUz')} value={block.text_uz || ''}
               onChange={(text_uz) => onChange({ ...block, text_uz })} />
-            <TextField label="Автор" value={block.author || ''}
+            <TextField label={t('offlineEdit.author')} value={block.author || ''}
               onChange={(author) => onChange({ ...block, author })} />
           </>
         );
@@ -128,9 +130,9 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
       case 'image':
         return (
           <>
-            <TextField label="URL изображения" value={block.url}
+            <TextField label={t('offlineEdit.imageUrl')} value={block.url}
               onChange={(url) => onChange({ ...block, url })} placeholder="https://..." />
-            <TextField label="Подпись" value={block.caption || ''}
+            <TextField label={t('offlineEdit.caption')} value={block.caption || ''}
               onChange={(caption) => onChange({ ...block, caption })} />
           </>
         );
@@ -150,7 +152,7 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
           <>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <TextField label="Левый заголовок" value={block.left_title}
+                <TextField label={t('offlineEdit.leftTitle')} value={block.left_title}
                   onChange={(left_title) => onChange({ ...block, left_title })} />
                 {block.left_items.map((it, i) => (
                   <div key={i} className="flex gap-1 mt-2">
@@ -160,10 +162,10 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
                   </div>
                 ))}
                 <button type="button" className="mt-2 text-xs text-amber-700"
-                  onClick={() => onChange({ ...block, left_items: [...block.left_items, ''] })}>+ Пункт</button>
+                  onClick={() => onChange({ ...block, left_items: [...block.left_items, ''] })}>{t('offlineEdit.addItem')}</button>
               </div>
               <div>
-                <TextField label="Правый заголовок" value={block.right_title}
+                <TextField label={t('offlineEdit.rightTitle')} value={block.right_title}
                   onChange={(right_title) => onChange({ ...block, right_title })} />
                 {block.right_items.map((it, i) => (
                   <div key={i} className="flex gap-1 mt-2">
@@ -173,7 +175,7 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
                   </div>
                 ))}
                 <button type="button" className="mt-2 text-xs text-amber-700"
-                  onClick={() => onChange({ ...block, right_items: [...block.right_items, ''] })}>+ Пункт</button>
+                  onClick={() => onChange({ ...block, right_items: [...block.right_items, ''] })}>{t('offlineEdit.addItem')}</button>
               </div>
             </div>
           </>
@@ -196,19 +198,19 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
             {block.items.map((item, i) => (
               <div key={i} className="rounded-lg p-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)' }}>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Шаг #{i + 1}</span>
+                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>{t('offlineEdit.stepN', { n: i + 1 })}</span>
                   <button type="button" onClick={() => removeItem(i)} className="text-xs text-red-600 hover:underline">
-                    Удалить
+                    {t('common.actions.delete')}
                   </button>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <TextField label="Заголовок (RU)" value={item.title}
+                  <TextField label={t('offlineEdit.headingRu')} value={item.title}
                     onChange={(title) => updateItem(i, { ...item, title })} />
-                  <TextField label="Заголовок (UZ)" value={item.title_uz || ''}
+                  <TextField label={t('offlineEdit.headingUz')} value={item.title_uz || ''}
                     onChange={(title_uz) => updateItem(i, { ...item, title_uz })} />
-                  <TextAreaField label="Текст (RU)" value={item.body || ''}
+                  <TextAreaField label={t('offlineEdit.textRu')} value={item.body || ''}
                     onChange={(body) => updateItem(i, { ...item, body })} />
-                  <TextAreaField label="Текст (UZ)" value={item.body_uz || ''}
+                  <TextAreaField label={t('offlineEdit.textUz')} value={item.body_uz || ''}
                     onChange={(body_uz) => updateItem(i, { ...item, body_uz })} />
                 </div>
               </div>
@@ -216,29 +218,29 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
             <button type="button" onClick={addItem}
               className="w-full py-2 border-2 border-dashed rounded-lg text-sm hover:border-amber-400 hover:text-amber-700"
               style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-              + Добавить шаг
+              {t('offlineEdit.addStep')}
             </button>
           </div>
         );
       }
 
       default:
-        return <div className="text-sm" style={{ color: 'var(--danger)' }}>Неизвестный тип блока</div>;
+        return <div className="text-sm" style={{ color: 'var(--danger)' }}>{t('offlineEdit.unknownBlockType')}</div>;
     }
   };
 
   return (
     <div className="rounded-xl p-4 mb-3" style={{ border: '1px solid var(--border)', background: 'var(--bg-card)' }}>
       <div className="flex justify-between items-center mb-3">
-        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{blockTypeLabel(block.type)}</span>
+        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>{blockTypeLabel(block.type, t)}</span>
         <div className="flex gap-1">
           {onMoveUp && (
-            <button type="button" onClick={onMoveUp} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title="Вверх">↑</button>
+            <button type="button" onClick={onMoveUp} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title={t('offlineEdit.moveUp')}>↑</button>
           )}
           {onMoveDown && (
-            <button type="button" onClick={onMoveDown} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title="Вниз">↓</button>
+            <button type="button" onClick={onMoveDown} className="px-2 hover:opacity-80" style={{ color: 'var(--text-muted)' }} title={t('offlineEdit.moveDown')}>↓</button>
           )}
-          <button type="button" onClick={onRemove} className="px-2" style={{ color: 'var(--danger)' }} title="Удалить">X</button>
+          <button type="button" onClick={onRemove} className="px-2" style={{ color: 'var(--danger)' }} title={t('common.actions.delete')}>X</button>
         </div>
       </div>
       <div className="space-y-2">{renderFields()}</div>
@@ -246,23 +248,25 @@ export function BlockEditor({ block, onChange, onRemove, onMoveUp, onMoveDown }:
   );
 }
 
-function blockTypeLabel(type: Block['type']): string {
-  const labels: Partial<Record<Block['type'], string>> = {
-    heading_h1: 'Заголовок H1',
-    heading_h2: 'Заголовок H2',
-    paragraph: 'Параграф',
-    cards_grid: 'Карточки',
-    quote: 'Цитата',
-    image: 'Изображение',
-    callout: 'Выноска',
-    comparison: 'Сравнение',
-    numbered_list: 'Нумерованный список',
-    divider: 'Разделитель',
-    hero: 'Hero',
-    big_number: 'Большое число',
-    stat_grid: 'Сетка статистики',
+// Метки типов блоков — через ключи словаря + t() (i18n, Кодекс 10_bilingual)
+function blockTypeLabel(type: Block['type'], t: (key: string) => string): string {
+  const labelKeys: Partial<Record<Block['type'], string>> = {
+    heading_h1: 'offlineEdit.blockLabels.heading_h1',
+    heading_h2: 'offlineEdit.blockLabels.heading_h2',
+    paragraph: 'offlineEdit.blockLabels.paragraph',
+    cards_grid: 'offlineEdit.blockLabels.cards_grid',
+    quote: 'offlineEdit.blockLabels.quote',
+    image: 'offlineEdit.blockLabels.image',
+    callout: 'offlineEdit.blockLabels.callout',
+    comparison: 'offlineEdit.blockLabels.comparison',
+    numbered_list: 'offlineEdit.blockLabels.numbered_list',
+    divider: 'offlineEdit.blockLabels.divider',
+    hero: 'offlineEdit.blockLabels.hero',
+    big_number: 'offlineEdit.blockLabels.big_number',
+    stat_grid: 'offlineEdit.blockLabels.stat_grid',
   };
-  return labels[type] || type;
+  const key = labelKeys[type];
+  return key ? t(key) : type;
 }
 
 function TextField({ label, value, onChange, placeholder }: {

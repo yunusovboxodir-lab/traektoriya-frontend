@@ -21,6 +21,64 @@ import { BlockRenderer } from '../components/offline/blocks/BlockRenderer';
 
 const POLL_INTERVAL_MS = 6000;
 
+// Локальный словарь проектора (как в OfflineMobileTestPage): язык переключается
+// кнопками RU/UZ на самой странице (state `lang`), независимо от глобального
+// langStore — тренер показывает слайды залу на нужном языке.
+const I18N = {
+  ru: {
+    brand: "N'MEDOV ACADEMY",
+    codeBadge: 'КОД:',
+    fullscreen: '⛶ Fullscreen',
+    exit: '✕ Выход',
+    noSlides: 'Нет слайдов в программе. Зайдите в редактор и добавьте.',
+    hotkeys: 'Стрелки ← → для навигации • Esc для выхода • F для Fullscreen',
+    sessionCode: 'Код сессии',
+    waitingJoin: 'Ожидаем подключения...',
+    passedPre: 'Прошли PRE',
+    passedPost: 'Прошли POST',
+    avgResult: 'Средний результат:',
+    scanQr: 'Сканируйте QR ↑ и пройдите тест',
+    waitingResults: 'Ожидаем результаты...',
+    participants: 'Участников',
+    avgPct: 'Средний %',
+    best: 'Лучший',
+    distribution: 'Распределение по {n} вопросам',
+    categories: 'Категории',
+    waitingPost: 'Ожидаем POST-результаты...',
+    growthTitle: 'Рост ДО → ПОСЛЕ',
+    avgPre: 'Среднее ДО',
+    avgPost: 'Среднее ПОСЛЕ',
+    growth: 'Рост',
+    name: 'Имя',
+  },
+  uz: {
+    brand: "N'MEDOV ACADEMY",
+    codeBadge: 'KOD:',
+    fullscreen: '⛶ Fullscreen',
+    exit: '✕ Chiqish',
+    noSlides: 'Dasturda slaydlar yoʻq. Muharrirga kirib qoʻshing.',
+    hotkeys: 'Navigatsiya: ← → strelkalar • Chiqish: Esc • Fullscreen: F',
+    sessionCode: 'Sessiya kodi',
+    waitingJoin: 'Ulanishni kutmoqdamiz...',
+    passedPre: 'PRE topshirganlar',
+    passedPost: 'POST topshirganlar',
+    avgResult: 'Oʻrtacha natija:',
+    scanQr: 'QR ↑ ni skanerlab, testdan oʻting',
+    waitingResults: 'Natijalarni kutmoqdamiz...',
+    participants: 'Ishtirokchilar',
+    avgPct: 'Oʻrtacha %',
+    best: 'Eng yaxshi',
+    distribution: '{n} ta savol boʻyicha taqsimot',
+    categories: 'Kategoriyalar',
+    waitingPost: 'POST natijalarini kutmoqdamiz...',
+    growthTitle: 'Oʻsish: OLDIN → KEYIN',
+    avgPre: 'Oʻrtacha OLDIN',
+    avgPost: 'Oʻrtacha KEYIN',
+    growth: 'Oʻsish',
+    name: 'Ism',
+  },
+};
+
 export function OfflineSessionPresenterPage() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
@@ -117,6 +175,8 @@ export function OfflineSessionPresenterPage() {
 
   const exitPresenter = () => navigate('/activities');
 
+  const tt = I18N[lang];
+
   if (error) return <div className="p-8 min-h-screen" style={{ color: '#FCA5A5', background: '#0D0F14' }}>{error}</div>;
   if (!session) {
     return (
@@ -147,13 +207,13 @@ export function OfflineSessionPresenterPage() {
           style={{ color: '#9CA3AF', letterSpacing: '0.2em' }}
           className="text-xs font-semibold uppercase"
         >
-          N'MEDOV ACADEMY • <span style={{ color: '#C8A84B' }}>{program?.code.toUpperCase() || session.program}</span>
+          {tt.brand} • <span style={{ color: '#C8A84B' }}>{program?.code.toUpperCase() || session.program}</span>
           {qrPayload && (
             <span
               style={{ background: '#C8A84B', color: '#0D0F14' }}
               className="ml-3 px-2 py-0.5 rounded font-bold"
             >
-              КОД: {qrPayload.access_code}
+              {tt.codeBadge} {qrPayload.access_code}
             </span>
           )}
         </div>
@@ -177,14 +237,14 @@ export function OfflineSessionPresenterPage() {
             style={{ background: 'rgba(26,31,46,0.7)', border: '1px solid #252B3B', color: '#E8EAF0' }}
             className="text-xs px-3 py-1.5 rounded-lg"
           >
-            ⛶ Fullscreen
+            {tt.fullscreen}
           </button>
           <button
             onClick={exitPresenter}
             style={{ background: 'rgba(26,31,46,0.7)', border: '1px solid #252B3B', color: '#E8EAF0' }}
             className="text-xs px-3 py-1.5 rounded-lg"
           >
-            ✕ Выход
+            {tt.exit}
           </button>
         </div>
       </div>
@@ -193,7 +253,7 @@ export function OfflineSessionPresenterPage() {
       <div className="px-12 pt-20 pb-24 min-h-screen flex flex-col justify-center">
         {!currentSlide ? (
           <div style={{ color: '#9CA3AF' }} className="text-center text-2xl">
-            Нет слайдов в программе. Зайдите в редактор и добавьте.
+            {tt.noSlides}
           </div>
         ) : (
           <SlideRenderer
@@ -213,7 +273,7 @@ export function OfflineSessionPresenterPage() {
         className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-3 z-10"
       >
         <div style={{ color: '#6B7280' }} className="text-xs">
-          Стрелки ← → для навигации • Esc для выхода • F для Fullscreen
+          {tt.hotkeys}
         </div>
         <div className="flex items-center gap-4">
           <button onClick={goPrev} disabled={slideIdx === 0}
@@ -249,6 +309,7 @@ interface SlideRendererProps {
 }
 
 function SlideRenderer({ slide, lang, dashboard, qrPayload, categories, numQuestions }: SlideRendererProps) {
+  const tt = I18N[lang];
   // Спец-слайды — отдельный рендер с дополнительными виджетами поверх блоков
   switch (slide.slide_type) {
     case 'dashboard_pre':
@@ -264,14 +325,14 @@ function SlideRenderer({ slide, lang, dashboard, qrPayload, categories, numQuest
               <div className="mt-6 p-6 bg-white rounded-2xl shadow-lg inline-block">
                 <QRCodeSVG value={qrPayload.mobile_url.replace(/\/m\/[^/]+\/[^/]+$/, `/m/${qrPayload.access_code}/${phase}`)} size={280} />
                 <div className="mt-3 text-center">
-                  <div className="text-xs text-stone-500 uppercase tracking-wider">Код сессии</div>
+                  <div className="text-xs text-stone-500 uppercase tracking-wider">{tt.sessionCode}</div>
                   <div className="text-3xl font-bold text-stone-800 tracking-widest">{qrPayload.access_code}</div>
                 </div>
               </div>
             )}
           </div>
           {/* Right — live participants */}
-          <ParticipantsLiveList agg={agg} phase={phase} />
+          <ParticipantsLiveList agg={agg} phase={phase} lang={lang} />
         </div>
       );
     }
@@ -295,25 +356,27 @@ function SlideRenderer({ slide, lang, dashboard, qrPayload, categories, numQuest
 // LIVE PARTICIPANTS (для dashboard_pre / dashboard_post)
 // ===========================================================================
 
-function ParticipantsLiveList({ agg, phase }: {
+function ParticipantsLiveList({ agg, phase, lang }: {
   agg: { count: number; participants: Array<{ name: string; pct: number }>; avgPercent: number } | null | undefined;
   phase: 'pre' | 'post';
+  lang: 'ru' | 'uz';
 }) {
-  if (!agg) return <div className="text-stone-400 text-center">Ожидаем подключения...</div>;
+  const tt = I18N[lang];
+  if (!agg) return <div className="text-stone-400 text-center">{tt.waitingJoin}</div>;
   return (
     <div className="bg-white/90 border border-stone-200 rounded-2xl p-6 max-h-[60vh] overflow-y-auto">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-2xl text-stone-800">
-          {phase === 'pre' ? 'Прошли PRE' : 'Прошли POST'}
+          {phase === 'pre' ? tt.passedPre : tt.passedPost}
         </h3>
         <span className="text-3xl font-serif text-amber-700">{agg.count}</span>
       </div>
       <div className="text-sm text-stone-500 mb-3">
-        Средний результат: <strong className="text-stone-800">{agg.avgPercent}%</strong>
+        {tt.avgResult} <strong className="text-stone-800">{agg.avgPercent}%</strong>
       </div>
       <div className="space-y-1">
         {agg.participants.length === 0 && (
-          <div className="text-stone-400 text-center py-8">Сканируйте QR ↑ и пройдите тест</div>
+          <div className="text-stone-400 text-center py-8">{tt.scanQr}</div>
         )}
         {agg.participants.map((p, i) => (
           <div key={i} className="flex justify-between items-center py-2 border-b border-stone-100">
@@ -337,21 +400,22 @@ function ResultBreakdown({ dashboard, phase, categories, numQuestions, lang }: {
   numQuestions: number;
   lang: 'ru' | 'uz';
 }) {
+  const tt = I18N[lang];
   const agg = phase === 'pre' ? dashboard?.pre : dashboard?.post;
   if (!agg || agg.count === 0) {
-    return <div className="text-stone-400 text-center text-2xl py-20">Ожидаем результаты...</div>;
+    return <div className="text-stone-400 text-center text-2xl py-20">{tt.waitingResults}</div>;
   }
 
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-3 gap-6">
-        <BigStat title="Участников" value={String(agg.count)} />
-        <BigStat title="Средний %" value={`${agg.avgPercent}%`} highlight />
-        <BigStat title="Лучший" value={`${Math.max(...agg.scores, 0)}%`} />
+        <BigStat title={tt.participants} value={String(agg.count)} />
+        <BigStat title={tt.avgPct} value={`${agg.avgPercent}%`} highlight />
+        <BigStat title={tt.best} value={`${Math.max(...agg.scores, 0)}%`} />
       </div>
 
       <div>
-        <h3 className="font-serif text-3xl text-stone-800 mb-4">Распределение по {numQuestions} вопросам</h3>
+        <h3 className="font-serif text-3xl text-stone-800 mb-4">{tt.distribution.replace('{n}', String(numQuestions))}</h3>
         <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
           {agg.questionStats.slice(0, numQuestions).map((qs) => (
             <div key={qs.q} className="bg-white rounded-xl border border-stone-200 p-3 text-center">
@@ -366,7 +430,7 @@ function ResultBreakdown({ dashboard, phase, categories, numQuestions, lang }: {
 
       {categories.length > 0 && (
         <div>
-          <h3 className="font-serif text-2xl text-stone-800 mb-3">Категории</h3>
+          <h3 className="font-serif text-2xl text-stone-800 mb-3">{tt.categories}</h3>
           <div className="flex flex-wrap gap-2">
             {categories.map((c) => (
               <span key={c.code} className="px-3 py-1.5 rounded-full text-sm font-bold text-white"
@@ -394,26 +458,27 @@ function BigStat({ title, value, highlight }: { title: string; value: string; hi
 // GROWTH DASHBOARD
 // ===========================================================================
 
-function GrowthDashboard({ dashboard, lang: _lang }: { dashboard: SessionDashboard | null; lang: 'ru' | 'uz' }) {
+function GrowthDashboard({ dashboard, lang }: { dashboard: SessionDashboard | null; lang: 'ru' | 'uz' }) {
+  const tt = I18N[lang];
   const g = dashboard?.growth;
   if (!g || g.matched === 0) {
-    return <div className="text-stone-400 text-center text-2xl py-20">Ожидаем POST-результаты...</div>;
+    return <div className="text-stone-400 text-center text-2xl py-20">{tt.waitingPost}</div>;
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-5xl font-serif text-center text-stone-800">Рост ДО → ПОСЛЕ</h2>
+      <h2 className="text-5xl font-serif text-center text-stone-800">{tt.growthTitle}</h2>
       <div className="grid grid-cols-3 gap-6">
-        <BigStat title="Среднее ДО" value={`${g.avgPre}%`} />
-        <BigStat title="Среднее ПОСЛЕ" value={`${g.avgPost}%`} highlight />
-        <BigStat title="Рост" value={`+${g.avgDelta}%`} />
+        <BigStat title={tt.avgPre} value={`${g.avgPre}%`} />
+        <BigStat title={tt.avgPost} value={`${g.avgPost}%`} highlight />
+        <BigStat title={tt.growth} value={`+${g.avgDelta}%`} />
       </div>
 
       <div className="bg-white rounded-2xl border border-stone-200 max-h-[50vh] overflow-y-auto">
         <table className="w-full text-base">
           <thead className="bg-stone-50 sticky top-0">
             <tr>
-              <th className="p-3 text-left font-semibold text-stone-600">Имя</th>
+              <th className="p-3 text-left font-semibold text-stone-600">{tt.name}</th>
               <th className="p-3 text-center font-semibold text-stone-600">PRE</th>
               <th className="p-3 text-center font-semibold text-stone-600">POST</th>
               <th className="p-3 text-center font-semibold text-stone-600">Δ</th>
