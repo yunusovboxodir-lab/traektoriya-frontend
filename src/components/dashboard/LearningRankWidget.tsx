@@ -20,29 +20,17 @@ import { useAuthStore } from '../../stores/authStore';
 import { useT } from '../../stores/langStore';
 import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
 
-// Период-кнопки
-const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string; short: string }> = [
-  { value: 'month',     label: 'Месяц',     short: '30 дн' },
-  { value: 'quarter',   label: 'Квартал',   short: '90 дн' },
-  { value: 'half_year', label: 'Полгода',   short: '180 дн' },
-  { value: 'year',      label: 'Год',       short: '365 дн' },
-];
-
-// Роли для админ-селектора
-const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
-  { value: 'regional_manager', label: 'РМ',  icon: '👔' },
-  { value: 'supervisor',       label: 'СВ',  icon: '🤝' },
-  { value: 'sales_rep',        label: 'ТП',  icon: '🛒' },
-];
+// Период-кнопки (инициализируются в компоненте с t)
+// Роли для админ-селектора (инициализируются в компоненте с t)
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
 // Строка контекста «регион · дилер · СВ Имя» — пропускаем пустые части
-function orgLine(entry: LeaderboardEntry): string {
+function orgLine(entry: LeaderboardEntry, t: ReturnType<typeof useT>): string {
   const parts: string[] = [];
   if (entry.region) parts.push(entry.region);
   if (entry.dealer_name) parts.push(entry.dealer_name);
-  if (entry.supervisor_name) parts.push(`СВ ${entry.supervisor_name}`);
+  if (entry.supervisor_name) parts.push(`${t('common.roles.abbreviations.sv')} ${entry.supervisor_name}`);
   return parts.join(' · ');
 }
 
@@ -70,6 +58,19 @@ export function LearningRankWidget() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
   const isAdmin = !!user?.role && ADMIN_ROLES.includes(user.role);
+
+  const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string; short: string }> = [
+    { value: 'month',     label: t('analytics.periodMonth'),     short: t('dashboard.leaderboard.days30') },
+    { value: 'quarter',   label: t('analytics.periodQuarter'),   short: t('dashboard.leaderboard.days90') },
+    { value: 'half_year', label: t('dashboard.leaderboard.halfYear'), short: t('dashboard.leaderboard.days180') },
+    { value: 'year',      label: t('dashboard.leaderboard.year'), short: t('dashboard.leaderboard.days365') },
+  ];
+
+  const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
+    { value: 'regional_manager', label: t('common.roles.abbreviations.rm'),  icon: '👔' },
+    { value: 'supervisor',       label: t('common.roles.abbreviations.sv'),  icon: '🤝' },
+    { value: 'sales_rep',        label: t('common.roles.abbreviations.tp'),  icon: '🛒' },
+  ];
 
   // Shared filters (синхронизировано с Activity и Pulse)
   const role = useDashboardFilters((s) => s.role);
@@ -193,12 +194,12 @@ export function LearningRankWidget() {
               style={{ fontFamily: "'Unbounded',sans-serif", color: 'var(--text-primary)' }}
             >
               <span className="text-2xl">🏆</span>
-              {t('dashboard.leaderboard.title') || 'Лига Чемпионов'}
+              {t('dashboard.leaderboard.title')}
             </h2>
             {/* Шпаргалка — всегда видимая строка «как считается рейтинг» под заголовком.
                 Кодекс 01c §3 п.9: формула = содержимое, читают → text-sm (14px). */}
             <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
-              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>Рейтинг обучения:</span>{' '}
+              <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('dashboard.leaderboard.ratingFormula')}:</span>{' '}
               <span className="font-semibold" style={{ color: 'var(--success)' }}>{fLearning}</span>
               {' + '}
               <span className="font-semibold" style={{ color: 'var(--warning)' }}>{fActivity}</span>
@@ -211,7 +212,7 @@ export function LearningRankWidget() {
             className="text-sm font-medium transition-colors"
             style={{ color: 'var(--color-rm)' }}
           >
-            {t('dashboard.leaderboard.goToLearning') || 'К обучению'} →
+            {t('dashboard.leaderboard.goToLearning')} →
           </Link>
         </div>
 
@@ -234,7 +235,7 @@ export function LearningRankWidget() {
                       : ''
                   }`}
                   style={selectedRole !== r.value ? { color: 'var(--text-secondary)' } : undefined}
-                  title={`Рейтинг ${r.label}`}
+                  title={t('dashboard.leaderboard.ratingFor', { role: r.label })}
                 >
                   <span className="mr-1">{r.icon}</span>
                   {r.label}
@@ -269,7 +270,7 @@ export function LearningRankWidget() {
           {/* Контекст текущего выбора — было text-[11px] → 12px (text-xs) */}
           <div className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>
             {data.formula?.period_days && (
-              <>За последние <strong style={{ color: 'var(--text-secondary)' }}>{data.formula.period_days}</strong> дней</>
+              <>{t('dashboard.leaderboard.lastNDays')} <strong style={{ color: 'var(--text-secondary)' }}>{data.formula.period_days}</strong> {t('dashboard.leaderboard.daysFull')}</>
             )}
           </div>
         </div>
@@ -281,7 +282,7 @@ export function LearningRankWidget() {
           <div className="grid grid-cols-3 items-end gap-3 mb-4" style={{ minHeight: 200 }}>
             {/* 2 место — слева, средняя высота */}
             <div className="flex flex-col items-center gap-2">
-              {second && <PodiumPlayer entry={second} medal="silver" levelName={levelName} />}
+              {second && <PodiumPlayer entry={second} medal="silver" levelName={levelName} t={t} />}
               <div
                 className="w-full rounded-t-xl flex items-center justify-center font-bold"
                 style={{
@@ -300,7 +301,7 @@ export function LearningRankWidget() {
 
             {/* 1 место — центр, выше всех */}
             <div className="flex flex-col items-center gap-2">
-              {first && <PodiumPlayer entry={first} medal="gold" levelName={levelName} isChampion />}
+              {first && <PodiumPlayer entry={first} medal="gold" levelName={levelName} isChampion t={t} />}
               <div
                 className="w-full rounded-t-xl flex items-center justify-center font-bold relative"
                 style={{
@@ -322,7 +323,7 @@ export function LearningRankWidget() {
 
             {/* 3 место — справа, низкая */}
             <div className="flex flex-col items-center gap-2">
-              {third && <PodiumPlayer entry={third} medal="bronze" levelName={levelName} />}
+              {third && <PodiumPlayer entry={third} medal="bronze" levelName={levelName} t={t} />}
               <div
                 className="w-full rounded-t-xl flex items-center justify-center font-bold"
                 style={{
@@ -370,10 +371,10 @@ export function LearningRankWidget() {
                 <div>
                   {/* пол читабельности: 11px → text-xs, opacity убран (контраст токеном цвета) */}
                   <p className="text-xs uppercase tracking-widest" style={{ color: 'var(--color-rm)' }}>
-                    Твой ранг
+                    {t('dashboard.leaderboard.yourRank')}
                   </p>
                   <p className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
-                    {my_rank} <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>из {total_in_group}</span>
+                    {my_rank} <span className="text-sm font-normal" style={{ color: 'var(--text-muted)' }}>{t('dashboard.leaderboard.outOf')} {total_in_group}</span>
                   </p>
                 </div>
               </div>
@@ -389,10 +390,10 @@ export function LearningRankWidget() {
                   {levelName(my_progress.current_level)}
                 </span>
                 <div className="mt-1 flex items-center gap-3 text-xs justify-end" style={{ color: 'var(--text-muted)' }}>
-                  <span>Курсов: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.total_courses_completed}</strong></span>
-                  <span>Балл: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.avg_quiz_score}%</strong></span>
+                  <span>{t('dashboard.leaderboard.courses')}: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.total_courses_completed}</strong></span>
+                  <span>{t('dashboard.leaderboard.score')}: <strong style={{ color: 'var(--text-secondary)' }}>{my_progress.avg_quiz_score}%</strong></span>
                   {my_progress.current_streak_days > 0 && (
-                    <span className="text-orange-300">🔥 {my_progress.current_streak_days}д</span>
+                    <span className="text-orange-300">🔥 {my_progress.current_streak_days}{t('dashboard.leaderboard.days')}</span>
                   )}
                 </div>
               </div>
@@ -409,11 +410,11 @@ export function LearningRankWidget() {
             className="mb-3 text-xs font-bold uppercase tracking-widest"
             style={{ color: 'var(--text-muted)' }}
           >
-            Преследователи
+            {t('dashboard.leaderboard.chasers')}
           </p>
           <div className="space-y-1.5">
             {(expanded ? rest : rest.slice(0, 7)).map((entry) => (
-              <LeaderboardRow key={entry.user_id} entry={entry} levelName={levelName} />
+              <LeaderboardRow key={entry.user_id} entry={entry} levelName={levelName} t={t} />
             ))}
           </div>
           {rest.length > 7 && (
@@ -441,11 +442,13 @@ function PodiumPlayer({
   medal,
   levelName,
   isChampion,
+  t,
 }: {
   entry: LeaderboardEntry;
   medal: 'gold' | 'silver' | 'bronze';
   levelName: (lvl: string) => string;
   isChampion?: boolean;
+  t: ReturnType<typeof useT>;
 }) {
   const meta = PODIUM[medal];
   const lvl = LEVEL_COLOR[entry.current_level] || LEVEL_COLOR.trainee;
@@ -484,16 +487,16 @@ function PodiumPlayer({
         title={entry.full_name}
       >
         {entry.full_name || entry.employee_id}
-        {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>★</span>}
+        {entry.is_current_user && <span className="ml-1" style={{ color: 'var(--color-rm)' }}>{'★'}</span>}
       </div>
       {/* Контекст: регион · дилер · СВ — содержимое → text-sm; truncate сохранён */}
-      {orgLine(entry) && (
+      {orgLine(entry, t) && (
         <div
           className="text-sm text-center w-full mt-0.5"
           style={{ color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
-          title={orgLine(entry)}
+          title={orgLine(entry, t)}
         >
-          {orgLine(entry)}
+          {orgLine(entry, t)}
         </div>
       )}
       {/* Уровень — пол читабельности 12px (text-xs) */}
@@ -527,7 +530,7 @@ function PodiumPlayer({
           </>
         ) : (
           <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-            {entry.courses_completed} курс · {entry.avg_quiz_score}%
+            {entry.courses_completed} {t('dashboard.leaderboard.coursesShort')} · {entry.avg_quiz_score}%
           </div>
         )}
       </div>
@@ -538,9 +541,11 @@ function PodiumPlayer({
 function LeaderboardRow({
   entry,
   levelName,
+  t,
 }: {
   entry: LeaderboardEntry;
   levelName: (level: string) => string;
+  t: ReturnType<typeof useT>;
 }) {
   const cfg = LEVEL_COLOR[entry.current_level] || LEVEL_COLOR.trainee;
   const isMe = entry.is_current_user;
@@ -570,11 +575,11 @@ function LeaderboardRow({
         >
           {entry.full_name || entry.employee_id}
           {/* opacity на тексте запрещён — цвет токеном без прозрачности */}
-          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)' }}>(вы)</span>}
+          {isMe && <span className="ml-1 text-xs" style={{ color: 'var(--color-rm)' }}>({t('dashboard.leaderboard.you')})</span>}
         </p>
-        {orgLine(entry) && (
-          <p className="truncate text-sm mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry)}>
-            {orgLine(entry)}
+        {orgLine(entry, levelName.constructor.name === 'Function' ? () => '' : t) && (
+          <p className="truncate text-sm mt-0.5" style={{ color: 'var(--text-muted)' }} title={orgLine(entry, t)}>
+            {orgLine(entry, t)}
           </p>
         )}
         {/* пол читабельности: тир-бейджи 12px (text-xs) */}
@@ -598,7 +603,7 @@ function LeaderboardRow({
             </p>
             {/* пол читабельности: breakdown 12px (text-xs) */}
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              📚{Math.round(entry.learning_score ?? 0)} · 🔥{Math.round(entry.activity_score ?? 0)} · ⏱{Math.round(entry.streak_score ?? 0)}
+              {'📚'}{Math.round(entry.learning_score ?? 0)}{' · 🔥'}{Math.round(entry.activity_score ?? 0)}{' · ⏱'}{Math.round(entry.streak_score ?? 0)}
             </p>
           </>
         ) : (

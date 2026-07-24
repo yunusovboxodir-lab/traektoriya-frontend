@@ -34,12 +34,7 @@ interface ComponentRow {
   isProxy?: boolean;
 }
 
-const COMPONENT_ROWS: ComponentRow[] = [
-  { key: 'sales',     label: 'Продажи',              weight: '40%', isProxy: true  },
-  { key: 'execution', label: 'Полевое исполнение',   weight: '30%', isProxy: false },
-  { key: 'learning',  label: 'Обучение',              weight: '20%', isProxy: false },
-  { key: 'discipline',label: 'Дисциплина',            weight: '10%', isProxy: true  },
-];
+// Строки компонентов инициализируются в компоненте с доступом к t
 
 // ---------------------------------------------------------------------------
 // Sub: одна строка компонента
@@ -52,6 +47,7 @@ function ComponentRow({
   contribution,
   isProxy,
   proxyActive,
+  t,
 }: {
   label: string;
   weight: string;
@@ -59,6 +55,7 @@ function ComponentRow({
   contribution?: number;
   isProxy?: boolean;
   proxyActive?: boolean;
+  t: ReturnType<typeof useT>;
 }) {
   const showProxy = isProxy && proxyActive;
   return (
@@ -81,7 +78,7 @@ function ComponentRow({
                 whiteSpace: 'nowrap',
               }}
             >
-              пред.
+              {t('analytics.report.preliminary')}
             </span>
           )}
         </div>
@@ -123,11 +120,11 @@ function ComponentRow({
 // Fallback view: старые колонки (до Этапа 2)
 // ---------------------------------------------------------------------------
 
-function FallbackView({ record }: { record: KPIRecord }) {
+function FallbackView({ record, t }: { record: KPIRecord; t: ReturnType<typeof useT> }) {
   const legacy = [
-    { label: 'Продажи (прокси)',     value: record.ai_score,  isProxy: true  },
-    { label: 'Обучение',             value: record.lms_score, isProxy: false },
-    { label: 'Исполнение (прокси)',  value: record.crm_score, isProxy: true  },
+    { label: t('analytics.report.salesProxy'),     value: record.ai_score,  isProxy: true  },
+    { label: t('analytics.report.learning'),             value: record.lms_score, isProxy: false },
+    { label: t('analytics.report.executionProxy'),  value: record.crm_score, isProxy: true  },
   ];
   return (
     <>
@@ -142,7 +139,7 @@ function FallbackView({ record }: { record: KPIRecord }) {
           borderRadius: 6,
         }}
       >
-        Детализация по старой формуле (Этап 1). Новый расчёт появится после пересчёта KPI.
+        {t('analytics.report.legacyFormulaNote')}
       </div>
       {legacy.map((row) => (
         <ComponentRow
@@ -152,6 +149,7 @@ function FallbackView({ record }: { record: KPIRecord }) {
           value={row.value}
           isProxy={row.isProxy}
           proxyActive={row.isProxy}
+          t={t}
         />
       ))}
     </>
@@ -200,6 +198,13 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const COMPONENT_ROWS: ComponentRow[] = [
+    { key: 'sales',     label: t('analytics.report.sales'),              weight: '40%', isProxy: true  },
+    { key: 'execution', label: t('analytics.report.execution'),   weight: '30%', isProxy: false },
+    { key: 'learning',  label: t('analytics.report.learning'),              weight: '20%', isProxy: false },
+    { key: 'discipline',label: t('analytics.report.discipline'),            weight: '10%', isProxy: true  },
+  ];
+
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -210,7 +215,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
       .then((res) => setRecord(res.data as KPIRecord))
       .catch((err: unknown) => {
         const e = err as { response?: { data?: { detail?: string } }; message?: string };
-        setError(e.response?.data?.detail || e.message || 'Ошибка загрузки KPI');
+        setError(e.response?.data?.detail || e.message || t('kpi.loadError'));
       })
       .finally(() => setLoading(false));
   }, [period, userId]);
@@ -248,7 +253,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
           color: 'var(--text-muted)',
         }}
       >
-        {t('kpi.noData') || 'Данные KPI ещё не рассчитаны для этого периода.'}
+        {t('kpi.noData')}
       </div>
     );
   }
@@ -280,7 +285,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.02em', textTransform: 'uppercase' }}>
-            KPI периода
+            {t('analytics.report.kpiPeriod')}
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
             {periodLabel}
@@ -303,8 +308,8 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
           </div>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
             {bd?.streak_bonus && bd.streak_bonus > 1
-              ? `+${((bd.streak_bonus - 1) * 100).toFixed(0)}% серия`
-              : 'без серии'}
+              ? `+${((bd.streak_bonus - 1) * 100).toFixed(0)}% ${t('analytics.report.series')}`
+              : t('analytics.report.noSeries')}
           </div>
         </div>
       </div>
@@ -328,6 +333,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
                 contribution={contribution}
                 isProxy={row.isProxy}
                 proxyActive={isProxy}
+                t={t}
               />
             );
           })}
@@ -347,7 +353,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
               }}
             >
               <span style={{ fontSize: 12, color: 'var(--warning, #fbbf24)' }}>
-                Серия: {bd!.streak_days} д.
+                {t('analytics.report.series')}: {bd!.streak_days} {t('common.units.days')}.
               </span>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--warning, #fbbf24)' }}>
                 ×{bd!.streak_bonus.toFixed(3)}
@@ -365,13 +371,13 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
                 lineHeight: 1.5,
               }}
             >
-              <span style={{ color: 'var(--warning, #fbbf24)', marginRight: 4 }}>пред.</span>
-              — предварительные данные (прокси до подключения CRM SalesDoctor).
+              <span style={{ color: 'var(--warning, #fbbf24)', marginRight: 4 }}>{t('analytics.report.preliminary')}</span>
+              — {t('analytics.report.preliminaryDataNote')}
             </div>
           )}
         </>
       ) : (
-        <FallbackView record={record} />
+        <FallbackView record={record} t={t} />
       )}
 
       {/* Формула */}
@@ -386,7 +392,7 @@ export function KPIBreakdownCard({ period, userId }: KPIBreakdownCardProps) {
             letterSpacing: '0.02em',
           }}
         >
-          40% Продажи · 30% Исполнение · 20% Обучение · 10% Дисциплина + streak-бонус
+          {t('analytics.report.formulaComplete')}
         </div>
       )}
     </div>

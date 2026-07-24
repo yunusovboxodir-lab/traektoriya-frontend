@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { kpiApi } from '../../api/kpi';
 import type { KPIBreakdown } from '../../api/kpi';
+import { useT } from '../../stores/langStore';
 import type { OverviewData, LearningMetrics, ProductStats, LeaderboardEntry } from './types';
 
 // ---------------------------------------------------------------------------
@@ -49,12 +50,12 @@ interface PrintReportProps {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const periodLabel = (p: string) => {
+const periodLabel = (p: string, t: ReturnType<typeof useT>) => {
   const map: Record<string, string> = {
-    week: 'Неделя',
-    month: 'Месяц',
-    quarter: 'Квартал',
-    all: 'За всё время',
+    week: t('analytics.periodWeek'),
+    month: t('analytics.periodMonth'),
+    quarter: t('analytics.periodQuarter'),
+    all: t('analytics.periodAll'),
   };
   return map[p] || p;
 };
@@ -67,14 +68,14 @@ const today = () => {
 const pct = (v?: number) => (v != null ? `${Math.round(v)}%` : '—');
 const num = (v?: number) => (v != null ? v.toLocaleString('ru-RU') : '—');
 
-const roleLabel = (r: string) => {
+const roleLabel = (r: string, t: ReturnType<typeof useT>) => {
   const map: Record<string, string> = {
-    superadmin: 'Суперадмин',
-    admin: 'Администратор',
-    commercial_dir: 'Ком. директор',
-    supervisor: 'Супервайзер',
-    sales_rep: 'Торг. представитель',
-    dealer: 'Дилер',
+    superadmin: t('common.roles.superadmin'),
+    admin: t('common.roles.admin'),
+    commercial_dir: t('common.roles.commercialDirector'),
+    supervisor: t('common.roles.supervisor'),
+    sales_rep: t('common.roles.salesRep'),
+    dealer: t('common.roles.dealer'),
   };
   return map[r] || r;
 };
@@ -84,6 +85,7 @@ const roleLabel = (r: string) => {
 // ---------------------------------------------------------------------------
 
 export function PrintReport({ period, overview, learning, productStats, leaderboard: _leaderboard, onClose }: PrintReportProps) {
+  const t = useT();
   const reportRef = useRef<HTMLDivElement>(null);
   const [kpiLeaderboard, setKpiLeaderboard] = useState<KpiEntry[]>([]);
   const [teamRatings, setTeamRatings] = useState<TeamRating[]>([]);
@@ -140,8 +142,8 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
         <div className="no-print sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
           <div className="max-w-[900px] mx-auto px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-lg font-bold text-gray-800">Предпросмотр отчёта</span>
-              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{periodLabel(period)}</span>
+              <span className="text-lg font-bold text-gray-800">{t('analytics.report.preview')}</span>
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{periodLabel(period, t)}</span>
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -151,7 +153,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
                 </svg>
-                Печать / PDF
+                {t('analytics.report.printPdf')}
               </button>
               <button
                 onClick={onClose}
@@ -174,15 +176,15 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
               <div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-teal-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">T</div>
-                  <span className="text-2xl font-bold tracking-tight text-gray-900">Траектория</span>
+                  <span className="text-2xl font-bold tracking-tight text-gray-900">{t('common.platformName')}</span>
                 </div>
-                <p className="text-sm text-gray-500">AI-платформа управления полевым персоналом</p>
+                <p className="text-sm text-gray-500">{t('common.platformDesc')}</p>
               </div>
               <div className="text-right">
-                <div className="text-sm font-semibold text-gray-800">Аналитический отчёт</div>
+                <div className="text-sm font-semibold text-gray-800">{t('analytics.report.analyticalReport')}</div>
                 <div className="text-xs text-gray-500 mt-1">{today()}</div>
                 <div className="mt-2 inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
-                  Период: {periodLabel(period)}
+                  {t('common.period')}: {periodLabel(period, t)}
                 </div>
               </div>
             </div>
@@ -190,10 +192,10 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
             {/* ═══ SUMMARY CARDS ═══ */}
             <div className="grid grid-cols-4 gap-4 mb-8">
               {[
-                { label: 'Сотрудники', value: num(totalUsers), sub: `${num(activeUsers)} активных`, color: 'blue' },
-                { label: 'Задачи', value: num(tasks?.total), sub: `${pct(tasks?.completion_rate)} выполнено`, color: 'emerald' },
-                { label: 'Курсы', value: num(courses?.total), sub: `${pct(courses?.avg_completion_rate)} прохождение`, color: 'purple' },
-                { label: 'Просрочено', value: num(tasks?.overdue), sub: 'задач', color: 'red' },
+                { label: t('analytics.users'), value: num(totalUsers), sub: `${num(activeUsers)} ${t('analytics.report.active')}`, color: 'blue' },
+                { label: t('analytics.tasks'), value: num(tasks?.total), sub: `${pct(tasks?.completion_rate)} ${t('analytics.report.completed')}`, color: 'emerald' },
+                { label: t('analytics.courses'), value: num(courses?.total), sub: `${pct(courses?.avg_completion_rate)} ${t('analytics.report.completion')}`, color: 'purple' },
+                { label: t('analytics.report.overdue'), value: num(tasks?.overdue), sub: t('analytics.tasks'), color: 'red' },
               ].map((card) => (
                 <div key={card.label} className={`rounded-lg border border-gray-200 p-4`}>
                   <div className="text-xs text-gray-500 mb-1">{card.label}</div>
@@ -205,33 +207,33 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
 
             {/* ═══ KPI LEADERBOARD ═══ */}
             {loading ? (
-              <div className="text-center py-8 text-gray-400 text-sm">Загрузка KPI данных...</div>
+              <div className="text-center py-8 text-gray-400 text-sm">{t('analytics.report.loadingKpi')}</div>
             ) : kpiLeaderboard.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
                   <span className="w-1 h-5 bg-blue-600 rounded-full inline-block" />
-                  KPI Лидерборд — Топ {Math.min(kpiLeaderboard.length, 10)}
+                  {t('analytics.leaderboard')} — {t('common.top')} {Math.min(kpiLeaderboard.length, 10)}
                 </h2>
                 {/* Подпись формулы (Scoring v2.0) */}
                 <p className="text-xs text-gray-400 mb-3">
-                  Формула: Продажи 40% + Исполнение 30% + Обучение 20% + Дисциплина 10%
-                  {' '}· <span className="text-amber-500">пред.</span> = предварительно (прокси до CRM)
+                  {t('analytics.report.formula')}
+                  {' '}· <span className="text-amber-500">{t('analytics.report.preliminary')}</span> = {t('analytics.report.preliminaryNote')}
                 </p>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-gray-50 text-left">
                       <th className="py-2 px-3 font-semibold text-gray-600 w-10">#</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600">Сотрудник</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600">Роль</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600">{t('analytics.leaderboard.employee')}</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600">{t('analytics.role')}</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">
-                        Продажи (40%)
-                        <span className="ml-1 text-xs font-normal text-amber-500">пред.</span>
+                        {t('analytics.report.sales')}
+                        <span className="ml-1 text-xs font-normal text-amber-500">{t('analytics.report.preliminary')}</span>
                       </th>
-                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">Исполнение (30%)</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">Обучение (20%)</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">{t('analytics.report.execution')}</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600 text-center">{t('analytics.report.learning')}</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">
-                        Дисциплина (10%)
-                        <span className="ml-1 text-xs font-normal text-amber-500">пред.</span>
+                        {t('analytics.report.discipline')}
+                        <span className="ml-1 text-xs font-normal text-amber-500">{t('analytics.report.preliminary')}</span>
                       </th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-right">KPI</th>
                     </tr>
@@ -251,7 +253,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                             {i === 0 ? '1' : i === 1 ? '2' : i === 2 ? '3' : entry.rank || i + 1}
                           </td>
                           <td className="py-2 px-3 font-medium text-gray-800">{entry.full_name}</td>
-                          <td className="py-2 px-3 text-gray-500">{roleLabel(entry.role)}</td>
+                          <td className="py-2 px-3 text-gray-500">{roleLabel(entry.role, t)}</td>
                           <td className="py-2 px-3 text-center text-gray-700">{Math.round(sales)}</td>
                           <td className="py-2 px-3 text-center text-gray-700">{Math.round(execution)}</td>
                           <td className="py-2 px-3 text-center text-gray-700">{Math.round(learning)}</td>
@@ -274,7 +276,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-1 h-5 bg-emerald-600 rounded-full inline-block" />
-                  Рейтинг команд
+                  {t('analytics.report.teamRatings')}
                 </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {teamRatings.map((team, i) => (
@@ -287,7 +289,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-sm text-gray-800 truncate">{team.team_name}</div>
                         <div className="text-xs text-gray-500">
-                          {team.supervisor_name || '—'} &middot; {team.member_count ?? '?'} чел.
+                          {team.supervisor_name || '—'} &middot; {team.member_count ?? '?'} {t('analytics.report.people')}
                         </div>
                       </div>
                       <div className={`text-lg font-bold ${team.rating >= 80 ? 'text-green-600' : team.rating >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -304,14 +306,14 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-1 h-5 bg-purple-600 rounded-full inline-block" />
-                  Обучение
+                  {t('analytics.report.learning')}
                 </h2>
                 <div className="grid grid-cols-4 gap-3">
                   {[
-                    { label: 'Записано', value: num(learning.total_enrolled) },
-                    { label: 'Завершили', value: num(learning.total_completed ?? learning.courses_completed) },
-                    { label: 'Ср. прохождение', value: pct(learning.avg_completion_rate ?? learning.completion_rate) },
-                    { label: 'Ср. балл', value: learning.average_score != null ? `${Math.round(learning.average_score)}` : '—' },
+                    { label: t('analytics.report.enrolled'), value: num(learning.total_enrolled) },
+                    { label: t('analytics.report.completedPeople'), value: num(learning.total_completed ?? learning.courses_completed) },
+                    { label: t('analytics.report.avgCompletion'), value: pct(learning.avg_completion_rate ?? learning.completion_rate) },
+                    { label: t('analytics.report.avgScore'), value: learning.average_score != null ? `${Math.round(learning.average_score)}` : '—' },
                   ].map((s) => (
                     <div key={s.label} className="bg-purple-50/50 rounded-lg p-3 border border-purple-100">
                       <div className="text-xs text-gray-500">{s.label}</div>
@@ -323,14 +325,14 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                 {/* By territory */}
                 {learning.by_territory && learning.by_territory.length > 0 && (
                   <div className="mt-4">
-                    <div className="text-sm font-medium text-gray-600 mb-2">По территориям</div>
+                    <div className="text-sm font-medium text-gray-600 mb-2">{t('analytics.report.byTerritory')}</div>
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="py-1.5 px-3 text-left font-semibold text-gray-600">Территория</th>
-                          <th className="py-1.5 px-3 text-center font-semibold text-gray-600">Записано</th>
-                          <th className="py-1.5 px-3 text-center font-semibold text-gray-600">Завершено</th>
-                          <th className="py-1.5 px-3 text-right font-semibold text-gray-600">Ср. балл</th>
+                          <th className="py-1.5 px-3 text-left font-semibold text-gray-600">{t('analytics.report.territory')}</th>
+                          <th className="py-1.5 px-3 text-center font-semibold text-gray-600">{t('analytics.report.enrolled')}</th>
+                          <th className="py-1.5 px-3 text-center font-semibold text-gray-600">{t('analytics.report.completedPeople')}</th>
+                          <th className="py-1.5 px-3 text-right font-semibold text-gray-600">{t('analytics.report.avgScore')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -354,13 +356,13 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
                   <span className="w-1 h-5 bg-orange-500 rounded-full inline-block" />
-                  Знание продуктов
+                  {t('analytics.report.productKnowledge')}
                 </h2>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Товаров', value: num(productStats.total_products) },
-                    { label: 'Тестов пройдено', value: num(productStats.test_stats?.total_attempts ?? productStats.tests_completed) },
-                    { label: 'Ср. балл теста', value: productStats.test_stats?.avg_score != null ? `${Math.round(productStats.test_stats.avg_score)}` : num(productStats.average_test_score) },
+                    { label: t('analytics.report.products'), value: num(productStats.total_products) },
+                    { label: t('analytics.report.testsCompleted'), value: num(productStats.test_stats?.total_attempts ?? productStats.tests_completed) },
+                    { label: t('analytics.report.avgTestScore'), value: productStats.test_stats?.avg_score != null ? `${Math.round(productStats.test_stats.avg_score)}` : num(productStats.average_test_score) },
                   ].map((s) => (
                     <div key={s.label} className="bg-orange-50/50 rounded-lg p-3 border border-orange-100">
                       <div className="text-xs text-gray-500">{s.label}</div>
@@ -374,10 +376,10 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
             {/* ═══ FOOTER ═══ */}
             <div className="mt-10 pt-4 border-t border-gray-200 flex justify-between items-center text-xs text-gray-400">
               <div>
-                Траектория AI &middot; N'Medov Distribution &middot; {today()}
+                {t('common.platformName')}{" AI · N'Medov Distribution · "}{today()}
               </div>
               <div>
-                Сгенерировано автоматически &middot; {periodLabel(period)}
+                {t('analytics.report.generatedAuto')} &middot; {periodLabel(period, t)}
               </div>
             </div>
           </div>

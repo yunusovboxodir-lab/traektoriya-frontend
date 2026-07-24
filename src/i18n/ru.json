@@ -201,7 +201,22 @@
         "practitioner": "Практик",
         "expert": "Эксперт",
         "master": "Мастер"
-      }
+      },
+      "days30": "30 дн",
+      "days90": "90 дн",
+      "halfYear": "Полгода",
+      "days180": "180 дн",
+      "year": "Год",
+      "days365": "365 дн",
+      "ratingFor": "Рейтинг {role}",
+      "lastNDays": "За последние {days} дней",
+      "ratingFormula": "Рейтинг обучения",
+      "chasers": "Преследователи",
+      "showAll": "Показать всех ({count})",
+      "collapse": "Свернуть",
+      "outOf": "из",
+      "daysFull": "дней",
+      "coursesShort": "курс"
     },
     "supervisorTeam": {
       "title": "Моя команда",
@@ -761,6 +776,57 @@
       "roiDesc": "Через 30 дней после публикации модуля по категории смотрим: (1) снизилась ли частота этой категории в рефлексиях — Learning Effectiveness; (2) вырос ли связанный бизнес-KPI — Business Impact. Дельта показывает эффективность модуля при N > 30 ТП.",
       "emptyTitle": "Данных об эффективности пока нет",
       "emptyDesc": "Метрики эффективности появятся после публикации модулей и измерения дельты через 30 дней. Нужна минимальная аудитория — 30 ТП."
+    },
+    "allTime": "за всё время",
+    "abbreviations": {
+      "avg": "ср."
+    },
+    "report": {
+      "preview": "Предпросмотр отчёта",
+      "printPdf": "Печать / PDF",
+      "analyticalReport": "Аналитический отчёт",
+      "active": "активных",
+      "completed": "выполнено",
+      "completion": "прохождение",
+      "overdue": "Просрочено",
+      "loadingKpi": "Загрузка KPI данных...",
+      "formula": "Формула: Продажи 40% + Исполнение 30% + Обучение 20% + Дисциплина 10%",
+      "preliminary": "пред.",
+      "preliminaryNote": "предварительно (прокси до CRM)",
+      "sales": "Продажи (40%)",
+      "execution": "Исполнение (30%)",
+      "learning": "Обучение (20%)",
+      "discipline": "Дисциплина (10%)",
+      "teamRatings": "Рейтинг команд",
+      "people": "чел.",
+      "enrolled": "Записано",
+      "completedPeople": "Завершили",
+      "avgCompletion": "Ср. прохождение",
+      "avgScore": "Ср. балл",
+      "byTerritory": "По территориям",
+      "territory": "Территория",
+      "productKnowledge": "Знание продуктов",
+      "products": "Товаров",
+      "testsCompleted": "Тестов пройдено",
+      "avgTestScore": "Ср. балл теста",
+      "generatedAuto": "Сгенерировано автоматически",
+      "kpiPeriod": "KPI периода",
+      "series": "серия",
+      "noSeries": "без серии",
+      "legacyFormulaNote": "Детализация по старой формуле (Этап 1). Новый расчёт появится после пересчёта KPI.",
+      "salesProxy": "Продажи (прокси)",
+      "executionProxy": "Исполнение (прокси)",
+      "preliminaryDataNote": "предварительные данные (прокси до подключения CRM SalesDoctor).",
+      "formulaComplete": "40% Продажи · 30% Исполнение · 20% Обучение · 10% Дисциплина + streak-бонус"
+    },
+    "ovw": {
+      "noActivityNotice": "Метрики активности (прохождения курсов, оценки, закрытые задачи) пока пустые — они наполнятся по мере работы сотрудников на платформе. Это не ошибка раздела.",
+      "byRoles": "По ролям",
+      "brands": "Бренды",
+      "brandKnowledge": "Знание по брендам",
+      "brand": "Бренд",
+      "generalProducts": "Общие (товары)",
+      "topManagement": "Топ-менеджмент"
     }
   },
   "dictionary": {
@@ -1336,6 +1402,28 @@
     "filters": {
       "show": "Фильтры",
       "hide": "Скрыть фильтры"
+    },
+    "platformName": "Траектория",
+    "platformDesc": "AI-платформа управления полевым персоналом",
+    "period": "Период",
+    "top": "Топ",
+    "roles": {
+      "superadmin": "Суперадмин",
+      "admin": "Администратор",
+      "commercialDirector": "Ком. директор",
+      "supervisor": "Супервайзер",
+      "salesRep": "Торг. представитель",
+      "dealer": "Дилер",
+      "regionalManager": "Рег. менеджер",
+      "abbreviations": {
+        "sv": "СВ",
+        "rm": "РМ",
+        "tp": "ТП"
+      }
+    },
+    "units": {
+      "course": "курс",
+      "days": "д."
     }
   },
   "screenshot": {

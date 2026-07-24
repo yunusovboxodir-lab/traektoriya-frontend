@@ -10,31 +10,20 @@ import {
 import type { StatCardDef } from './charts';
 
 // Бейдж «за всё время» — эти блоки не зависят от фильтра периода (см. AnalyticsPage)
-function AllTimeBadge() {
+function AllTimeBadge({ t }: { t: ReturnType<typeof useT> }) {
   return (
     <span
       className="ml-2 align-middle inline-block px-2 py-0.5 rounded text-xs font-medium"
       style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
     >
-      за всё время
+      {t('analytics.allTime')}
     </span>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Constants
+// Constants (moved to component for access to t)
 // ---------------------------------------------------------------------------
-
-const ROLE_LABELS: Record<string, string> = {
-  superadmin: 'Суперадмин',
-  commercial_dir: 'Комм. директор',
-  admin: 'Админ',
-  regional_manager: 'Рег. менеджер',
-  supervisor: 'Супервайзер',
-  sales_rep: 'Торговый пред.',
-  standalone: 'Общие (товары)',
-  top_management: 'Топ-менеджмент',
-};
 
 // ---------------------------------------------------------------------------
 // Helpers to read overview data (nested or flat)
@@ -71,6 +60,17 @@ interface Props {
 
 export function OverviewTab({ overview, learning, productStats, leaderboard }: Props) {
   const t = useT();
+
+  const ROLE_LABELS: Record<string, string> = {
+    superadmin: t('common.roles.superadmin'),
+    commercial_dir: t('common.roles.commercialDirector'),
+    admin: t('common.roles.admin'),
+    regional_manager: t('common.roles.regionalManager'),
+    supervisor: t('common.roles.supervisor'),
+    sales_rep: t('common.roles.salesRep'),
+    standalone: t('analytics.ovw.generalProducts'),
+    top_management: t('analytics.ovw.topManagement'),
+  };
 
   const statCards: StatCardDef[] = [
     {
@@ -166,10 +166,9 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             color: 'var(--text-secondary)',
           }}
         >
-          <span aria-hidden="true">ℹ️</span>
+          <span aria-hidden="true" /* eslint-disable-line i18next/no-literal-string */>ℹ️</span>
           <span>
-            Метрики активности (прохождения курсов, оценки, закрытые задачи) пока пустые —
-            они наполнятся по мере работы сотрудников на платформе. Это не ошибка раздела.
+            {t('analytics.ovw.noActivityNotice')}
           </span>
         </div>
       )}
@@ -266,7 +265,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {/* Learning metrics */}
       {learning && (
         <>
-          <SectionTitle title={<>{t('analytics.learningMetrics')}<AllTimeBadge /></>} />
+          <SectionTitle title={<>{t('analytics.learningMetrics')}<AllTimeBadge t={t} /></>} />
           <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <MetricBar
@@ -322,7 +321,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             {byRole.length > 0 && (
               <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  По ролям
+                  {t('analytics.ovw.byRoles')}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {byRole.map((r) => (
@@ -330,7 +329,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                       <div className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[r.role] ?? r.role}</div>
                       <div className="flex items-baseline gap-3 text-sm">
                         <span style={{ color: 'var(--text-primary)' }}><strong>{r.completed}</strong> / {r.enrolled}</span>
-                        <span style={{ color: 'var(--text-muted)' }}>ср. {r.avg_score}%</span>
+                        <span style={{ color: 'var(--text-muted)' }}>{t('analytics.abbreviations.avg')} {r.avg_score}%</span>
                       </div>
                     </div>
                   ))}
@@ -348,7 +347,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border)' }}>
                         <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.courseName')}</th>
-                        <th className="text-left py-2 pl-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>Роль</th>
+                        <th className="text-left py-2 pl-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.role')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.enrolled')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.completed')}</th>
                       </tr>
@@ -374,7 +373,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
       {/* Product knowledge */}
       {productStats && (
         <>
-          <SectionTitle title={<>{t('analytics.productKnowledge')}<AllTimeBadge /></>} />
+          <SectionTitle title={<>{t('analytics.productKnowledge')}<AllTimeBadge t={t} /></>} />
           <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <MetricValue
@@ -412,7 +411,7 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
               {brandBars.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    Бренды
+                    {t('analytics.ovw.brands')}
                   </h3>
                   <HorizontalBarChart categories={brandBars} />
                 </div>
@@ -422,14 +421,14 @@ export function OverviewTab({ overview, learning, productStats, leaderboard }: P
             {byBrand.length > 0 && (
               <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
                 <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  Знание по брендам
+                  {t('analytics.ovw.brandKnowledge')}
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Бренд</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>Товаров</th>
+                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.ovw.brand')}</th>
+                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.report.products')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.attempts')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.passRate')}</th>
                         <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.avgScore')}</th>

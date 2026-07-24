@@ -201,7 +201,22 @@
         "practitioner": "Amaliyotchi",
         "expert": "Ekspert",
         "master": "Usta"
-      }
+      },
+      "days30": "30 k",
+      "days90": "90 k",
+      "halfYear": "Yarim yil",
+      "days180": "180 k",
+      "year": "Yil",
+      "days365": "365 k",
+      "ratingFor": "{role} reyitingi",
+      "lastNDays": "Soʻnggi {days} kun",
+      "ratingFormula": "Oʻqitish reyitingi",
+      "chasers": "Ergashuvchilar",
+      "showAll": "Hammasini koʻrsatish ({count})",
+      "collapse": "Yigʻish",
+      "outOf": "tadan",
+      "daysFull": "kun",
+      "coursesShort": "kurs"
     },
     "supervisorTeam": {
       "title": "Mening jamoam",
@@ -761,6 +776,57 @@
       "roiDesc": "Modul nashr etilgandan 30 kun oʻtgach: (1) refleksiyalarda ushbu kategoriya chastotasi kamayganmi — Learning Effectiveness; (2) bogʻlangan biznes-KPI oʻsganmi — Business Impact. Delta N > 30 TP da modul samaradorligini koʻrsatadi.",
       "emptyTitle": "Samaradorlik ma'lumotlari hozircha yoʻq",
       "emptyDesc": "Samaradorlik koʻrsatkichlari modullar nashr etilgandan va 30 kundan keyin delta oʻlchangandan soʻng paydo boʻladi. Minimal auditoriya — 30 TP."
+    },
+    "allTime": "hammasi",
+    "abbreviations": {
+      "avg": "oʻrt."
+    },
+    "report": {
+      "preview": "Hisobot koʻrinishi",
+      "printPdf": "PDF sifatida chop etish (Ctrl+P)",
+      "analyticalReport": "Tahliliy hisobot",
+      "active": "faol",
+      "completed": "bajarildi",
+      "completion": "oʻtish",
+      "overdue": "Muddati oʻtgan",
+      "loadingKpi": "KPI maʼlumotlari yuklanmoqda...",
+      "formula": "Formula: Savdo 40% + Ijro 30% + Oʻqitish 20% + Intizom 10%",
+      "preliminary": "vaq.",
+      "preliminaryNote": "vaqtiy (CRM gacha proksi)",
+      "sales": "Savdo (40%)",
+      "execution": "Ijro (30%)",
+      "learning": "Oʻqitish (20%)",
+      "discipline": "Intizom (10%)",
+      "teamRatings": "Jamoa reyitingi",
+      "people": "kishi",
+      "enrolled": "Roʻyxatdan oʻtgan",
+      "completedPeople": "Yakunlangan",
+      "avgCompletion": "Oʻrt. oʻtish",
+      "avgScore": "Oʻrt. ball",
+      "byTerritory": "Hududlar boʻyicha",
+      "territory": "Hudud",
+      "productKnowledge": "Mahsulot bilimi",
+      "products": "Mahsulotlar",
+      "testsCompleted": "Oʻtilgan testlar",
+      "avgTestScore": "Oʻrt. test balli",
+      "generatedAuto": "Avtomatik oʻretilgan",
+      "kpiPeriod": "KPI davri",
+      "series": "seriya",
+      "noSeries": "seriyas",
+      "legacyFormulaNote": "Eski formula boʻyicha tafsilot (1-bosqich). Yangi hisoblash KPI qayta hisoblangandan soʻng paydo boʻladi.",
+      "salesProxy": "Savdo (proksi)",
+      "executionProxy": "Ijro (proksi)",
+      "preliminaryDataNote": "vaqtiy maʼlumotlar (CRM SalesDoctor ulanguniga qadar proksi).",
+      "formulaComplete": "40% Savdo · 30% Ijro · 20% Oʻqitish · 10% Intizom + seriya-bonus"
+    },
+    "ovw": {
+      "noActivityNotice": "Faoliyat koʻrsatkichlari (kurslarni oʻtish, baholar, yakunlangan vazifalar) hozircha boʻsh — xodimlar platformada ishlay boshlagach toʻladi. Bu boʻlim xatosi emas.",
+      "byRoles": "Rollar boʻyicha",
+      "brands": "Brendlar",
+      "brandKnowledge": "Brendlar boʻyicha bilim",
+      "brand": "Brend",
+      "generalProducts": "Umumiy (mahsulotlar)",
+      "topManagement": "Top-menejment"
     }
   },
   "dictionary": {
@@ -1336,6 +1402,28 @@
     "filters": {
       "show": "Filtrlar",
       "hide": "Filtrlarni yashirish"
+    },
+    "platformName": "Traektoriya",
+    "platformDesc": "Dala xodimlarini boshqarish AI-platformasi",
+    "period": "Davr",
+    "top": "Top",
+    "roles": {
+      "superadmin": "Superadmin",
+      "admin": "Administrator",
+      "commercialDirector": "Tijorat direktori",
+      "supervisor": "Supervayzer",
+      "salesRep": "Savdo vakili",
+      "dealer": "Diler",
+      "regionalManager": "Mintaqaviy menejer",
+      "abbreviations": {
+        "sv": "SV",
+        "rm": "RM",
+        "tp": "TP"
+      }
+    },
+    "units": {
+      "course": "kurs",
+      "days": "k."
     }
   },
   "screenshot": {
