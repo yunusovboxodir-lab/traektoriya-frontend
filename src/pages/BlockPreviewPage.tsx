@@ -147,7 +147,7 @@ export function BlockPreviewPage() {
           style={{ color: '#9CA3AF', letterSpacing: '0.2em' }}
           className="text-xs font-semibold uppercase"
         >
-          BLOCK PREVIEW • <span style={{ color: '#C8A84B' }}>{slide.name}</span>
+          {'BLOCK PREVIEW'} • <span style={{ color: '#C8A84B' }}>{slide.name}</span>
         </div>
         <div className="flex gap-2 items-center">
           <div
@@ -185,7 +185,7 @@ export function BlockPreviewPage() {
         className="absolute bottom-0 left-0 right-0 flex justify-between items-center px-6 py-3 z-10"
       >
         <div style={{ color: '#6B7280' }} className="text-xs">
-          ← / → для навигации между слайдами
+          {'← / → для навигации между слайдами'}
         </div>
         <div className="flex items-center gap-4">
           <button

@@ -362,7 +362,7 @@ export function TeamPage() {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
                         <div className="text-center p-3 bg-gray-50 rounded-xl">
                           <div className="text-sm font-bold text-gray-700 truncate">{m.email || '\u2014'}</div>
-                          <div className="text-xs text-gray-500">Email</div>
+                          <div className="text-xs text-gray-500">{'Email'}</div>
                         </div>
                         <div className="text-center p-3 bg-blue-50 rounded-xl">
                           <div className="text-sm font-bold text-blue-700">{new Date(m.created_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU')}</div>

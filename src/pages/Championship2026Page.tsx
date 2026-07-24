@@ -14,7 +14,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLangStore } from '../stores/langStore';
+import { useLangStore, useT } from '../stores/langStore';
 import { useAuthStore } from '../stores/authStore';
 import { StatusBar } from '../components/tactical/StatusBar';
 import { kpiApi, type ChampionshipResponse, type ChampionshipLeader, type ChampionshipImproved } from '../api/kpi';
@@ -110,6 +110,7 @@ function ThCell({ label, align = 'left' }: { label: string; align?: 'left' | 'ce
 
 /** Строка медального пьедестала (топ-3). */
 function PodiumCard({ leader, rank }: { leader: ChampionshipLeader; rank: 1 | 2 | 3 }) {
+  const t = useT();
   const isFirst = rank === 1;
   const medalColor = rankColor(rank);
   const rankLabels = { 1: '1 МЕСТО', 2: '2 МЕСТО', 3: '3 МЕСТО' };
@@ -175,7 +176,7 @@ function PodiumCard({ leader, rank }: { leader: ChampionshipLeader; rank: 1 | 2 
       </div>
       {/* Число — данные: пол 12px + Golos/tabular (Mono <14px на числах запрещён) */}
       <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4, fontFamily: 'var(--font-body)', fontVariantNumeric: 'tabular-nums' }}>
-        {leader.percentile.toFixed(0)}‑й перцентиль
+        {t('championship.percentile', { value: leader.percentile.toFixed(0) })}
       </div>
     </div>
   );

@@ -72,7 +72,9 @@
     "demoAccess": "Demo kirish",
     "tenantSlug": "Tashkilot",
     "tenantSlugPlaceholder": "tashkilot slugi (masalan, acme-corp)",
-    "errorAmbiguousTenant": "Bunday login bir nechta tashkilotda mavjud. Tashkilot slugini kiriting."
+    "errorAmbiguousTenant": "Bunday login bir nechta tashkilotda mavjud. Tashkilot slugini kiriting.",
+    "footerTagline": "Korporativ rivojlanish platformasi",
+    "tagline": "AI · Mikrooʻqitish · Dala amaliyoti"
   },
   "home": {
     "tabOverview": "Umumiy",
@@ -88,7 +90,8 @@
     "tabPulse": "Puls",
     "tabAssessments": "Baholash",
     "tabMatrix": "GAP Matritsasi",
-    "tabProfiles": "Lavozim profillari"
+    "tabProfiles": "Lavozim profillari",
+    "radarClickHint": "Bosing — kurslarni oching"
   },
   "pulse": {
     "overallPulse": "Umumiy puls",
@@ -342,7 +345,18 @@
       "cup_verification": "Kubok tekshiruvi",
       "content_review": "Kontentni tekshirish",
       "content_improvement": "Kontentni yaxshilash"
-    }
+    },
+    "progressLabel": "Progress",
+    "postedBy": "Qoʻygan",
+    "assignee": "Ijrochi",
+    "startDateLabel": "Boshlangi",
+    "completedDateLabel": "Yakunlandi",
+    "tagsLabel": "Teglar",
+    "kpiBonusLabel": "KPI bonus",
+    "deadlineLabel": "Muddat",
+    "estimatedMinutes": "{minutes} min",
+    "kpiBonusValue": "KPI bonus: +{value}%",
+    "timeLabel": "Vaqt"
   },
   "team": {
     "title": "Jamoa",
@@ -453,7 +467,15 @@
       "actions": "Amallar"
     },
     "expecting": "Yana {count} kutilmoqda",
-    "currency": "soʻm"
+    "currency": "soʻm",
+    "deleteConfirmDesc": "Mahsulot faolsizlantiriladi va katalogda koʻrsatilmaydi.",
+    "deleteConfirmTitle": "Mahsulot oʻchirilsinmi?",
+    "deleting": "Oʻchirilmoqda...",
+    "form": {
+      "brandLabel": "Brend",
+      "fullDescriptionLabel": "Toʻliq tavsif",
+      "noBrand": "— Brendsiz —"
+    }
   },
   "learning": {
     "title": "Oʻqitish",
@@ -528,7 +550,8 @@
       "answer": "Javob",
       "remember": "Eslayman",
       "repeat": "Takrorlash"
-    }
+    },
+    "autoMode": "Auto"
   },
   "kpi": {
     "title": "Reyting",
@@ -608,7 +631,8 @@
       "title": "Hozircha reyting ma'lumotlari yoʻq",
       "desc": "Tanlangan davr va rol filtrida natijalar yoʻq. Ma'lumotlarni yangilang yoki boshqa davrni tanlab koʻring.",
       "ctaRefresh": "Yangilash"
-    }
+    },
+    "noData": "Maʼlumot yoʻq"
   },
   "chat": {
     "title": "AI-Maslahatchi",
@@ -827,7 +851,9 @@
       "brand": "Brend",
       "generalProducts": "Umumiy (mahsulotlar)",
       "topManagement": "Top-menejment"
-    }
+    },
+    "reportButton": "Hisobot",
+    "lbEmployee": "Xodim"
   },
   "dictionary": {
     "title": "Oʻzbek lugʻati",
@@ -1001,8 +1027,19 @@
       "toDraft": "Qaralamaga qaytarish",
       "backToGeneration": "Generatsiyaga qaytish",
       "allApproved": "Barcha darslar tasdiqlandi!",
-      "approvedOf": "{approved} / {total} tasdiqlangan"
-    }
+      "approvedOf": "{approved} / {total} tasdiqlangan",
+      "competenciesExtracted": "ta kompetensiya aniqlandi",
+      "estimatedMinutes": "~{minutes} min generatsiya",
+      "groundedRatio": "{grounded}/{total} standartlar bilan",
+      "noCompetencies": "Kompetensiyalar yoʻq",
+      "totalLessonsLabel": "Jami darslar"
+    },
+    "languageRu": "Ruscha",
+    "languageUz": "Oʻzbek",
+    "contentRuWithUz": "Rus tilidagi kontent + oʻzbek tilidagi tarjimalar (title_uz)",
+    "contentOnlyUz": "Barcha kontent faqat oʻzbek tilida",
+    "kanbanTab": "Kanban",
+    "topicWithValue": "Mavzu: «{topic}»"
   },
   "goals": {
     "title": "Maqsadlar va yutuqlar",
@@ -1115,7 +1152,20 @@
     "deselectAll": "Tanlovni bekor qilish",
     "rowActions": {
       "label": "Hujjat bilan amallar"
-    }
+    },
+    "allStatuses": "Barcha statuslar",
+    "sortDateDesc": "Sana ↓",
+    "sortDateAsc": "Sana ↑",
+    "sortNameAz": "Ism A–Yo",
+    "sortNameZa": "Ism Yo–A",
+    "sortSizeDesc": "Hajmi ↓",
+    "sortSizeAsc": "Hajmi ↑",
+    "fileCountLabel": "{count} ta fayl",
+    "uploadFailed": "«{name}» faylini yuklash imkoni boʻlmadi",
+    "reindexFailed": "Hujjatni qayta indekslash imkoni boʻlmadi. Keyinroq urinib koʻring.",
+    "deleteFailed": "Hujjatni oʻchirish imkoni boʻlmadi. Qayta urinib koʻring.",
+    "bulkUpdateFailed": "Hujjatlarni yangilash imkoni boʻlmadi. Qayta urinib koʻring.",
+    "bulkDeleteFailed": "Tanlangan hujjatlarni oʻchirish imkoni boʻlmadi. Qayta urinib koʻring."
   },
   "planogram": {
     "title": "ShelfScan AI",
@@ -1165,7 +1215,24 @@
       "facings": "Feysinglar",
       "price_tags": "Narx belgilari",
       "cleanliness": "Tozalik"
-    }
+    },
+    "taskCompleted": "Vazifa bajarildi! KPI-bonus oʻtkazildi",
+    "taskCompleteFailed": "Vazifa bajarilishda xato",
+    "taskSkipped": "Vazifa oʻtkazib yuborildi — supervayzer bildiriladi",
+    "taskSkipFailed": "Vazifani oʻtkazishda xato",
+    "completeTask": "Bajarish",
+    "skipTask": "Oʻtkazib yuborish",
+    "done": "Tayyor",
+    "skippedLabel": "Oʻtkazib yuborildi",
+    "achievementLine": "{description} — +{points} pts",
+    "estimatedMinutesShort": "~{minutes} min",
+    "estimatedOrderValue": "Taxminiy buyurtma summasi",
+    "itemsCount": "{count} ta pozitsiya",
+    "kpiBonusSuffix": "(+{bonus}% KPI)",
+    "onShelf": "polkada",
+    "progressChange": "{previous}% → {value}%",
+    "recommendedOrderTitle": "Tavsiya etilgan buyurtma",
+    "toOrder": "buyurtma berish"
   },
   "quiz": {
     "notFound": "Test topilmadi",
@@ -1196,7 +1263,30 @@
       "beginner": "Boshlangʻich",
       "intermediate": "Oʻrta",
       "advanced": "Ilgʻor"
-    }
+    },
+    "dragDrop": {
+      "allCorrect": "Hammasi toʻgʻri!",
+      "check": "Tekshirish",
+      "dropHere": "Bu yerga tashlang",
+      "orderHint": "Toʻgʻri tartibda joylashtiring (torting yoki tugmalardan foydalaning)",
+      "tryAgainDefault": "Yana urinib koʻring.",
+      "unknownType": "Nomaʼlum drag & drop turi",
+      "wrong": "Notoʻgʻri.",
+      "zonesHint": "Elementlarni kerakli zonaga torting yoki avval elementni, keyin zonani bosing"
+    },
+    "hotspot": {
+      "allFound": "Barcha muammoli hududlar topildi!",
+      "check": "Tekshirish",
+      "hint": "Rasmda muammoli hududlarni bosing ({total} tadan kamida {min} tasini toping)",
+      "marked": "Belgilangan",
+      "notAllFound": "Barcha hududlar toʻgʻri topilmadi."
+    },
+    "matching": {
+      "hint": "Juftlarni bogʻlash uchun chapdagi elementni, keyin oʻngdagini bosing",
+      "reset": "Tozalash"
+    },
+    "title": "Bilimni tekshirish",
+    "unknownType": "Nomaʼlum savol turi"
   },
   "productDetail": {
     "loadError": "Mahsulotni yuklash imkoni boʻlmadi",
@@ -1370,7 +1460,8 @@
     },
     "rowActions": {
       "label": "Hisobot bilan amallar"
-    }
+    },
+    "createTask": "Vazifa yaratish"
   },
   "common": {
     "retry": "Qayta urinish",
@@ -1621,7 +1712,10 @@
     "successMsg": "Korreksiya saqlandi",
     "aiAnalysis": "AI tahlil",
     "adminCorrection": "Administrator korreksiyasi",
-    "unknownOutlet": "Noma'lum nuqta"
+    "unknownOutlet": "Noma'lum nuqta",
+    "brandsAiLabel": "AI brendlari:",
+    "noAccess": "Bu sahifaga ruxsat yoʻq",
+    "noAnalyses": "Koʻrsatish uchun tahlillar yoʻq"
   },
   "blocks": {
     "keyPoint": "ASOSIY FIKR",
@@ -1656,7 +1750,8 @@
     "continue": "Davom etish",
     "finish": "Yakunlash ✓",
     "next": "Keyingi →",
-    "narration": "Dars ovozi"
+    "narration": "Dars ovozi",
+    "unknownBlockType": "Nomaʼlum blok turi"
   },
   "org": {
     "col": {
@@ -1701,7 +1796,8 @@
       "loadSupervisors": "Supervisorlarni yuklashda xato",
       "changeStatus": "Holatni oʻzgartirib boʻlmadi",
       "saveFailed": "Saqlab boʻlmadi"
-    }
+    },
+    "region": "Hudud"
   },
   "rolesPlural": {
     "regional_manager": "Hududiy menejerlar",
@@ -1739,7 +1835,9 @@
       "earnTop3": "Yechim TOP-3 ga kirdi (kamida 3 baho)",
       "earnPopular": "Keys 50+ baho toʻpladi",
       "bonus100": "+100 XP bonus",
-      "bonus200": "+200 XP bonus"
+      "bonus200": "+200 XP bonus",
+      "statPopular": "Ommabop keyslar",
+      "statTotalActions": "Jami harakatlar"
     },
     "new": {
       "errCategory": "Kategoriyani tanlang",
@@ -2485,5 +2583,39 @@
       "reviewFailed": "Xatolik: {error}"
     },
     "adminCommentPrefix": "Admin: {comment}"
+  },
+  "trainingPlan": {
+    "submitRequest": "Ariza berish",
+    "createEvent": "Hodisa yaratish",
+    "addFieldTrip": "+ Safar hisoboti",
+    "caseStudio": "Keyslar bazasi",
+    "tabCalendar": "Kalendar",
+    "tabRequests": "Arizalar",
+    "tabFieldTrips": "Safarlar",
+    "pageTitle": "Oʻqish rejasi",
+    "pageSubtitle": "2026-2027 yillik kalendar, arizalar, xizmat safarlari"
+  },
+  "aiFeedback": {
+    "placeholder": "Muammoni qisqacha yozing",
+    "submit": "Yuborish",
+    "thankYou": "Fikringiz uchun rahmat",
+    "whatWrong": "Javobda nima notoʻgʻri? (ixtiyoriy)"
+  },
+  "form": {
+    "agree": "Shartlarga roziman"
+  },
+  "mobileAdminGate": {
+    "continueMobile": "Mobil rejimda davom etish",
+    "description": "Admin boʻlimlari (rollar, KPI-Pipeline, AI-studiya, lugʻatlar) faqat desktopda toʻliq ishlaydi. Platformani kompyuterdan oching.",
+    "roleLabel": "Sizning rolingiz: {role}",
+    "title": "Faqat kompyuter uchun"
+  },
+  "notifications": {
+    "empty": "Bildirishnomalar yoʻq",
+    "markAllRead": "Barchasini oʻqish",
+    "title": "Bildirishnomalar"
+  },
+  "championship": {
+    "percentile": "{value}‑chi persentil"
   }
 }

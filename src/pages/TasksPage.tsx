@@ -217,12 +217,12 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Creator & Assignee */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-bg-muted rounded-xl p-3">
-              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Поставил</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">{t('tasks.postedBy')}</div>
               <div className="text-sm font-medium text-fg-default">{task.creator_name || '\u2014'}</div>
               {task.creator_role && <div className="text-xs text-fg-subtle">{task.creator_role}</div>}
             </div>
             <div className="bg-bg-muted rounded-xl p-3">
-              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Исполнитель</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">{t('tasks.assignee')}</div>
               <div className="text-sm font-medium text-fg-default">{task.assignee_name || '\u2014'}</div>
               {task.assignee_role && <div className="text-xs text-fg-subtle">{task.assignee_role}</div>}
             </div>
@@ -231,7 +231,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Description */}
           {task.description && (
             <div>
-              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Описание</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">{t('tasks.create.descLabel')}</div>
               <p className="text-sm text-fg-muted leading-relaxed whitespace-pre-wrap">{pickTaskI18n(task, lang, 'description')}</p>
             </div>
           )}
@@ -240,25 +240,25 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           <div className="grid grid-cols-2 gap-3 text-sm">
             {task.due_date && (
               <div>
-                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Срок</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">{t('tasks.deadlineLabel')}</div>
                 <div className="text-fg-muted">{formatDateLong(task.due_date, lang)}</div>
               </div>
             )}
             {task.estimated_time && (
               <div>
-                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Время</div>
-                <div className="text-fg-muted">{task.estimated_time} мин</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">{t('tasks.timeLabel')}</div>
+                <div className="text-fg-muted">{t('tasks.estimatedMinutes', { minutes: task.estimated_time })}</div>
               </div>
             )}
             {task.started_at && (
               <div>
-                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Начата</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">{t('tasks.startDateLabel')}</div>
                 <div className="text-fg-muted">{formatDateShort(task.started_at, lang)}</div>
               </div>
             )}
             {task.completed_at && (
               <div>
-                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">Завершена</div>
+                <div className="text-xs text-fg-subtle uppercase font-medium mb-0.5">{t('tasks.completedDateLabel')}</div>
                 <div className="text-fg-muted">{formatDateShort(task.completed_at, lang)}</div>
               </div>
             )}
@@ -268,7 +268,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {task.progress > 0 && (
             <div>
               <div className="flex justify-between text-xs mb-1">
-                <span className="text-fg-subtle">Прогресс</span>
+                <span className="text-fg-subtle">{t('tasks.progressLabel')}</span>
                 <span className="font-medium text-fg-muted">{task.progress}%</span>
               </div>
               <div className="w-full h-2 bg-bg-muted rounded-full overflow-hidden">
@@ -280,7 +280,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Tags */}
           {task.tags && task.tags.length > 0 && (
             <div>
-              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">Теги</div>
+              <div className="text-xs text-fg-subtle uppercase font-medium mb-1">{t('tasks.tagsLabel')}</div>
               <div className="flex flex-wrap gap-1.5">
                 {task.tags.filter(tag => tag !== 'demo-seed').map((tag, i) => (
                   <span key={i} className="bg-status-info-bg text-status-info-fg text-xs px-2 py-0.5 rounded-full font-medium">
@@ -294,7 +294,7 @@ function TaskDetailModal({ task, onClose, onStatusChange }: {
           {/* Extra data (KPI bonus etc.) */}
           {task.extra_data?.kpi_bonus != null && (
             <div className="bg-status-success-bg border border-status-success-fg rounded-xl p-3">
-              <div className="text-sm font-medium text-status-success-fg">KPI бонус: +{String(task.extra_data.kpi_bonus)}%</div>
+              <div className="text-sm font-medium text-status-success-fg">{t('tasks.kpiBonusValue', { value: String(task.extra_data.kpi_bonus) })}</div>
             </div>
           )}
         </div>

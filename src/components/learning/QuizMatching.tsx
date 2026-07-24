@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import type { Lang } from '../../stores/langStore';
+import { useT, type Lang } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
 
@@ -29,6 +29,7 @@ interface QuizMatchingProps {
 }
 
 export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchingProps) {
+  const t = useT();
   // pairs: { leftIdx, rightIdx }[]
   const [pairs, setPairs] = useState<{ left: number; right: number }[]>([]);
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
@@ -117,7 +118,7 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
       <p className="font-medium mb-1 text-[15px]" style={{ color: 'var(--text-primary)' }}>
         <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {bl(data.question, lang)}
       </p>
-      <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>Нажмите элемент слева, затем справа, чтобы соединить пары</p>
+      <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>{t('quiz.matching.hint')}</p>
 
       <div ref={containerRef} className="relative">
         {/* SVG lines */}
@@ -224,7 +225,7 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
             disabled={pairs.length < data.left.length}
             className="px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Проверить
+            {t('quiz.dragDrop.check')}
           </button>
           {pairs.length > 0 && (
             <button
@@ -234,7 +235,7 @@ export function QuizMatching({ data, lang, questionIndex, onResult }: QuizMatchi
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
             >
-              Сбросить
+              {t('quiz.matching.reset')}
             </button>
           )}
         </div>

@@ -223,7 +223,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
                   <thead>
                     <tr className="bg-gray-50 text-left">
                       <th className="py-2 px-3 font-semibold text-gray-600 w-10">#</th>
-                      <th className="py-2 px-3 font-semibold text-gray-600">{t('analytics.leaderboard.employee')}</th>
+                      <th className="py-2 px-3 font-semibold text-gray-600">{t('analytics.lbEmployee')}</th>
                       <th className="py-2 px-3 font-semibold text-gray-600">{t('analytics.role')}</th>
                       <th className="py-2 px-3 font-semibold text-gray-600 text-center">
                         {t('analytics.report.sales')}

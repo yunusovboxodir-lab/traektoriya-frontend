@@ -289,7 +289,7 @@ function KPICards({ events, lang }: { events: CalendarEvent[]; lang: Lang }) {
     { label: 'POST', value: avgPost != null ? formatPct(avgPost) : '—', border: 'border-l-zinc-500' },
     {
       label: lang === 'uz' ? "O'sish" : 'Рост',
-      value: avgGrowth != null ? `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(0)} п.п.` : '—',
+      value: avgGrowth != null ? `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(0)} ${lang === 'uz' ? 'foiz p.' : 'п.п.'}` : '—',
       border: 'border-l-emerald-500',
     },
   ];
@@ -537,8 +537,8 @@ function CalendarTab({ lang }: { lang: Lang }) {
                         )}
                         {e.status === 'completed' && e.pre_avg_score != null && e.post_avg_score != null && (
                           <div className="text-xs mt-0.5" style={{ color: 'var(--success)', fontVariantNumeric: 'tabular-nums' }}>
-                            PRE {formatPct(e.pre_avg_score)} → POST {formatPct(e.post_avg_score)}
-                            {e.growth_pct != null && ` (+${e.growth_pct.toFixed(0)} п.п.)`}
+                            {'PRE'} {formatPct(e.pre_avg_score)} {'→'} {'POST'} {formatPct(e.post_avg_score)}
+                            {e.growth_pct != null && ` (+${e.growth_pct.toFixed(0)} ${lang === 'uz' ? 'foiz p.' : 'п.п.'})`}
                           </div>
                         )}
                       </div>
@@ -653,7 +653,7 @@ function RequestsTab({ canApprove, lang }: { canApprove: boolean; lang: Lang }) 
           <SkeletonCard lines={3} />
         </div>
       )}
-      {error && <div className="text-red-400">Error: {error}</div>}
+      {error && <div className="text-red-400">{lang === 'uz' ? 'Xato' : 'Ошибка'}: {error}</div>}
 
       <div className="space-y-3">
         {requests.map((r) => (
@@ -745,14 +745,14 @@ function RequestCard({
 
           {request.pulse_snapshot && (
             <div className="mt-3 p-2 rounded text-xs" style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>Pulse: </span>
+              <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>{lang === 'uz' ? 'Puls' : 'Пульс'}: </span>
               {lang === 'uz' ? 'oʻzi' : 'своё'} {formatPct(request.pulse_snapshot.self_pulse)},{' '}
               {lang === 'uz' ? 'jamoa' : 'команда'} {formatPct(request.pulse_snapshot.team_avg_pulse)}
               {request.pulse_snapshot.team_size != null
                 ? ` (${request.pulse_snapshot.team_size} ${lang === 'uz' ? 'kishi' : 'чел.'})`
                 : ''}
               {request.pulse_snapshot.override_used && (
-                <span className="ml-2" style={{ color: 'var(--danger)' }}>override</span>
+                <span className="ml-2" style={{ color: 'var(--danger)' }}>{lang === 'uz' ? 'qoʻlda oʻzgartirilgan' : 'переопределено вручную'}</span>
               )}
             </div>
           )}
@@ -859,7 +859,7 @@ function FieldTripsTab({ lang }: { lang: Lang }) {
         <SkeletonCard lines={3} />
       </div>
     );
-  if (error) return <div className="text-red-400">Error: {error}</div>;
+  if (error) return <div className="text-red-400">{lang === 'uz' ? 'Xato' : 'Ошибка'}: {error}</div>;
 
   const totalParticipants = trips.reduce((sum, t) => {
     const ps = Object.values(t.participants_summary || {});
@@ -888,7 +888,7 @@ function FieldTripsTab({ lang }: { lang: Lang }) {
             label={lang === 'uz' ? "O'rtacha o'sish" : 'Средний рост'}
             value={
               avgGrowth !== null
-                ? `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(0)} п.п.`
+                ? `${avgGrowth >= 0 ? '+' : ''}${avgGrowth.toFixed(0)} ${lang === 'uz' ? 'foiz p.' : 'п.п.'}`
                 : '—'
             }
             highlight
@@ -934,7 +934,7 @@ function FieldTripsTab({ lang }: { lang: Lang }) {
                 </div>
                 {t.pre_avg !== null && t.post_avg !== null && (
                   <div className="text-right text-sm">
-                    <div className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>PRE → POST</div>
+                    <div className="text-xs font-mono" style={{ color: 'var(--text-muted)' }}>{'PRE → POST'}</div>
                     <div className="font-medium" style={{ color: 'var(--text-secondary)' }}>
                       {formatPct(t.pre_avg)} → {formatPct(t.post_avg)}
                     </div>
@@ -944,7 +944,7 @@ function FieldTripsTab({ lang }: { lang: Lang }) {
                         style={{ color: growthPp >= 0 ? 'var(--success)' : 'var(--danger)' }}
                       >
                         {growthPp >= 0 ? '+' : ''}
-                        {growthPp.toFixed(0)} п.п.
+                        {growthPp.toFixed(0)} {lang === 'uz' ? 'foiz p.' : 'п.п.'}
                       </div>
                     )}
                   </div>

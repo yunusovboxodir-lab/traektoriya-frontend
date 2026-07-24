@@ -155,7 +155,7 @@ function ReportDetail({
           />
           <div className="flex flex-wrap gap-3 mt-3">
             <Button variant="primary" size="sm" leftIcon={<ListPlus size={14} />} onClick={() => onCreateTask(report.id)}>
-              Создать задачу
+              {t('reports.createTask')}
             </Button>
             {report.status === 'new' && (
               <Button variant="secondary" size="sm" onClick={() => onUpdate(report.id, { status: 'reviewed', admin_comment: adminComment || undefined })}>
@@ -307,7 +307,7 @@ export function ReportsPage() {
                 <th className="px-4 py-3 font-medium text-fg-muted w-28"></th>
                 <th className="px-4 py-3 font-medium text-fg-muted">{t('reports.date')}</th>
                 <th className="px-4 py-3 font-medium text-fg-muted">{t('reports.author')}</th>
-                <th className="px-4 py-3 font-medium text-fg-muted">Тип</th>
+                <th className="px-4 py-3 font-medium text-fg-muted">{t('kb.tableHeaders.type')}</th>
                 <th className="px-4 py-3 font-medium text-fg-muted">{t('reports.screenshot')}</th>
                 <th className="px-4 py-3 font-medium text-fg-muted">{t('reports.comment')}</th>
                 <th className="px-4 py-3 font-medium text-fg-muted">{t('reports.status')}</th>

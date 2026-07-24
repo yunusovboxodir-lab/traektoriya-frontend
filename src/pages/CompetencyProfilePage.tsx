@@ -342,7 +342,7 @@ export function CompetencyProfilePage() {
                             <td className="px-4 py-3">
                               <p className="font-medium text-gray-800">{c.competency_name}</p>
                               {c.bloom_level && (
-                                <p className="text-xs text-gray-400 mt-0.5">Bloom: {c.bloom_level}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">{'Bloom:'} {c.bloom_level}</p>
                               )}
                             </td>
                             <td className="px-4 py-3 text-center">

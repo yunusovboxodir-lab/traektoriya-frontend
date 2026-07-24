@@ -11,6 +11,7 @@
  * Чистый SVG, без библиотек.
  */
 import { useMemo, useState } from 'react';
+import { useT } from '../../stores/langStore';
 
 export interface RadarDataPoint {
   label: string;
@@ -62,6 +63,7 @@ export function RadarChart({
   onPointClick,
   tooltipExtra,
 }: RadarChartProps) {
+  const t = useT();
   const n = data.length;
   const svgSize = size * 1.35;
   const cx = svgSize / 2;
@@ -313,7 +315,7 @@ export function RadarChart({
             {data[hoverIdx].label}
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ color: 'var(--text-muted)' }}>Пульс</span>
+            <span style={{ color: 'var(--text-muted)' }}>{t('comp.tabPulse')}</span>
             <strong style={{ color: LEVEL_COLORS[data[hoverIdx].level || levelByValue(data[hoverIdx].value)] }}>
               {Math.round(data[hoverIdx].value)}%
             </strong>
@@ -327,7 +329,7 @@ export function RadarChart({
               fontSize: 12,
               color: '#E5C76B',
             }}>
-              Клик — открыть курсы
+              {t('comp.radarClickHint')}
             </div>
           )}
         </div>

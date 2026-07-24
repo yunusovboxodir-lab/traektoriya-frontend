@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNotificationStore } from '../../stores/notificationStore';
 import type { AppNotification } from '../../api/notifications';
+import { useT } from '../../stores/langStore';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ function NotificationItem({
   onRemove: (id: string) => void;
   onNavigate: () => void;
 }) {
+  const t = useT();
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -105,7 +107,7 @@ function NotificationItem({
         <button
           onClick={(e) => { e.stopPropagation(); onRemove(n.id); }}
           className="text-gray-300 hover:text-gray-500 transition-colors p-0.5 rounded"
-          title="Удалить"
+          title={t('common.actions.delete')}
         >
           <IconX />
         </button>
@@ -122,6 +124,7 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ mobile = false }: NotificationBellProps) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { notifications, unreadCount, fetch, markRead, markAllRead, remove } =
@@ -154,7 +157,7 @@ export function NotificationBell({ mobile = false }: NotificationBellProps) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={`relative p-1.5 rounded-md transition-colors ${iconColor}`}
-        title="Уведомления"
+        title={t('notifications.title')}
       >
         <IconBell />
         {unreadCount > 0 && (
@@ -170,7 +173,7 @@ export function NotificationBell({ mobile = false }: NotificationBellProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-900">
-              Уведомления
+              {t('notifications.title')}
               {unreadCount > 0 && (
                 <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
                   {unreadCount}
@@ -182,7 +185,7 @@ export function NotificationBell({ mobile = false }: NotificationBellProps) {
                 onClick={markAllRead}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
               >
-                Прочитать все
+                {t('notifications.markAllRead')}
               </button>
             )}
           </div>
@@ -192,7 +195,7 @@ export function NotificationBell({ mobile = false }: NotificationBellProps) {
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                 <IconBell className="w-8 h-8 mb-2 opacity-30" />
-                <p className="text-sm">Нет уведомлений</p>
+                <p className="text-sm">{t('notifications.empty')}</p>
               </div>
             ) : (
               notifications.map((n) => (

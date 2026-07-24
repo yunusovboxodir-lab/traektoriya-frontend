@@ -14,6 +14,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { useAuthStore } from '../../stores/authStore';
+import { useT } from '../../stores/langStore';
 
 const ADMIN_ROLES = new Set(['superadmin', 'admin', 'commercial_dir']);
 const FORCE_MOBILE_KEY = 'traektoriya_admin_force_mobile';
@@ -39,6 +40,7 @@ function writeForceMobile(value: boolean) {
 }
 
 export function MobileAdminGate({ children }: Props) {
+  const t = useT();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
@@ -69,7 +71,7 @@ export function MobileAdminGate({ children }: Props) {
           border: '1px solid var(--color-rm-border)',
         }}
       >
-        🖥️
+        {'🖥️'}
       </div>
 
       <h1
@@ -81,7 +83,7 @@ export function MobileAdminGate({ children }: Props) {
           color: 'var(--text-primary)',
         }}
       >
-        Только для компьютера
+        {t('mobileAdminGate.title')}
       </h1>
 
       <p
@@ -94,8 +96,7 @@ export function MobileAdminGate({ children }: Props) {
           marginBottom: 28,
         }}
       >
-        Админ-разделы (роли, KPI-Pipeline, AI-студия, словари) полноценно
-        работают только на десктопе. Откройте платформу с компьютера.
+        {t('mobileAdminGate.description')}
       </p>
 
       <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -113,7 +114,7 @@ export function MobileAdminGate({ children }: Props) {
             letterSpacing: '0.04em',
           }}
         >
-          Продолжить в моб-режиме
+          {t('mobileAdminGate.continueMobile')}
         </button>
         <button
           type="button"
@@ -129,7 +130,7 @@ export function MobileAdminGate({ children }: Props) {
             fontFamily: 'var(--font-body)',
           }}
         >
-          Выйти
+          {t('nav.logout')}
         </button>
       </div>
 
@@ -143,7 +144,7 @@ export function MobileAdminGate({ children }: Props) {
           fontFamily: 'var(--font-mono)',
         }}
       >
-        Ваша роль: {user?.role}
+        {t('mobileAdminGate.roleLabel', { role: user?.role || '' })}
       </p>
     </div>
   );

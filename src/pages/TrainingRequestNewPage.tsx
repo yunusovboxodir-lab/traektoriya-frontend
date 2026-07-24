@@ -153,7 +153,7 @@ export function TrainingRequestNewPage() {
       {!inWindow && (
         <div className="mb-5 bg-amber-900/30 border border-amber-700/50 rounded-lg p-4 text-amber-200 text-sm">
           <div className="font-semibold mb-1 flex items-center gap-2">
-            ⚠️ {lang === 'uz' ? "Oyna tashqarisida" : 'Подача вне окна (25→05)'}
+            {'⚠️'} {lang === 'uz' ? "Oyna tashqarisida" : 'Подача вне окна (25→05)'}
           </div>
           <div className="text-amber-300/90">
             {lang === 'uz'

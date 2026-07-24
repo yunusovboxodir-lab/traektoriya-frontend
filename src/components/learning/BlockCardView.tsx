@@ -80,7 +80,7 @@ export function BlockCardView({ data, courseId, lang = 'ru', onComplete, onPrevi
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-base font-bold text-gray-800">{bl(displayData.title, lang)}</h3>
-          <p className="text-xs text-gray-400 mt-0.5">v3.0 — {displayData.blocks.length} {lang === 'uz' ? 'bloklar' : 'блоков'}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{'v3.0 —'} {displayData.blocks.length} {lang === 'uz' ? 'bloklar' : 'блоков'}</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Edit toggle */}

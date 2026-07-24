@@ -125,7 +125,7 @@ export function HeroPanel({
             <div className="animate-pulse" style={{ width: 40, height: 20, borderRadius: 4, background: 'var(--bg-overlay)', marginTop: 4 }} />
           ) : (
             <div className="metric-val">
-              {hero.streakDays != null && hero.streakDays > 0 && <span className="streak-icon">▲</span>}
+              {hero.streakDays != null && hero.streakDays > 0 && <span className="streak-icon">{'▲'}</span>}
               {hero.streakDays ?? 0} <span className="metric-unit">{t('дн.', 'kun')}</span>
             </div>
           )}

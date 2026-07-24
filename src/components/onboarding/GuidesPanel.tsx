@@ -71,7 +71,7 @@ export function GuidesPanel() {
             ? `· ${guides.length - unseenCount}/${guides.length}`
             : `· ${guides.length} ✓`}
         </span>
-        <span aria-hidden="true" style={{ fontSize: 12 }}>▾</span>
+        <span aria-hidden="true" style={{ fontSize: 12 }}>{'▾'}</span>
       </summary>
 
       <div style={{
@@ -97,7 +97,7 @@ export function GuidesPanel() {
             >
               <span style={{ fontSize: 17, lineHeight: 1 }} aria-hidden="true">{g.icon}</span>
               {g.label[lang]}
-              {done && <span style={{ color: 'var(--success)', fontSize: 12 }} aria-hidden="true">✓</span>}
+              {done && <span style={{ color: 'var(--success)', fontSize: 12 }} aria-hidden="true">{'✓'}</span>}
             </button>
           );
         })}

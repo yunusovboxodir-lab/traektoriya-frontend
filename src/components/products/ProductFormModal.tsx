@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { productsApi, type Product } from '../../api/products';
 import { BRAND_TABS } from '../../config/brands';
 import { toast } from '@/components/ui';
+import { useT } from '../../stores/langStore';
 
 interface Props {
   product: Product | null; // null = create mode
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export function ProductFormModal({ product, defaultBrand, onClose, onSaved }: Props) {
+  const t = useT();
   const isEdit = !!product;
 
   const [form, setForm] = useState({
@@ -97,13 +99,13 @@ export function ProductFormModal({ product, defaultBrand, onClose, onSaved }: Pr
           <div className="space-y-3">
             <Input label="Название *" value={form.name} onChange={(v) => set('name', v)} required />
             <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Бренд</label>
+              <label className="block text-xs font-medium text-gray-500 mb-1">{t('products.form.brandLabel')}</label>
               <select
                 value={form.brand}
                 onChange={(e) => set('brand', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">— Без бренда —</option>
+                <option value="">{t('products.form.noBrand')}</option>
                 {BRAND_TABS.map((b) => (
                   <option key={b.brandKey} value={b.brandKey}>{b.label}</option>
                 ))}
@@ -129,7 +131,7 @@ export function ProductFormModal({ product, defaultBrand, onClose, onSaved }: Pr
             <div className="space-y-3 pl-1">
               <Input label="Краткое описание" value={form.short_description} onChange={(v) => set('short_description', v)} />
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Полное описание</label>
+                <label className="block text-xs font-medium text-gray-500 mb-1">{t('products.form.fullDescriptionLabel')}</label>
                 <textarea
                   value={form.description}
                   onChange={(e) => set('description', e.target.value)}
@@ -159,7 +161,7 @@ export function ProductFormModal({ product, defaultBrand, onClose, onSaved }: Pr
               onClick={onClose}
               className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="submit"

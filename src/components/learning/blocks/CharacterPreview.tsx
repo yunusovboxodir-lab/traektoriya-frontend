@@ -10,10 +10,10 @@ export function CharacterPreview() {
   return (
     <div className="min-h-screen bg-[#0a0e1a] p-10">
       <h1 className="text-white text-3xl font-bold mb-2 text-center">
-        Traektoriya Blocks — Character Gallery
+        {'Traektoriya Blocks — Character Gallery'}
       </h1>
       <p className="text-gray-500 text-center mb-10">
-        Minecraft-inspired pixel art characters for cinematic scenes
+        {'Minecraft-inspired pixel art characters for cinematic scenes'}
       </p>
 
       <div className="flex flex-wrap justify-center gap-12">
@@ -40,7 +40,7 @@ export function CharacterPreview() {
       </div>
 
       <div className="mt-16 text-center text-gray-600 text-sm">
-        Top row: idle state | Bottom row: active (talking) state
+        {'Top row: idle state | Bottom row: active (talking) state'}
       </div>
     </div>
   );

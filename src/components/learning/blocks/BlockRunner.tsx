@@ -14,7 +14,7 @@ import { BlockMistakeAnalysis } from './BlockMistakeAnalysis';
 import { BlockFieldTask } from './BlockFieldTask';
 import { BlockQuiz } from './BlockQuiz';
 import { BlockResults } from './BlockResults';
-import { useLangStore } from '../../../stores/langStore';
+import { useLangStore, useT } from '../../../stores/langStore';
 
 interface Props {
   lessonData: BlockLessonData;
@@ -375,6 +375,7 @@ function BlockContent({
   onAnswer: (isCorrect: boolean) => void;
   onReady: () => void;
 }) {
+  const t = useT();
   switch (block.type) {
     case 'key_point':
       return <BlockKeyPoint data={block.data} accent={accent} accentSoft={accentSoft} onReady={onReady} />;
@@ -395,6 +396,6 @@ function BlockContent({
     case 'quiz':
       return <BlockQuiz data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
     default:
-      return <div className="p-4 text-center text-gray-400">Unknown block type</div>;
+      return <div className="p-4 text-center text-gray-400">{t('blocks.unknownBlockType')}</div>;
   }
 }

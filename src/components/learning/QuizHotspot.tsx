@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Lang } from '../../stores/langStore';
+import { useT, type Lang } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
 
@@ -28,6 +28,7 @@ interface QuizHotspotProps {
 }
 
 export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspotProps) {
+  const t = useT();
   const [clicked, setClicked] = useState<Set<number>>(new Set());
   const [checked, setChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -62,7 +63,7 @@ export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspot
         <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {bl(data.question, lang)}
       </p>
       <p className="text-xs text-gray-400 mb-3">
-        Нажмите на проблемные области на изображении (найдите минимум {data.min_correct} из {correctCount})
+        {t('quiz.hotspot.hint', { min: data.min_correct, total: correctCount })}
       </p>
 
       {/* Image with hotspots */}
@@ -126,8 +127,8 @@ export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspot
       {/* Found counter */}
       <div className="flex items-center justify-between mt-3">
         <span className="text-xs text-gray-500">
-          Отмечено: <span className="font-bold text-gray-700">{clicked.size}</span>
-          {checked && ` (правильных: ${foundCount}/${correctCount})`}
+          {t('quiz.hotspot.marked')}: <span className="font-bold text-gray-700">{clicked.size}</span>
+          {checked && ` (${t('blocks.correct')}: ${foundCount}/${correctCount})`}
         </span>
 
         {!checked && (
@@ -136,7 +137,7 @@ export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspot
             disabled={clicked.size === 0}
             className="px-5 py-2 bg-blue-500 text-white text-sm font-medium rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Проверить
+            {t('quiz.hotspot.check')}
           </button>
         )}
       </div>
@@ -146,7 +147,7 @@ export function QuizHotspot({ data, lang, questionIndex, onResult }: QuizHotspot
           isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
         }`}>
           <span className="shrink-0 mt-0.5">{isCorrect ? '✅' : '❌'}</span>
-          <span>{isCorrect ? 'Все проблемные области найдены!' : `${bl(data.explanation, lang) || 'Не все области найдены верно.'}`}</span>
+          <span>{isCorrect ? t('quiz.hotspot.allFound') : `${bl(data.explanation, lang) || t('quiz.hotspot.notAllFound')}`}</span>
         </div>
       )}
     </div>

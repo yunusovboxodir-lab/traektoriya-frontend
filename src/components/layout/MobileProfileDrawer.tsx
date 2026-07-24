@@ -190,7 +190,7 @@ export function MobileProfileDrawer({ onClose }: Props) {
           className="w-full flex items-center gap-3 px-5 py-4 text-left"
           style={{ minHeight: 56, color: 'var(--danger)' }}
         >
-          <span style={{ fontSize: 20, width: 28, textAlign: 'center' }} aria-hidden="true">⎋</span>
+          <span style={{ fontSize: 20, width: 28, textAlign: 'center' }} aria-hidden="true">{'⎋'}</span>
           <span style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600 }}>
             {t('nav.logout')}
           </span>

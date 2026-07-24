@@ -92,7 +92,7 @@ export function LoginPage() {
             fontFamily: 'var(--font-mono)',
           }}
         >
-          AI · Микрообучение · Полевая практика
+          {t('login.tagline')}
         </div>
       </div>
 
@@ -289,7 +289,7 @@ export function LoginPage() {
               fontFamily: 'var(--font-mono)',
             }}
           >
-            Корпоративная платформа развития
+            {t('login.footerTagline')}
           </p>
         </div>
       </div>

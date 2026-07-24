@@ -117,10 +117,10 @@ export function PlanogramPage() {
     try {
       await api.patch(`/api/v1/shelf/tasks/${taskId}/complete`);
       setTaskStatuses(prev => ({ ...prev, [taskId]: 'completed' }));
-      toast.success(t('planogram.taskCompleted') || 'Задача выполнена! KPI-бонус начислен');
+      toast.success(t('planogram.taskCompleted'));
     } catch {
       setTaskStatuses(prev => ({ ...prev, [taskId]: 'pending' }));
-      toast.error(t('planogram.taskCompleteFailed') || 'Ошибка при выполнении задачи');
+      toast.error(t('planogram.taskCompleteFailed'));
     }
   };
 
@@ -129,10 +129,10 @@ export function PlanogramPage() {
     try {
       await api.patch(`/api/v1/shelf/tasks/${taskId}/skip`, { reason: null });
       setTaskStatuses(prev => ({ ...prev, [taskId]: 'skipped' }));
-      toast.success(t('planogram.taskSkipped') || 'Задача пропущена — супервайзер будет уведомлён');
+      toast.success(t('planogram.taskSkipped'));
     } catch {
       setTaskStatuses(prev => ({ ...prev, [taskId]: 'pending' }));
-      toast.error(t('planogram.taskSkipFailed') || 'Ошибка при пропуске задачи');
+      toast.error(t('planogram.taskSkipFailed'));
     }
   };
 
@@ -212,8 +212,8 @@ export function PlanogramPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex items-center gap-3 sm:gap-4">
           <Link to="/dashboard" className="text-blue-600 hover:text-blue-800 text-sm sm:text-base shrink-0">← {t('planogram.back')}</Link>
-          <h1 className="text-lg sm:text-xl font-bold">ShelfScan AI</h1>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">v2 + Goal-Driven</span>
+          <h1 className="text-lg sm:text-xl font-bold">{t('planogram.title')}</h1>
+          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{'v2 + Goal-Driven'}</span>
         </div>
       </header>
 
@@ -299,7 +299,7 @@ export function PlanogramPage() {
                 {/* Detected Products */}
                 {result.detected_products && (
                   <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <h3 className="font-bold mb-3">🏷️ {t('planogram.products')}</h3>
+                    <h3 className="font-bold mb-3">{'🏷️'} {t('planogram.products')}</h3>
                     <div className="space-y-2">
                       <div className="font-medium text-green-700 text-sm">{t('planogram.ourBrands')}</div>
                       {(result.detected_products.our_brands || []).map((b, i) => (
@@ -329,10 +329,10 @@ export function PlanogramPage() {
                     <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
                       <div className="flex items-center justify-between">
                         <h3 className="font-bold text-white flex items-center gap-2">
-                          <span className="text-xl">📦</span> Рекомендованный заказ
+                          <span className="text-xl">📦</span> {t('planogram.recommendedOrderTitle')}
                         </h3>
                         <span className="bg-white/20 text-white text-xs font-medium px-3 py-1 rounded-full">
-                          {result.recommended_order.total_items} {result.recommended_order.total_items === 1 ? 'позиция' : result.recommended_order.total_items < 5 ? 'позиции' : 'позиций'}
+                          {t('planogram.itemsCount', { count: result.recommended_order.total_items })}
                         </span>
                       </div>
                       <p className="text-emerald-100 text-sm mt-1">{result.recommended_order.reasoning}</p>
@@ -349,14 +349,14 @@ export function PlanogramPage() {
                             <div className="text-sm text-gray-500 mt-0.5">{item.reason}</div>
                           </div>
                           <div className="text-right shrink-0">
-                            <div className="text-xs text-gray-400">на полке</div>
-                            <div className="font-bold text-sm text-gray-600">{item.current_on_shelf} шт</div>
+                            <div className="text-xs text-gray-400">{t('planogram.onShelf')}</div>
+                            <div className="font-bold text-sm text-gray-600">{item.current_on_shelf} {t('planogram.pcs')}</div>
                           </div>
                           <div className="text-center shrink-0 px-2">
                             <span className="text-gray-300 text-lg">→</span>
                           </div>
                           <div className="text-right shrink-0">
-                            <div className="text-xs text-emerald-600 font-medium">заказать</div>
+                            <div className="text-xs text-emerald-600 font-medium">{t('planogram.toOrder')}</div>
                             <div className="font-bold text-lg text-emerald-700">+{item.recommended_qty}</div>
                           </div>
                         </div>
@@ -365,7 +365,7 @@ export function PlanogramPage() {
                     {result.recommended_order.estimated_order_value && (
                       <div className="bg-gray-50 px-6 py-3 border-t border-gray-100">
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-500">Примерная сумма заказа</span>
+                          <span className="text-gray-500">{t('planogram.estimatedOrderValue')}</span>
                           <span className="font-bold text-gray-700">{result.recommended_order.estimated_order_value}</span>
                         </div>
                       </div>
@@ -376,7 +376,7 @@ export function PlanogramPage() {
                 {/* Tasks with KPI Bonus */}
                 {result.tasks.length > 0 && (
                   <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <h3 className="font-bold mb-3">📋 {t('planogram.tasksTitle')} (+{result.tasks.reduce((s, task) => s + task.bonus_if_today, 0).toFixed(0)}% KPI)</h3>
+                    <h3 className="font-bold mb-3">📋 {t('planogram.tasksTitle')} {t('planogram.kpiBonusSuffix', { bonus: result.tasks.reduce((s, task) => s + task.bonus_if_today, 0).toFixed(0) })}</h3>
                     <div className="space-y-3">
                       {result.tasks.map((task) => {
                         const status = taskStatuses[task.id] || 'pending';
@@ -400,7 +400,7 @@ export function PlanogramPage() {
                                 <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                                   <span className="font-bold text-blue-600">+{task.bonus_if_today}% {t('planogram.today')}</span>
                                   <span>+{task.bonus_if_tomorrow}% {t('planogram.tomorrow')}</span>
-                                  {task.estimated_time && <span>~{task.estimated_time} мин</span>}
+                                  {task.estimated_time && <span>{t('planogram.estimatedMinutesShort', { minutes: task.estimated_time })}</span>}
                                 </div>
                               </div>
                               {isDone && <span className="text-green-600 font-bold text-xs">{t('planogram.done') || 'Готово'}</span>}
@@ -446,7 +446,7 @@ export function PlanogramPage() {
                       <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${result.goal_progress.percentage}%` }} />
                     </div>
                     <div className="flex justify-between mt-2 text-xs text-gray-500">
-                      <span>{result.goal_progress.previous_value}% → {result.goal_progress.new_value}%</span>
+                      <span>{t('planogram.progressChange', { previous: result.goal_progress.previous_value, value: result.goal_progress.new_value })}</span>
                       <span>{t('planogram.goal')}: {result.goal_progress.target_value}%</span>
                     </div>
                     {result.goal_progress.days_left !== null && (
@@ -464,7 +464,7 @@ export function PlanogramPage() {
                         <span className="text-3xl">{a.icon}</span>
                         <div>
                           <div className="font-bold text-sm">{a.title}</div>
-                          <div className="text-sm text-gray-500">{a.description} — +{a.points} pts</div>
+                          <div className="text-sm text-gray-500">{t('planogram.achievementLine', { description: a.description, points: a.points })}</div>
                         </div>
                       </div>
                     ))}

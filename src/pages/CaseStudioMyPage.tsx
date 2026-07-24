@@ -109,8 +109,8 @@ export function CaseStudioMyPage() {
         <StatCard label={t('caseStudioForms.my.statSolutions')} value={stats.solutions_added} />
         <StatCard label={t('caseStudioForms.my.statRatings')} value={stats.ratings_given} />
         <StatCard label={t('caseStudioForms.my.statTop3')} value={stats.top3_solutions} />
-        <StatCard label="Популярные кейсы" value={stats.popular_scenarios} />
-        <StatCard label="Всего действий" value={totalActions} />
+        <StatCard label={t('caseStudioForms.my.statPopular')} value={stats.popular_scenarios} />
+        <StatCard label={t('caseStudioForms.my.statTotalActions')} value={totalActions} />
       </div>
 
       {/* XP breakdown by action */}
@@ -127,7 +127,7 @@ export function CaseStudioMyPage() {
                 <div>
                   <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{t(ACTION_LABEL_KEYS[action])}</div>
                   <div className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                    {count}× × +{points} XP
+                    {count}{'× × +'}{points}{' XP'}
                   </div>
                 </div>
                 <div className="text-right">
@@ -157,15 +157,15 @@ export function CaseStudioMyPage() {
         <ul className="space-y-2 text-sm">
           <li className="flex justify-between">
             <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnCreate')}</span>
-            <span className="font-medium" style={{ color: 'var(--success)' }}>+50 XP</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>{'+50 XP'}</span>
           </li>
           <li className="flex justify-between">
             <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnSolution')}</span>
-            <span className="font-medium" style={{ color: 'var(--success)' }}>+20 XP</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>{'+20 XP'}</span>
           </li>
           <li className="flex justify-between">
             <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnRating')}</span>
-            <span className="font-medium" style={{ color: 'var(--success)' }}>+5 XP</span>
+            <span className="font-medium" style={{ color: 'var(--success)' }}>{'+5 XP'}</span>
           </li>
           <li className="flex justify-between">
             <span style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.my.earnTop3')}</span>

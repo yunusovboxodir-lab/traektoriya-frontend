@@ -57,7 +57,7 @@ function _MobileTopBar_DEPRECATED() {
           }}
           aria-label="Меню"
         >
-          ☰
+          {'☰'}
         </button>
         <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.05 }}>
           <span style={{
@@ -87,7 +87,7 @@ function _MobileTopBar_DEPRECATED() {
               color: lang === 'ru' ? 'var(--text-primary)' : 'var(--text-muted)',
               fontFamily: 'inherit', fontWeight: 'inherit', fontSize: 'inherit', letterSpacing: 'inherit',
             }}
-          >РУ</button>
+          >{'РУ'}</button>
           <button
             onClick={() => setLang('uz')}
             style={{
@@ -99,7 +99,7 @@ function _MobileTopBar_DEPRECATED() {
           >UZ</button>
         </div>
         <div style={{ position: 'relative' }}>
-          <span style={{ fontSize: 15, color: 'var(--brass)' }}>◷</span>
+          <span style={{ fontSize: 15, color: 'var(--brass)' }}>{'◷'}</span>
           <span style={{
             position: 'absolute', top: -2, right: -3, width: 6, height: 6,
             borderRadius: '50%', background: 'oklch(0.78 0.15 30)',
@@ -280,7 +280,7 @@ function DailyQuestBanner() {
         <span style={{
           fontSize: 12, fontWeight: 700, color: 'var(--brass)',
           letterSpacing: '0.02em',
-        }}>+50 XP</span>
+        }}>{'+50 XP'}</span>
         {/* Часы — цифры: пол 12px + Golos/tabular (Mono <14px на числах запрещён) */}
         <span style={{
           fontSize: 12, color: 'var(--text-muted)',
@@ -597,7 +597,7 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
                     fontSize: 12, color: 'var(--text-muted)',
                     letterSpacing: '0.02em',
                   }}>
-                    {villages.length} ПОСЁЛКОВ
+                    {villages.length} {lang === 'uz' ? 'QISHLOQ' : 'ПОСЁЛКОВ'}
                   </span>
                 </div>
                 <div style={{

@@ -208,7 +208,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
             onClick={onClose}
             className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors text-lg"
           >
-            ✕
+            {'✕'}
           </button>
         </div>
 
@@ -288,7 +288,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
             {/* Detected brands */}
             {detectedBrands.length > 0 && (
               <div className="mt-3 flex flex-wrap items-center gap-1">
-                <span className="text-xs text-gray-400 mr-1">Бренды AI:</span>
+                <span className="text-xs text-gray-400 mr-1">{t('shelfCorrections.brandsAiLabel')}</span>
                 {detectedBrands.map(b => (
                   <span key={b} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                     {b}
@@ -312,7 +312,7 @@ function CorrectionModal({ analysis, lang, t, onClose, onSaved }: CorrectionModa
             {/* Corrected score */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t('shelfCorrections.correctedScore')} (0–100)
+                {t('shelfCorrections.correctedScore')}{' (0–100)'}
               </label>
               <input
                 type="number"
@@ -419,7 +419,7 @@ export function ShelfCorrectionPage() {
   if (user && !ADMIN_ROLES.includes(user.role)) {
     return (
       <div className="p-6 text-center text-gray-500 mt-20">
-        Нет доступа к этой странице
+        {t('shelfCorrections.noAccess')}
       </div>
     );
   }
@@ -505,7 +505,7 @@ export function ShelfCorrectionPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
-          Нет анализов для отображения
+          {t('shelfCorrections.noAnalyses')}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

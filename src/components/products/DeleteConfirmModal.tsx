@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { productsApi, type Product } from '../../api/products';
 import { toast } from '@/components/ui';
+import { useT } from '../../stores/langStore';
 
 interface Props {
   product: Product;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export function DeleteConfirmModal({ product, onClose, onDeleted }: Props) {
+  const t = useT();
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -33,13 +35,13 @@ export function DeleteConfirmModal({ product, onClose, onDeleted }: Props) {
             </svg>
           </div>
           <div>
-            <h3 className="text-base font-bold text-gray-900">Удалить товар?</h3>
+            <h3 className="text-base font-bold text-gray-900">{t('products.deleteConfirmTitle')}</h3>
             <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">{product.name}</p>
           </div>
         </div>
 
         <p className="text-sm text-gray-600 mb-5">
-          Товар будет деактивирован и не будет отображаться в каталоге.
+          {t('products.deleteConfirmDesc')}
         </p>
 
         <div className="flex gap-3">
@@ -48,7 +50,7 @@ export function DeleteConfirmModal({ product, onClose, onDeleted }: Props) {
             onClick={onClose}
             className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             type="button"
@@ -56,7 +58,7 @@ export function DeleteConfirmModal({ product, onClose, onDeleted }: Props) {
             disabled={deleting}
             className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-xl text-sm font-medium hover:bg-red-700 disabled:opacity-50"
           >
-            {deleting ? 'Удаление...' : 'Удалить'}
+            {deleting ? t('products.deleting') : t('products.delete')}
           </button>
         </div>
       </div>

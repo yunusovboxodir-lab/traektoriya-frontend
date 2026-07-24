@@ -136,6 +136,7 @@ function RegionsSection() {
 }
 
 function RegionForm({ region, onClose, onSaved }: { region?: Region; onClose: () => void; onSaved: () => void }) {
+  const t = useT();
   const [name, setName] = useState(region?.name ?? '');
   const [country, setCountry] = useState(region?.country ?? 'Uzbekistan');
   const [saving, setSaving] = useState(false);
@@ -171,7 +172,7 @@ function RegionForm({ region, onClose, onSaved }: { region?: Region; onClose: ()
           <Input value={country} onChange={(e) => setCountry(e.target.value)} />
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" loading={saving} disabled={!name.trim()}>
             {saving ? 'Сохранение...' : 'Сохранить'}
           </Button>
@@ -295,6 +296,7 @@ function DealersSection() {
 }
 
 function DealerForm({ dealer, regions, onClose, onSaved }: { dealer?: Dealer; regions: Region[]; onClose: () => void; onSaved: () => void }) {
+  const t = useT();
   const [name, setName] = useState(dealer?.name ?? '');
   const [regionId, setRegionId] = useState(dealer?.region_id ?? (regions[0]?.id ?? ''));
   const [saving, setSaving] = useState(false);
@@ -335,7 +337,7 @@ function DealerForm({ dealer, regions, onClose, onSaved }: { dealer?: Dealer; re
           />
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" loading={saving} disabled={!name.trim() || !regionId}>
             {saving ? 'Сохранение...' : 'Сохранить'}
           </Button>
@@ -452,6 +454,7 @@ function SupervisorsSection() {
 }
 
 function SupervisorForm({ regions, onClose, onSaved }: { regions: Region[]; onClose: () => void; onSaved: () => void }) {
+  const t = useT();
   const [regionId, setRegionId] = useState(regions[0]?.id ?? '');
   const [dealers, setDealers] = useState<Dealer[]>([]);
   const [dealerId, setDealerId] = useState('');
@@ -568,7 +571,7 @@ function SupervisorForm({ regions, onClose, onSaved }: { regions: Region[]; onCl
           <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998..." />
         </FormField>
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="ghost" onClick={onClose}>Отмена</Button>
+          <Button type="button" variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
           <Button type="submit" loading={saving} disabled={!valid}>
             {saving ? 'Создание...' : 'Создать'}
           </Button>

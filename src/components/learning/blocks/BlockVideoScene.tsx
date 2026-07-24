@@ -131,7 +131,7 @@ export function BlockVideoScene({ data, accent, onAdvance }: Props) {
             transition={{ delay: 2, duration: 0.5 }}
             onClick={handleSkipVideo}
           >
-            Пропустить →
+            {lang === 'uz' ? "O'tkazib yuborish →" : 'Пропустить →'}
           </motion.button>
 
           {/* Mute toggle */}

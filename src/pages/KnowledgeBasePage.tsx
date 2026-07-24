@@ -203,6 +203,7 @@ function FolderSidebar({
   setActiveCategory: (c: string | null) => void;
   setExpandedTypes: (updater: Set<string> | ((prev: Set<string>) => Set<string>)) => void;
 }) {
+  const t = useT();
   const toggleType = (type: string) => {
     setExpandedTypes((prev) => {
       const s = new Set(prev);
@@ -221,7 +222,7 @@ function FolderSidebar({
           !activeFilter ? 'bg-bg-accent text-fg-on-accent font-medium' : 'hover:bg-bg-muted text-fg-muted'
         }`}
       >
-        <span>📂 Все</span>
+        <span>📂 {t('kb.filters.all')}</span>
         <span className="text-xs bg-bg-muted px-1.5 py-0.5 rounded-full text-fg-muted">
           {documents.length}
         </span>
@@ -308,6 +309,7 @@ function SmartFilterBar({
   onStatus: (s: string | null) => void;
   resultCount: number;
 }) {
+  const t = useT();
   return (
     <div className="flex flex-wrap gap-2 items-center mb-3">
       {/* Search */}
@@ -331,12 +333,12 @@ function SmartFilterBar({
         }}
         className="border border-border-default rounded-lg px-3 py-2 text-sm bg-bg-surface focus:outline-none focus:ring-2 focus:ring-border-focus"
       >
-        <option value="date_desc">Дата ↓</option>
-        <option value="date_asc">Дата ↑</option>
-        <option value="name_asc">Имя А–Я</option>
-        <option value="name_desc">Имя Я–А</option>
-        <option value="size_desc">Размер ↓</option>
-        <option value="size_asc">Размер ↑</option>
+        <option value="date_desc">{t('kb.sortDateDesc')}</option>
+        <option value="date_asc">{t('kb.sortDateAsc')}</option>
+        <option value="name_asc">{t('kb.sortNameAz')}</option>
+        <option value="name_desc">{t('kb.sortNameZa')}</option>
+        <option value="size_desc">{t('kb.sortSizeDesc')}</option>
+        <option value="size_asc">{t('kb.sortSizeAsc')}</option>
       </select>
 
       {/* Status */}
@@ -345,14 +347,14 @@ function SmartFilterBar({
         onChange={(e) => onStatus(e.target.value || null)}
         className="border border-border-default rounded-lg px-3 py-2 text-sm bg-bg-surface focus:outline-none focus:ring-2 focus:ring-border-focus"
       >
-        <option value="">Все статусы</option>
-        <option value="processed">✅ Готово</option>
-        <option value="processing">🔄 В обработке</option>
-        <option value="failed">❌ Ошибка</option>
+        <option value="">{t('kb.allStatuses')}</option>
+        <option value="processed">✅ {t('kb.statuses.processed')}</option>
+        <option value="processing">🔄 {t('kb.statuses.processing')}</option>
+        <option value="failed">❌ {t('kb.statuses.failed')}</option>
       </select>
 
       {/* Count */}
-      <span className="text-sm text-fg-subtle whitespace-nowrap">{resultCount} файлов</span>
+      <span className="text-sm text-fg-subtle whitespace-nowrap">{t('kb.fileCountLabel', { count: resultCount })}</span>
     </div>
   );
 }
@@ -612,7 +614,7 @@ export function KnowledgeBasePage() {
         results.push({ name: file.name, ok: true });
       } catch {
         results.push({ name: file.name, ok: false });
-        toast.error(`Не удалось загрузить файл «${file.name}»`);
+        toast.error(t('kb.uploadFailed', { name: file.name }));
       }
     }
 
@@ -638,7 +640,7 @@ export function KnowledgeBasePage() {
     try {
       await ragApi.processDocument(docId, { force_reprocess: true });
     } catch {
-      toast.error('Не удалось переиндексировать документ. Попробуйте позже.');
+      toast.error(t('kb.reindexFailed'));
     } finally {
       setReindexingIds((prev) => {
         const next = new Set(prev);
@@ -1329,7 +1331,7 @@ export function KnowledgeBasePage() {
                 {t('kb.dragDrop')}
               </p>
               <p className="text-xs text-fg-subtle mt-1">
-                PDF, DOCX, DOC, TXT, ZIP
+                {'PDF, DOCX, DOC, TXT, ZIP'}
               </p>
               <input
                 ref={fileInputRef}

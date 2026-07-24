@@ -77,16 +77,16 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
       {/* Content */}
       <div className="animate-fadeIn min-h-[300px]">
         {activeTab === 'scene' && data.scene && (
-          <SceneView scene={data.scene} accent={accent} />
+          <SceneView scene={data.scene} accent={accent} lang={lang} />
         )}
         {activeTab === 'infographic' && data.infographic && (
           <InfographicView infographic={data.infographic} accent={accent} />
         )}
         {activeTab === 'dialogue' && data.dialogueLesson && (
-          <DialogueView dialogue={data.dialogueLesson} />
+          <DialogueView dialogue={data.dialogueLesson} lang={lang} />
         )}
         {activeTab === 'quiz' && data.quiz && (
-          <LessonQuizView quiz={data.quiz} accent={accent} />
+          <LessonQuizView quiz={data.quiz} accent={accent} lang={lang} />
         )}
       </div>
 
@@ -111,7 +111,7 @@ export function LessonDataView({ data, lang = 'ru', onComplete }: Props) {
 // SCENE — immersive narrative with dialogue bubbles
 // ============================================================
 
-function SceneView({ scene }: { scene: NonNullable<LessonData['scene']>; accent: string }) {
+function SceneView({ scene, lang }: { scene: NonNullable<LessonData['scene']>; accent: string; lang: 'ru' | 'uz' }) {
   return (
     <div className="space-y-4">
       {/* Location & time card */}
@@ -170,7 +170,7 @@ function SceneView({ scene }: { scene: NonNullable<LessonData['scene']>; accent:
         <span className="text-lg">⚡</span>
         <div>
           <p className="text-xs font-bold text-amber-800 mb-0.5">
-            Что на кону:
+            {lang === 'uz' ? 'Nima xavf ostida:' : 'Что на кону:'}
           </p>
           <p className="text-sm text-amber-700 leading-relaxed">{scene.stakes}</p>
         </div>
@@ -267,7 +267,7 @@ function InfographicView({ infographic, accent }: { infographic: NonNullable<Les
 // DIALOGUE EXERCISE — interactive right/wrong scenarios
 // ============================================================
 
-function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogueLesson']> }) {
+function DialogueView({ dialogue, lang }: { dialogue: NonNullable<LessonData['dialogueLesson']>; lang: 'ru' | 'uz' }) {
   const [currentExchange, setCurrentExchange] = useState(0);
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
 
@@ -304,7 +304,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
 
       {/* Situation */}
       <div className="rounded-xl p-4" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}>
-        <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>Ситуация</p>
+        <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>{lang === 'uz' ? 'Vaziyat' : 'Ситуация'}</p>
         <p className="text-sm leading-relaxed" style={{ color: 'var(--text-primary)' }}>{exchange.situation}</p>
       </div>
 
@@ -314,7 +314,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
           onClick={handleReveal}
           className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:shadow-lg hover:shadow-blue-200 transition-all flex items-center justify-center gap-2"
         >
-          <span>Как правильно?</span>
+          <span>{lang === 'uz' ? 'Qanday toʻgʻri?' : 'Как правильно?'}</span>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -356,7 +356,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
             >
-              Следующая ситуация
+              {lang === 'uz' ? 'Keyingi vaziyat' : 'Следующая ситуация'}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -373,7 +373,7 @@ function DialogueView({ dialogue }: { dialogue: NonNullable<LessonData['dialogue
 // LESSON QUIZ — single choice questions from lesson_data
 // ============================================================
 
-function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accent: string }) {
+function LessonQuizView({ quiz, lang }: { quiz: NonNullable<LessonData['quiz']>; accent: string; lang: 'ru' | 'uz' }) {
   const [currentQ, setCurrentQ] = useState(0);
   const [selected, setSelected] = useState<Record<number, string>>({});
   const [showExplanation, setShowExplanation] = useState<Set<number>>(new Set());
@@ -403,7 +403,7 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
       <div className="text-center">
         <h4 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{quiz.title}</h4>
         <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-          {answeredCount}/{quiz.questions.length} | {correctCount} {correctCount === 1 ? 'correct' : 'correct'}
+          {answeredCount}/{quiz.questions.length} | {correctCount} {lang === 'uz' ? "to'g'ri" : 'правильных'}
         </p>
       </div>
 
@@ -498,7 +498,7 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--border)'; }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-overlay)'; }}
         >
-          Следующий вопрос
+          {lang === 'uz' ? 'Keyingi savol' : 'Следующий вопрос'}
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -516,7 +516,7 @@ function LessonQuizView({ quiz }: { quiz: NonNullable<LessonData['quiz']>; accen
               : 'bg-amber-100 text-amber-700'
           }`}>
             {correctCount === quiz.questions.length ? '🏆' : correctCount >= quiz.questions.length / 2 ? '👍' : '📚'}
-            {correctCount}/{quiz.questions.length} правильно
+            {correctCount}/{quiz.questions.length} {lang === 'uz' ? "to'g'ri" : 'правильно'}
           </div>
         </div>
       )}

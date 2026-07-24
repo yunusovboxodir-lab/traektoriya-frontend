@@ -262,7 +262,7 @@ export function TacticalLearningPage() {
             >
             <div className="glass-panel" onClick={(e) => e.stopPropagation()} style={{ position: 'relative', maxWidth: 560, width: '100%', maxHeight: '85vh', overflowY: 'auto' }}>
               <div className="panel-header">
-                <span className="panel-label">УЗЕЛ · {selectedNode.code}</span>
+                <span className="panel-label">{lang === 'uz' ? "TUGUN" : 'УЗЕЛ'} · {selectedNode.code}</span>
                 <span
                   className="panel-code"
                   style={{ color: STATE_STYLES[selectedNode.state].stroke }}
@@ -284,7 +284,7 @@ export function TacticalLearningPage() {
                     fontSize: 12,
                   }}
                 >
-                  ✕
+                  {'✕'}
                 </button>
               </div>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 14, color: 'var(--text-0)' }}>

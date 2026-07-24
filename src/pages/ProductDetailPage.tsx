@@ -155,7 +155,7 @@ export function ProductDetailPage() {
             )}
             {product.price_rrp != null && (
               <p className="text-xl font-bold text-blue-600">
-                {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} сум
+                {new Intl.NumberFormat('ru-RU').format(product.price_rrp)} {t('products.currency')}
               </p>
             )}
           </div>
@@ -433,7 +433,7 @@ function HpvTab({
     <div>
       <div className="flex items-center justify-between mb-5">
         <p className="text-sm text-gray-500">
-          {t('productDetail.hpvVariant')} <span className="font-semibold text-gray-700">#{hpv.variant_number}</span> из 100
+          {t('productDetail.hpvVariant')} <span className="font-semibold text-gray-700">#{hpv.variant_number}</span> {t('planogram.outOf100')}
         </p>
         <button
           type="button"

@@ -114,7 +114,7 @@ export function StatusBar() {
               {tenant?.name || (lang === 'uz' ? 'noldan ekspertgacha' : 'с нуля до эксперта')}
             </div>
           </div>
-          <span className="brand-caret">▾</span>
+          <span className="brand-caret">{'▾'}</span>
         </button>
 
         {menuOpen && (
@@ -203,7 +203,7 @@ export function StatusBar() {
         <button
           className={'lang-opt' + (lang === 'ru' ? ' on' : '')}
           onClick={() => setLang('ru')}
-        >РУ</button>
+        >{'РУ'}</button>
         <button
           className={'lang-opt' + (lang === 'uz' ? ' on' : '')}
           onClick={() => setLang('uz')}

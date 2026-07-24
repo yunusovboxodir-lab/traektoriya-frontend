@@ -72,7 +72,9 @@
     "demoAccess": "Демо доступы",
     "tenantSlug": "Организация",
     "tenantSlugPlaceholder": "слаг организации (например, acme-corp)",
-    "errorAmbiguousTenant": "Такой логин есть в нескольких организациях. Укажите слаг вашей организации."
+    "errorAmbiguousTenant": "Такой логин есть в нескольких организациях. Укажите слаг вашей организации.",
+    "footerTagline": "Корпоративная платформа развития",
+    "tagline": "AI · Микрообучение · Полевая практика"
   },
   "home": {
     "tabOverview": "Обзор",
@@ -88,7 +90,8 @@
     "tabPulse": "Пульс",
     "tabAssessments": "Оценка",
     "tabMatrix": "Матрица GAP",
-    "tabProfiles": "Профили должностей"
+    "tabProfiles": "Профили должностей",
+    "radarClickHint": "Клик — открыть курсы"
   },
   "pulse": {
     "overallPulse": "Общий пульс",
@@ -342,7 +345,18 @@
       "cup_verification": "Проверка Кубка",
       "content_review": "Проверка контента",
       "content_improvement": "Улучшение контента"
-    }
+    },
+    "progressLabel": "Прогресс",
+    "postedBy": "Поставил",
+    "assignee": "Исполнитель",
+    "startDateLabel": "Начата",
+    "completedDateLabel": "Завершена",
+    "tagsLabel": "Теги",
+    "kpiBonusLabel": "KPI бонус",
+    "deadlineLabel": "Срок",
+    "estimatedMinutes": "{minutes} мин",
+    "kpiBonusValue": "KPI бонус: +{value}%",
+    "timeLabel": "Время"
   },
   "team": {
     "title": "Команда",
@@ -453,7 +467,15 @@
       "actions": "Действия"
     },
     "expecting": "Ожидается ещё {count}",
-    "currency": "сум"
+    "currency": "сум",
+    "deleteConfirmDesc": "Товар будет деактивирован и не будет отображаться в каталоге.",
+    "deleteConfirmTitle": "Удалить товар?",
+    "deleting": "Удаление...",
+    "form": {
+      "brandLabel": "Бренд",
+      "fullDescriptionLabel": "Полное описание",
+      "noBrand": "— Без бренда —"
+    }
   },
   "learning": {
     "title": "Обучение",
@@ -528,7 +550,8 @@
       "answer": "Ответ",
       "remember": "Помню",
       "repeat": "Повторить"
-    }
+    },
+    "autoMode": "Auto"
   },
   "kpi": {
     "title": "Рейтинг",
@@ -608,7 +631,8 @@
       "title": "Пока нет данных для рейтинга",
       "desc": "В выбранном периоде и фильтре роли нет результатов. Попробуйте обновить данные или выбрать другой период.",
       "ctaRefresh": "Обновить"
-    }
+    },
+    "noData": "Нет данных"
   },
   "chat": {
     "title": "AI-Консультант",
@@ -827,7 +851,9 @@
       "brand": "Бренд",
       "generalProducts": "Общие (товары)",
       "topManagement": "Топ-менеджмент"
-    }
+    },
+    "reportButton": "Отчёт",
+    "lbEmployee": "Сотрудник"
   },
   "dictionary": {
     "title": "Словарь UZ",
@@ -1001,8 +1027,19 @@
       "toDraft": "Вернуть в черновик",
       "backToGeneration": "Назад к генерации",
       "allApproved": "Все уроки утверждены!",
-      "approvedOf": "{approved} из {total} утверждено"
-    }
+      "approvedOf": "{approved} из {total} утверждено",
+      "competenciesExtracted": "компетенций извлечено",
+      "estimatedMinutes": "~{minutes} мин генерации",
+      "groundedRatio": "{grounded}/{total} со стандартами",
+      "noCompetencies": "Нет компетенций",
+      "totalLessonsLabel": "Всего уроков"
+    },
+    "languageRu": "Русский",
+    "languageUz": "O'zbek",
+    "contentRuWithUz": "Контент на русском + узбекские переводы (title_uz)",
+    "contentOnlyUz": "Barcha kontent faqat o'zbek tilida",
+    "kanbanTab": "Kanban",
+    "topicWithValue": "Тема: «{topic}»"
   },
   "goals": {
     "title": "Цели и достижения",
@@ -1115,7 +1152,20 @@
     "deselectAll": "Снять выделение",
     "rowActions": {
       "label": "Действия с документом"
-    }
+    },
+    "allStatuses": "Все статусы",
+    "sortDateDesc": "Дата ↓",
+    "sortDateAsc": "Дата ↑",
+    "sortNameAz": "Имя А–Я",
+    "sortNameZa": "Имя Я–А",
+    "sortSizeDesc": "Размер ↓",
+    "sortSizeAsc": "Размер ↑",
+    "fileCountLabel": "{count} файлов",
+    "uploadFailed": "Не удалось загрузить файл «{name}»",
+    "reindexFailed": "Не удалось переиндексировать документ. Попробуйте позже.",
+    "deleteFailed": "Не удалось удалить документ. Попробуйте ещё раз.",
+    "bulkUpdateFailed": "Не удалось обновить документы. Попробуйте ещё раз.",
+    "bulkDeleteFailed": "Не удалось удалить выбранные документы. Попробуйте ещё раз."
   },
   "planogram": {
     "title": "ShelfScan AI",
@@ -1165,7 +1215,24 @@
       "facings": "Фейсинги",
       "price_tags": "Ценники",
       "cleanliness": "Чистота"
-    }
+    },
+    "taskCompleted": "Задача выполнена! KPI-бонус начислен",
+    "taskCompleteFailed": "Ошибка при выполнении задачи",
+    "taskSkipped": "Задача пропущена — супервайзер будет уведомлён",
+    "taskSkipFailed": "Ошибка при пропуске задачи",
+    "completeTask": "Выполнить",
+    "skipTask": "Пропустить",
+    "done": "Готово",
+    "skippedLabel": "Пропущено",
+    "achievementLine": "{description} — +{points} pts",
+    "estimatedMinutesShort": "~{minutes} мин",
+    "estimatedOrderValue": "Примерная сумма заказа",
+    "itemsCount": "{count} позиций",
+    "kpiBonusSuffix": "(+{bonus}% KPI)",
+    "onShelf": "на полке",
+    "progressChange": "{previous}% → {value}%",
+    "recommendedOrderTitle": "Рекомендованный заказ",
+    "toOrder": "заказать"
   },
   "quiz": {
     "notFound": "Тест не найден",
@@ -1196,7 +1263,30 @@
       "beginner": "Начальный",
       "intermediate": "Средний",
       "advanced": "Продвинутый"
-    }
+    },
+    "dragDrop": {
+      "allCorrect": "Всё правильно!",
+      "check": "Проверить",
+      "dropHere": "Перетащите сюда",
+      "orderHint": "Расставьте в правильном порядке (перетаскивайте или используйте кнопки)",
+      "tryAgainDefault": "Попробуйте ещё раз.",
+      "unknownType": "Неизвестный тип drag & drop",
+      "wrong": "Неверно.",
+      "zonesHint": "Перетащите элементы в нужную зону или нажмите на элемент, затем на зону"
+    },
+    "hotspot": {
+      "allFound": "Все проблемные области найдены!",
+      "check": "Проверить",
+      "hint": "Нажмите на проблемные области на изображении (найдите минимум {min} из {total})",
+      "marked": "Отмечено",
+      "notAllFound": "Не все области найдены верно."
+    },
+    "matching": {
+      "hint": "Нажмите элемент слева, затем справа, чтобы соединить пары",
+      "reset": "Сбросить"
+    },
+    "title": "Проверка знаний",
+    "unknownType": "Неизвестный тип вопроса"
   },
   "productDetail": {
     "loadError": "Не удалось загрузить товар",
@@ -1370,7 +1460,8 @@
     },
     "rowActions": {
       "label": "Действия с репортом"
-    }
+    },
+    "createTask": "Создать задачу"
   },
   "common": {
     "retry": "Повторить",
@@ -1621,7 +1712,10 @@
     "successMsg": "Коррекция сохранена",
     "aiAnalysis": "AI анализ",
     "adminCorrection": "Коррекция администратора",
-    "unknownOutlet": "Неизвестная точка"
+    "unknownOutlet": "Неизвестная точка",
+    "brandsAiLabel": "Бренды AI:",
+    "noAccess": "Нет доступа к этой странице",
+    "noAnalyses": "Нет анализов для отображения"
   },
   "blocks": {
     "keyPoint": "КЛЮЧЕВАЯ МЫСЛЬ",
@@ -1656,7 +1750,8 @@
     "continue": "Продолжить",
     "finish": "Завершить ✓",
     "next": "Далее →",
-    "narration": "Озвучка урока"
+    "narration": "Озвучка урока",
+    "unknownBlockType": "Unknown block type"
   },
   "org": {
     "col": {
@@ -1701,7 +1796,8 @@
       "loadSupervisors": "Ошибка загрузки супервайзеров",
       "changeStatus": "Не удалось изменить статус",
       "saveFailed": "Не удалось сохранить"
-    }
+    },
+    "region": "Регион"
   },
   "rolesPlural": {
     "regional_manager": "Региональные менеджеры",
@@ -1739,7 +1835,9 @@
       "earnTop3": "Решение попало в TOP-3 (мин. 3 оценки)",
       "earnPopular": "Кейс собрал 50+ оценок",
       "bonus100": "+100 XP бонус",
-      "bonus200": "+200 XP бонус"
+      "bonus200": "+200 XP бонус",
+      "statPopular": "Популярные кейсы",
+      "statTotalActions": "Всего действий"
     },
     "new": {
       "errCategory": "Выбери категорию",
@@ -2485,5 +2583,39 @@
       "reviewFailed": "Ошибка: {error}"
     },
     "adminCommentPrefix": "Админ: {comment}"
+  },
+  "trainingPlan": {
+    "submitRequest": "Подать заявку",
+    "createEvent": "Создать событие",
+    "addFieldTrip": "+ Отчёт о командировке",
+    "caseStudio": "Кейсотека",
+    "tabCalendar": "Календарь",
+    "tabRequests": "Заявки",
+    "tabFieldTrips": "Командировки",
+    "pageTitle": "План обучения",
+    "pageSubtitle": "Календарь 2026-2027, заявки на тренинги, командировки"
+  },
+  "aiFeedback": {
+    "placeholder": "Кратко опишите проблему",
+    "submit": "Отправить",
+    "thankYou": "Спасибо за отзыв",
+    "whatWrong": "Что не так с ответом? (опционально)"
+  },
+  "form": {
+    "agree": "Я согласен с условиями"
+  },
+  "mobileAdminGate": {
+    "continueMobile": "Продолжить в моб-режиме",
+    "description": "Админ-разделы (роли, KPI-Pipeline, AI-студия, словари) полноценно работают только на десктопе. Откройте платформу с компьютера.",
+    "roleLabel": "Ваша роль: {role}",
+    "title": "Только для компьютера"
+  },
+  "notifications": {
+    "empty": "Нет уведомлений",
+    "markAllRead": "Прочитать все",
+    "title": "Уведомления"
+  },
+  "championship": {
+    "percentile": "{value}‑й перцентиль"
   }
 }

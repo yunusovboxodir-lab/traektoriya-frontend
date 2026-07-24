@@ -2,7 +2,7 @@ import { QuizSingleChoice } from './QuizSingleChoice';
 import { QuizDragDrop, type DragDropQuestion } from './QuizDragDrop';
 import { QuizMatching, type MatchingQuestion } from './QuizMatching';
 import { QuizHotspot, type HotspotQuestion } from './QuizHotspot';
-import { useLangStore } from '../../stores/langStore';
+import { useLangStore, useT } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
 
@@ -37,6 +37,7 @@ export function QuizRenderer({
   submitted,
 }: QuizRendererProps) {
   const lang = useLangStore((s) => s.lang);
+  const t = useT();
 
   return (
     <div className="animate-fadeIn">
@@ -45,9 +46,9 @@ export function QuizRenderer({
           ?
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900">Проверка знаний</h3>
+          <h3 className="text-lg font-bold text-gray-900">{t('quiz.title')}</h3>
           <p className="text-xs text-gray-400">
-            {questions.length} вопрос{questions.length > 1 ? (questions.length < 5 ? 'а' : 'ов') : ''}
+            {t('quiz.questions', { count: questions.length })}
           </p>
         </div>
       </div>
@@ -102,7 +103,7 @@ export function QuizRenderer({
             default:
               return (
                 <p key={qi} className="text-gray-500 text-sm">
-                  Неизвестный тип вопроса
+                  {t('quiz.unknownType')}
                 </p>
               );
           }

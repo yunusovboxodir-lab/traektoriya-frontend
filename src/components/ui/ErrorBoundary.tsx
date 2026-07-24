@@ -74,7 +74,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 onClick={() => window.location.assign('/dashboard')}
                 className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition"
               >
-                На главную
+                {'На главную'}
               </button>
             </div>
           </div>

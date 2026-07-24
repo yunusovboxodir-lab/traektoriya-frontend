@@ -252,7 +252,7 @@ export function GenerationPage() {
               : 'text-fg-subtle hover:text-fg-default'
           }`}
         >
-          Kanban
+          {t('generation.kanbanTab')}
         </button>
       </div>
 
@@ -399,7 +399,7 @@ function SimpleGeneration() {
                     : 'bg-bg-muted text-fg-muted hover:text-fg-default'
                 }`}
               >
-                <span className="text-base">🇷🇺</span> Русский
+                <span className="text-base">🇷🇺</span> {t('generation.languageRu')}
               </button>
               <button
                 type="button"
@@ -410,13 +410,13 @@ function SimpleGeneration() {
                     : 'bg-bg-muted text-fg-muted hover:text-fg-default'
                 }`}
               >
-                <span className="text-base">🇺🇿</span> O'zbek
+                <span className="text-base">🇺🇿</span> {t('generation.languageUz')}
               </button>
             </div>
             <p className="mt-1 text-sm text-fg-subtle">
               {language === 'ru'
-                ? 'Контент на русском + узбекские переводы (title_uz)'
-                : "Barcha kontent faqat o'zbek tilida"}
+                ? t('generation.contentRuWithUz')
+                : t('generation.contentOnlyUz')}
             </p>
           </div>
 
@@ -475,7 +475,7 @@ function SimpleGeneration() {
           <div className="bg-bg-surface rounded-xl border border-border-default shadow-sm p-12 text-center">
             <div className="w-12 h-12 border-4 border-border-default border-t-bg-accent rounded-full animate-spin mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-fg-muted mb-1">{t('generation.aiGenerating')}</h3>
-            <p className="text-sm text-fg-subtle">{t('generation.topic')}: «{topic}»</p>
+            <p className="text-sm text-fg-subtle">{t('generation.topicWithValue', { topic })}</p>
           </div>
         )}
 
@@ -1241,7 +1241,7 @@ function StepUpload({
         >
           <IconUploadCloud className={`w-12 h-12 mb-3 ${isDragOver ? 'text-bg-accent' : 'text-fg-subtle'}`} />
           <p className="text-sm text-fg-muted text-center">{t('generation.wizard.dragDrop')}</p>
-          <p className="text-xs text-fg-subtle mt-1">PDF, DOCX, DOC, TXT</p>
+          <p className="text-xs text-fg-subtle mt-1">{'PDF, DOCX, DOC, TXT'}</p>
           <input
             ref={fileInputRef}
             type="file"
@@ -1403,7 +1403,7 @@ function StepCompetencies({
         {/* Summary badge */}
         <div className="flex flex-wrap items-center gap-3 mb-5 p-3 bg-bg-muted rounded-lg">
           <span className="text-sm font-medium text-fg-muted">
-            {'\uD83D\uDCDA'} Всего уроков: <strong className="text-bg-accent">{totalExpectedLessons}</strong>
+            {'\uD83D\uDCDA'} {t('generation.wizard.totalLessonsLabel')}: <strong className="text-bg-accent">{totalExpectedLessons}</strong>
           </span>
           <span className="text-xs text-fg-subtle">|</span>
           {TERRITORIES.map((ter) => (
@@ -1413,7 +1413,7 @@ function StepCompetencies({
           ))}
           <span className="text-xs text-fg-subtle">|</span>
           <span className="text-xs text-fg-subtle">
-            ~{totalExpectedLessons * 4} мин генерации
+            {t('generation.wizard.estimatedMinutes', { minutes: totalExpectedLessons * 4 })}
           </span>
         </div>
 
@@ -1447,7 +1447,7 @@ function StepCompetencies({
                 {/* Competency list in this territory */}
                 <div className="p-3 space-y-2 max-h-[250px] overflow-y-auto">
                   {indices.length === 0 ? (
-                    <p className="text-sm text-fg-subtle text-center py-3">Нет компетенций</p>
+                    <p className="text-sm text-fg-subtle text-center py-3">{t('generation.wizard.noCompetencies')}</p>
                   ) : (
                     indices.map((compIdx) => {
                       const comp = extraction.competencies[compIdx];
@@ -1694,7 +1694,7 @@ function StepSources({
                   : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
-              <span className="text-base">🇷🇺</span> Русский
+              <span className="text-base">🇷🇺</span> {t('generation.languageRu')}
             </button>
             <button
               type="button"
@@ -1705,13 +1705,13 @@ function StepSources({
                   : 'bg-bg-muted text-fg-muted hover:text-fg-default'
               }`}
             >
-              <span className="text-base">🇺🇿</span> O'zbek
+              <span className="text-base">🇺🇿</span> {t('generation.languageUz')}
             </button>
           </div>
           <p className="mt-1 text-sm text-fg-subtle">
             {language === 'ru'
-              ? 'Контент на русском + узбекские переводы (title_uz)'
-              : "Barcha kontent faqat o'zbek tilida"}
+              ? t('generation.contentRuWithUz')
+              : t('generation.contentOnlyUz')}
           </p>
         </div>
 
@@ -1868,7 +1868,7 @@ function StepModeration({
             {t('generation.wizard.onReviewCount', { count: reviewCount })}
           </span>
           <span className={`px-3 py-1 rounded-full text-xs font-medium ${groundedCount > 0 ? 'bg-status-success-bg text-status-success-fg' : 'bg-status-warning-bg text-status-warning-fg'}`}>
-            {groundedCount}/{lessons.length} со стандартами
+            {t('generation.wizard.groundedRatio', { grounded: groundedCount, total: lessons.length })}
           </span>
         </div>
       </div>

@@ -173,7 +173,7 @@ export function FloatingScreenshotButton() {
                   className="text-fg-muted hover:text-fg-default text-lg leading-none"
                   aria-label={t('screenshot.cancel') || 'Отмена'}
                 >
-                  ✕
+                  {'✕'}
                 </button>
               )}
             </div>

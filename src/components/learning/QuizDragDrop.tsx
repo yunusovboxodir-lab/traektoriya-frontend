@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { Lang } from '../../stores/langStore';
+import { useT, type Lang } from '../../stores/langStore';
 import { bl } from '../../utils/bilingual';
 import type { BilingualText } from '../../api/learning';
 
@@ -21,6 +21,7 @@ function DragDropOrdering({
   questionIndex,
   onResult,
 }: OrderingProps) {
+  const t = useT();
   const [order, setOrder] = useState<number[]>(items.map((_, i) => i));
   const [dragIdx, setDragIdx] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
@@ -56,7 +57,7 @@ function DragDropOrdering({
       <p className="font-medium text-gray-800 mb-1 text-[15px]">
         <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {question}
       </p>
-      <p className="text-xs text-gray-400 mb-3">Расставьте в правильном порядке (перетаскивайте или используйте кнопки)</p>
+      <p className="text-xs text-gray-400 mb-3">{t('quiz.dragDrop.orderHint')}</p>
 
       <div className="space-y-2">
         {order.map((itemIdx, pos) => (
@@ -123,7 +124,7 @@ function DragDropOrdering({
           onClick={checkAnswer}
           className="mt-4 px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-xl hover:bg-blue-600 transition-colors"
         >
-          Проверить
+          {t('quiz.dragDrop.check')}
         </button>
       )}
 
@@ -132,7 +133,7 @@ function DragDropOrdering({
           isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
         }`}>
           <span className="shrink-0 mt-0.5">{isCorrect ? '✅' : '❌'}</span>
-          <span>{isCorrect ? 'Правильный порядок!' : `Неверно. ${explanation || 'Попробуйте ещё раз.'}`}</span>
+          <span>{isCorrect ? t('blocks.correctOrder') : `${t('quiz.dragDrop.wrong')} ${explanation || t('quiz.dragDrop.tryAgainDefault')}`}</span>
         </div>
       )}
     </div>
@@ -159,6 +160,7 @@ function DragDropZones({
   questionIndex,
   onResult,
 }: ZonesProps) {
+  const t = useT();
   const [assignments, setAssignments] = useState<Record<string, string>>({});
   const [dragItem, setDragItem] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
@@ -194,7 +196,7 @@ function DragDropZones({
       <p className="font-medium text-gray-800 mb-1 text-[15px]">
         <span className="text-blue-500 font-bold mr-1">{questionIndex + 1}.</span> {question}
       </p>
-      <p className="text-xs text-gray-400 mb-3">Перетащите элементы в нужную зону или нажмите на элемент, затем на зону</p>
+      <p className="text-xs text-gray-400 mb-3">{t('quiz.dragDrop.zonesHint')}</p>
 
       {/* Unassigned items */}
       {unassigned.length > 0 && (
@@ -255,13 +257,13 @@ function DragDropZones({
                       }`}
                     >
                       {item} {!checked && <span className="text-gray-400 ml-1">×</span>}
-                      {itemCorrect && <span className="ml-1">✓</span>}
-                      {itemWrong && <span className="ml-1">✗</span>}
+                      {itemCorrect && <span className="ml-1">{'✓'}</span>}
+                      {itemWrong && <span className="ml-1">{'✗'}</span>}
                     </div>
                   );
                 })}
                 {zoneItems.length === 0 && (
-                  <p className="text-xs text-gray-300 italic">Перетащите сюда</p>
+                  <p className="text-xs text-gray-300 italic">{t('quiz.dragDrop.dropHere')}</p>
                 )}
               </div>
             </div>
@@ -275,7 +277,7 @@ function DragDropZones({
           disabled={Object.keys(assignments).length < items.length}
           className="mt-4 px-5 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Проверить
+          {t('quiz.dragDrop.check')}
         </button>
       )}
 
@@ -284,7 +286,7 @@ function DragDropZones({
           isCorrect ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-red-800'
         }`}>
           <span className="shrink-0 mt-0.5">{isCorrect ? '✅' : '❌'}</span>
-          <span>{isCorrect ? 'Всё правильно!' : `Неверно. ${explanation || ''}`}</span>
+          <span>{isCorrect ? t('quiz.dragDrop.allCorrect') : `${t('quiz.dragDrop.wrong')} ${explanation || ''}`}</span>
         </div>
       )}
     </div>
@@ -311,6 +313,7 @@ interface QuizDragDropProps {
 }
 
 export function QuizDragDrop({ data, lang, questionIndex, onResult }: QuizDragDropProps) {
+  const t = useT();
   if (data.subtype === 'ordering' && data.correct_order) {
     return (
       <DragDropOrdering
@@ -338,5 +341,5 @@ export function QuizDragDrop({ data, lang, questionIndex, onResult }: QuizDragDr
     );
   }
 
-  return <p className="text-red-500 text-sm">Неизвестный тип drag & drop</p>;
+  return <p className="text-red-500 text-sm">{t('quiz.dragDrop.unknownType')}</p>;
 }

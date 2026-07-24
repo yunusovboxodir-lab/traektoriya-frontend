@@ -14,6 +14,7 @@
 import { useState } from 'react';
 import { ThumbsUp, ThumbsDown, Flag } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useT } from '../../stores/langStore';
 
 export type FeedbackType = 'up' | 'down' | 'flag';
 
@@ -33,6 +34,7 @@ export function AIFeedbackBar({
   label = 'Оцените ответ:',
   className,
 }: AIFeedbackBarProps) {
+  const t = useT();
   const [submitted, setSubmitted] = useState<FeedbackType | null>(null);
   const [showCommentBox, setShowCommentBox] = useState(false);
   const [comment, setComment] = useState('');
@@ -68,7 +70,7 @@ export function AIFeedbackBar({
   if (submitted) {
     return (
       <p className={cn('text-xs text-fg-muted', className)} role="status">
-        Спасибо за отзыв
+        {t('aiFeedback.thankYou')}
       </p>
     );
   }
@@ -127,7 +129,7 @@ export function AIFeedbackBar({
       {showCommentBox && (
         <div className="flex flex-col gap-2 mt-1 p-3 rounded-md bg-bg-surface border border-border-default">
           <label htmlFor={`flag-${responseId}`} className="text-xs text-fg-muted">
-            Что не так с ответом? (опционально)
+            {t('aiFeedback.whatWrong')}
           </label>
           <textarea
             id={`flag-${responseId}`}
@@ -140,7 +142,7 @@ export function AIFeedbackBar({
               'focus:outline-none focus:border-border-focus',
               'text-fg-default',
             )}
-            placeholder="Кратко опишите проблему"
+            placeholder={t('aiFeedback.placeholder')}
           />
           <div className="flex gap-2 justify-end">
             <button
@@ -152,7 +154,7 @@ export function AIFeedbackBar({
               className="px-3 py-1 text-xs text-fg-muted hover:text-fg-default"
               disabled={busy}
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="button"
@@ -165,7 +167,7 @@ export function AIFeedbackBar({
                 'transition-opacity duration-base',
               )}
             >
-              Отправить
+              {t('aiFeedback.submit')}
             </button>
           </div>
         </div>
