@@ -17,6 +17,7 @@ import type React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 import type {
   CaseCategory,
   CaseTargetRole,
@@ -33,16 +34,17 @@ const ROLE_LEVEL: Record<string, number> = {
   superadmin: 6,
 };
 
-const ROLE_OPTIONS: { value: CaseTargetRole; label: string }[] = [
-  { value: 'sales_rep', label: 'Торговый представитель (ТП)' },
-  { value: 'supervisor', label: 'Супервайзер (СВ)' },
-  { value: 'regional_manager', label: 'Региональный менеджер (РМ)' },
-  { value: 'commercial_dir', label: 'Коммерческий директор (КД)' },
+const ROLE_OPTIONS: { value: CaseTargetRole; labelKey: string }[] = [
+  { value: 'sales_rep', labelKey: 'pipeline.roles.salesRep' },
+  { value: 'supervisor', labelKey: 'pipeline.roles.supervisor' },
+  { value: 'regional_manager', labelKey: 'pipeline.roles.regionalManager' },
+  { value: 'commercial_dir', labelKey: 'pipeline.roles.commercialDir' },
 ];
 
 export function CaseStudioNewPage() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const t = useT();
 
   const [categories, setCategories] = useState<CaseCategory[]>([]);
   const [targetRole, setTargetRole] = useState<CaseTargetRole>('sales_rep');
@@ -108,19 +110,19 @@ export function CaseStudioNewPage() {
   const handleSubmit = async () => {
     setError(null);
     if (!categoryId) {
-      setError('Выбери категорию');
+      setError(t('caseStudioForms.new.errCategory'));
       return;
     }
     if (titleRu.trim().length < 5) {
-      setError('Заголовок: минимум 5 символов');
+      setError(t('caseStudioForms.new.errTitleMin'));
       return;
     }
     if (situationRu.trim().length < 20) {
-      setError('Ситуация: минимум 20 символов');
+      setError(t('caseStudioForms.new.errSituationMin'));
       return;
     }
     if (hasSolution && solutionText.trim().length < 20) {
-      setError('Решение: минимум 20 символов');
+      setError(t('caseStudioForms.new.errSolutionMin'));
       return;
     }
     const filteredDialogue = dialogue.filter((l) => l.text.trim().length > 0);
@@ -141,7 +143,7 @@ export function CaseStudioNewPage() {
       navigate(`/case-studio/${res.data.id}`);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
@@ -163,20 +165,19 @@ export function CaseStudioNewPage() {
         className="text-sm mb-4"
         style={{ color: 'var(--text-muted)' }}
       >
-        ← К Кейсотеке
+        {t('caseStudioForms.my.backToCases')}
       </button>
 
-      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Создать кейс</h1>
+      <h1 className="text-2xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{t('caseStudio.createCase')}</h1>
       <p className="mb-6" style={{ color: 'var(--text-muted)' }}>
-        Опиши реальную ситуацию из практики. Чем конкретнее — тем полезнее команде.
-        +50 XP за публикацию.
+        {t('caseStudioForms.new.intro')}
       </p>
 
       <div className="rounded-lg p-6 space-y-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {/* Target role */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Для какой роли этот кейс
+            {t('caseStudioForms.new.roleLabel')}
           </label>
           <select
             value={targetRole}
@@ -185,26 +186,26 @@ export function CaseStudioNewPage() {
           >
             {availableRoles.map((r) => (
               <option key={r.value} value={r.value}>
-                {r.label}
+                {t(r.labelKey)}
               </option>
             ))}
           </select>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            Кейсы видят только указанная роль и выше по иерархии.
+            {t('caseStudioForms.new.roleHint')}
           </p>
         </div>
 
         {/* Category */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Категория
+            {t('caseStudio.filters.category')}
           </label>
           <select
             value={categoryId}
             onChange={(e) => setCategoryId(e.target.value)}
             style={inputStyle}
           >
-            <option value="">— Выбери категорию —</option>
+            <option value="">{t('caseStudioForms.new.categoryPlaceholder')}</option>
             {compatibleCategories.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.icon ? `${c.icon} ` : ''}
@@ -214,7 +215,7 @@ export function CaseStudioNewPage() {
           </select>
           {compatibleCategories.length === 0 && (
             <p className="text-xs mt-1" style={{ color: 'var(--warning)' }}>
-              Для этой роли пока нет совместимых категорий. Сообщите админу.
+              {t('caseStudioForms.new.noCompatibleCategories')}
             </p>
           )}
         </div>
@@ -222,13 +223,13 @@ export function CaseStudioNewPage() {
         {/* Title */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Заголовок кейса
+            {t('caseStudioForms.new.titleLabel')}
           </label>
           <input
             type="text"
             value={titleRu}
             onChange={(e) => setTitleRu(e.target.value)}
-            placeholder='Например: «ТП в Намангане встретил возражение по STROBAR»'
+            placeholder={t('caseStudioForms.new.titlePlaceholder')}
             style={inputStyle}
             maxLength={500}
           />
@@ -238,22 +239,22 @@ export function CaseStudioNewPage() {
         {/* Situation */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Ситуация (контекст)
+            {t('caseStudioForms.new.situationLabel')}
           </label>
           <textarea
             value={situationRu}
             onChange={(e) => setSituationRu(e.target.value)}
-            placeholder="Где, кто участвует, что произошло до диалога. Чем конкретнее — тем лучше (имена, регион, бренды, цифры)."
+            placeholder={t('caseStudioForms.new.situationPlaceholder')}
             rows={6}
             style={inputStyle}
           />
-          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{situationRu.length} символов (мин. 20)</p>
+          <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{t('caseStudioForms.new.charsMin20', { n: situationRu.length })}</p>
         </div>
 
         {/* Dialogue */}
         <div>
           <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-            Диалог (опционально)
+            {t('caseStudioForms.new.dialogueLabel')}
           </label>
           <div className="space-y-2 mb-2">
             {dialogue.map((line, idx) => (
@@ -263,17 +264,17 @@ export function CaseStudioNewPage() {
                   onChange={(e) => updateLine(idx, 'speaker', e.target.value)}
                   style={{ ...inputStyle, width: '6rem' }}
                 >
-                  <option value="client">Клиент</option>
-                  <option value="tp">ТП</option>
-                  <option value="sv">СВ</option>
-                  <option value="rm">РМ</option>
-                  <option value="other">Другой</option>
+                  <option value="client">{t('caseStudio.speakers.client')}</option>
+                  <option value="tp">{t('caseStudio.roles.sales_rep')}</option>
+                  <option value="sv">{t('caseStudio.roles.supervisor')}</option>
+                  <option value="rm">{t('caseStudio.roles.regional_manager')}</option>
+                  <option value="other">{t('caseStudio.speakers.other')}</option>
                 </select>
                 <input
                   type="text"
                   value={line.text}
                   onChange={(e) => updateLine(idx, 'text', e.target.value)}
-                  placeholder="Реплика…"
+                  placeholder={t('caseStudioForms.new.linePlaceholder')}
                   style={{ ...inputStyle, flex: 1 }}
                 />
                 {dialogue.length > 1 && (
@@ -281,7 +282,7 @@ export function CaseStudioNewPage() {
                     onClick={() => removeLine(idx)}
                     className="px-2"
                     style={{ color: 'var(--text-muted)' }}
-                    aria-label="Удалить реплику"
+                    aria-label={t('caseStudioForms.new.removeLine')}
                   >
                     ×
                   </button>
@@ -294,7 +295,7 @@ export function CaseStudioNewPage() {
             className="text-sm underline"
             style={{ color: 'var(--text-secondary)' }}
           >
-            + Добавить реплику
+            {t('caseStudioForms.new.addLine')}
           </button>
         </div>
 
@@ -308,7 +309,7 @@ export function CaseStudioNewPage() {
               className="rounded"
             />
             <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-              Приложить своё решение к кейсу
+              {t('caseStudioForms.new.attachSolution')}
             </span>
           </label>
           {hasSolution && (
@@ -316,12 +317,12 @@ export function CaseStudioNewPage() {
               <textarea
                 value={solutionText}
                 onChange={(e) => setSolutionText(e.target.value)}
-                placeholder="Опиши, как ты решил эту ситуацию (или как стоит решать)..."
+                placeholder={t('caseStudioForms.new.solutionPlaceholder')}
                 rows={5}
                 style={inputStyle}
               />
               <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-                {solutionText.length} символов (мин. 20). Твоё решение пойдёт в peer-review.
+                {t('caseStudioForms.new.solutionCharsHint', { n: solutionText.length })}
               </p>
             </>
           )}
@@ -339,7 +340,7 @@ export function CaseStudioNewPage() {
             className="px-4 py-2 rounded-lg text-sm"
             style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSubmit}
@@ -347,7 +348,7 @@ export function CaseStudioNewPage() {
             className="px-5 py-2 rounded-lg disabled:opacity-50 text-sm font-medium"
             style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border-strong)' }}
           >
-            {submitting ? 'Публикую…' : 'Опубликовать кейс'}
+            {submitting ? t('caseStudioForms.new.publishing') : t('caseStudioForms.new.publishCase')}
           </button>
         </div>
       </div>

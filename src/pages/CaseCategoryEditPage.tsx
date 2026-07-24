@@ -9,14 +9,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { caseStudioApi } from '../api/caseStudio';
+import { useT } from '../stores/langStore';
 import type { CaseCategory, CategoryCreateIn } from '../types/caseStudio';
 import { SkeletonCard } from '@/components/ui';
 
 const ROLE_OPTIONS = [
-  { value: 'sales_rep', label: 'ТП' },
-  { value: 'supervisor', label: 'СВ' },
-  { value: 'regional_manager', label: 'РМ' },
-  { value: 'commercial_dir', label: 'КД' },
+  { value: 'sales_rep', labelKey: 'caseStudio.roles.sales_rep' },
+  { value: 'supervisor', labelKey: 'caseStudio.roles.supervisor' },
+  { value: 'regional_manager', labelKey: 'caseStudio.roles.regional_manager' },
+  { value: 'commercial_dir', labelKey: 'caseStudio.roles.commercial_dir' },
 ];
 
 const PRESET_ICONS = ['💬', '⚔️', '🤝', '💳', '🛒', '🎯', '👥', '⏰', '🆕', '📐', '☀️', '📈', '📁', '⭐', '🔥', '🚀'];
@@ -29,6 +30,7 @@ const PRESET_COLORS = [
 export function CaseCategoryEditPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
+  const t = useT();
   const isNew = !categoryId;
 
   const [form, setForm] = useState<CategoryCreateIn>({
@@ -81,7 +83,7 @@ export function CaseCategoryEditPage() {
   const handleSubmit = async () => {
     setError(null);
     if (form.code.trim().length < 2 || form.label_ru.trim().length < 2) {
-      setError('Код и название обязательны (мин. 2 символа)');
+      setError(t('caseStudioForms.category.errRequired'));
       return;
     }
     setSubmitting(true);
@@ -103,14 +105,14 @@ export function CaseCategoryEditPage() {
       navigate('/case-studio');
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (!categoryId) return;
-    if (!confirm('Удалить категорию (soft delete)?')) return;
+    if (!confirm(t('caseStudioForms.category.confirmDelete'))) return;
     await caseStudioApi.deleteCategory(categoryId);
     navigate('/case-studio');
   };
@@ -126,18 +128,18 @@ export function CaseCategoryEditPage() {
         onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-primary)')}
         onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = 'var(--text-muted)')}
       >
-        ← К Кейсотеке
+        {t('caseStudioForms.my.backToCases')}
       </button>
 
       <h1 className="text-2xl font-serif mb-6" style={{ color: 'var(--text-primary)' }}>
-        {isNew ? 'Новая категория' : 'Редактировать категорию'}
+        {isNew ? t('caseStudioForms.category.newTitle') : t('caseStudioForms.category.editTitle')}
       </h1>
 
       <div className="rounded-lg p-6 space-y-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         {/* Code (только при создании) */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Код (slug, латиница)
+            {t('caseStudioForms.category.codeLabel')}
           </label>
           <input
             type="text"
@@ -149,14 +151,14 @@ export function CaseCategoryEditPage() {
             style={{ border: '1px solid var(--border)', background: isNew ? 'var(--bg-card)' : 'var(--bg-surface)', color: 'var(--text-primary)' }}
           />
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            Уникальный идентификатор. После создания не меняется.
+            {t('caseStudioForms.category.codeHint')}
           </p>
         </div>
 
         {/* Названия */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Название RU</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('pipeline.nameRu')}</label>
             <input
               type="text"
               value={form.label_ru}
@@ -166,7 +168,7 @@ export function CaseCategoryEditPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Название UZ</label>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('pipeline.nameUz')}</label>
             <input
               type="text"
               value={form.label_uz || ''}
@@ -179,7 +181,7 @@ export function CaseCategoryEditPage() {
 
         {/* Иконка */}
         <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Иконка</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.category.iconLabel')}</label>
           <div className="flex flex-wrap gap-1 mb-2">
             {PRESET_ICONS.map((ic) => (
               <button
@@ -201,7 +203,7 @@ export function CaseCategoryEditPage() {
             type="text"
             value={form.icon || ''}
             onChange={(e) => setForm({ ...form, icon: e.target.value })}
-            placeholder="Или свой эмодзи"
+            placeholder={t('caseStudioForms.category.iconCustomPlaceholder')}
             className="w-full rounded px-3 py-2 text-sm"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-card)', color: 'var(--text-primary)' }}
             maxLength={4}
@@ -210,7 +212,7 @@ export function CaseCategoryEditPage() {
 
         {/* Цвет */}
         <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Цвет</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.category.colorLabel')}</label>
           <div className="flex flex-wrap gap-1 mb-2">
             {PRESET_COLORS.map((col) => (
               <button
@@ -235,7 +237,7 @@ export function CaseCategoryEditPage() {
 
         {/* Описание */}
         <div>
-          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Описание</label>
+          <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('pipeline.description')}</label>
           <textarea
             value={form.description || ''}
             onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -248,7 +250,7 @@ export function CaseCategoryEditPage() {
         {/* Applicable roles */}
         <div>
           <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
-            Для каких ролей кейсы (target_role)
+            {t('caseStudioForms.category.rolesLabel')}
           </label>
           <div className="flex gap-3 flex-wrap">
             {ROLE_OPTIONS.map((r) => (
@@ -259,19 +261,19 @@ export function CaseCategoryEditPage() {
                   onChange={() => toggleRole(r.value)}
                   className="rounded"
                 />
-                {r.label}
+                {t(r.labelKey)}
               </label>
             ))}
           </div>
           <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>
-            Если ничего не выбрано — категория доступна для всех ролей.
+            {t('caseStudioForms.category.rolesHint')}
           </p>
         </div>
 
         {/* Order */}
         <div>
           <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
-            Порядок сортировки
+            {t('caseStudioForms.category.orderLabel')}
           </label>
           <input
             type="number"
@@ -294,7 +296,7 @@ export function CaseCategoryEditPage() {
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Активна</span>
+              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{t('caseStudioForms.category.activeLabel')}</span>
             </label>
           </div>
         )}
@@ -311,7 +313,7 @@ export function CaseCategoryEditPage() {
               onClick={handleDelete}
               className="text-sm text-red-600 hover:text-red-800"
             >
-              Удалить (soft)
+              {t('caseStudioForms.category.deleteSoft')}
             </button>
           )}
           <div className="flex gap-2 ml-auto">
@@ -320,14 +322,14 @@ export function CaseCategoryEditPage() {
               className="px-4 py-2 rounded-lg"
               style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
               className="px-5 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 disabled:opacity-50"
             >
-              {submitting ? 'Сохраняю…' : isNew ? 'Создать' : 'Сохранить'}
+              {submitting ? t('caseStudioForms.category.saving') : isNew ? t('caseStudioForms.category.create') : t('common.save')}
             </button>
           </div>
         </div>
