@@ -1,4 +1,4 @@
-import { useT } from '../../stores/langStore';
+import { useT, useLangStore } from '../../stores/langStore';
 import type { InsightItem, LmsDashboard, KpiMappingSection } from './types';
 import { SectionTitle } from './charts';
 
@@ -9,47 +9,47 @@ import { SectionTitle } from './charts';
 const FALLBACK_KPI_FIELD_SALES: KpiMappingSection = {
   title: '', track: 'field_sales',
   items: [
-    { category: 'возражения_цена', label: 'Ценовые возражения', kpi: 'Средний чек, конверсия визитов', weight: '30% (LMS/CRM)' },
-    { category: 'мерч_выкладка', label: 'Выкладка', kpi: 'ShelfScan score', weight: '40% (AI)' },
-    { category: 'мерч_конкурент', label: 'Конкурент на полке', kpi: "Доля полки N'Medov", weight: '40% (AI)' },
-    { category: 'продукт_знания', label: 'Знание продукта', kpi: 'Cross-sell (SKU в заказе)', weight: '30% (LMS/CRM)' },
-    { category: 'дебиторка', label: 'Дебиторка', kpi: 'Дебиторская задолженность', weight: '30% (LMS/CRM)' },
-    { category: 'планирование', label: 'Планирование', kpi: 'Активных визитов в день', weight: '30% (LMS/CRM)' },
-    { category: 'dspm_стандарты', label: 'Стандарты DSPM', kpi: 'Compliance score', weight: '40% (AI)' },
-    { category: 'возражения_общие', label: 'Общие возражения', kpi: 'Конверсия в заказ', weight: '30% (LMS/CRM)' },
+    { category: 'возражения_цена', label: 'Ценовые возражения', labelUz: 'Narx eʼtirozlari', kpi: 'Средний чек, конверсия визитов', kpiUz: 'Oʻrtacha chek, tashriflar konversiyasi', weight: '30% (LMS/CRM)' },
+    { category: 'мерч_выкладка', label: 'Выкладка', labelUz: 'Tovar joylashuvi', kpi: 'ShelfScan score', kpiUz: 'ShelfScan score', weight: '40% (AI)' },
+    { category: 'мерч_конкурент', label: 'Конкурент на полке', labelUz: 'Rakobatchi tokchada', kpi: "Доля полки N'Medov", kpiUz: "N'Medov tokcha ulushi", weight: '40% (AI)' },
+    { category: 'продукт_знания', label: 'Знание продукта', labelUz: 'Mahsulotni bilish', kpi: 'Cross-sell (SKU в заказе)', kpiUz: 'Cross-sell (buyurtmadagi SKU)', weight: '30% (LMS/CRM)' },
+    { category: 'дебиторка', label: 'Дебиторка', labelUz: 'Debitorlik', kpi: 'Дебиторская задолженность', kpiUz: 'Debitorlik qarzi', weight: '30% (LMS/CRM)' },
+    { category: 'планирование', label: 'Планирование', labelUz: 'Rejalashtirish', kpi: 'Активных визитов в день', kpiUz: 'Kuniga faol tashriflar', weight: '30% (LMS/CRM)' },
+    { category: 'dspm_стандарты', label: 'Стандарты DSPM', labelUz: 'DSPM standartlari', kpi: 'Compliance score', kpiUz: 'Compliance score', weight: '40% (AI)' },
+    { category: 'возражения_общие', label: 'Общие возражения', labelUz: 'Umumiy eʼtirozlar', kpi: 'Конверсия в заказ', kpiUz: 'Buyurtmaga konversiya', weight: '30% (LMS/CRM)' },
   ],
 };
 
 const FALLBACK_KPI_RM: KpiMappingSection = {
   title: '', track: 'sales_management',
   items: [
-    { category: 'дилер_невыполнение', label: 'Дилер: невыполнение', kpi: 'Выполнение плана дилерами региона', weight: '30% (CRM)' },
-    { category: 'дилер_конфликт', label: 'Конфликт дилеров', kpi: 'Стабильность дилерской сети', weight: '20% (Manual)' },
-    { category: 'коучинг_сложный_св', label: 'Коучинг СВ', kpi: 'Рост KPI команды СВ', weight: '30% (LMS)' },
-    { category: 'плановая_аналитика', label: 'Плановая аналитика', kpi: 'Точность прогноза продаж', weight: '30% (CRM)' },
-    { category: 'переговоры_условия', label: 'Переговоры с дилером', kpi: 'Маржинальность контрактов', weight: '30% (CRM)' },
-    { category: 'ротация_потери', label: 'Ротация региона', kpi: 'Сохранность при ротации (%)', weight: '20% (Manual)' },
+    { category: 'дилер_невыполнение', label: 'Дилер: невыполнение', labelUz: 'Diler: bajarmaslik', kpi: 'Выполнение плана дилерами региона', kpiUz: 'Hudud dilerlari reja bajarilishi', weight: '30% (CRM)' },
+    { category: 'дилер_конфликт', label: 'Конфликт дилеров', labelUz: 'Dilerlar nizosi', kpi: 'Стабильность дилерской сети', kpiUz: 'Diler tarmogʻi barqarorligi', weight: '20% (Manual)' },
+    { category: 'коучинг_сложный_св', label: 'Коучинг СВ', labelUz: 'SV kouchingi', kpi: 'Рост KPI команды СВ', kpiUz: 'SV jamoasi KPI oʻsishi', weight: '30% (LMS)' },
+    { category: 'плановая_аналитика', label: 'Плановая аналитика', labelUz: 'Reja tahlili', kpi: 'Точность прогноза продаж', kpiUz: 'Savdo prognozi aniqligi', weight: '30% (CRM)' },
+    { category: 'переговоры_условия', label: 'Переговоры с дилером', labelUz: 'Diler bilan muzokara', kpi: 'Маржинальность контрактов', kpiUz: 'Shartnomalar marjinalligi', weight: '30% (CRM)' },
+    { category: 'ротация_потери', label: 'Ротация региона', labelUz: 'Hudud rotatsiyasi', kpi: 'Сохранность при ротации (%)', kpiUz: 'Rotatsiyada saqlanish (%)', weight: '20% (Manual)' },
   ],
 };
 
 const FALLBACK_KPI_CD: KpiMappingSection = {
   title: '', track: 'sales_management',
   items: [
-    { category: 'стратегия_приоритеты', label: 'Приоритеты стратегии', kpi: 'ROI регионального распределения', weight: '40% (BI)' },
-    { category: 'команда_рм_управление', label: 'Управление РМ', kpi: 'Выполнение планов РМ', weight: '30% (CRM)' },
-    { category: 'дилеры_крупный_конфликт', label: 'Конфликт ключевого дилера', kpi: 'Retention ключевых дилеров', weight: '30% (CRM)' },
-    { category: 'данные_интерпретация', label: 'Интерпретация данных', kpi: 'Точность диагностики причин', weight: '40% (BI)' },
-    { category: 'трейд_маркетинг_roi', label: 'ROI трейд-маркетинга', kpi: 'ROI трейд-маркетинга', weight: '40% (BI)' },
+    { category: 'стратегия_приоритеты', label: 'Приоритеты стратегии', labelUz: 'Strategiya prioritetlari', kpi: 'ROI регионального распределения', kpiUz: 'Hududiy taqsimot ROI', weight: '40% (BI)' },
+    { category: 'команда_рм_управление', label: 'Управление РМ', labelUz: 'RM boshqaruvi', kpi: 'Выполнение планов РМ', kpiUz: 'RM rejalari bajarilishi', weight: '30% (CRM)' },
+    { category: 'дилеры_крупный_конфликт', label: 'Конфликт ключевого дилера', labelUz: 'Kalit diler nizosi', kpi: 'Retention ключевых дилеров', kpiUz: 'Kalit dilerlar retentioni', weight: '30% (CRM)' },
+    { category: 'данные_интерпретация', label: 'Интерпретация данных', labelUz: 'Maʼlumotlar talqini', kpi: 'Точность диагностики причин', kpiUz: 'Sabablar diagnostikasi aniqligi', weight: '40% (BI)' },
+    { category: 'трейд_маркетинг_roi', label: 'ROI трейд-маркетинга', labelUz: 'Treyd-marketing ROI', kpi: 'ROI трейд-маркетинга', kpiUz: 'Treyd-marketing ROI', weight: '40% (BI)' },
   ],
 };
 
 const FALLBACK_KPI_BM: KpiMappingSection = {
   title: '', track: 'sales_management',
   items: [
-    { category: 'продукт_позиционирование', label: 'Позиционирование продукта', kpi: 'Quiz accuracy по продукту (ТП)', weight: '30% (LMS)' },
-    { category: 'бренд_полка', label: 'Доля полки бренда', kpi: 'ShelfScan score по бренду', weight: '40% (AI)' },
-    { category: 'контент_устарел', label: 'Устаревший контент', kpi: 'Актуальность контента (%)', weight: '20% (LMS)' },
-    { category: 'трейд_активность', label: 'Трейд-активность', kpi: 'Эффективность промо-акций', weight: '30% (CRM)' },
+    { category: 'продукт_позиционирование', label: 'Позиционирование продукта', labelUz: 'Mahsulot pozitsiyalashi', kpi: 'Quiz accuracy по продукту (ТП)', kpiUz: 'Mahsulot boʻyicha Quiz accuracy (TP)', weight: '30% (LMS)' },
+    { category: 'бренд_полка', label: 'Доля полки бренда', labelUz: 'Brend tokcha ulushi', kpi: 'ShelfScan score по бренду', kpiUz: 'Brend boʻyicha ShelfScan score', weight: '40% (AI)' },
+    { category: 'контент_устарел', label: 'Устаревший контент', labelUz: 'Eskirgan kontent', kpi: 'Актуальность контента (%)', kpiUz: 'Kontent dolzarbligi (%)', weight: '20% (LMS)' },
+    { category: 'трейд_активность', label: 'Трейд-активность', labelUz: 'Treyd-faollik', kpi: 'Эффективность промо-акций', kpiUz: 'Promo-aksiyalar samaradorligi', weight: '30% (CRM)' },
   ],
 };
 
@@ -98,6 +98,7 @@ interface Props {
 
 export function EffectivenessTab({ insights, dashboard, track }: Props) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const kpiSections = getKpiSections(track, dashboard?.kpi_mapping, t);
 
   return (
@@ -189,7 +190,7 @@ export function EffectivenessTab({ insights, dashboard, track }: Props) {
                       <td className="py-3 px-4">
                         <div className="flex items-center gap-2">
                           <span className="font-medium" style={{ color: 'var(--text-primary)' }}>
-                            {cluster?.label ?? item.label}
+                            {cluster?.label ?? (lang === 'uz' ? (item.labelUz ?? item.label) : item.label)}
                           </span>
                           {cluster && (
                             <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)' }}>
@@ -198,7 +199,7 @@ export function EffectivenessTab({ insights, dashboard, track }: Props) {
                           )}
                         </div>
                       </td>
-                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>{item.kpi}</td>
+                      <td className="py-3 px-4" style={{ color: 'var(--text-secondary)' }}>{lang === 'uz' ? (item.kpiUz ?? item.kpi) : item.kpi}</td>
                       <td className="py-3 px-4 text-right" style={{ color: 'var(--text-muted)' }}>{item.weight}</td>
                     </tr>
                   );

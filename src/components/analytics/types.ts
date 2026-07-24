@@ -150,6 +150,9 @@ export interface KpiMappingItem {
   label: string;
   kpi: string;
   weight: string;
+  // UZ-варианты для fallback-константы (бэк отдаёт только RU) — i18n 2026-07-24
+  labelUz?: string;
+  kpiUz?: string;
 }
 
 export interface PainClusterItem {
