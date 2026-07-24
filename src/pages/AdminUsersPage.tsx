@@ -9,16 +9,16 @@ import { Users, Plus, X as XIcon, Eye, Pencil, UserX } from 'lucide-react';
 // ---------------------------------------------------------------------------
 
 const ROLES = [
-  { value: 'sales_rep', label: 'Торговый представитель' },
-  { value: 'supervisor', label: 'Супервайзер' },
-  { value: 'admin', label: 'Администратор' },
-  { value: 'regional_manager', label: 'Региональный менеджер' },
-  { value: 'commercial_dir', label: 'Коммерческий директор' },
-  { value: 'superadmin', label: 'Суперадмин' },
+  { value: 'sales_rep', labelKey: 'adminUsers.roles.sales_rep' },
+  { value: 'supervisor', labelKey: 'adminUsers.roles.supervisor' },
+  { value: 'admin', labelKey: 'adminUsers.roles.admin' },
+  { value: 'regional_manager', labelKey: 'adminUsers.roles.regional_manager' },
+  { value: 'commercial_dir', labelKey: 'adminUsers.roles.commercial_dir' },
+  { value: 'superadmin', labelKey: 'adminUsers.roles.superadmin' },
 ] as const;
 
-const ROLE_LABELS: Record<string, string> = Object.fromEntries(
-  ROLES.map((r) => [r.value, r.label])
+const ROLE_LABEL_KEYS: Record<string, string> = Object.fromEntries(
+  ROLES.map((r) => [r.value, r.labelKey])
 );
 
 const ROLE_COLORS: Record<string, string> = {
@@ -40,6 +40,7 @@ interface AddUserModalProps {
 }
 
 function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
+  const t = useT();
   const [form, setForm] = useState<CreateUserPayload>({
     employee_id: '',
     password: '',
@@ -62,11 +63,11 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
     e.preventDefault();
     setError(null);
     if (!form.employee_id.trim()) {
-      setError('Табельный номер обязателен');
+      setError(t('adminUsers.errors.employeeIdRequired'));
       return;
     }
     if (form.password.length < 8) {
-      setError('Пароль — минимум 8 символов');
+      setError(t('adminUsers.errors.passwordMinLength'));
       return;
     }
     setSaving(true);
@@ -88,7 +89,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        'Ошибка при создании пользователя';
+        t('adminUsers.errors.createFailed');
       setError(msg);
     } finally {
       setSaving(false);
@@ -110,7 +111,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Добавить сотрудника</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('adminUsers.empty.ctaAdd')}</h2>
           <button
             type="button"
             onClick={onClose}
@@ -134,7 +135,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Табельный номер <span className="text-red-500">*</span>
+                {t('adminUsers.fields.employeeId')} <span className="text-red-500">*</span>
               </label>
               <input
                 name="employee_id"
@@ -146,14 +147,14 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Пароль <span className="text-red-500">*</span>
+                {t('adminUsers.fields.password')} <span className="text-red-500">*</span>
               </label>
               <input
                 name="password"
                 type="password"
                 value={form.password}
                 onChange={handleChange}
-                placeholder="Мин. 8 символов"
+                placeholder={t('adminUsers.fields.passwordPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -161,19 +162,19 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
 
           {/* Full name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">ФИО</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.fullName')}</label>
             <input
               name="full_name"
               value={form.full_name}
               onChange={handleChange}
-              placeholder="Иванов Иван Иванович"
+              placeholder={t('adminUsers.fields.fullNamePlaceholder')}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.email')}</label>
             <input
               name="email"
               type="email"
@@ -186,7 +187,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Роль</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.role')}</label>
             <select
               name="role"
               value={form.role}
@@ -194,7 +195,7 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {ROLES.map((r) => (
-                <option key={r.value} value={r.value}>{r.label}</option>
+                <option key={r.value} value={r.value}>{t(r.labelKey)}</option>
               ))}
             </select>
           </div>
@@ -202,22 +203,22 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
           {/* Position + Department */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Должность</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.position')}</label>
               <input
                 name="position"
                 value={form.position}
                 onChange={handleChange}
-                placeholder="Торговый пред."
+                placeholder={t('adminUsers.fields.positionPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Отдел</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.department')}</label>
               <input
                 name="department"
                 value={form.department}
                 onChange={handleChange}
-                placeholder="Продажи"
+                placeholder={t('adminUsers.fields.departmentPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -226,22 +227,22 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
           {/* Region + City */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Регион</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.region')}</label>
               <input
                 name="region"
                 value={form.region}
                 onChange={handleChange}
-                placeholder="Ташкент"
+                placeholder={t('adminUsers.fields.tashkentPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Город</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('adminUsers.fields.city')}</label>
               <input
                 name="city"
                 value={form.city}
                 onChange={handleChange}
-                placeholder="Ташкент"
+                placeholder={t('adminUsers.fields.tashkentPlaceholder')}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -254,14 +255,14 @@ function AddUserModal({ onClose, onCreated }: AddUserModalProps) {
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={saving}
               className="px-5 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-60 transition-colors"
             >
-              {saving ? 'Создание...' : 'Создать'}
+              {saving ? t('adminUsers.form.creating') : t('adminUsers.form.create')}
             </button>
           </div>
         </form>
@@ -302,7 +303,7 @@ export function AdminUsersPage() {
   const handleCreated = (user: UserListItem) => {
     setUsers((prev) => [user, ...prev]);
     setShowModal(false);
-    setSuccessMsg(`Сотрудник ${user.full_name || user.employee_id} добавлен. Онбординг запущен.`);
+    setSuccessMsg(t('adminUsers.successAdded', { name: user.full_name || user.employee_id }));
     setTimeout(() => setSuccessMsg(null), 5000);
   };
 
@@ -322,8 +323,8 @@ export function AdminUsersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Сотрудники"
-        subtitle="Управление аккаунтами и онбординг"
+        title={t('adminUsers.title')}
+        subtitle={t('adminUsers.subtitle')}
         actions={
           <Button
             variant="primary"
@@ -355,7 +356,7 @@ export function AdminUsersPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск по имени, ID, должности..."
+            placeholder={t('adminUsers.search.placeholder')}
             className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -364,12 +365,12 @@ export function AdminUsersPage() {
           onChange={(e) => setRoleFilter(e.target.value)}
           className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Все роли</option>
+          <option value="">{t('adminUsers.filters.allRoles')}</option>
           {ROLES.map((r) => (
-            <option key={r.value} value={r.value}>{r.label}</option>
+            <option key={r.value} value={r.value}>{t(r.labelKey)}</option>
           ))}
         </select>
-        <span className="text-sm text-gray-400 self-center">{filtered.length} чел.</span>
+        <span className="text-sm text-gray-400 self-center">{t('adminUsers.count', { n: filtered.length })}</span>
       </div>
 
       {/* Table */}
@@ -411,12 +412,12 @@ export function AdminUsersPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Сотрудник</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Роль</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden md:table-cell">Должность</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Регион</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">Последний вход</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Статус</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">{t('adminUsers.table.employee')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">{t('adminUsers.fields.role')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden md:table-cell">{t('adminUsers.fields.position')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">{t('adminUsers.fields.region')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500 hidden lg:table-cell">{t('adminUsers.table.lastLogin')}</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">{t('adminUsers.table.status')}</th>
                   <th className="text-right px-4 py-3 font-medium text-gray-500 w-12"></th>
                 </tr>
               </thead>
@@ -450,7 +451,7 @@ export function AdminUsersPage() {
                           ROLE_COLORS[user.role] || 'bg-gray-100 text-gray-700'
                         }`}
                       >
-                        {ROLE_LABELS[user.role] || user.role}
+                        {ROLE_LABEL_KEYS[user.role] ? t(ROLE_LABEL_KEYS[user.role]) : user.role}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-500 hidden md:table-cell">
@@ -462,7 +463,7 @@ export function AdminUsersPage() {
                     <td className="px-4 py-3 text-gray-400 hidden lg:table-cell">
                       {user.last_login
                         ? new Date(user.last_login).toLocaleDateString('ru-RU')
-                        : 'Не входил'}
+                        : t('adminUsers.lastLoginNever')}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -475,7 +476,7 @@ export function AdminUsersPage() {
                             user.is_active ? 'bg-green-500' : 'bg-gray-300'
                           }`}
                         />
-                        {user.is_active ? 'Активен' : 'Неактивен'}
+                        {user.is_active ? t('adminUsers.status.active') : t('adminUsers.status.inactive')}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">

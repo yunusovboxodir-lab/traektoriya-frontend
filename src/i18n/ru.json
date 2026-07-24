@@ -765,7 +765,64 @@
   },
   "dictionary": {
     "title": "Словарь UZ",
-    "subtitle": "Краудсорсинг переводов FMCG-терминов на узбекский (латиница)"
+    "subtitle": "Краудсорсинг переводов FMCG-терминов на узбекский (латиница)",
+    "stats": {
+      "total": "всего",
+      "verified": "одобрено",
+      "pending": "ожидает"
+    },
+    "tabs": {
+      "translate": "Добавить перевод",
+      "admin": "Управление ({n} на модерации)"
+    },
+    "form": {
+      "ruLabel": "Русский термин",
+      "ruPlaceholder": "Например: Торговая точка",
+      "uzLabel": "Узбекский перевод (латиница)",
+      "uzPlaceholder": "Например: Savdo nuqtasi",
+      "submit": "Добавить",
+      "submitting": "Сохранение...",
+      "pendingOnly": "Только на модерации"
+    },
+    "search": {
+      "placeholder": "Поиск по русскому термину...",
+      "count": "{n} записей"
+    },
+    "empty": "Словарь пуст. Добавьте первый перевод!",
+    "table": {
+      "russian": "Русский",
+      "uzbek": "Узбекский",
+      "category": "Категория",
+      "status": "Статус",
+      "actions": "Действия"
+    },
+    "status": {
+      "verified": "Одобрено",
+      "pending": "На модерации"
+    },
+    "actions": {
+      "verify": "Одобрить"
+    },
+    "confirmDelete": "Удалить запись?",
+    "messages": {
+      "added": "Перевод добавлен!"
+    },
+    "errors": {
+      "loadFailed": "Ошибка загрузки словаря",
+      "addFailed": "Ошибка при добавлении",
+      "verifyFailed": "Ошибка при одобрении",
+      "deleteFailed": "Ошибка при удалении"
+    },
+    "categories": {
+      "all": "Все",
+      "product": "Продукты",
+      "role": "Должности",
+      "process": "Процессы",
+      "sales": "Продажи",
+      "merchandising": "Мерчандайзинг",
+      "kpi": "KPI",
+      "general": "Общее"
+    }
   },
   "generation": {
     "title": "AI Генерация",
@@ -1163,6 +1220,59 @@
       "descEmpty": "Добавьте первого сотрудника — он получит онбординг и попадёт в команду.",
       "descFiltered": "Под текущий поиск или фильтр роли никто не подходит. Сбросьте фильтры, чтобы увидеть всю команду.",
       "ctaAdd": "Добавить сотрудника"
+    },
+    "title": "Сотрудники",
+    "subtitle": "Управление аккаунтами и онбординг",
+    "fields": {
+      "employeeId": "Табельный номер",
+      "password": "Пароль",
+      "passwordPlaceholder": "Мин. 8 символов",
+      "fullName": "ФИО",
+      "fullNamePlaceholder": "Иванов Иван Иванович",
+      "email": "Email",
+      "role": "Роль",
+      "position": "Должность",
+      "positionPlaceholder": "Торговый пред.",
+      "department": "Отдел",
+      "departmentPlaceholder": "Продажи",
+      "region": "Регион",
+      "city": "Город",
+      "tashkentPlaceholder": "Ташкент"
+    },
+    "form": {
+      "create": "Создать",
+      "creating": "Создание..."
+    },
+    "errors": {
+      "employeeIdRequired": "Табельный номер обязателен",
+      "passwordMinLength": "Пароль — минимум 8 символов",
+      "createFailed": "Ошибка при создании пользователя"
+    },
+    "search": {
+      "placeholder": "Поиск по имени, ID, должности..."
+    },
+    "filters": {
+      "allRoles": "Все роли"
+    },
+    "count": "{n} чел.",
+    "table": {
+      "employee": "Сотрудник",
+      "lastLogin": "Последний вход",
+      "status": "Статус"
+    },
+    "status": {
+      "active": "Активен",
+      "inactive": "Неактивен"
+    },
+    "lastLoginNever": "Не входил",
+    "successAdded": "Сотрудник {name} добавлен. Онбординг запущен.",
+    "roles": {
+      "sales_rep": "Торговый представитель",
+      "supervisor": "Супервайзер",
+      "admin": "Администратор",
+      "regional_manager": "Региональный менеджер",
+      "commercial_dir": "Коммерческий директор",
+      "superadmin": "Суперадмин"
     }
   },
   "reports": {
@@ -2219,5 +2329,73 @@
       "linkedEvents": "Связанные события ({n})",
       "people": "{n} чел"
     }
+  },
+  "engineHealth": {
+    "title": "Здоровье платформы",
+    "subtitle": "Движок самоулучшения: вердикты по контенту и статус петель",
+    "errors": {
+      "loadTitle": "Не удалось загрузить здоровье платформы",
+      "loadDesc": "Проверьте доступ (admin) и что бэкенд запущен."
+    },
+    "summary": {
+      "engineState": "Состояние движка:",
+      "engineLive": "Работает",
+      "engineWaiting": "На рельсах, ждёт потока",
+      "anchor": "Якорь:",
+      "period": "Период:",
+      "waitingNote": "До запуска платформы и реального потока прохождений движок не делает выводов (гейт по размеру выборки). Это правильно — он не выдумывает пользу из шума."
+    },
+    "loops": {
+      "title": "Петли самоулучшения",
+      "cadenceAnchor": "такт: {cadence} · якорь: {anchor}",
+      "verdictsCount": "вердиктов: {decided}/{total} с выводом"
+    },
+    "effectiveness": {
+      "title": "Эффективность контента",
+      "emptyTitle": "Вердиктов пока нет",
+      "emptyDesc": "Появятся после первого месячного расчёта на реальном потоке прохождений и KPI."
+    },
+    "table": {
+      "course": "Курс",
+      "verdict": "Вердикт",
+      "lift": "Lift (KPI)",
+      "sample": "Выборка",
+      "confidence": "Уверенность"
+    },
+    "coverage": {
+      "title": "Покрытие фич",
+      "defaultNote": "Слой event-сигнала ещё не построен."
+    },
+    "status": {
+      "winner": "Двигает KPI",
+      "weak": "Мешает / без пользы",
+      "dead": "Без эффекта",
+      "unknown": "Мало данных"
+    }
+  },
+  "translationReview": {
+    "title": "Проверка переводов",
+    "tabs": {
+      "pending": "На проверке",
+      "approved": "Одобренные",
+      "rejected": "Отклонённые",
+      "locked": "Качественные"
+    },
+    "empty": "Нет предложений",
+    "blockLabel": "Блок #{n}",
+    "originalLabel": "Оригинал (RU):",
+    "currentLabel": "Текущий (UZ):",
+    "suggestionLabel": "Предложение:",
+    "commentPlaceholder": "Комментарий (необязательно)...",
+    "actions": {
+      "approve": "✅ Одобрить (+{xp} XP)",
+      "reject": "❌ Отклонить",
+      "lock": "🔒 Качественный",
+      "review": "Рассмотреть →"
+    },
+    "errors": {
+      "reviewFailed": "Ошибка: {error}"
+    },
+    "adminCommentPrefix": "Админ: {comment}"
   }
 }

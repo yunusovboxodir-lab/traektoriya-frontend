@@ -10,6 +10,7 @@
  */
 import { useEffect, useState, useCallback } from 'react';
 import { Activity, RefreshCw } from 'lucide-react';
+import { useT } from '../stores/langStore';
 import {
   PageHeader, Card, CardHeader, CardBody, CardTitle, CardDescription,
   Badge, EmptyState, Button,
@@ -21,12 +22,12 @@ import {
   type CoverageResponse,
 } from '../api/engineHealth';
 
-// Вердикт эффективности → цвет бейджа + русская подпись.
-const STATUS_META: Record<EffStatus, { variant: BadgeVariant; label: string }> = {
-  winner:  { variant: 'success', label: 'Двигает KPI' },
-  weak:    { variant: 'danger',  label: 'Мешает / без пользы' },
-  dead:    { variant: 'neutral', label: 'Без эффекта' },
-  unknown: { variant: 'info',    label: 'Мало данных' },
+// Вердикт эффективности → цвет бейджа + ключ подписи.
+const STATUS_META: Record<EffStatus, { variant: BadgeVariant; labelKey: string }> = {
+  winner:  { variant: 'success', labelKey: 'engineHealth.status.winner' },
+  weak:    { variant: 'danger',  labelKey: 'engineHealth.status.weak' },
+  dead:    { variant: 'neutral', labelKey: 'engineHealth.status.dead' },
+  unknown: { variant: 'info',    labelKey: 'engineHealth.status.unknown' },
 };
 
 // Состояние петли → цвет.
@@ -43,6 +44,7 @@ function fmtLift(v: number): string {
 }
 
 export function EngineHealthPage() {
+  const t = useT();
   const [summary, setSummary] = useState<SummaryResponse | null>(null);
   const [loops, setLoops] = useState<LoopInfo[]>([]);
   const [items, setItems] = useState<EffItem[]>([]);
@@ -80,12 +82,12 @@ export function EngineHealthPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       <PageHeader
-        title="Здоровье платформы"
-        subtitle="Движок самоулучшения: вердикты по контенту и статус петель"
+        title={t('engineHealth.title')}
+        subtitle={t('engineHealth.subtitle')}
         actions={
           <Button variant="secondary" size="sm" onClick={() => void load()} disabled={loading}>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Обновить
+            {t('common.actions.refresh')}
           </Button>
         }
       />
@@ -95,8 +97,8 @@ export function EngineHealthPage() {
           <CardBody>
             <EmptyState
               icon={<Activity className="w-8 h-8" />}
-              title="Не удалось загрузить здоровье платформы"
-              description="Проверьте доступ (admin) и что бэкенд запущен."
+              title={t('engineHealth.errors.loadTitle')}
+              description={t('engineHealth.errors.loadDesc')}
             />
           </CardBody>
         </Card>
@@ -109,23 +111,21 @@ export function EngineHealthPage() {
             <CardBody>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-fg-muted text-sm">Состояние движка:</span>
+                  <span className="text-fg-muted text-sm">{t('engineHealth.summary.engineState')}</span>
                   <Badge variant={engineLive ? 'success' : 'info'}>
-                    {engineLive ? 'Работает' : 'На рельсах, ждёт потока'}
+                    {engineLive ? t('engineHealth.summary.engineLive') : t('engineHealth.summary.engineWaiting')}
                   </Badge>
                 </div>
                 <div className="text-sm text-fg-muted">
-                  Якорь: <span className="text-fg-default font-medium">{summary?.anchor_metric ?? '—'}</span>
+                  {t('engineHealth.summary.anchor')} <span className="text-fg-default font-medium">{summary?.anchor_metric ?? '—'}</span>
                 </div>
                 <div className="text-sm text-fg-muted">
-                  Период: <span className="text-fg-default font-medium">{summary?.latest_period ?? '—'}</span>
+                  {t('engineHealth.summary.period')} <span className="text-fg-default font-medium">{summary?.latest_period ?? '—'}</span>
                 </div>
               </div>
               {!engineLive && (
                 <p className="mt-3 text-sm text-fg-muted">
-                  До запуска платформы и реального потока прохождений движок не делает
-                  выводов (гейт по размеру выборки). Это правильно — он не выдумывает
-                  пользу из шума.
+                  {t('engineHealth.summary.waitingNote')}
                 </p>
               )}
             </CardBody>
@@ -134,7 +134,7 @@ export function EngineHealthPage() {
           {/* --- Три петли --- */}
           <section>
             <h2 className="text-sm font-semibold text-fg-muted uppercase tracking-wide mb-3">
-              Петли самоулучшения
+              {t('engineHealth.loops.title')}
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {loops.map((lp) => (
@@ -146,13 +146,13 @@ export function EngineHealthPage() {
                         {lp.state}
                       </Badge>
                     </div>
-                    <CardDescription>такт: {lp.cadence} · якорь: {lp.anchor}</CardDescription>
+                    <CardDescription>{t('engineHealth.loops.cadenceAnchor', { cadence: lp.cadence, anchor: lp.anchor })}</CardDescription>
                   </CardHeader>
                   <CardBody>
                     <p className="text-sm text-fg-muted">{lp.note}</p>
                     {lp.id === 'L1' && typeof lp.verdicts_total === 'number' && (
                       <p className="mt-2 text-xs text-fg-muted">
-                        вердиктов: {lp.verdicts_decided}/{lp.verdicts_total} с выводом
+                        {t('engineHealth.loops.verdictsCount', { decided: lp.verdicts_decided ?? '', total: lp.verdicts_total })}
                       </p>
                     )}
                   </CardBody>
@@ -164,15 +164,15 @@ export function EngineHealthPage() {
           {/* --- Эффективность контента --- */}
           <section>
             <h2 className="text-sm font-semibold text-fg-muted uppercase tracking-wide mb-3">
-              Эффективность контента {period ? `· ${period}` : ''}
+              {t('engineHealth.effectiveness.title')}{period ? ` · ${period}` : ''}
             </h2>
             <Card>
               {items.length === 0 ? (
                 <CardBody>
                   <EmptyState
                     icon={<Activity className="w-8 h-8" />}
-                    title="Вердиктов пока нет"
-                    description="Появятся после первого месячного расчёта на реальном потоке прохождений и KPI."
+                    title={t('engineHealth.effectiveness.emptyTitle')}
+                    description={t('engineHealth.effectiveness.emptyDesc')}
                   />
                 </CardBody>
               ) : (
@@ -180,11 +180,11 @@ export function EngineHealthPage() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-fg-muted border-b border-border-default">
-                        <th className="px-4 py-2 font-medium">Курс</th>
-                        <th className="px-4 py-2 font-medium">Вердикт</th>
-                        <th className="px-4 py-2 font-medium text-right">Lift (KPI)</th>
-                        <th className="px-4 py-2 font-medium text-right">Выборка</th>
-                        <th className="px-4 py-2 font-medium text-right">Уверенность</th>
+                        <th className="px-4 py-2 font-medium">{t('engineHealth.table.course')}</th>
+                        <th className="px-4 py-2 font-medium">{t('engineHealth.table.verdict')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('engineHealth.table.lift')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('engineHealth.table.sample')}</th>
+                        <th className="px-4 py-2 font-medium text-right">{t('engineHealth.table.confidence')}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -199,7 +199,7 @@ export function EngineHealthPage() {
                               )}
                             </td>
                             <td className="px-4 py-2">
-                              <Badge variant={meta.variant}>{meta.label}</Badge>
+                              <Badge variant={meta.variant}>{t(meta.labelKey)}</Badge>
                             </td>
                             <td className="px-4 py-2 text-right tabular-nums">{fmtLift(it.lift)}</td>
                             <td className="px-4 py-2 text-right tabular-nums">{it.sample_size}</td>
@@ -217,12 +217,12 @@ export function EngineHealthPage() {
           {/* --- Покрытие (заглушка) --- */}
           <section>
             <h2 className="text-sm font-semibold text-fg-muted uppercase tracking-wide mb-3">
-              Покрытие фич
+              {t('engineHealth.coverage.title')}
             </h2>
             <Card>
               <CardBody>
                 <p className="text-sm text-fg-muted">
-                  {coverage?.note ?? 'Слой event-сигнала ещё не построен.'}
+                  {coverage?.note ?? t('engineHealth.coverage.defaultNote')}
                 </p>
               </CardBody>
             </Card>

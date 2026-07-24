@@ -765,7 +765,64 @@
   },
   "dictionary": {
     "title": "Oʻzbek lugʻati",
-    "subtitle": "FMCG atamalarini oʻzbek tiliga (lotin) tarjima qilish — jamoaviy"
+    "subtitle": "FMCG atamalarini oʻzbek tiliga (lotin) tarjima qilish — jamoaviy",
+    "stats": {
+      "total": "jami",
+      "verified": "maʼqullangan",
+      "pending": "kutilmoqda"
+    },
+    "tabs": {
+      "translate": "Tarjima qoʻshish",
+      "admin": "Boshqaruv ({n} ta moderatsiyada)"
+    },
+    "form": {
+      "ruLabel": "Rus atamasi",
+      "ruPlaceholder": "Masalan: Savdo nuqtasi",
+      "uzLabel": "Oʻzbekcha tarjima (lotin)",
+      "uzPlaceholder": "Masalan: Savdo nuqtasi",
+      "submit": "Qoʻshish",
+      "submitting": "Saqlanmoqda...",
+      "pendingOnly": "Faqat moderatsiyada"
+    },
+    "search": {
+      "placeholder": "Rus atamasi boʻyicha qidiruv...",
+      "count": "{n} ta yozuv"
+    },
+    "empty": "Lugʻat boʻsh. Birinchi tarjimani qoʻshing!",
+    "table": {
+      "russian": "Rus tili",
+      "uzbek": "Oʻzbek tili",
+      "category": "Kategoriya",
+      "status": "Status",
+      "actions": "Amallar"
+    },
+    "status": {
+      "verified": "Maʼqullangan",
+      "pending": "Moderatsiyada"
+    },
+    "actions": {
+      "verify": "Maʼqullash"
+    },
+    "confirmDelete": "Yozuv oʻchirilsinmi?",
+    "messages": {
+      "added": "Tarjima qoʻshildi!"
+    },
+    "errors": {
+      "loadFailed": "Lugʻatni yuklashda xatolik",
+      "addFailed": "Qoʻshishda xatolik",
+      "verifyFailed": "Maʼqullashda xatolik",
+      "deleteFailed": "Oʻchirishda xatolik"
+    },
+    "categories": {
+      "all": "Barchasi",
+      "product": "Mahsulotlar",
+      "role": "Lavozimlar",
+      "process": "Jarayonlar",
+      "sales": "Savdo",
+      "merchandising": "Merchandayzing",
+      "kpi": "KPI",
+      "general": "Umumiy"
+    }
   },
   "generation": {
     "title": "AI Generatsiya",
@@ -1163,6 +1220,59 @@
       "descEmpty": "Birinchi xodimni qoʻshing — u onboardingni oʻtib jamoaga qoʻshiladi.",
       "descFiltered": "Joriy qidiruv yoki rol filtriga hech kim mos kelmadi. Butun jamoani koʻrish uchun filtrlarni tozalang.",
       "ctaAdd": "Xodim qoʻshish"
+    },
+    "title": "Xodimlar",
+    "subtitle": "Akkauntlarni boshqarish va onboarding",
+    "fields": {
+      "employeeId": "Tabel raqami",
+      "password": "Parol",
+      "passwordPlaceholder": "Kamida 8 ta belgi",
+      "fullName": "F.I.Sh.",
+      "fullNamePlaceholder": "Karimov Anvar Davronovich",
+      "email": "Email",
+      "role": "Rol",
+      "position": "Lavozim",
+      "positionPlaceholder": "Savdo vak.",
+      "department": "Boʻlim",
+      "departmentPlaceholder": "Savdo",
+      "region": "Hudud",
+      "city": "Shahar",
+      "tashkentPlaceholder": "Toshkent"
+    },
+    "form": {
+      "create": "Yaratish",
+      "creating": "Yaratilmoqda..."
+    },
+    "errors": {
+      "employeeIdRequired": "Tabel raqami majburiy",
+      "passwordMinLength": "Parol — kamida 8 ta belgi",
+      "createFailed": "Foydalanuvchi yaratishda xatolik"
+    },
+    "search": {
+      "placeholder": "Ism, ID, lavozim boʻyicha qidiruv..."
+    },
+    "filters": {
+      "allRoles": "Barcha rollar"
+    },
+    "count": "{n} kishi",
+    "table": {
+      "employee": "Xodim",
+      "lastLogin": "Oxirgi kirish",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Faol",
+      "inactive": "Nofaol"
+    },
+    "lastLoginNever": "Hali kirmagan",
+    "successAdded": "{name} xodimi qoʻshildi. Onboarding boshlandi.",
+    "roles": {
+      "sales_rep": "Savdo vakili",
+      "supervisor": "Supervayzer",
+      "admin": "Administrator",
+      "regional_manager": "Hududiy menejer",
+      "commercial_dir": "Tijorat direktori",
+      "superadmin": "Superadmin"
     }
   },
   "reports": {
@@ -2219,5 +2329,73 @@
       "linkedEvents": "Bogʻliq tadbirlar ({n})",
       "people": "{n} kishi"
     }
+  },
+  "engineHealth": {
+    "title": "Platforma salomatligi",
+    "subtitle": "Oʻz-oʻzini takomillashtirish dvigateli: kontent boʻyicha xulosalar va tsikllar holati",
+    "errors": {
+      "loadTitle": "Platforma salomatligini yuklab boʻlmadi",
+      "loadDesc": "Kirish huquqini (admin) va backend ishga tushirilganini tekshiring."
+    },
+    "summary": {
+      "engineState": "Dvigatel holati:",
+      "engineLive": "Ishlayapti",
+      "engineWaiting": "Ishga tayyor, maʼlumot oqimini kutmoqda",
+      "anchor": "Asosiy koʻrsatkich:",
+      "period": "Davr:",
+      "waitingNote": "Platforma ishga tushmaguncha va haqiqiy oʻtish oqimi boʻlmaguncha dvigatel xulosa chiqarmaydi (namuna hajmi boʻyicha chegara). Bu toʻgʻri — u shovqindan foyda oʻylab topmaydi."
+    },
+    "loops": {
+      "title": "Oʻz-oʻzini takomillashtirish tsikllari",
+      "cadenceAnchor": "davr: {cadence} · asosiy koʻrsatkich: {anchor}",
+      "verdictsCount": "xulosalar: {decided}/{total} ta tayyor"
+    },
+    "effectiveness": {
+      "title": "Kontent samaradorligi",
+      "emptyTitle": "Hozircha xulosalar yoʻq",
+      "emptyDesc": "Haqiqiy oʻtish oqimi va KPI boʻyicha birinchi oylik hisob-kitobdan keyin paydo boʻladi."
+    },
+    "table": {
+      "course": "Kurs",
+      "verdict": "Xulosa",
+      "lift": "Lift (KPI)",
+      "sample": "Namuna",
+      "confidence": "Ishonch darajasi"
+    },
+    "coverage": {
+      "title": "Funksiyalar qamrovi",
+      "defaultNote": "Event-signal qatlami hali qurilmagan."
+    },
+    "status": {
+      "winner": "KPI ni oshiradi",
+      "weak": "Toʻsqinlik qiladi / foydasiz",
+      "dead": "Taʼsirsiz",
+      "unknown": "Maʼlumot kam"
+    }
+  },
+  "translationReview": {
+    "title": "Tarjimalarni tekshirish",
+    "tabs": {
+      "pending": "Tekshiruvda",
+      "approved": "Maʼqullangan",
+      "rejected": "Rad etilgan",
+      "locked": "Sifatli"
+    },
+    "empty": "Takliflar yoʻq",
+    "blockLabel": "Blok #{n}",
+    "originalLabel": "Original (RU):",
+    "currentLabel": "Joriy (UZ):",
+    "suggestionLabel": "Taklif:",
+    "commentPlaceholder": "Izoh (ixtiyoriy)...",
+    "actions": {
+      "approve": "✅ Maʼqullash (+{xp} XP)",
+      "reject": "❌ Rad etish",
+      "lock": "🔒 Sifatli",
+      "review": "Koʻrib chiqish →"
+    },
+    "errors": {
+      "reviewFailed": "Xatolik: {error}"
+    },
+    "adminCommentPrefix": "Admin: {comment}"
   }
 }

@@ -5,15 +5,17 @@
  * 3 действия: Одобрить (+XP), Отклонить (комментарий), Закрыть (качественный перевод).
  */
 import { useState, useEffect, useCallback } from 'react';
+import { useT } from '../stores/langStore';
 import { translationApi, type TranslationSuggestion } from '../api/translationSuggestions';
 const STATUS_TABS = [
-  { id: 'pending', label: 'На проверке', color: 'text-yellow-600' },
-  { id: 'approved', label: 'Одобренные', color: 'text-green-600' },
-  { id: 'rejected', label: 'Отклонённые', color: 'text-red-600' },
-  { id: 'locked', label: 'Качественные', color: 'text-blue-600' },
+  { id: 'pending', labelKey: 'translationReview.tabs.pending', color: 'text-yellow-600' },
+  { id: 'approved', labelKey: 'translationReview.tabs.approved', color: 'text-green-600' },
+  { id: 'rejected', labelKey: 'translationReview.tabs.rejected', color: 'text-red-600' },
+  { id: 'locked', labelKey: 'translationReview.tabs.locked', color: 'text-blue-600' },
 ];
 
 export function TranslationReviewPage() {
+  const t = useT();
   const [status, setStatus] = useState('pending');
   const [items, setItems] = useState<TranslationSuggestion[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -45,13 +47,13 @@ export function TranslationReviewPage() {
       setReviewComment('');
       loadQueue();
     } catch (e) {
-      alert('Ошибка: ' + String(e));
+      alert(t('translationReview.errors.reviewFailed', { error: String(e) }));
     }
   };
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-800">Проверка переводов</h2>
+      <h2 className="text-xl font-bold text-gray-800">{t('translationReview.title')}</h2>
 
       {/* Табы статусов */}
       <div className="flex gap-2">
@@ -65,7 +67,7 @@ export function TranslationReviewPage() {
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
-            {tab.label}
+            {t(tab.labelKey)}
             {counts[tab.id] ? (
               <span className="ml-1.5 bg-white/20 text-xs px-1.5 py-0.5 rounded-full">
                 {counts[tab.id]}
@@ -82,7 +84,7 @@ export function TranslationReviewPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-10 text-gray-400">
-          <p>Нет предложений</p>
+          <p>{t('translationReview.empty')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -95,7 +97,7 @@ export function TranslationReviewPage() {
                   <span>•</span>
                   <span>{item.course_title}</span>
                   <span>•</span>
-                  <span>Блок #{item.block_index}</span>
+                  <span>{t('translationReview.blockLabel', { n: item.block_index })}</span>
                 </div>
                 <span className="text-xs text-gray-400">
                   {new Date(item.created_at).toLocaleDateString('ru-RU')}
@@ -104,21 +106,21 @@ export function TranslationReviewPage() {
 
               {/* Оригинал RU */}
               <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 font-medium mb-1">Оригинал (RU):</p>
+                <p className="text-xs text-gray-500 font-medium mb-1">{t('translationReview.originalLabel')}</p>
                 <p className="text-sm text-gray-800">{item.original_ru}</p>
               </div>
 
               {/* Текущий UZ */}
               {item.current_uz && (
                 <div className="bg-amber-50 rounded-lg p-3">
-                  <p className="text-xs text-amber-600 font-medium mb-1">Текущий (UZ):</p>
+                  <p className="text-xs text-amber-600 font-medium mb-1">{t('translationReview.currentLabel')}</p>
                   <p className="text-sm text-amber-900">{item.current_uz}</p>
                 </div>
               )}
 
               {/* Предложенный перевод */}
               <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-                <p className="text-xs text-blue-600 font-medium mb-1">Предложение:</p>
+                <p className="text-xs text-blue-600 font-medium mb-1">{t('translationReview.suggestionLabel')}</p>
                 <p className="text-sm text-blue-900 font-medium">{item.suggested_uz}</p>
               </div>
 
@@ -130,7 +132,7 @@ export function TranslationReviewPage() {
                       <textarea
                         value={reviewComment}
                         onChange={(e) => setReviewComment(e.target.value)}
-                        placeholder="Комментарий (необязательно)..."
+                        placeholder={t('translationReview.commentPlaceholder')}
                         className="w-full border rounded-lg p-2 text-sm resize-none"
                         rows={2}
                       />
@@ -139,25 +141,25 @@ export function TranslationReviewPage() {
                           onClick={() => handleReview(item.id, 'approve')}
                           className="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
                         >
-                          ✅ Одобрить (+{item.bonus_xp} XP)
+                          {t('translationReview.actions.approve', { xp: item.bonus_xp })}
                         </button>
                         <button
                           onClick={() => handleReview(item.id, 'reject')}
                           className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700"
                         >
-                          ❌ Отклонить
+                          {t('translationReview.actions.reject')}
                         </button>
                         <button
                           onClick={() => handleReview(item.id, 'lock')}
                           className="px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                         >
-                          🔒 Качественный
+                          {t('translationReview.actions.lock')}
                         </button>
                         <button
                           onClick={() => { setReviewingId(null); setReviewComment(''); }}
                           className="px-3 py-1.5 text-gray-500 text-sm hover:text-gray-700"
                         >
-                          Отмена
+                          {t('common.cancel')}
                         </button>
                       </div>
                     </div>
@@ -166,7 +168,7 @@ export function TranslationReviewPage() {
                       onClick={() => setReviewingId(item.id)}
                       className="text-sm text-blue-600 font-medium hover:text-blue-800"
                     >
-                      Рассмотреть →
+                      {t('translationReview.actions.review')}
                     </button>
                   )}
                 </div>
@@ -175,7 +177,7 @@ export function TranslationReviewPage() {
               {/* Комментарий админа (для rejected/locked) */}
               {item.admin_comment && (
                 <div className="bg-gray-100 rounded-lg p-2 text-sm text-gray-600">
-                  Админ: {item.admin_comment}
+                  {t('translationReview.adminCommentPrefix', { comment: item.admin_comment })}
                 </div>
               )}
             </div>

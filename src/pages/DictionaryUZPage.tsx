@@ -6,14 +6,14 @@ import { PageHeader, SkeletonTableRow, Button, Badge } from '@/components/ui';
 import { Check, Trash2 } from 'lucide-react';
 
 const CATEGORIES = [
-  { value: '', label: 'Все' },
-  { value: 'product', label: 'Продукты' },
-  { value: 'role', label: 'Должности' },
-  { value: 'process', label: 'Процессы' },
-  { value: 'sales', label: 'Продажи' },
-  { value: 'merchandising', label: 'Мерчандайзинг' },
-  { value: 'kpi', label: 'KPI' },
-  { value: 'general', label: 'Общее' },
+  { value: '', labelKey: 'dictionary.categories.all' },
+  { value: 'product', labelKey: 'dictionary.categories.product' },
+  { value: 'role', labelKey: 'dictionary.categories.role' },
+  { value: 'process', labelKey: 'dictionary.categories.process' },
+  { value: 'sales', labelKey: 'dictionary.categories.sales' },
+  { value: 'merchandising', labelKey: 'dictionary.categories.merchandising' },
+  { value: 'kpi', labelKey: 'dictionary.categories.kpi' },
+  { value: 'general', labelKey: 'dictionary.categories.general' },
 ];
 
 export function DictionaryUZPage() {
@@ -39,6 +39,7 @@ export function DictionaryUZPage() {
   const [newCategory, setNewCategory] = useState('general');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [messageIsError, setMessageIsError] = useState(false);
 
   // Загрузка данных
   const loadEntries = useCallback(async () => {
@@ -58,11 +59,12 @@ export function DictionaryUZPage() {
         setTotal(res.data.total);
       }
     } catch {
-      setMessage('Ошибка загрузки словаря');
+      setMessage(t('dictionary.errors.loadFailed'));
+      setMessageIsError(true);
     } finally {
       setLoading(false);
     }
-  }, [category, showPending, searchTerm]);
+  }, [category, showPending, searchTerm, t]);
 
   const loadStats = useCallback(async () => {
     if (!isAdmin) return;
@@ -80,19 +82,22 @@ export function DictionaryUZPage() {
     if (!newRu.trim() || !newUz.trim()) return;
     setSubmitting(true);
     setMessage('');
+    setMessageIsError(false);
     try {
       await dictionaryApi.create({
         russian_term: newRu.trim(),
         uzbek_translation: newUz.trim(),
         context_category: newCategory,
       });
-      setMessage('Перевод добавлен!');
+      setMessage(t('dictionary.messages.added'));
+      setMessageIsError(false);
       setNewRu('');
       setNewUz('');
       loadEntries();
       loadStats();
     } catch (err: any) {
-      setMessage(err.response?.data?.detail || 'Ошибка при добавлении');
+      setMessage(err.response?.data?.detail || t('dictionary.errors.addFailed'));
+      setMessageIsError(true);
     } finally {
       setSubmitting(false);
     }
@@ -105,19 +110,21 @@ export function DictionaryUZPage() {
       loadEntries();
       loadStats();
     } catch {
-      setMessage('Ошибка при одобрении');
+      setMessage(t('dictionary.errors.verifyFailed'));
+      setMessageIsError(true);
     }
   };
 
   // Удалить
   const handleDelete = async (id: string) => {
-    if (!confirm('Удалить запись?')) return;
+    if (!confirm(t('dictionary.confirmDelete'))) return;
     try {
       await dictionaryApi.delete(id);
       loadEntries();
       loadStats();
     } catch {
-      setMessage('Ошибка при удалении');
+      setMessage(t('dictionary.errors.deleteFailed'));
+      setMessageIsError(true);
     }
   };
 
@@ -131,15 +138,15 @@ export function DictionaryUZPage() {
           <div className="flex gap-4 text-sm">
             <div className="bg-blue-50 rounded-lg px-3 py-2 text-center">
               <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-              <div className="text-gray-500">всего</div>
+              <div className="text-gray-500">{t('dictionary.stats.total')}</div>
             </div>
             <div className="bg-green-50 rounded-lg px-3 py-2 text-center">
               <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
-              <div className="text-gray-500">одобрено</div>
+              <div className="text-gray-500">{t('dictionary.stats.verified')}</div>
             </div>
             <div className="bg-yellow-50 rounded-lg px-3 py-2 text-center">
               <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-              <div className="text-gray-500">ожидает</div>
+              <div className="text-gray-500">{t('dictionary.stats.pending')}</div>
             </div>
           </div>
         )}
@@ -152,20 +159,20 @@ export function DictionaryUZPage() {
             onClick={() => setTab('translate')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${tab === 'translate' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           >
-            Добавить перевод
+            {t('dictionary.tabs.translate')}
           </button>
           <button
             onClick={() => setTab('admin')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${tab === 'admin' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
           >
-            Управление ({stats?.pending || 0} на модерации)
+            {t('dictionary.tabs.admin', { n: stats?.pending || 0 })}
           </button>
         </div>
       )}
 
       {/* Уведомление */}
       {message && (
-        <div className={`mb-4 p-3 rounded-lg text-sm ${message.includes('Ошибка') ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+        <div className={`mb-4 p-3 rounded-lg text-sm ${messageIsError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
           {message}
         </div>
       )}
@@ -175,25 +182,25 @@ export function DictionaryUZPage() {
         <>
           {/* Форма добавления */}
           <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Добавить перевод</h2>
+            <h2 className="text-lg font-semibold mb-4">{t('dictionary.tabs.translate')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Русский термин</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('dictionary.form.ruLabel')}</label>
                 <input
                   type="text"
                   value={newRu}
                   onChange={e => setNewRu(e.target.value)}
-                  placeholder="Например: Торговая точка"
+                  placeholder={t('dictionary.form.ruPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Узбекский перевод (латиница)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('dictionary.form.uzLabel')}</label>
                 <input
                   type="text"
                   value={newUz}
                   onChange={e => setNewUz(e.target.value)}
-                  placeholder="Например: Savdo nuqtasi"
+                  placeholder={t('dictionary.form.uzPlaceholder')}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -205,7 +212,7 @@ export function DictionaryUZPage() {
                 className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {CATEGORIES.filter(c => c.value).map(c => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
+                  <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
                 ))}
               </select>
               <button
@@ -213,7 +220,7 @@ export function DictionaryUZPage() {
                 disabled={submitting || !newRu.trim() || !newUz.trim()}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {submitting ? 'Сохранение...' : 'Добавить'}
+                {submitting ? t('dictionary.form.submitting') : t('dictionary.form.submit')}
               </button>
             </div>
           </div>
@@ -230,7 +237,7 @@ export function DictionaryUZPage() {
               onChange={e => setShowPending(e.target.checked)}
               className="rounded"
             />
-            Только на модерации
+            {t('dictionary.form.pendingOnly')}
           </label>
         </div>
       )}
@@ -241,7 +248,7 @@ export function DictionaryUZPage() {
           type="text"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          placeholder="Поиск по русскому термину..."
+          placeholder={t('dictionary.search.placeholder')}
           className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
@@ -250,10 +257,10 @@ export function DictionaryUZPage() {
           className="px-3 py-2 border border-gray-300 rounded-lg"
         >
           {CATEGORIES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
+            <option key={c.value} value={c.value}>{t(c.labelKey)}</option>
           ))}
         </select>
-        <span className="text-sm text-gray-500">{total} записей</span>
+        <span className="text-sm text-gray-500">{t('dictionary.search.count', { n: total })}</span>
       </div>
 
       {/* Таблица */}
@@ -266,7 +273,7 @@ export function DictionaryUZPage() {
           <SkeletonTableRow cells={3} />
         </div>
       ) : entries.length === 0 ? (
-        <div className="text-center py-12 text-gray-400">Словарь пуст. Добавьте первый перевод!</div>
+        <div className="text-center py-12 text-gray-400">{t('dictionary.empty')}</div>
       ) : (
         <>
           {/* Desktop: таблица (sm+) */}
@@ -274,11 +281,11 @@ export function DictionaryUZPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Русский</th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Узбекский</th>
-                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">Категория</th>
-                  <th className="px-4 py-3 text-center text-gray-600 font-semibold">Статус</th>
-                  {isAdmin && <th className="px-4 py-3 text-center text-gray-600 font-semibold">Действия</th>}
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">{t('dictionary.table.russian')}</th>
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">{t('dictionary.table.uzbek')}</th>
+                  <th className="px-4 py-3 text-left text-gray-600 font-semibold">{t('dictionary.table.category')}</th>
+                  <th className="px-4 py-3 text-center text-gray-600 font-semibold">{t('dictionary.table.status')}</th>
+                  {isAdmin && <th className="px-4 py-3 text-center text-gray-600 font-semibold">{t('dictionary.table.actions')}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -293,9 +300,9 @@ export function DictionaryUZPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       {entry.is_verified ? (
-                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">Одобрено</span>
+                        <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">{t('dictionary.status.verified')}</span>
                       ) : (
-                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">На модерации</span>
+                        <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs font-medium">{t('dictionary.status.pending')}</span>
                       )}
                     </td>
                     {isAdmin && (
@@ -306,14 +313,14 @@ export function DictionaryUZPage() {
                               onClick={() => handleVerify(entry.id)}
                               className="px-2 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
                             >
-                              Одобрить
+                              {t('dictionary.actions.verify')}
                             </button>
                           )}
                           <button
                             onClick={() => handleDelete(entry.id)}
                             className="px-2 py-1 bg-red-100 text-red-600 rounded text-sm hover:bg-red-200"
                           >
-                            Удалить
+                            {t('common.actions.delete')}
                           </button>
                         </div>
                       </td>
@@ -339,9 +346,9 @@ export function DictionaryUZPage() {
                     {entry.context_category || '-'}
                   </Badge>
                   {entry.is_verified ? (
-                    <Badge variant="success" size="sm">Одобрено</Badge>
+                    <Badge variant="success" size="sm">{t('dictionary.status.verified')}</Badge>
                   ) : (
-                    <Badge variant="warning" size="sm">На модерации</Badge>
+                    <Badge variant="warning" size="sm">{t('dictionary.status.pending')}</Badge>
                   )}
                 </div>
                 {isAdmin && (
@@ -353,7 +360,7 @@ export function DictionaryUZPage() {
                         leftIcon={<Check size={14} />}
                         onClick={() => handleVerify(entry.id)}
                       >
-                        Одобрить
+                        {t('dictionary.actions.verify')}
                       </Button>
                     )}
                     <Button
@@ -362,7 +369,7 @@ export function DictionaryUZPage() {
                       leftIcon={<Trash2 size={14} />}
                       onClick={() => handleDelete(entry.id)}
                     >
-                      Удалить
+                      {t('common.actions.delete')}
                     </Button>
                   </div>
                 )}
