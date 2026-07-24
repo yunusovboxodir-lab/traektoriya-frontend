@@ -1260,6 +1260,7 @@ function TeamPulseView({ data }: { data: SubordinatesPulseResponse }) {
 
 function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: number }) {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
   const lvl = levelByPct(member.overall_pulse);
   const meta = LEVEL_META[lvl];
 
@@ -1304,7 +1305,7 @@ function MemberCard({ member, rank }: { member: SubordinatePulseEntry; rank: num
           <div className="flex flex-col gap-1 text-sm">
             {weakest.map((c) => (
               <div key={c.id} className="flex items-center justify-between gap-2">
-                <span className="truncate min-w-0" style={{ color: 'var(--text-secondary)' }}>{c.name}</span>
+                <span className="truncate min-w-0" style={{ color: 'var(--text-secondary)' }}>{lang === 'uz' && c.name_uz ? c.name_uz : c.name}</span>
                 <span className="flex-shrink-0" style={{ color: LEVEL_META[levelByPct(c.pct)].color, fontWeight: 700 }}>
                   {Math.round(c.pct)}%
                 </span>
