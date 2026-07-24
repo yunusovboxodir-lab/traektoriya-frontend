@@ -11,6 +11,7 @@ interface MapNodeProps {
   node: MapNode;
   selected: boolean;
   onSelect: (node: MapNode) => void;
+  lang: 'ru' | 'uz';
 }
 
 // Палитра территорий (тиров) — ЦВЕТ пина = к какому материку/уровню относится курс.
@@ -30,8 +31,9 @@ const HIT_R = 28;
 // Тёмный глиф поверх залитой (яркой) головы пина.
 const GLYPH_INK = 'oklch(0.16 0.02 250)';
 
-function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
+function MapNodeComponent({ node, selected, onSelect, lang }: MapNodeProps) {
   const locked = node.state === 'locked';
+  const title = lang === 'uz' ? (node.titleUz ?? node.title) : node.title;
   // Цвет = тир (или приглушённый серый для заблокированных).
   const col = locked ? LOCKED_TINT : (TIER_TINTS[node.zone ?? 0] ?? TIER_TINTS[0]);
   const R = node.state === 'mastered' ? 13 : 11; // радиус головы пина
@@ -77,7 +79,7 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
       style={{ cursor: 'pointer', opacity: locked ? 0.72 : 1 }}
       role="button"
       tabIndex={0}
-      aria-label={node.title}
+      aria-label={title}
       onClick={() => onSelect(node)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -116,7 +118,7 @@ function MapNodeComponent({ node, selected, onSelect }: MapNodeProps) {
           fontWeight={600}
           fill="oklch(0.92 0.02 250)"
           style={{ pointerEvents: 'none', paintOrder: 'stroke' }}
-          stroke="oklch(0.10 0.02 250)" strokeWidth="3">{node.title}</text>
+          stroke="oklch(0.10 0.02 250)" strokeWidth="3">{title}</text>
       )}
     </g>
   );
@@ -340,7 +342,7 @@ export function TacticalMap({
 
       <g>
         {placed.map((n) => (
-          <MapNodeComponent key={n.id} node={n} selected={selectedId === n.id} onSelect={onSelect} />
+          <MapNodeComponent key={n.id} node={n} selected={selectedId === n.id} onSelect={onSelect} lang={lang} />
         ))}
       </g>
 

@@ -17,6 +17,8 @@ export interface MapNode {
   id: string;
   code: string;
   title: string;
+  /** Название узла на узбекском (для lang='uz') */
+  titleUz?: string;
   state: NodeState;
   houses: MapHouse[];
   zone: number;
@@ -39,6 +41,8 @@ export interface MapZone {
   /** Подпись территории на узбекском (для lang='uz') */
   labelUz?: string;
   sub: string;
+  /** Подзаголовок территории на узбекском (для lang='uz') */
+  subUz?: string;
   count: number;
   x: number;
   w: number;
@@ -59,6 +63,8 @@ export interface StateStyle {
   fill: string;
   glyph: string;
   label: string;
+  /** Подпись статуса на узбекском (для lang='uz') */
+  labelUz?: string;
 }
 
 export interface Recommendation {

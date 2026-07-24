@@ -466,10 +466,12 @@ interface VillageTileProps {
   zone: MapZone;
   selected: boolean;
   onSelect: () => void;
+  lang: 'ru' | 'uz';
 }
 
-function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
+function VillageTile({ v, zone, selected, onSelect, lang }: VillageTileProps) {
   const s = STATE_STYLES[v.state];
+  const title = lang === 'uz' ? (v.titleUz ?? v.title) : v.title;
   const pct = Math.round(((v.done ?? 0) / Math.max(v.sections ?? 1, 1)) * 100);
   return (
     <button onClick={onSelect} style={{
@@ -514,7 +516,7 @@ function VillageTile({ v, zone, selected, onSelect }: VillageTileProps) {
             color: 'var(--text-primary)',
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
-            {v.title}
+            {title}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 5 }}>
@@ -622,7 +624,8 @@ function TerritoryList({ selectedId, setSelectedId, nodes, zones }: TerritoryLis
               {villages.map((v) => (
                 <VillageTile key={v.id} v={v} zone={z}
                   selected={v.id === selectedId}
-                  onSelect={() => setSelectedId(v.id)} />
+                  onSelect={() => setSelectedId(v.id)}
+                  lang={lang} />
               ))}
             </div>
           </div>
@@ -652,6 +655,8 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
   const lang = useLangStore((s) => s.lang);
   const tt = (ru: string, uz: string) => (lang === 'uz' ? uz : ru);
   const s = STATE_STYLES[village.state];
+  const stateLabel = lang === 'uz' ? (s.labelUz ?? s.label) : s.label;
+  const title = lang === 'uz' ? (village.titleUz ?? village.title) : village.title;
   const totalXp = (village.sections ?? 0) * 60;
   const earnedXp = (village.done ?? 0) * 60;
   return (
@@ -701,14 +706,14 @@ function VillageSheet({ village, zone, onClose, onOpenCourse }: VillageSheetProp
                 padding: '1px 6px', borderRadius: 3,
                 background: `${s.stroke}20`,
               }}>
-                {s.label.toUpperCase()}
+                {stateLabel.toUpperCase()}
               </span>
             </div>
             <h2 style={{
               margin: 0, fontFamily: "'Cinzel', serif", fontSize: 20, fontWeight: 600,
               color: 'var(--text-primary)', letterSpacing: '0.01em',
             }}>
-              {village.title}
+              {title}
             </h2>
           </div>
           <button onClick={onClose} style={{

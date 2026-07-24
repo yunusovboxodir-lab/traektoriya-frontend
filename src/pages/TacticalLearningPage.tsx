@@ -267,7 +267,10 @@ export function TacticalLearningPage() {
                   className="panel-code"
                   style={{ color: STATE_STYLES[selectedNode.state].stroke }}
                 >
-                  {STATE_STYLES[selectedNode.state].glyph} {STATE_STYLES[selectedNode.state].label.toUpperCase()}
+                  {STATE_STYLES[selectedNode.state].glyph} {(lang === 'uz'
+                    ? (STATE_STYLES[selectedNode.state].labelUz ?? STATE_STYLES[selectedNode.state].label)
+                    : STATE_STYLES[selectedNode.state].label
+                  ).toUpperCase()}
                 </span>
                 <button
                   onClick={() => setSelectedNode(null)}
@@ -288,7 +291,7 @@ export function TacticalLearningPage() {
                 </button>
               </div>
               <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 14, color: 'var(--text-0)' }}>
-                {selectedNode.title}
+                {lang === 'uz' ? (selectedNode.titleUz ?? selectedNode.title) : selectedNode.title}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
                 {selectedNode.houses.map((h, i) => {
@@ -332,7 +335,7 @@ export function TacticalLearningPage() {
                         )}
                       </span>
                       <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', color: STATE_STYLES[h.s].stroke, flexShrink: 0, marginLeft: 12 }}>
-                        {STATE_STYLES[h.s].glyph} {STATE_STYLES[h.s].label}
+                        {STATE_STYLES[h.s].glyph} {lang === 'uz' ? (STATE_STYLES[h.s].labelUz ?? STATE_STYLES[h.s].label) : STATE_STYLES[h.s].label}
                       </span>
                     </button>
                   );

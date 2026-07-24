@@ -20,6 +20,8 @@ export interface SceneElement {
 export interface AtmosphereConfig {
   /** Human-readable name (RU) */
   label: string;
+  /** Human-readable name (UZ) — используется при lang === 'uz' (см. потребителей label) */
+  labelUz?: string;
   /** Short description for AI prompt */
   description: string;
   /** CSS gradient for background */
@@ -86,6 +88,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   store_chaos: {
     label: 'Магазин — хаос на полке',
+    labelUz: 'Doʻkon — tokchada tartibsizlik',
     description: 'Retail store with messy shelves, products falling, chaotic display. Used for merchandising problems.',
     gradient: 'linear-gradient(180deg, #0a0f1a 0%, #111827 30%, #1a1a2e 60%, #0d1117 100%)',
     overlayGradient: 'radial-gradient(ellipse at 30% 60%, rgba(220,38,38,0.04), transparent 50%)',
@@ -101,6 +104,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   store_clean: {
     label: 'Магазин — идеальная выкладка',
+    labelUz: 'Doʻkon — mukammal joylashtirish',
     description: 'Clean retail store with perfect product display, organized shelves. Used for best-practice examples.',
     gradient: 'linear-gradient(180deg, #0a0f1a 0%, #111827 30%, #1a1a2e 60%, #0d1117 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 40%, rgba(59,130,246,0.05), transparent 50%)',
@@ -116,6 +120,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   minimarket_day: {
     label: 'Мини-маркет — дневной визит',
+    labelUz: 'Mini-market — kunduzgi tashrif',
     description: 'Small neighborhood minimarket during daytime. Warm lighting, compact shelves. Used for daily visit scenarios.',
     gradient: 'linear-gradient(180deg, #1a1510 0%, #2a2015 30%, #1f1a12 60%, #151008 100%)',
     overlayGradient: 'radial-gradient(ellipse at 60% 30%, rgba(255,200,100,0.08), transparent 50%)',
@@ -131,6 +136,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   supermarket: {
     label: 'Супермаркет — большой зал',
+    labelUz: 'Supermarket — katta zal',
     description: 'Large supermarket hall with bright fluorescent lighting, wide aisles, many shelves. Used for key account scenarios.',
     gradient: 'linear-gradient(180deg, #0c1220 0%, #141e30 30%, #1c2940 60%, #0e1520 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 20%, rgba(200,220,255,0.06), transparent 40%)',
@@ -147,6 +153,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   dark_office: {
     label: 'Офис — вечерний',
+    labelUz: 'Ofis — kechki',
     description: 'Dark corporate office at evening. Monitor glow, moody atmosphere. Used for planning, analytics, reporting scenes.',
     gradient: 'linear-gradient(180deg, #0c1829 0%, #1a2744 40%, #0d1520 100%)',
     overlayGradient: 'radial-gradient(ellipse at 70% 50%, rgba(59,130,246,0.04), transparent 40%)',
@@ -164,6 +171,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   office_morning: {
     label: 'Офис — утренний',
+    labelUz: 'Ofis — ertalabki',
     description: 'Bright morning office with warm sunlight through windows. Used for team meetings, planning sessions, briefings.',
     gradient: 'linear-gradient(180deg, #1a1520 0%, #2a2035 30%, #1e1828 60%, #100c18 100%)',
     overlayGradient: 'radial-gradient(ellipse at 80% 20%, rgba(255,180,80,0.07), transparent 45%)',
@@ -181,6 +189,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   meeting_room: {
     label: 'Переговорная',
+    labelUz: 'Muzokara xonasi',
     description: 'Conference/meeting room with presentation screen. Used for supervisor meetings, HR interviews, evaluations.',
     gradient: 'linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 30%, rgba(100,140,200,0.05), transparent 45%)',
@@ -200,6 +209,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   warehouse: {
     label: 'Склад',
+    labelUz: 'Ombor',
     description: 'Distribution warehouse with pallets, boxes, industrial lighting. Used for logistics, stock management, inventory.',
     gradient: 'linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 40%, #262626 100%)',
     overlayGradient: 'radial-gradient(ellipse at 40% 40%, rgba(255,220,150,0.04), transparent 40%)',
@@ -219,6 +229,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   warehouse_loading: {
     label: 'Склад — зона погрузки',
+    labelUz: 'Ombor — yuklash zonasi',
     description: 'Loading dock area of warehouse. Open gates, truck visible. Used for delivery, receivables, order scenarios.',
     gradient: 'linear-gradient(180deg, #0d0d0d 0%, #1a1510 30%, #1f1a12 60%, #0a0a0a 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 80%, rgba(255,180,80,0.05), transparent 50%)',
@@ -238,6 +249,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   street_route: {
     label: 'Улица — маршрут ТП',
+    labelUz: 'Koʻcha — TP marshruti',
     description: 'Street scene during sales rep route. Buildings, shops, city landscape. Used for route planning, territory coverage.',
     gradient: 'linear-gradient(180deg, #0a1628 0%, #162040 30%, #1a2a4a 50%, #0d1520 100%)',
     overlayGradient: 'radial-gradient(ellipse at 30% 20%, rgba(100,200,255,0.05), transparent 40%)',
@@ -255,6 +267,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   outdoor_market: {
     label: 'Базар / открытый рынок',
+    labelUz: 'Bozor / ochiq bozor',
     description: 'Open-air market/bazaar in Central Asia. Warm, sunny, crowded. Used for dealer/wholesale scenarios.',
     gradient: 'linear-gradient(180deg, #1a1508 0%, #2d2510 30%, #261e0a 60%, #140e05 100%)',
     overlayGradient: 'radial-gradient(ellipse at 60% 15%, rgba(255,220,100,0.1), transparent 40%)',
@@ -272,6 +285,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   training_room: {
     label: 'Тренинг-зал',
+    labelUz: 'Trening zali',
     description: 'Corporate training room with projector, chairs, flipchart. Used for onboarding, coaching, skill development.',
     gradient: 'linear-gradient(180deg, #10162a 0%, #1a2540 40%, #151d32 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 30%, rgba(168,85,247,0.05), transparent 45%)',
@@ -290,6 +304,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   crisis_red: {
     label: 'Кризисная ситуация',
+    labelUz: 'Inqirozli vaziyat',
     description: 'Tense red-tinted atmosphere for urgent problems — lost clients, critical KPI drop, team conflict.',
     gradient: 'linear-gradient(180deg, #1a0505 0%, #2a0a0a 30%, #1f0808 60%, #0d0303 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 50%, rgba(220,38,38,0.08), transparent 50%)',
@@ -304,6 +319,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   success_green: {
     label: 'Успех / достижение',
+    labelUz: 'Muvaffaqiyat / erishuv',
     description: 'Positive green atmosphere for success stories — target achieved, deal closed, team goal met.',
     gradient: 'linear-gradient(180deg, #051a0a 0%, #0a2a12 30%, #081f0d 60%, #030d05 100%)',
     overlayGradient: 'radial-gradient(ellipse at 50% 40%, rgba(34,197,94,0.07), transparent 45%)',
@@ -320,6 +336,7 @@ export const atmospheres: Record<string, AtmosphereConfig> = {
 
   client_office: {
     label: 'Офис клиента',
+    labelUz: 'Mijoz ofisi',
     description: 'Client\'s office during a B2B meeting. Formal setting. Used for negotiation, objection handling, deal closing.',
     gradient: 'linear-gradient(180deg, #12101a 0%, #1e1a2a 40%, #151220 100%)',
     overlayGradient: 'radial-gradient(ellipse at 70% 30%, rgba(200,180,255,0.04), transparent 40%)',

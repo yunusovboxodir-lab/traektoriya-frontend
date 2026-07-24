@@ -14,6 +14,8 @@ export interface CharacterSkin {
   id: string;
   /** Display name RU */
   label: string;
+  /** Display name UZ — используется при lang === 'uz' (см. потребителей label) */
+  labelUz?: string;
   /** Role description for AI prompt */
   description: string;
   /** Default emoji for face */
@@ -50,6 +52,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   sales_rep: {
     id: 'sales_rep',
     label: 'Торговый представитель',
+    labelUz: 'Savdo vakili',
     description: 'Field sales representative visiting retail outlets. Wears company polo shirt with badge, carries tablet for orders.',
     defaultEmoji: '😊',
     skin: {
@@ -69,6 +72,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   supervisor: {
     id: 'supervisor',
     label: 'Супервайзер',
+    labelUz: 'Supervayzer',
     description: 'Team supervisor managing 5-8 sales reps. Wears business casual with jacket, carries notebook for team notes.',
     defaultEmoji: '🤔',
     skin: {
@@ -89,6 +93,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   hr_manager: {
     id: 'hr_manager',
     label: 'HR-менеджер',
+    labelUz: 'HR-menejer',
     description: 'HR manager conducting interviews, evaluations, training. Wears formal business attire with folder of resumes.',
     defaultEmoji: '🤓',
     skin: {
@@ -109,6 +114,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   store_keeper: {
     id: 'store_keeper',
     label: 'Товаровед',
+    labelUz: 'Tovarshunos',
     description: 'Store product manager / merchandise manager. Wears store apron, holds price tag, manages shelf space.',
     defaultEmoji: '😤',
     skin: {
@@ -129,6 +135,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   regional_manager: {
     id: 'regional_manager',
     label: 'Региональный менеджер',
+    labelUz: 'Hududiy menejer',
     description: 'Regional manager overseeing territory strategy. Wears formal suit with tie, carries laptop for analytics.',
     defaultEmoji: '😎',
     skin: {
@@ -149,6 +156,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   store_director: {
     id: 'store_director',
     label: 'Директор магазина',
+    labelUz: 'Doʻkon direktori',
     description: 'Store owner or director. Wears store uniform/coat, has keys, manages the whole outlet.',
     defaultEmoji: '🧐',
     skin: {
@@ -169,6 +177,7 @@ export const characterSkins: Record<string, CharacterSkin> = {
   trainee: {
     id: 'trainee',
     label: 'Стажёр',
+    labelUz: 'Stajyor',
     description: 'New hire / trainee on their first days. Casual clothes, holds phone, looks uncertain. Learning the ropes.',
     defaultEmoji: '😅',
     skin: {
