@@ -41,7 +41,7 @@ const RAW_NODES: MapNode[] = [
       houses: [{ s: 'done' }, { s: 'done' }, { s: 'done' }] },
     { id: 'v3', code: 'СТ-03', title: 'Регламент', titleUz: 'Reglament', state: 'done',
       houses: [{ s: 'done' }, { s: 'done' }, { s: 'done' }] },
-    { id: 'v4', code: 'СТ-04', title: 'Поле и SKU', titleUz: 'Dala va SKU', state: 'active',
+    { id: 'v4', code: 'СТ-04', title: 'Поле и SKU', titleUz: 'Hudud va SKU', state: 'active',
       houses: [{ s: 'done' }, { s: 'done' }, { s: 'active' }] },
     { id: 'v5', code: 'СТ-05', title: 'Документы', titleUz: 'Hujjatlar', state: 'new',
       houses: [{ s: 'new' }, { s: 'new' }, { s: 'new' }] },

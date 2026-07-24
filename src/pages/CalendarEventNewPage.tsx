@@ -315,7 +315,7 @@ export function CalendarEventNewPage() {
               type="text"
               value={titleUz}
               onChange={(e) => setTitleUz(e.target.value)}
-              placeholder='«Dalada DSPM kouching»'
+              placeholder='«Hududda DSPM kouching»'
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
               maxLength={500}
             />

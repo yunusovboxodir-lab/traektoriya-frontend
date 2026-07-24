@@ -74,7 +74,7 @@
     "tenantSlugPlaceholder": "tashkilot slugi (masalan, acme-corp)",
     "errorAmbiguousTenant": "Bunday login bir nechta tashkilotda mavjud. Tashkilot slugini kiriting.",
     "footerTagline": "Korporativ rivojlanish platformasi",
-    "tagline": "AI · Mikrooʻqitish · Dala amaliyoti"
+    "tagline": "AI · Mikrooʻqitish · Hudud amaliyoti"
   },
   "home": {
     "tabOverview": "Umumiy",
@@ -531,7 +531,7 @@
       "ctaResetFilter": "Filtrni tozalash"
     },
     "fieldTask": {
-      "title": "Dala topshirigʻi",
+      "title": "Hudud topshirigʻi",
       "subtitle": "Marshrutdagi amaliy topshiriq",
       "deadline": "Bajarish muddati:",
       "day1": "kun",
@@ -789,7 +789,7 @@
       "avgTime": "Oʻrt. vaqt",
       "delta": "Delta",
       "kpiLinkage": "Oʻqitish va biznes-KPI bogʻliqligi",
-      "kpiFieldSales": "Dala savdosi (TP + SV)",
+      "kpiFieldSales": "Hudud savdosi (TP + SV)",
       "kpiRM": "Mintaqaviy menejer",
       "kpiCD": "Tijorat direktori",
       "kpiBM": "Brend-menejer",
@@ -1495,7 +1495,7 @@
       "hide": "Filtrlarni yashirish"
     },
     "platformName": "Traektoriya",
-    "platformDesc": "Dala xodimlarini boshqarish AI-platformasi",
+    "platformDesc": "Hudud xodimlarini boshqarish AI-platformasi",
     "period": "Davr",
     "top": "Top",
     "roles": {
@@ -2451,7 +2451,7 @@
       "readiness": "Kontent tayyorligi",
       "notSpecified": "— Koʻrsatilmagan —",
       "competencies": "Kompetensiyalar (vergul bilan)",
-      "competenciesPlaceholder": "DSPM, Dala kouchingi, Eʼtirozlar",
+      "competenciesPlaceholder": "DSPM, Hudud kouchingi, Eʼtirozlar",
       "notesPlaceholder": "Trener va ishtirokchilar uchun qoʻshimcha tafsilotlar",
       "creating": "Yaratilmoqda…",
       "create": "Tadbir yaratish"
