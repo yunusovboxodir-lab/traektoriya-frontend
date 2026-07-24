@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
 import { coursesApi, type ContentItem, type MediaEntry } from '../../api/courses';
+import { useT } from '../../stores/langStore';
 
 interface MediaManagerProps {
   item: ContentItem;
@@ -16,6 +17,7 @@ function getYouTubeId(url: string): string | null {
 }
 
 export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
+  const t = useT();
   const [uploading, setUploading] = useState(false);
   const [videoUrl, setVideoUrl] = useState('');
   const [error, setError] = useState('');
@@ -28,11 +30,11 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
     async (file: File) => {
       const ext = file.name.split('.').pop()?.toLowerCase() || '';
       if (!ALLOWED_EXTENSIONS.includes(ext)) {
-        setError(`Формат .${ext} не поддерживается. Допустимые: ${ALLOWED_EXTENSIONS.join(', ')}`);
+        setError(t('moderation.mediaManager.formatUnsupported', { ext, list: ALLOWED_EXTENSIONS.join(', ') }));
         return;
       }
       if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        setError(`Файл слишком большой. Максимум ${MAX_SIZE_MB} МБ`);
+        setError(t('moderation.mediaManager.fileTooBig', { n: MAX_SIZE_MB }));
         return;
       }
 
@@ -42,12 +44,12 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
         const resp = await coursesApi.uploadMedia(item.id, file);
         onUpdate(resp.data);
       } catch {
-        setError('Ошибка загрузки файла');
+        setError(t('moderation.mediaManager.uploadError'));
       } finally {
         setUploading(false);
       }
     },
-    [item.id, onUpdate],
+    [item.id, onUpdate, t],
   );
 
   const handleDrop = useCallback(
@@ -63,7 +65,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
   const handleAddVideoUrl = async () => {
     if (!videoUrl.trim()) return;
     if (!videoUrl.startsWith('http://') && !videoUrl.startsWith('https://')) {
-      setError('URL должен начинаться с http:// или https://');
+      setError(t('moderation.mediaManager.urlProtocolError'));
       return;
     }
     try {
@@ -72,18 +74,18 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
       onUpdate(resp.data);
       setVideoUrl('');
     } catch {
-      setError('Ошибка добавления URL');
+      setError(t('moderation.mediaManager.addUrlError'));
     }
   };
 
   const handleDelete = async (index: number) => {
-    if (!confirm('Удалить медиа?')) return;
+    if (!confirm(t('moderation.mediaManager.deleteConfirm'))) return;
     try {
       setError('');
       const resp = await coursesApi.deleteMedia(item.id, index);
       onUpdate(resp.data);
     } catch {
-      setError('Ошибка удаления');
+      setError(t('moderation.mediaManager.deleteError'));
     }
   };
 
@@ -92,7 +94,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
       <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-2xl">
-          <h2 className="text-lg font-bold text-gray-900">Медиафайлы</h2>
+          <h2 className="text-lg font-bold text-gray-900">{t('moderation.mediaManager.title')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">
             &times;
           </button>
@@ -105,7 +107,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
 
           {/* Upload area */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Загрузка изображений</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">{t('moderation.mediaManager.uploadSectionTitle')}</h3>
             <div
               onDragOver={e => { e.preventDefault(); setDragOver(true); }}
               onDragLeave={() => setDragOver(false)}
@@ -120,16 +122,16 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
               {uploading ? (
                 <div className="text-blue-600">
                   <div className="animate-spin w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-2" />
-                  <p className="text-sm">Загрузка...</p>
+                  <p className="text-sm">{t('common.loading')}</p>
                 </div>
               ) : (
                 <>
                   <div className="text-3xl mb-2">📷</div>
                   <p className="text-sm text-gray-600">
-                    Перетащите изображение сюда или нажмите для выбора
+                    {t('moderation.mediaManager.dropHint')}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    JPG, PNG, GIF, WebP (до {MAX_SIZE_MB} МБ)
+                    {t('moderation.mediaManager.formatsHint', { n: MAX_SIZE_MB })}
                   </p>
                 </>
               )}
@@ -149,7 +151,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
 
           {/* Video URL */}
           <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Добавить видео URL</h3>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">{t('moderation.mediaManager.videoUrlSectionTitle')}</h3>
             <div className="flex gap-2">
               <input
                 type="url"
@@ -163,7 +165,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
                 disabled={!videoUrl.trim()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
               >
-                Добавить
+                {t('moderation.mediaManager.add')}
               </button>
             </div>
           </div>
@@ -172,7 +174,7 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
           {mediaList.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-gray-700 mb-2">
-                Медиафайлы ({mediaList.length})
+                {t('moderation.mediaManager.filesCountN', { n: mediaList.length })}
               </h3>
               <div className="grid grid-cols-2 gap-3">
                 {mediaList.map((m, idx) => (
@@ -207,13 +209,13 @@ export function MediaManager({ item, onUpdate, onClose }: MediaManagerProps) {
                     )}
                     <div className="p-2 flex items-center justify-between">
                       <span className="text-xs text-gray-500 truncate flex-1">
-                        {m.original_filename || (m.type === 'video' ? 'Видео' : 'Изображение')}
+                        {m.original_filename || (m.type === 'video' ? t('moderation.type.video') : t('moderation.mediaManager.image'))}
                       </span>
                       <button
                         onClick={() => handleDelete(idx)}
                         className="text-red-400 hover:text-red-600 text-sm ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        Удалить
+                        {t('common.actions.delete')}
                       </button>
                     </div>
                   </div>

@@ -3,6 +3,7 @@ import { coursesApi, type ContentItem } from '../../api/courses';
 import { QuizEditor } from './QuizEditor';
 import { MediaManager } from './MediaManager';
 import { renderMarkdown } from '@/lib/renderMarkdown';
+import { useT } from '../../stores/langStore';
 
 interface LessonEditorProps {
   itemId: string;
@@ -10,23 +11,25 @@ interface LessonEditorProps {
   onSaved: () => void;
 }
 
-const DIFFICULTY_MAP: Record<number, string> = {
-  1: 'Начальный',
-  2: 'Средний',
-  3: 'Продвинутый',
-  4: 'Экспертный',
+// label → labelKey: тексты живут в словарях src/i18n (i18n)
+const DIFFICULTY_KEYS: Record<number, string> = {
+  1: 'moderation.difficulty.beginner',
+  2: 'moderation.difficulty.intermediate',
+  3: 'moderation.difficulty.advanced',
+  4: 'moderation.difficulty.expert',
 };
 
 const STATUS_OPTIONS = [
-  { value: 'draft', label: 'Черновик' },
-  { value: 'review', label: 'На проверке' },
-  { value: 'approved', label: 'Утверждён' },
-  { value: 'published', label: 'Опубликован' },
-  { value: 'rejected', label: 'Отклонён' },
+  { value: 'draft', labelKey: 'moderation.status.draft' },
+  { value: 'review', labelKey: 'moderation.status.review' },
+  { value: 'approved', labelKey: 'moderation.status.approved' },
+  { value: 'published', labelKey: 'moderation.status.published' },
+  { value: 'rejected', labelKey: 'moderation.status.rejected' },
 ];
 
 
 export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
+  const t = useT();
   const [item, setItem] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -107,9 +110,9 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
         <div className="bg-white rounded-2xl p-8 text-center">
-          <p className="text-red-600">{error || 'Элемент не найден'}</p>
+          <p className="text-red-600">{error || t('moderation.lessonEditor.notFound')}</p>
           <button onClick={onClose} className="mt-4 px-4 py-2 bg-gray-100 rounded-lg text-sm">
-            Закрыть
+            {t('common.close')}
           </button>
         </div>
       </div>
@@ -123,7 +126,7 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
           {/* Header */}
           <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Редактирование урока</h2>
+              <h2 className="text-lg font-bold text-gray-900">{t('moderation.lessonEditor.title')}</h2>
               <p className="text-sm text-gray-500 mt-0.5">{item.path} — {item.content_type}</p>
             </div>
             <div className="flex items-center gap-2">
@@ -132,13 +135,13 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
                 disabled={saving}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
               >
-                {saving ? 'Сохранение...' : 'Сохранить'}
+                {saving ? t('moderation.quizEditor.saving') : t('common.save')}
               </button>
               <button
                 onClick={onClose}
                 className="px-4 py-2 border rounded-lg text-sm text-gray-600 hover:bg-gray-50"
               >
-                Закрыть
+                {t('common.close')}
               </button>
             </div>
           </div>
@@ -150,7 +153,7 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
 
             {/* Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Название</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.colTitle')}</label>
               <input
                 type="text"
                 value={title}
@@ -162,31 +165,31 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
             {/* Status + Difficulty row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Статус</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.statusLabel')}</label>
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value)}
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                 >
                   {STATUS_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
+                    <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Сложность</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.colDifficulty')}</label>
                 <select
                   value={difficulty}
                   onChange={e => setDifficulty(Number(e.target.value))}
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                 >
-                  {Object.entries(DIFFICULTY_MAP).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
+                  {Object.entries(DIFFICULTY_KEYS).map(([k, key]) => (
+                    <option key={k} value={k}>{t(key)}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Длительность (мин)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.lessonEditor.durationMin')}</label>
                 <input
                   type="number"
                   min={1}
@@ -197,7 +200,7 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Баллы</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.quizEditor.points')}</label>
                 <input
                   type="number"
                   min={0}
@@ -211,25 +214,25 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
 
             {/* Learning objective */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Учебная цель</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('moderation.lessonEditor.learningObjective')}</label>
               <input
                 type="text"
                 value={learningObjective}
                 onChange={e => setLearningObjective(e.target.value)}
                 className="w-full border rounded-lg px-3 py-2 text-sm"
-                placeholder="Что студент освоит после этого урока..."
+                placeholder={t('moderation.lessonEditor.learningObjectivePlaceholder')}
               />
             </div>
 
             {/* Content */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="text-sm font-medium text-gray-700">Контент (Markdown)</label>
+                <label className="text-sm font-medium text-gray-700">{t('moderation.lessonEditor.contentMarkdown')}</label>
                 <button
                   onClick={() => setShowPreview(!showPreview)}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
-                  {showPreview ? 'Редактор' : 'Предпросмотр'}
+                  {showPreview ? t('moderation.lessonEditor.editor') : t('moderation.lessonEditor.preview')}
                 </button>
               </div>
               {showPreview ? (
@@ -242,7 +245,7 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
                   value={content}
                   onChange={e => setContent(e.target.value)}
                   className="w-full border rounded-lg px-3 py-2 text-sm font-mono min-h-[300px] resize-y"
-                  placeholder="Markdown контент урока..."
+                  placeholder={t('moderation.lessonEditor.contentPlaceholder')}
                 />
               )}
             </div>
@@ -253,13 +256,13 @@ export function LessonEditor({ itemId, onClose, onSaved }: LessonEditorProps) {
                 onClick={() => setShowQuizEditor(true)}
                 className="flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <span>📝</span> Управление квизом
+                <span>📝</span> {t('moderation.lessonEditor.manageQuiz')}
               </button>
               <button
                 onClick={() => setShowMediaManager(true)}
                 className="flex items-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <span>📎</span> Медиафайлы
+                <span>📎</span> {t('moderation.mediaManager.title')}
                 {item.media_urls && item.media_urls.length > 0 && (
                   <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-xs">
                     {item.media_urls.length}

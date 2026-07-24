@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api } from '../../api/client';
+import { useT } from '../../stores/langStore';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -16,10 +17,11 @@ interface MediaPromptItem {
   media_url?: string | null;
 }
 
-const STATUS_STYLES: Record<string, { label: string; bg: string; text: string }> = {
-  pending: { label: 'Ожидает', bg: 'bg-gray-100', text: 'text-gray-600' },
-  in_progress: { label: 'В работе', bg: 'bg-amber-100', text: 'text-amber-700' },
-  done: { label: 'Готово', bg: 'bg-emerald-100', text: 'text-emerald-700' },
+// label → labelKey: тексты живут в словарях src/i18n (i18n)
+const STATUS_STYLES: Record<string, { labelKey: string; bg: string; text: string }> = {
+  pending: { labelKey: 'moderation.mediaPrompts.status.pending', bg: 'bg-gray-100', text: 'text-gray-600' },
+  in_progress: { labelKey: 'moderation.mediaPrompts.status.inProgress', bg: 'bg-amber-100', text: 'text-amber-700' },
+  done: { labelKey: 'moderation.mediaPrompts.status.done', bg: 'bg-emerald-100', text: 'text-emerald-700' },
 };
 
 const TYPE_ICONS: Record<string, string> = {
@@ -28,16 +30,18 @@ const TYPE_ICONS: Record<string, string> = {
   infographic: '📊',
 };
 
-const LEVEL_NAMES: Record<string, string> = {
-  trainee: 'Стажёр',
-  practitioner: 'Практик',
-  expert: 'Эксперт',
-  master: 'Мастер',
+// Уровни платформы (pulse) — переиспользуем существующий неймспейс pulse.*
+const LEVEL_KEYS: Record<string, string> = {
+  trainee: 'pulse.trainee',
+  practitioner: 'pulse.practitioner',
+  expert: 'pulse.expert',
+  master: 'pulse.master',
 };
 
 // ─── Component ──────────────────────────────────────────
 
 export function MediaPromptsTab() {
+  const t = useT();
   const [prompts, setPrompts] = useState<MediaPromptItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -55,11 +59,11 @@ export function MediaPromptsTab() {
       setPrompts(resp.data.prompts);
       setError('');
     } catch {
-      setError('Не удалось загрузить медиа-промпты');
+      setError(t('moderation.mediaPrompts.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [filterStatus]);
+  }, [filterStatus, t]);
 
   useEffect(() => {
     fetchPrompts();
@@ -70,7 +74,7 @@ export function MediaPromptsTab() {
       await api.patch(`/api/v1/learning/media-prompts/${courseId}/${slideOrder}`, updates);
       await fetchPrompts();
     } catch {
-      setError('Ошибка обновления промпта');
+      setError(t('moderation.mediaPrompts.updateError'));
     }
   };
 
@@ -103,8 +107,8 @@ export function MediaPromptsTab() {
   return (
     <div>
       <div className="mb-5">
-        <h2 className="text-lg font-bold text-gray-900 mb-1">Медиа-промпты для дизайнера</h2>
-        <p className="text-sm text-gray-500">Задания на создание изображений, видео и инфографики для учебных курсов</p>
+        <h2 className="text-lg font-bold text-gray-900 mb-1">{t('moderation.mediaPrompts.title')}</h2>
+        <p className="text-sm text-gray-500">{t('moderation.mediaPrompts.subtitle')}</p>
       </div>
 
       {error && (
@@ -115,10 +119,10 @@ export function MediaPromptsTab() {
       <div className="flex flex-wrap gap-2 mb-5">
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
           {[
-            { value: 'all', label: 'Все' },
-            { value: 'pending', label: 'Ожидают' },
-            { value: 'in_progress', label: 'В работе' },
-            { value: 'done', label: 'Готово' },
+            { value: 'all', labelKey: 'moderation.mediaPrompts.filterAll' },
+            { value: 'pending', labelKey: 'moderation.mediaPrompts.filterPending' },
+            { value: 'in_progress', labelKey: 'moderation.mediaPrompts.status.inProgress' },
+            { value: 'done', labelKey: 'moderation.mediaPrompts.status.done' },
           ].map(s => (
             <button
               key={s.value}
@@ -127,36 +131,36 @@ export function MediaPromptsTab() {
                 filterStatus === s.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              {s.label}
+              {t(s.labelKey)}
             </button>
           ))}
         </div>
         <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5">
           {[
-            { value: 'all', label: 'Все типы' },
-            { value: 'image', label: '🖼️ Фото' },
-            { value: 'video', label: '🎬 Видео' },
-            { value: 'infographic', label: '📊 Инфо' },
-          ].map(t => (
+            { value: 'all', labelKey: 'moderation.mediaPrompts.typeAll' },
+            { value: 'image', labelKey: 'moderation.mediaPrompts.typeImage' },
+            { value: 'video', labelKey: 'moderation.mediaPrompts.typeVideo' },
+            { value: 'infographic', labelKey: 'moderation.mediaPrompts.typeInfographic' },
+          ].map(ft => (
             <button
-              key={t.value}
-              onClick={() => setFilterType(t.value)}
+              key={ft.value}
+              onClick={() => setFilterType(ft.value)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                filterType === t.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                filterType === ft.value ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              {t.label}
+              {t(ft.labelKey)}
             </button>
           ))}
         </div>
-        <span className="text-xs text-gray-400 self-center ml-2">{filtered.length} промптов</span>
+        <span className="text-xs text-gray-400 self-center ml-2">{t('moderation.mediaPrompts.countN', { n: filtered.length })}</span>
       </div>
 
       {/* List */}
       {filtered.length === 0 ? (
         <div className="text-center py-12 text-gray-400">
           <span className="text-3xl mb-3 block">🎨</span>
-          <p>Медиа-промпты не найдены</p>
+          <p>{t('moderation.mediaPrompts.empty')}</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -184,18 +188,18 @@ export function MediaPromptsTab() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{prompt.course_title_ru}</p>
                     <p className="text-xs text-gray-400">
-                      Слайд {prompt.slide_order} · {LEVEL_NAMES[prompt.level] || prompt.level} · {prompt.course_code}
+                      {t('moderation.mediaPrompts.slideN', { n: prompt.slide_order })} · {LEVEL_KEYS[prompt.level] ? t(LEVEL_KEYS[prompt.level]) : prompt.level} · {prompt.course_code}
                     </p>
                   </div>
 
                   {/* Status badge */}
                   <span className={`px-2 py-1 rounded-lg text-xs font-medium ${style.bg} ${style.text}`}>
-                    {style.label}
+                    {t(style.labelKey)}
                   </span>
 
                   {/* Media indicator */}
                   {prompt.media_url && (
-                    <span className="text-emerald-500 text-xs font-bold">✓ Медиа</span>
+                    <span className="text-emerald-500 text-xs font-bold">{t('moderation.mediaPrompts.mediaOk')}</span>
                   )}
 
                   {/* Expand arrow */}
@@ -212,12 +216,12 @@ export function MediaPromptsTab() {
                   <div className="px-4 pb-4 border-t border-gray-100 pt-3 space-y-3">
                     {/* Prompt text */}
                     <div>
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Промпт (RU):</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('moderation.mediaPrompts.promptRu')}</p>
                       <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 rounded-xl p-3">{prompt.prompt_ru}</p>
                     </div>
                     {prompt.prompt_uz && (
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Промпт (UZ):</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('moderation.mediaPrompts.promptUz')}</p>
                         <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-xl p-3">{prompt.prompt_uz}</p>
                       </div>
                     )}
@@ -225,7 +229,7 @@ export function MediaPromptsTab() {
                     {/* Current media */}
                     {prompt.media_url && (
                       <div>
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Текущее медиа:</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">{t('moderation.mediaPrompts.currentMedia')}</p>
                         {prompt.type === 'video' ? (
                           <a href={prompt.media_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline break-all">
                             {prompt.media_url}
@@ -245,7 +249,7 @@ export function MediaPromptsTab() {
                           disabled={isUpdating}
                           className="px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 disabled:opacity-50 transition-colors"
                         >
-                          {isUpdating ? '...' : 'Взять в работу'}
+                          {isUpdating ? '...' : t('moderation.mediaPrompts.takeToWork')}
                         </button>
                       )}
 
@@ -262,7 +266,7 @@ export function MediaPromptsTab() {
                           disabled={isUpdating}
                           className="px-3 py-1.5 text-xs font-medium bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 disabled:opacity-50 transition-colors"
                         >
-                          Вернуть в ожидание
+                          {t('moderation.mediaPrompts.returnToPending')}
                         </button>
                       )}
                     </div>
@@ -286,6 +290,7 @@ function MediaUrlInput({
   onSubmit: (url: string) => void;
   isUpdating: boolean;
 }) {
+  const t = useT();
   const [showInput, setShowInput] = useState(false);
   const [url, setUrl] = useState('');
 
@@ -302,7 +307,7 @@ function MediaUrlInput({
         onClick={() => setShowInput(true)}
         className="px-3 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 transition-colors"
       >
-        Загрузить медиа (URL)
+        {t('moderation.mediaPrompts.uploadUrl')}
       </button>
     );
   }
@@ -313,7 +318,7 @@ function MediaUrlInput({
         type="url"
         value={url}
         onChange={e => setUrl(e.target.value)}
-        placeholder="https://... URL медиафайла"
+        placeholder={t('moderation.mediaPrompts.urlPlaceholder')}
         className="flex-1 border rounded-lg px-3 py-1.5 text-xs"
         autoFocus
       />
@@ -322,13 +327,13 @@ function MediaUrlInput({
         disabled={isUpdating || !url.trim()}
         className="px-3 py-1.5 text-xs font-medium bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors"
       >
-        {isUpdating ? '...' : 'Сохранить'}
+        {isUpdating ? '...' : t('common.save')}
       </button>
       <button
         onClick={() => { setShowInput(false); setUrl(''); }}
         className="px-2 py-1.5 text-xs text-gray-400 hover:text-gray-600"
       >
-        ✕
+        &times;
       </button>
     </div>
   );

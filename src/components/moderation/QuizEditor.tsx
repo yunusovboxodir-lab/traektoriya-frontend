@@ -1,16 +1,18 @@
 import type React from 'react';
 import { useState, useEffect, useCallback } from 'react';
 import { coursesApi, type QuizQuestion } from '../../api/courses';
+import { useT } from '../../stores/langStore';
 
 interface QuizEditorProps {
   itemId: string;
   onClose: () => void;
 }
 
+// label → labelKey: тексты живут в словарях src/i18n (i18n)
 const QUESTION_TYPES = [
-  { value: 'multiple_choice', label: 'Один ответ' },
-  { value: 'multi_select', label: 'Несколько ответов' },
-  { value: 'true_false', label: 'Верно/Неверно' },
+  { value: 'multiple_choice', labelKey: 'moderation.quizEditor.typeSingle' },
+  { value: 'multi_select', labelKey: 'moderation.quizEditor.typeMulti' },
+  { value: 'true_false', labelKey: 'moderation.quizEditor.typeTrueFalse' },
 ];
 
 const DEFAULT_OPTIONS = [
@@ -39,6 +41,7 @@ function qTypeBadgeStyle(qType: string): React.CSSProperties {
 }
 
 export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
+  const t = useT();
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -68,11 +71,11 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
       const resp = await coursesApi.getQuestions(itemId);
       setQuestions(resp.data.items);
     } catch {
-      setError('Не удалось загрузить вопросы');
+      setError(t('moderation.quizEditor.loadError'));
     } finally {
       setLoading(false);
     }
-  }, [itemId]);
+  }, [itemId, t]);
 
   useEffect(() => {
     fetchQuestions();
@@ -110,7 +113,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
       });
       await fetchQuestions();
     } catch {
-      setError('Не удалось сохранить изменения');
+      setError(t('moderation.quizEditor.saveError'));
     } finally {
       setEditSaving(false);
     }
@@ -149,19 +152,19 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
       resetNewForm();
       await fetchQuestions();
     } catch {
-      setError('Не удалось создать вопрос');
+      setError(t('moderation.quizEditor.createError'));
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (qId: string) => {
-    if (!confirm('Удалить вопрос?')) return;
+    if (!confirm(t('moderation.quizEditor.deleteConfirm'))) return;
     try {
       await coursesApi.deleteQuestion(qId);
       setQuestions(qs => qs.filter(q => q.id !== qId));
     } catch {
-      setError('Не удалось удалить вопрос');
+      setError(t('moderation.quizEditor.deleteError'));
     }
   };
 
@@ -170,7 +173,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
       await coursesApi.updateQuestion(q.id, { is_active: !q.is_active });
       setQuestions(qs => qs.map(x => (x.id === q.id ? { ...x, is_active: !x.is_active } : x)));
     } catch {
-      setError('Не удалось обновить вопрос');
+      setError(t('moderation.quizEditor.toggleError'));
     }
   };
 
@@ -194,7 +197,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
         {/* Header */}
         <div className="sticky top-0 px-6 py-4 flex items-center justify-between rounded-t-2xl" style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)' }}>
           <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-            Управление квизом ({questions.length} вопросов)
+            {t('moderation.quizEditor.title', { n: questions.length })}
           </h2>
           <button onClick={onClose} className="text-xl" style={{ color: 'var(--text-muted)' }}>
             &times;
@@ -207,7 +210,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
           )}
 
           {loading ? (
-            <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>Загрузка...</div>
+            <div className="text-center py-8" style={{ color: 'var(--text-muted)' }}>{t('common.loading')}</div>
           ) : (
             <>
               {/* Existing questions */}
@@ -234,12 +237,15 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                         className="px-2 py-0.5 rounded text-xs font-medium"
                         style={qTypeBadgeStyle(q.question_type)}
                       >
-                        {QUESTION_TYPES.find(t => t.value === q.question_type)?.label || q.question_type}
+                        {(() => {
+                          const qt = QUESTION_TYPES.find(qType => qType.value === q.question_type);
+                          return qt ? t(qt.labelKey) : q.question_type;
+                        })()}
                       </span>
                       <span className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{q.question}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{q.points} бал.</span>
+                      <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('moderation.quizEditor.pointsShort', { n: q.points })}</span>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleToggleActive(q); }}
                         className="px-2 py-1 rounded text-xs"
@@ -248,14 +254,14 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                           : { background: 'var(--bg-elevated)', color: 'var(--text-muted)' }
                         }
                       >
-                        {q.is_active ? 'Вкл' : 'Выкл'}
+                        {q.is_active ? t('moderation.quizEditor.on') : t('moderation.quizEditor.off')}
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDelete(q.id); }}
                         className="text-sm"
                         style={{ color: 'var(--danger)' }}
                       >
-                        Удалить
+                        {t('common.actions.delete')}
                       </button>
                     </div>
                   </div>
@@ -263,7 +269,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                   {expandedId === q.id && (
                     <div className="px-4 pb-4 space-y-3" style={{ borderTop: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
                       <div className="pt-3">
-                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Текст вопроса</label>
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.questionText')}</label>
                         <textarea
                           rows={2}
                           value={editQuestion}
@@ -273,7 +279,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                       </div>
                       {editOptions.length > 0 && (
                         <div>
-                          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Варианты ответов</p>
+                          <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.options')}</p>
                           {editOptions.map((opt, i) => {
                             const isCorrect = Array.isArray(editCorrect)
                               ? (editCorrect as string[]).includes(opt.id)
@@ -311,12 +317,12 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                         </div>
                       )}
                       <div>
-                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Пояснение</label>
+                        <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.explanation')}</label>
                         <input
                           value={editExplanation}
                           onChange={(e) => setEditExplanation(e.target.value)}
                           style={fieldStyle}
-                          placeholder="Необязательно"
+                          placeholder={t('moderation.quizEditor.optional')}
                         />
                       </div>
                       <div className="flex justify-end pt-1">
@@ -326,7 +332,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                           className="px-3 py-1.5 rounded-lg text-sm font-medium disabled:opacity-50"
                           style={{ background: 'var(--info)', color: '#fff' }}
                         >
-                          {editSaving ? 'Сохранение...' : 'Сохранить'}
+                          {editSaving ? t('moderation.quizEditor.saving') : t('common.save')}
                         </button>
                       </div>
                     </div>
@@ -337,11 +343,11 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
               {/* New question form */}
               {showNewForm ? (
                 <div className="rounded-xl p-5 space-y-4" style={{ border: '2px dashed var(--info)', background: 'var(--info-bg)' }}>
-                  <h3 className="font-medium" style={{ color: 'var(--text-primary)' }}>Новый вопрос</h3>
+                  <h3 className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('moderation.quizEditor.newQuestion')}</h3>
 
                   {/* Type */}
                   <div>
-                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Тип вопроса</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.questionType')}</label>
                     <select
                       value={newType}
                       onChange={e => {
@@ -351,28 +357,28 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                       }}
                       style={fieldStyle}
                     >
-                      {QUESTION_TYPES.map(t => (
-                        <option key={t.value} value={t.value}>{t.label}</option>
+                      {QUESTION_TYPES.map(qt => (
+                        <option key={qt.value} value={qt.value}>{t(qt.labelKey)}</option>
                       ))}
                     </select>
                   </div>
 
                   {/* Question text */}
                   <div>
-                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Текст вопроса</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.questionText')}</label>
                     <textarea
                       value={newQuestion}
                       onChange={e => setNewQuestion(e.target.value)}
                       className="min-h-[80px]"
                       style={{ ...fieldStyle, resize: 'vertical' }}
-                      placeholder="Введите текст вопроса..."
+                      placeholder={t('moderation.quizEditor.questionPlaceholder')}
                     />
                   </div>
 
                   {/* Options (not for true/false) */}
                   {newType !== 'true_false' && (
                     <div>
-                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Варианты ответов</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.options')}</label>
                       {newOptions.map((opt, idx) => (
                         <div key={opt.id} className="flex items-center gap-2 mb-2">
                           <input
@@ -402,7 +408,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                             value={opt.text}
                             onChange={e => updateOption(idx, e.target.value)}
                             style={{ ...fieldStyle, width: undefined, flex: 1 }}
-                            placeholder={`Вариант ${opt.id.toUpperCase()}`}
+                            placeholder={t('moderation.quizEditor.optionPlaceholder', { letter: opt.id.toUpperCase() })}
                           />
                           {newOptions.length > 2 && (
                             <button
@@ -421,7 +427,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                           className="text-sm"
                           style={{ color: 'var(--info)' }}
                         >
-                          + Добавить вариант
+                          {t('moderation.quizEditor.addOption')}
                         </button>
                       )}
                     </div>
@@ -430,7 +436,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                   {/* True/False selector */}
                   {newType === 'true_false' && (
                     <div>
-                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Правильный ответ</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.correctAnswer')}</label>
                       <div className="flex gap-4">
                         {['true', 'false'].map(v => (
                           <label key={v} className="flex items-center gap-2">
@@ -440,7 +446,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                               checked={newCorrect === v}
                               onChange={() => setNewCorrect(v)}
                             />
-                            <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{v === 'true' ? 'Верно' : 'Неверно'}</span>
+                            <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{v === 'true' ? t('moderation.quizEditor.true') : t('moderation.quizEditor.false')}</span>
                           </label>
                         ))}
                       </div>
@@ -449,20 +455,20 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
 
                   {/* Explanation */}
                   <div>
-                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Пояснение (необязательно)</label>
+                    <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.explanationOptional')}</label>
                     <textarea
                       value={newExplanation}
                       onChange={e => setNewExplanation(e.target.value)}
                       className="min-h-[60px]"
                       style={{ ...fieldStyle, resize: 'vertical' }}
-                      placeholder="Почему этот ответ правильный..."
+                      placeholder={t('moderation.quizEditor.explanationPlaceholder')}
                     />
                   </div>
 
                   {/* Points & Difficulty */}
                   <div className="flex gap-4">
                     <div className="flex-1">
-                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Баллы</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.points')}</label>
                       <input
                         type="number"
                         min={0}
@@ -473,7 +479,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Сложность (1-5)</label>
+                      <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>{t('moderation.quizEditor.difficultyRange')}</label>
                       <input
                         type="number"
                         min={1}
@@ -493,14 +499,14 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                       className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
                       style={{ background: 'var(--info)', color: 'var(--text-inverse)' }}
                     >
-                      {saving ? 'Сохранение...' : 'Добавить вопрос'}
+                      {saving ? t('moderation.quizEditor.saving') : t('moderation.quizEditor.addQuestion')}
                     </button>
                     <button
                       onClick={resetNewForm}
                       className="px-4 py-2 rounded-lg text-sm"
                       style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)', background: 'transparent' }}
                     >
-                      Отмена
+                      {t('common.cancel')}
                     </button>
                   </div>
                 </div>
@@ -510,7 +516,7 @@ export function QuizEditor({ itemId, onClose }: QuizEditorProps) {
                   className="w-full py-3 rounded-xl text-sm transition-colors"
                   style={{ border: '2px dashed var(--border)', color: 'var(--text-muted)' }}
                 >
-                  + Добавить вопрос
+                  {t('moderation.quizEditor.addQuestionButton')}
                 </button>
               )}
             </>

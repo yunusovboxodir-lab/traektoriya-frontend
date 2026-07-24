@@ -14,6 +14,7 @@ import {
 import { api } from '../../api/client';
 import { toast } from '@/components/ui';
 import { LessonEditor } from './LessonEditor';
+import { useT } from '../../stores/langStore';
 
 // ───────────────────────────────────────
 // Types
@@ -34,7 +35,7 @@ type ColumnKey = 'draft' | 'review' | 'approved' | 'published';
 
 interface Column {
   key: ColumnKey;
-  label: string;
+  labelKey: string;
   /** CSS var for column dot indicator */
   dotColor: string;
   /** CSS var for column badge background */
@@ -43,13 +44,14 @@ interface Column {
 
 // ───────────────────────────────────────
 // Constants
+// label → labelKey: тексты живут в словарях src/i18n (i18n)
 // ───────────────────────────────────────
 
 const COLUMNS: Column[] = [
-  { key: 'draft',     label: 'Черновик',       dotColor: 'var(--text-muted)',   badgeColor: 'var(--text-muted)' },
-  { key: 'review',   label: 'На проверке',    dotColor: 'var(--warning)',      badgeColor: 'var(--warning)' },
-  { key: 'approved', label: 'Одобрено',       dotColor: 'var(--success)',      badgeColor: 'var(--success)' },
-  { key: 'published',label: 'Опубликовано',   dotColor: 'var(--success)',      badgeColor: 'var(--success)' },
+  { key: 'draft',     labelKey: 'moderation.status.draft',    dotColor: 'var(--text-muted)',   badgeColor: 'var(--text-muted)' },
+  { key: 'review',   labelKey: 'moderation.status.review',    dotColor: 'var(--warning)',      badgeColor: 'var(--warning)' },
+  { key: 'approved', labelKey: 'moderation.kanban.approved',  dotColor: 'var(--success)',      badgeColor: 'var(--success)' },
+  { key: 'published',labelKey: 'moderation.kanban.published', dotColor: 'var(--success)',      badgeColor: 'var(--success)' },
 ];
 
 const VALID_TRANSITIONS: Record<ColumnKey, ColumnKey[]> = {
@@ -59,22 +61,28 @@ const VALID_TRANSITIONS: Record<ColumnKey, ColumnKey[]> = {
   published: [],
 };
 
-const TYPE_BADGE_STYLE: Record<string, { label: string; style: React.CSSProperties }> = {
-  lesson:     { label: 'Урок',      style: { background: 'var(--info-bg)',    color: 'var(--info)' } },
-  quiz:       { label: 'Тест',      style: { background: 'var(--color-tp-bg)', color: 'var(--color-tp)' } },
-  video:      { label: 'Видео',     style: { background: 'var(--danger-bg)',  color: 'var(--danger)' } },
-  practice:   { label: 'Практика',  style: { background: 'var(--success-bg)', color: 'var(--success)' } },
-  case_study: { label: 'Кейс',      style: { background: 'var(--warning-bg)', color: 'var(--warning)' } },
-  summary:    { label: 'Итог',      style: { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' } },
+const TYPE_BADGE_STYLE: Record<string, { labelKey: string; style: React.CSSProperties }> = {
+  lesson:     { labelKey: 'moderation.type.lesson',      style: { background: 'var(--info-bg)',    color: 'var(--info)' } },
+  quiz:       { labelKey: 'moderation.kanban.typeQuiz',  style: { background: 'var(--color-tp-bg)', color: 'var(--color-tp)' } },
+  video:      { labelKey: 'moderation.type.video',       style: { background: 'var(--danger-bg)',  color: 'var(--danger)' } },
+  practice:   { labelKey: 'moderation.type.practice',    style: { background: 'var(--success-bg)', color: 'var(--success)' } },
+  case_study: { labelKey: 'moderation.type.case_study',  style: { background: 'var(--warning-bg)', color: 'var(--warning)' } },
+  summary:    { labelKey: 'moderation.type.summary',     style: { background: 'var(--bg-elevated)', color: 'var(--text-secondary)' } },
 };
 
-const DIFFICULTY_LABELS: Record<number, string> = { 1: 'Нач.', 2: 'Сред.', 3: 'Прод.', 4: 'Эксп.' };
+const DIFFICULTY_KEYS: Record<number, string> = {
+  1: 'moderation.kanban.diffBeginner',
+  2: 'moderation.kanban.diffIntermediate',
+  3: 'moderation.kanban.diffAdvanced',
+  4: 'moderation.kanban.diffExpert',
+};
 
 // ───────────────────────────────────────
 // Draggable Card
 // ───────────────────────────────────────
 
 function DraggableCard({ item, onClick }: { item: ContentItem; onClick: () => void }) {
+  const t = useT();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: item.id,
     data: { item },
@@ -117,11 +125,11 @@ function DraggableCard({ item, onClick }: { item: ContentItem; onClick: () => vo
       {/* Meta */}
       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
         <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={typeBadge.style}>
-          {typeBadge.label}
+          {t(typeBadge.labelKey)}
         </span>
         {item.difficulty_level && (
           <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)' }}>
-            {DIFFICULTY_LABELS[item.difficulty_level] || `Ур.${item.difficulty_level}`}
+            {DIFFICULTY_KEYS[item.difficulty_level] ? t(DIFFICULTY_KEYS[item.difficulty_level]) : `Ур.${item.difficulty_level}`}
           </span>
         )}
       </div>
@@ -139,13 +147,14 @@ function DraggableCard({ item, onClick }: { item: ContentItem; onClick: () => vo
 // ───────────────────────────────────────
 
 function OverlayCard({ item }: { item: ContentItem }) {
+  const t = useT();
   const typeBadge = TYPE_BADGE_STYLE[item.content_type] || TYPE_BADGE_STYLE.lesson;
   return (
     <div className="rounded-xl shadow-xl p-3.5 w-64 rotate-2" style={{ background: 'var(--bg-card)', border: '2px solid var(--info)' }}>
       <h4 className="font-medium text-sm leading-snug line-clamp-2" style={{ color: 'var(--text-primary)' }}>{item.title}</h4>
       <div className="flex items-center gap-1.5 mt-2">
         <span className="px-1.5 py-0.5 rounded text-xs font-medium" style={typeBadge.style}>
-          {typeBadge.label}
+          {t(typeBadge.labelKey)}
         </span>
       </div>
     </div>
@@ -165,6 +174,7 @@ function DroppableColumn({
   items: ContentItem[];
   onCardClick: (item: ContentItem) => void;
 }) {
+  const t = useT();
   const { setNodeRef, isOver } = useDroppable({ id: column.key });
 
   return (
@@ -183,7 +193,7 @@ function DroppableColumn({
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ background: column.dotColor }} />
-          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>{column.label}</h3>
+          <h3 className="font-semibold text-sm" style={{ color: 'var(--text-secondary)' }}>{t(column.labelKey)}</h3>
         </div>
         <span className="text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold" style={{ background: column.badgeColor, color: 'var(--text-inverse)' }}>
           {items.length}
@@ -200,7 +210,7 @@ function DroppableColumn({
             <svg className="mx-auto w-8 h-8 mb-2" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
               <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Нет элементов</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{t('moderation.kanban.noItems')}</p>
           </div>
         )}
       </div>
@@ -213,6 +223,7 @@ function DroppableColumn({
 // ───────────────────────────────────────
 
 export function ContentKanbanTab() {
+  const t = useT();
   const [board, setBoard] = useState<Record<ColumnKey, ContentItem[]>>({
     draft: [],
     review: [],
@@ -251,11 +262,11 @@ export function ContentKanbanTab() {
       });
       setBoard(newBoard);
     } catch {
-      toast.error('Не удалось загрузить контент');
+      toast.error(t('moderation.kanban.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadData();
@@ -283,7 +294,12 @@ export function ContentKanbanTab() {
     // Validate transition
     const allowed = VALID_TRANSITIONS[sourceColumn] || [];
     if (!allowed.includes(targetColumn)) {
-      toast.warning(`Нельзя переместить из "${COLUMNS.find(c => c.key === sourceColumn)?.label}" в "${COLUMNS.find(c => c.key === targetColumn)?.label}"`);
+      const fromKey = COLUMNS.find(c => c.key === sourceColumn)?.labelKey;
+      const toKey = COLUMNS.find(c => c.key === targetColumn)?.labelKey;
+      toast.warning(t('moderation.kanban.invalidMove', {
+        from: fromKey ? t(fromKey) : sourceColumn,
+        to: toKey ? t(toKey) : targetColumn,
+      }));
       return;
     }
 
@@ -297,7 +313,8 @@ export function ContentKanbanTab() {
 
     try {
       await api.patch('/api/v1/courses/items/' + draggedItem.id, { status: targetColumn });
-      toast.success(`Статус изменён на "${COLUMNS.find(c => c.key === targetColumn)?.label}"`);
+      const toKey = COLUMNS.find(c => c.key === targetColumn)?.labelKey;
+      toast.success(t('moderation.kanban.statusChanged', { status: toKey ? t(toKey) : targetColumn }));
     } catch {
       // Revert
       setBoard((prev) => ({
@@ -305,7 +322,7 @@ export function ContentKanbanTab() {
         [targetColumn]: prev[targetColumn].filter((i) => i.id !== draggedItem.id),
         [sourceColumn]: [draggedItem, ...prev[sourceColumn]],
       }));
-      toast.error('Не удалось обновить статус');
+      toast.error(t('moderation.kanban.updateError'));
     }
   };
 
@@ -363,7 +380,7 @@ export function ContentKanbanTab() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Поиск по названию..."
+            placeholder={t('moderation.searchPlaceholder')}
             className="w-full pl-9 pr-4 py-2 rounded-lg text-sm focus:outline-none"
             style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
           />
@@ -374,16 +391,16 @@ export function ContentKanbanTab() {
           className="rounded-lg px-3 py-2 text-sm focus:outline-none"
           style={{ border: '1px solid var(--border)', background: 'var(--bg-surface)', color: 'var(--text-primary)' }}
         >
-          <option value="">Все типы</option>
-          <option value="lesson">Уроки</option>
-          <option value="quiz">Тесты</option>
-          <option value="video">Видео</option>
-          <option value="practice">Практика</option>
-          <option value="case_study">Кейсы</option>
-          <option value="summary">Итоги</option>
+          <option value="">{t('moderation.type.all')}</option>
+          <option value="lesson">{t('moderation.kanban.optLesson')}</option>
+          <option value="quiz">{t('moderation.kanban.optQuiz')}</option>
+          <option value="video">{t('moderation.type.video')}</option>
+          <option value="practice">{t('moderation.type.practice')}</option>
+          <option value="case_study">{t('moderation.kanban.optCaseStudy')}</option>
+          <option value="summary">{t('moderation.kanban.optSummary')}</option>
         </select>
         <span className="self-center text-sm whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>
-          Всего: {totalItems}
+          {t('moderation.kanban.totalN', { n: totalItems })}
         </span>
       </div>
 
