@@ -16,6 +16,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
+import { useT } from '../stores/langStore';
 
 interface TransportRow {
   type: string;
@@ -32,15 +33,16 @@ interface ParticipantRow {
 }
 
 const ROLE_OPTIONS = [
-  { value: 'tp', label: 'ТП' },
-  { value: 'sv', label: 'СВ' },
-  { value: 'rm', label: 'РМ' },
-  { value: 'managers', label: 'Управляющие дилера' },
-  { value: 'tp_sv', label: 'ТП + СВ (смешанный)' },
+  { value: 'tp', labelKey: 'fieldTrips.roles.tp' },
+  { value: 'sv', labelKey: 'fieldTrips.roles.sv' },
+  { value: 'rm', labelKey: 'fieldTrips.roles.rm' },
+  { value: 'managers', labelKey: 'fieldTrips.roleOptions.managers' },
+  { value: 'tp_sv', labelKey: 'fieldTrips.roleOptions.tp_sv' },
 ];
 
 export function FieldTripNewPage() {
   const navigate = useNavigate();
+  const t = useT();
 
   const [tripCode, setTripCode] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -117,15 +119,15 @@ export function FieldTripNewPage() {
     setError(null);
 
     if (tripCode.trim().length < 3) {
-      setError('trip_code: минимум 3 символа');
+      setError(t('fieldTrips.new.valCodeMin'));
       return;
     }
     if (!startDate || !endDate) {
-      setError('Укажи start_date и end_date');
+      setError(t('fieldTrips.new.valDatesRequired'));
       return;
     }
     if (cities.length === 0) {
-      setError('Укажи хотя бы один город');
+      setError(t('fieldTrips.new.valCityRequired'));
       return;
     }
 
@@ -162,7 +164,7 @@ export function FieldTripNewPage() {
       navigate(`/training-plan/field-trips/${res.data.id}`);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
@@ -173,21 +175,21 @@ export function FieldTripNewPage() {
         onClick={() => navigate('/training-plan')}
         className="text-sm text-stone-600 hover:text-stone-900 mb-4"
       >
-        ← К плану обучения
+        {t('calendar.backToPlan')}
       </button>
 
       <h1 className="text-2xl font-serif text-stone-800 mb-2">
-        Новый отчёт о командировке
+        {t('fieldTrips.new.title')}
       </h1>
       <p className="text-stone-600 mb-6">
-        Зафиксируй маршрут, участников, PRE/POST-замеры и наблюдения.
+        {t('fieldTrips.new.subtitle')}
       </p>
 
       <div className="bg-white border border-stone-200 rounded-lg p-6 space-y-5">
         {/* Trip code */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Код командировки (slug)
+            {t('fieldTrips.new.tripCode')}
           </label>
           <input
             type="text"
@@ -198,14 +200,14 @@ export function FieldTripNewPage() {
             maxLength={50}
           />
           <p className="text-xs text-stone-600 mt-1">
-            Уникальный код: год-месяц-город. Используется для ссылок.
+            {t('fieldTrips.new.tripCodeHint')}
           </p>
         </div>
 
         {/* Dates */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Начало</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('fieldTrips.new.start')}</label>
             <input
               type="date"
               value={startDate}
@@ -214,7 +216,7 @@ export function FieldTripNewPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-stone-700 mb-1">Конец</label>
+            <label className="block text-sm font-medium text-stone-700 mb-1">{t('fieldTrips.new.end')}</label>
             <input
               type="date"
               value={endDate}
@@ -227,13 +229,13 @@ export function FieldTripNewPage() {
         {/* Cities */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Города (через запятую)
+            {t('fieldTrips.new.cities')}
           </label>
           <input
             type="text"
             value={citiesText}
             onChange={(e) => setCitiesText(e.target.value)}
-            placeholder="Самарканд, Джизах"
+            placeholder={t('fieldTrips.new.citiesPlaceholder')}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
           {cities.length > 0 && (
@@ -253,7 +255,7 @@ export function FieldTripNewPage() {
         {/* Participants */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">
-            Участники
+            {t('fieldTrips.new.participants')}
           </label>
           <div className="space-y-2 mb-2">
             {participants.map((p, idx) => (
@@ -265,7 +267,7 @@ export function FieldTripNewPage() {
                 >
                   {ROLE_OPTIONS.map((r) => (
                     <option key={r.value} value={r.value}>
-                      {r.label}
+                      {t(r.labelKey)}
                     </option>
                   ))}
                 </select>
@@ -275,13 +277,13 @@ export function FieldTripNewPage() {
                   onChange={(e) => handleUpdateParticipant(idx, 'count', e.target.value)}
                   min={0}
                   className="w-24 border border-stone-300 rounded px-2 py-1.5 text-sm"
-                  placeholder="Кол-во"
+                  placeholder={t('fieldTrips.new.countPlaceholder')}
                 />
                 {participants.length > 1 && (
                   <button
                     onClick={() => handleRemoveParticipant(idx)}
                     className="text-stone-500 hover:text-red-600 px-2"
-                    aria-label="Удалить"
+                    aria-label={t('common.actions.delete')}
                   >
                     ×
                   </button>
@@ -293,7 +295,7 @@ export function FieldTripNewPage() {
             onClick={handleAddParticipant}
             className="text-sm text-stone-600 hover:text-stone-900 underline"
           >
-            + Добавить роль
+            {t('fieldTrips.new.addRole')}
           </button>
         </div>
 
@@ -301,7 +303,7 @@ export function FieldTripNewPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              PRE средний (%)
+              {t('calendar.preAvgPct')}
             </label>
             <input
               type="text"
@@ -313,7 +315,7 @@ export function FieldTripNewPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              POST средний (%)
+              {t('calendar.postAvgPct')}
             </label>
             <input
               type="text"
@@ -326,16 +328,16 @@ export function FieldTripNewPage() {
         </div>
         {preAvgInput && postAvgInput && (
           <div className="text-sm text-emerald-700">
-            Рост:{' '}
-            {((parsePctInput(postAvgInput) || 0) - (parsePctInput(preAvgInput) || 0)) > 0 ? '+' : ''}
-            {(((parsePctInput(postAvgInput) || 0) - (parsePctInput(preAvgInput) || 0)) * 100).toFixed(0)} п.п.
+            {t('calendar.growthPp', {
+              n: `${((parsePctInput(postAvgInput) || 0) - (parsePctInput(preAvgInput) || 0)) > 0 ? '+' : ''}${(((parsePctInput(postAvgInput) || 0) - (parsePctInput(preAvgInput) || 0)) * 100).toFixed(0)}`,
+            })}
           </div>
         )}
 
         {/* Cost */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Общий расход (сум, опц.)
+            {t('fieldTrips.new.cost')}
           </label>
           <input
             type="text"
@@ -349,36 +351,36 @@ export function FieldTripNewPage() {
         {/* Transport */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">
-            Транспорт (опц.)
+            {t('fieldTrips.new.transport')}
           </label>
           {transport.length > 0 && (
             <div className="space-y-2 mb-2">
-              {transport.map((t, idx) => (
+              {transport.map((row, idx) => (
                 <div key={idx} className="bg-stone-50 border border-stone-200 rounded p-3 space-y-2">
                   <div className="flex gap-2 items-center">
                     <select
-                      value={t.type}
+                      value={row.type}
                       onChange={(e) => handleUpdateTransport(idx, 'type', e.target.value)}
                       className="border border-stone-300 rounded px-2 py-1 text-sm w-28"
                     >
-                      <option value="train">Поезд</option>
-                      <option value="plane">Самолёт</option>
-                      <option value="car">Машина</option>
-                      <option value="bus">Автобус</option>
+                      <option value="train">{t('fieldTrips.transportTypes.train')}</option>
+                      <option value="plane">{t('fieldTrips.transportTypes.plane')}</option>
+                      <option value="car">{t('fieldTrips.transportTypes.car')}</option>
+                      <option value="bus">{t('fieldTrips.transportTypes.bus')}</option>
                     </select>
                     <input
                       type="text"
-                      value={t.from}
+                      value={row.from}
                       onChange={(e) => handleUpdateTransport(idx, 'from', e.target.value)}
-                      placeholder="Откуда"
+                      placeholder={t('fieldTrips.new.fromPlaceholder')}
                       className="border border-stone-300 rounded px-2 py-1 text-sm flex-1"
                     />
                     <span className="text-stone-500">→</span>
                     <input
                       type="text"
-                      value={t.to}
+                      value={row.to}
                       onChange={(e) => handleUpdateTransport(idx, 'to', e.target.value)}
-                      placeholder="Куда"
+                      placeholder={t('fieldTrips.new.toPlaceholder')}
                       className="border border-stone-300 rounded px-2 py-1 text-sm flex-1"
                     />
                     <button
@@ -391,26 +393,26 @@ export function FieldTripNewPage() {
                   <div className="flex gap-2 items-center">
                     <input
                       type="text"
-                      value={t.ticket_no}
+                      value={row.ticket_no}
                       onChange={(e) => handleUpdateTransport(idx, 'ticket_no', e.target.value)}
-                      placeholder="№ билета"
+                      placeholder={t('fieldTrips.new.ticketNoPlaceholder')}
                       className="border border-stone-300 rounded px-2 py-1 text-sm flex-1 font-mono"
                     />
                     <input
                       type="number"
-                      value={t.cost_uzs ?? ''}
+                      value={row.cost_uzs ?? ''}
                       onChange={(e) =>
                         handleUpdateTransport(
                           idx, 'cost_uzs',
                           e.target.value ? parseInt(e.target.value, 10) : null,
                         )
                       }
-                      placeholder="Сумма (сум)"
+                      placeholder={t('fieldTrips.new.amountPlaceholder')}
                       className="border border-stone-300 rounded px-2 py-1 text-sm w-32"
                     />
                     <input
                       type="date"
-                      value={t.date}
+                      value={row.date}
                       onChange={(e) => handleUpdateTransport(idx, 'date', e.target.value)}
                       className="border border-stone-300 rounded px-2 py-1 text-sm"
                     />
@@ -423,19 +425,19 @@ export function FieldTripNewPage() {
             onClick={handleAddTransport}
             className="text-sm text-stone-600 hover:text-stone-900 underline"
           >
-            + Добавить билет
+            {t('fieldTrips.new.addTicket')}
           </button>
         </div>
 
         {/* Narrative */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Что произошло (наблюдения тренера)
+            {t('fieldTrips.new.narrative')}
           </label>
           <textarea
             value={narrative}
             onChange={(e) => setNarrative(e.target.value)}
-            placeholder="Что обсуждали, какие ошибки нашли, что сработало хорошо..."
+            placeholder={t('fieldTrips.new.narrativePlaceholder')}
             rows={5}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
@@ -444,12 +446,12 @@ export function FieldTripNewPage() {
         {/* Next steps */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Следующие шаги
+            {t('fieldTrips.nextSteps')}
           </label>
           <textarea
             value={nextSteps}
             onChange={(e) => setNextSteps(e.target.value)}
-            placeholder="Что СВ должен сделать на следующей неделе. Что на следующий тренинг."
+            placeholder={t('fieldTrips.new.nextStepsPlaceholder')}
             rows={3}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
@@ -466,14 +468,14 @@ export function FieldTripNewPage() {
             onClick={() => navigate('/training-plan')}
             className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
             className="px-5 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 disabled:opacity-50"
           >
-            {submitting ? 'Сохраняю…' : 'Создать отчёт'}
+            {submitting ? t('calendar.saving') : t('fieldTrips.new.create')}
           </button>
         </div>
       </div>

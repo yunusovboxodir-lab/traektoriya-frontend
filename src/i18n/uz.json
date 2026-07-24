@@ -1927,5 +1927,191 @@
     "xpForSolution": "Taklif uchun +20 XP",
     "sending": "Yuborilmoqda…",
     "submitSolution": "Yechim taklif qilish"
+  },
+  "calendar": {
+    "backToPlan": "← Oʻquv rejasiga",
+    "toPlan": "Oʻquv rejasiga",
+    "startDate": "Boshlanish sanasi",
+    "endDate": "Tugash sanasi",
+    "location": "Manzil",
+    "notes": "Izohlar",
+    "minutes": "{n} daqiqa",
+    "pp": "{n} p.p.",
+    "growthPp": "Oʻsish: {n} p.p.",
+    "saving": "Saqlanmoqda…",
+    "preAvgPct": "PRE oʻrtacha (%)",
+    "postAvgPct": "POST oʻrtacha (%)",
+    "rolesShort": {
+      "sales_rep": "TP",
+      "supervisor": "SV",
+      "regional_manager": "RM",
+      "commercial_dir": "KD",
+      "all": "Barchasi"
+    },
+    "eventTypes": {
+      "offline_training": "Oflayn-trening",
+      "online_block": "Onlayn-blok",
+      "pulse_check": "Pulse-srez",
+      "attestation": "Attestatsiya",
+      "championship": "Kubok / musobaqa",
+      "field_trip": "Komandirovka"
+    },
+    "statuses": {
+      "planned": "Rejalashtirilgan",
+      "confirmed": "Tasdiqlangan",
+      "in_progress": "Hozir davom etmoqda",
+      "completed": "Yakunlangan",
+      "cancelled": "Bekor qilingan",
+      "rescheduled": "Koʻchirilgan"
+    },
+    "readiness": {
+      "ready": "✅ Tayyor",
+      "created": "🔨 Qoralama",
+      "template": "✍️ Shablon"
+    },
+    "readinessOptions": {
+      "created": "🔨 Qoralama yaratilgan",
+      "template": "✍️ Faqat shablon"
+    },
+    "targetRoles": {
+      "sales_rep": "TP — Savdo vakili",
+      "supervisor": "SV — Supervayzer",
+      "regional_manager": "RM — Hududiy menejer",
+      "commercial_dir": "KD — Tijorat direktori",
+      "all": "Barcha rollar"
+    },
+    "detail": {
+      "loadError": "Tadbirni yuklab boʻlmadi. Sahifani yangilab koʻring.",
+      "notFound": "Tadbir topilmadi",
+      "confirmCancel": "Tadbir bekor qilinsinmi?",
+      "duration": "Davomiyligi",
+      "week": "Hafta",
+      "weekN": "{n}-hafta",
+      "firstHalfShort": "1-yarmi",
+      "secondHalfShort": "2-yarmi",
+      "region": "Hudud",
+      "competencies": "Kompetensiyalar",
+      "results": "Oʻtkazish natijalari",
+      "participants": "Ishtirokchilar",
+      "growth": "Oʻsish",
+      "rescheduledInfo": "Tadbir koʻchirilgan.",
+      "openNewEvent": "Yangi tadbirni ochish →",
+      "actions": "Amallar",
+      "completeBtn": "Yakunlash (PRE/POST)",
+      "confirmReadiness": "Tayyorlikni tasdiqlash",
+      "rescheduleBtn": "Koʻchirish",
+      "cancelBtn": "Bekor qilish"
+    },
+    "completeModal": {
+      "title": "Tadbirni yakunlash",
+      "participantsCount": "Ishtirokchilar soni",
+      "participantsRequired": "Ishtirokchilar sonini kiriting",
+      "notesOptional": "Izohlar (ixtiyoriy)",
+      "notesPlaceholder": "Nima muhokama qilindi, qanday xulosalar...",
+      "complete": "Yakunlash"
+    },
+    "rescheduleModal": {
+      "title": "Tadbirni koʻchirish",
+      "newStartDate": "Yangi boshlanish sanasi",
+      "newEndDate": "Yangi tugash sanasi",
+      "reasonOptional": "Koʻchirish sababi (ixtiyoriy)",
+      "reasonPlaceholder": "Nega koʻchiramiz...",
+      "dateRequired": "Yangi boshlanish sanasini kiriting",
+      "saving": "Koʻchirilmoqda…",
+      "submit": "Koʻchirish"
+    },
+    "new": {
+      "title": "Kalendarda yangi tadbir",
+      "subtitle": "Trening, attestatsiya, onlayn-blok yoki boshqa tadbirni rejalashtiring.",
+      "eventType": "Tadbir turi",
+      "eventCode": "Tadbir kodi (slug)",
+      "eventCodeHint": "Format: yil-hafta-rol-mavzu. Havolalar va filtrlash uchun ishlatiladi.",
+      "valCodeMin": "Tadbir kodi: kamida 3 ta belgi",
+      "valTitleMin": "Sarlavha: kamida 5 ta belgi",
+      "valStartRequired": "Boshlanish sanasi majburiy",
+      "valEndBeforeStart": "Tugash sanasi boshlanishdan oldin boʻla olmaydi",
+      "forRole": "Qaysi rol uchun",
+      "program": "Dastur (ixtiyoriy)",
+      "noProgram": "— Dasturga bogʻlamasdan —",
+      "noProgramsForRole": "Bu rol uchun faol oflayn-dasturlar yoʻq. Bogʻlamasdan yaratish mumkin.",
+      "programAutofill": "Sarlavha va davomiylik avtomatik toʻldiriladi (oʻzgartirish mumkin).",
+      "titleRu": "Sarlavha RU",
+      "titleRuPlaceholder": "«Полевые коучинги по DSPM»",
+      "titleUzOptional": "Sarlavha UZ (ixtiyoriy)",
+      "endDateOptional": "Tugash sanasi (ixtiyoriy)",
+      "isoWeek": "ISO-hafta",
+      "firstHalf": "Oyning 1-yarmi",
+      "secondHalf": "Oyning 2-yarmi",
+      "durationMin": "Davomiyligi (daqiqa)",
+      "locationPlaceholder": "Toshkent / ofis",
+      "region": "Hudud / qamrov zonasi",
+      "regionPlaceholder": "Navoiy + Buxoro",
+      "readiness": "Kontent tayyorligi",
+      "notSpecified": "— Koʻrsatilmagan —",
+      "competencies": "Kompetensiyalar (vergul bilan)",
+      "competenciesPlaceholder": "DSPM, Dala kouchingi, Eʼtirozlar",
+      "notesPlaceholder": "Trener va ishtirokchilar uchun qoʻshimcha tafsilotlar",
+      "creating": "Yaratilmoqda…",
+      "create": "Tadbir yaratish"
+    }
+  },
+  "fieldTrips": {
+    "roles": {
+      "tp": "TP",
+      "sv": "SV",
+      "rm": "RM",
+      "managers": "Boshqaruvchilar",
+      "tp_sv": "TP + SV"
+    },
+    "roleOptions": {
+      "managers": "Diler boshqaruvchilari",
+      "tp_sv": "TP + SV (aralash)"
+    },
+    "nextSteps": "Keyingi qadamlar",
+    "uzs": "{n} soʻm",
+    "transportTypes": {
+      "train": "Poyezd",
+      "plane": "Samolyot",
+      "car": "Mashina",
+      "bus": "Avtobus"
+    },
+    "new": {
+      "title": "Komandirovka haqida yangi hisobot",
+      "subtitle": "Marshrut, ishtirokchilar, PRE/POST oʻlchovlari va kuzatuvlarni qayd eting.",
+      "tripCode": "Komandirovka kodi (slug)",
+      "tripCodeHint": "Unikal kod: yil-oy-shahar. Havolalar uchun ishlatiladi.",
+      "start": "Boshlanishi",
+      "end": "Tugashi",
+      "cities": "Shaharlar (vergul bilan)",
+      "citiesPlaceholder": "Samarqand, Jizzax",
+      "participants": "Ishtirokchilar",
+      "countPlaceholder": "Soni",
+      "addRole": "+ Rol qoʻshish",
+      "valCodeMin": "trip_code: kamida 3 ta belgi",
+      "valDatesRequired": "start_date va end_date ni kiriting",
+      "valCityRequired": "Kamida bitta shahar kiriting",
+      "cost": "Umumiy xarajat (soʻm, ixtiyoriy)",
+      "transport": "Transport (ixtiyoriy)",
+      "fromPlaceholder": "Qayerdan",
+      "toPlaceholder": "Qayerga",
+      "ticketNoPlaceholder": "Chipta raqami",
+      "amountPlaceholder": "Summa (soʻm)",
+      "addTicket": "+ Chipta qoʻshish",
+      "narrative": "Nima boʻldi (trener kuzatuvlari)",
+      "narrativePlaceholder": "Nima muhokama qilindi, qanday xatolar topildi, nima yaxshi ishladi...",
+      "nextStepsPlaceholder": "SV keyingi haftada nima qilishi kerak. Keyingi treningga nima kerak.",
+      "create": "Hisobot yaratish"
+    },
+    "detail": {
+      "notFound": "Komandirovka topilmadi",
+      "badge": "Komandirovka",
+      "cost": "Xarajat",
+      "composition": "Tarkib",
+      "narrativeTitle": "Nima boʻldi",
+      "transportTitle": "Transport va chiptalar",
+      "ticketNo": "№ {n}",
+      "linkedEvents": "Bogʻliq tadbirlar ({n})",
+      "people": "{n} kishi"
+    }
   }
 }

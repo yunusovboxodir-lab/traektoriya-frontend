@@ -1927,5 +1927,191 @@
     "xpForSolution": "+20 XP за предложение",
     "sending": "Отправляю…",
     "submitSolution": "Предложить решение"
+  },
+  "calendar": {
+    "backToPlan": "← К плану обучения",
+    "toPlan": "К плану обучения",
+    "startDate": "Дата начала",
+    "endDate": "Дата окончания",
+    "location": "Локация",
+    "notes": "Заметки",
+    "minutes": "{n} мин",
+    "pp": "{n} п.п.",
+    "growthPp": "Рост: {n} п.п.",
+    "saving": "Сохраняю…",
+    "preAvgPct": "PRE средний (%)",
+    "postAvgPct": "POST средний (%)",
+    "rolesShort": {
+      "sales_rep": "ТП",
+      "supervisor": "СВ",
+      "regional_manager": "РМ",
+      "commercial_dir": "КД",
+      "all": "Все"
+    },
+    "eventTypes": {
+      "offline_training": "Офлайн-тренинг",
+      "online_block": "Онлайн-блок",
+      "pulse_check": "Pulse-срез",
+      "attestation": "Аттестация",
+      "championship": "Кубок / соревнование",
+      "field_trip": "Командировка"
+    },
+    "statuses": {
+      "planned": "Запланировано",
+      "confirmed": "Подтверждено",
+      "in_progress": "Идёт сейчас",
+      "completed": "Завершено",
+      "cancelled": "Отменено",
+      "rescheduled": "Перенесено"
+    },
+    "readiness": {
+      "ready": "✅ Готов",
+      "created": "🔨 Черновик",
+      "template": "✍️ Шаблон"
+    },
+    "readinessOptions": {
+      "created": "🔨 Создан черновик",
+      "template": "✍️ Только шаблон"
+    },
+    "targetRoles": {
+      "sales_rep": "ТП — Торговый представитель",
+      "supervisor": "СВ — Супервайзер",
+      "regional_manager": "РМ — Региональный менеджер",
+      "commercial_dir": "КД — Коммерческий директор",
+      "all": "Все роли"
+    },
+    "detail": {
+      "loadError": "Не удалось загрузить событие. Попробуйте обновить страницу.",
+      "notFound": "Событие не найдено",
+      "confirmCancel": "Отменить событие?",
+      "duration": "Длительность",
+      "week": "Неделя",
+      "weekN": "Неделя {n}",
+      "firstHalfShort": "1-я пол.",
+      "secondHalfShort": "2-я пол.",
+      "region": "Регион",
+      "competencies": "Компетенции",
+      "results": "Результаты проведения",
+      "participants": "Участников",
+      "growth": "Рост",
+      "rescheduledInfo": "Событие перенесено.",
+      "openNewEvent": "Открыть новое событие →",
+      "actions": "Действия",
+      "completeBtn": "Завершить (PRE/POST)",
+      "confirmReadiness": "Подтвердить готовность",
+      "rescheduleBtn": "Перенести",
+      "cancelBtn": "Отменить"
+    },
+    "completeModal": {
+      "title": "Завершить событие",
+      "participantsCount": "Количество участников",
+      "participantsRequired": "Укажи количество участников",
+      "notesOptional": "Заметки (опц.)",
+      "notesPlaceholder": "Что обсуждали, какие выводы...",
+      "complete": "Завершить"
+    },
+    "rescheduleModal": {
+      "title": "Перенести событие",
+      "newStartDate": "Новая дата начала",
+      "newEndDate": "Новая дата окончания",
+      "reasonOptional": "Причина переноса (опц.)",
+      "reasonPlaceholder": "Почему переносим...",
+      "dateRequired": "Укажи новую дату начала",
+      "saving": "Переношу…",
+      "submit": "Перенести"
+    },
+    "new": {
+      "title": "Новое событие в календаре",
+      "subtitle": "Запланируй тренинг, аттестацию, онлайн-блок или другое событие.",
+      "eventType": "Тип события",
+      "eventCode": "Код события (slug)",
+      "eventCodeHint": "Формат: год-неделя-роль-тема. Используется для ссылок и фильтрации.",
+      "valCodeMin": "Код события: минимум 3 символа",
+      "valTitleMin": "Заголовок: минимум 5 символов",
+      "valStartRequired": "Дата начала обязательна",
+      "valEndBeforeStart": "Дата окончания не может быть раньше начала",
+      "forRole": "Для какой роли",
+      "program": "Программа (опц.)",
+      "noProgram": "— Без привязки к программе —",
+      "noProgramsForRole": "Для этой роли нет активных офлайн-программ. Можно создать без привязки.",
+      "programAutofill": "Заголовок и длительность авто-заполнятся (можно перезаписать).",
+      "titleRu": "Заголовок RU",
+      "titleRuPlaceholder": "«Полевые коучинги по DSPM»",
+      "titleUzOptional": "Заголовок UZ (опц.)",
+      "endDateOptional": "Дата окончания (опц.)",
+      "isoWeek": "ISO-неделя",
+      "firstHalf": "1-я половина месяца",
+      "secondHalf": "2-я половина месяца",
+      "durationMin": "Длительность (мин)",
+      "locationPlaceholder": "Ташкент / офис",
+      "region": "Регион / зона охвата",
+      "regionPlaceholder": "Навои + Бухара",
+      "readiness": "Готовность контента",
+      "notSpecified": "— Не указано —",
+      "competencies": "Компетенции (через запятую)",
+      "competenciesPlaceholder": "DSPM, Полевой коучинг, Возражения",
+      "notesPlaceholder": "Дополнительные детали для тренера и участников",
+      "creating": "Создаю…",
+      "create": "Создать событие"
+    }
+  },
+  "fieldTrips": {
+    "roles": {
+      "tp": "ТП",
+      "sv": "СВ",
+      "rm": "РМ",
+      "managers": "Управляющие",
+      "tp_sv": "ТП + СВ"
+    },
+    "roleOptions": {
+      "managers": "Управляющие дилера",
+      "tp_sv": "ТП + СВ (смешанный)"
+    },
+    "nextSteps": "Следующие шаги",
+    "uzs": "{n} сум",
+    "transportTypes": {
+      "train": "Поезд",
+      "plane": "Самолёт",
+      "car": "Машина",
+      "bus": "Автобус"
+    },
+    "new": {
+      "title": "Новый отчёт о командировке",
+      "subtitle": "Зафиксируй маршрут, участников, PRE/POST-замеры и наблюдения.",
+      "tripCode": "Код командировки (slug)",
+      "tripCodeHint": "Уникальный код: год-месяц-город. Используется для ссылок.",
+      "start": "Начало",
+      "end": "Конец",
+      "cities": "Города (через запятую)",
+      "citiesPlaceholder": "Самарканд, Джизах",
+      "participants": "Участники",
+      "countPlaceholder": "Кол-во",
+      "addRole": "+ Добавить роль",
+      "valCodeMin": "trip_code: минимум 3 символа",
+      "valDatesRequired": "Укажи start_date и end_date",
+      "valCityRequired": "Укажи хотя бы один город",
+      "cost": "Общий расход (сум, опц.)",
+      "transport": "Транспорт (опц.)",
+      "fromPlaceholder": "Откуда",
+      "toPlaceholder": "Куда",
+      "ticketNoPlaceholder": "№ билета",
+      "amountPlaceholder": "Сумма (сум)",
+      "addTicket": "+ Добавить билет",
+      "narrative": "Что произошло (наблюдения тренера)",
+      "narrativePlaceholder": "Что обсуждали, какие ошибки нашли, что сработало хорошо...",
+      "nextStepsPlaceholder": "Что СВ должен сделать на следующей неделе. Что на следующий тренинг.",
+      "create": "Создать отчёт"
+    },
+    "detail": {
+      "notFound": "Командировка не найдена",
+      "badge": "Командировка",
+      "cost": "Расход",
+      "composition": "Состав",
+      "narrativeTitle": "Что произошло",
+      "transportTitle": "Транспорт и билеты",
+      "ticketNo": "№ {n}",
+      "linkedEvents": "Связанные события ({n})",
+      "people": "{n} чел"
+    }
   }
 }

@@ -28,30 +28,31 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
 import { offlineProgramsApi } from '../api/offlinePrograms';
+import { useT } from '../stores/langStore';
 import type { EventType, TargetRole, Readiness } from '../types/trainingPlan';
 import type { Program } from '../types/offlineProgram';
 
-const EVENT_TYPE_OPTIONS: { value: EventType; label: string; icon: string }[] = [
-  { value: 'offline_training', label: 'Офлайн-тренинг', icon: '🎓' },
-  { value: 'online_block', label: 'Онлайн-блок', icon: '💻' },
-  { value: 'pulse_check', label: 'Pulse-срез', icon: '📊' },
-  { value: 'attestation', label: 'Аттестация', icon: '📋' },
-  { value: 'championship', label: 'Кубок / соревнование', icon: '🏆' },
-  { value: 'field_trip', label: 'Командировка', icon: '✈️' },
+const EVENT_TYPE_OPTIONS: { value: EventType; labelKey: string; icon: string }[] = [
+  { value: 'offline_training', labelKey: 'calendar.eventTypes.offline_training', icon: '🎓' },
+  { value: 'online_block', labelKey: 'calendar.eventTypes.online_block', icon: '💻' },
+  { value: 'pulse_check', labelKey: 'calendar.eventTypes.pulse_check', icon: '📊' },
+  { value: 'attestation', labelKey: 'calendar.eventTypes.attestation', icon: '📋' },
+  { value: 'championship', labelKey: 'calendar.eventTypes.championship', icon: '🏆' },
+  { value: 'field_trip', labelKey: 'calendar.eventTypes.field_trip', icon: '✈️' },
 ];
 
-const TARGET_ROLE_OPTIONS: { value: TargetRole; label: string }[] = [
-  { value: 'sales_rep', label: 'ТП — Торговый представитель' },
-  { value: 'supervisor', label: 'СВ — Супервайзер' },
-  { value: 'regional_manager', label: 'РМ — Региональный менеджер' },
-  { value: 'commercial_dir', label: 'КД — Коммерческий директор' },
-  { value: 'all', label: 'Все роли' },
+const TARGET_ROLE_OPTIONS: { value: TargetRole; labelKey: string }[] = [
+  { value: 'sales_rep', labelKey: 'calendar.targetRoles.sales_rep' },
+  { value: 'supervisor', labelKey: 'calendar.targetRoles.supervisor' },
+  { value: 'regional_manager', labelKey: 'calendar.targetRoles.regional_manager' },
+  { value: 'commercial_dir', labelKey: 'calendar.targetRoles.commercial_dir' },
+  { value: 'all', labelKey: 'calendar.targetRoles.all' },
 ];
 
-const READINESS_OPTIONS: { value: Readiness; label: string }[] = [
-  { value: 'ready', label: '✅ Готов' },
-  { value: 'created', label: '🔨 Создан черновик' },
-  { value: 'template', label: '✍️ Только шаблон' },
+const READINESS_OPTIONS: { value: Readiness; labelKey: string }[] = [
+  { value: 'ready', labelKey: 'calendar.readiness.ready' },
+  { value: 'created', labelKey: 'calendar.readinessOptions.created' },
+  { value: 'template', labelKey: 'calendar.readinessOptions.template' },
 ];
 
 function isoWeek(dateStr: string): number {
@@ -80,6 +81,7 @@ function halfOfMonth(dateStr: string): 'first' | 'second' | undefined {
 
 export function CalendarEventNewPage() {
   const navigate = useNavigate();
+  const t = useT();
 
   const [eventCode, setEventCode] = useState('');
   const [eventType, setEventType] = useState<EventType>('offline_training');
@@ -134,19 +136,19 @@ export function CalendarEventNewPage() {
   const handleSubmit = async () => {
     setError(null);
     if (eventCode.trim().length < 3) {
-      setError('Код события: минимум 3 символа');
+      setError(t('calendar.new.valCodeMin'));
       return;
     }
     if (titleRu.trim().length < 5) {
-      setError('Заголовок: минимум 5 символов');
+      setError(t('calendar.new.valTitleMin'));
       return;
     }
     if (!startDate) {
-      setError('Дата начала обязательна');
+      setError(t('calendar.new.valStartRequired'));
       return;
     }
     if (endDate && endDate < startDate) {
-      setError('Дата окончания не может быть раньше начала');
+      setError(t('calendar.new.valEndBeforeStart'));
       return;
     }
 
@@ -174,7 +176,7 @@ export function CalendarEventNewPage() {
       navigate('/training-plan');
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
@@ -187,19 +189,19 @@ export function CalendarEventNewPage() {
         onClick={() => navigate('/training-plan')}
         className="text-sm text-stone-600 hover:text-stone-900 mb-4"
       >
-        ← К плану обучения
+        {t('calendar.backToPlan')}
       </button>
 
-      <h1 className="text-2xl font-serif text-stone-800 mb-2">Новое событие в календаре</h1>
+      <h1 className="text-2xl font-serif text-stone-800 mb-2">{t('calendar.new.title')}</h1>
       <p className="text-stone-600 mb-6">
-        Запланируй тренинг, аттестацию, онлайн-блок или другое событие.
+        {t('calendar.new.subtitle')}
       </p>
 
       <div className="bg-white border border-stone-200 rounded-lg p-6 space-y-5">
         {/* Event type */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-2">
-            Тип события
+            {t('calendar.new.eventType')}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {EVENT_TYPE_OPTIONS.map((opt) => (
@@ -213,7 +215,7 @@ export function CalendarEventNewPage() {
                 }`}
               >
                 <div className="text-xl mb-1">{opt.icon}</div>
-                <div className="text-sm font-medium text-stone-800">{opt.label}</div>
+                <div className="text-sm font-medium text-stone-800">{t(opt.labelKey)}</div>
               </button>
             ))}
           </div>
@@ -222,7 +224,7 @@ export function CalendarEventNewPage() {
         {/* Event code */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Код события (slug)
+            {t('calendar.new.eventCode')}
           </label>
           <input
             type="text"
@@ -233,14 +235,14 @@ export function CalendarEventNewPage() {
             maxLength={50}
           />
           <p className="text-xs text-stone-600 mt-1">
-            Формат: год-неделя-роль-тема. Используется для ссылок и фильтрации.
+            {t('calendar.new.eventCodeHint')}
           </p>
         </div>
 
         {/* Target role */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Для какой роли
+            {t('calendar.new.forRole')}
           </label>
           <select
             value={targetRole}
@@ -252,7 +254,7 @@ export function CalendarEventNewPage() {
           >
             {TARGET_ROLE_OPTIONS.map((r) => (
               <option key={r.value} value={r.value}>
-                {r.label}
+                {t(r.labelKey)}
               </option>
             ))}
           </select>
@@ -262,29 +264,29 @@ export function CalendarEventNewPage() {
         {isOfflineTraining && (
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Программа (опц.)
+              {t('calendar.new.program')}
             </label>
             <select
               value={programId}
               onChange={(e) => setProgramId(e.target.value)}
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
             >
-              <option value="">— Без привязки к программе —</option>
+              <option value="">{t('calendar.new.noProgram')}</option>
               {programs.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.icon ? `${p.icon} ` : ''}
-                  {p.title} ({p.duration_minutes} мин)
+                  {p.title} ({t('calendar.minutes', { n: p.duration_minutes })})
                 </option>
               ))}
             </select>
             {programs.length === 0 && targetRole !== 'all' && (
               <p className="text-xs text-amber-700 mt-1">
-                Для этой роли нет активных офлайн-программ. Можно создать без привязки.
+                {t('calendar.new.noProgramsForRole')}
               </p>
             )}
             {programId && (
               <p className="text-xs text-stone-600 mt-1">
-                Заголовок и длительность авто-заполнятся (можно перезаписать).
+                {t('calendar.new.programAutofill')}
               </p>
             )}
           </div>
@@ -294,20 +296,20 @@ export function CalendarEventNewPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Заголовок RU
+              {t('calendar.new.titleRu')}
             </label>
             <input
               type="text"
               value={titleRu}
               onChange={(e) => setTitleRu(e.target.value)}
-              placeholder='«Полевые коучинги по DSPM»'
+              placeholder={t('calendar.new.titleRuPlaceholder')}
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
               maxLength={500}
             />
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Заголовок UZ (опц.)
+              {t('calendar.new.titleUzOptional')}
             </label>
             <input
               type="text"
@@ -324,7 +326,7 @@ export function CalendarEventNewPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Дата начала
+              {t('calendar.startDate')}
             </label>
             <input
               type="date"
@@ -335,7 +337,7 @@ export function CalendarEventNewPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Дата окончания (опц.)
+              {t('calendar.new.endDateOptional')}
             </label>
             <input
               type="date"
@@ -347,8 +349,8 @@ export function CalendarEventNewPage() {
         </div>
         {startDate && (
           <div className="text-xs text-stone-600">
-            ISO-неделя: <strong>{week}</strong> · {' '}
-            {half === 'first' ? '1-я половина месяца' : '2-я половина месяца'}
+            {t('calendar.new.isoWeek')}: <strong>{week}</strong> · {' '}
+            {half === 'first' ? t('calendar.new.firstHalf') : t('calendar.new.secondHalf')}
           </div>
         )}
 
@@ -356,7 +358,7 @@ export function CalendarEventNewPage() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Длительность (мин)
+              {t('calendar.new.durationMin')}
             </label>
             <input
               type="number"
@@ -371,13 +373,13 @@ export function CalendarEventNewPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Локация
+              {t('calendar.location')}
             </label>
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Ташкент / офис"
+              placeholder={t('calendar.new.locationPlaceholder')}
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
             />
           </div>
@@ -386,13 +388,13 @@ export function CalendarEventNewPage() {
         {/* Region */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Регион / зона охвата
+            {t('calendar.new.region')}
           </label>
           <input
             type="text"
             value={targetRegion}
             onChange={(e) => setTargetRegion(e.target.value)}
-            placeholder="Навои + Бухара"
+            placeholder={t('calendar.new.regionPlaceholder')}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
         </div>
@@ -400,17 +402,17 @@ export function CalendarEventNewPage() {
         {/* Readiness */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Готовность контента
+            {t('calendar.new.readiness')}
           </label>
           <select
             value={readiness}
             onChange={(e) => setReadiness(e.target.value as Readiness | '')}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           >
-            <option value="">— Не указано —</option>
+            <option value="">{t('calendar.new.notSpecified')}</option>
             {READINESS_OPTIONS.map((r) => (
               <option key={r.value} value={r.value}>
-                {r.label}
+                {t(r.labelKey)}
               </option>
             ))}
           </select>
@@ -419,13 +421,13 @@ export function CalendarEventNewPage() {
         {/* Competencies */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Компетенции (через запятую)
+            {t('calendar.new.competencies')}
           </label>
           <input
             type="text"
             value={competenciesText}
             onChange={(e) => setCompetenciesText(e.target.value)}
-            placeholder="DSPM, Полевой коучинг, Возражения"
+            placeholder={t('calendar.new.competenciesPlaceholder')}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
           {competencies.length > 0 && (
@@ -445,12 +447,12 @@ export function CalendarEventNewPage() {
         {/* Notes */}
         <div>
           <label className="block text-sm font-medium text-stone-700 mb-1">
-            Заметки
+            {t('calendar.notes')}
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Дополнительные детали для тренера и участников"
+            placeholder={t('calendar.new.notesPlaceholder')}
             rows={3}
             className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
           />
@@ -467,14 +469,14 @@ export function CalendarEventNewPage() {
             onClick={() => navigate('/training-plan')}
             className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
           >
-            Отмена
+            {t('common.cancel')}
           </button>
           <button
             onClick={handleSubmit}
             disabled={submitting}
             className="px-5 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 disabled:opacity-50"
           >
-            {submitting ? 'Создаю…' : 'Создать событие'}
+            {submitting ? t('calendar.new.creating') : t('calendar.new.create')}
           </button>
         </div>
       </div>

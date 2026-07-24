@@ -23,33 +23,43 @@ import { isAxiosError } from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { trainingPlanApi } from '../api/trainingPlan';
 import { useAuthStore } from '../stores/authStore';
+import { useT } from '../stores/langStore';
 import type { CalendarEvent, EventStatus, EventType } from '../types/trainingPlan';
 import { SkeletonCard } from '@/components/ui';
 
-const ROLE_LABELS: Record<string, string> = {
-  sales_rep: 'ТП',
-  supervisor: 'СВ',
-  regional_manager: 'РМ',
-  commercial_dir: 'КД',
-  all: 'Все',
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  sales_rep: 'calendar.rolesShort.sales_rep',
+  supervisor: 'calendar.rolesShort.supervisor',
+  regional_manager: 'calendar.rolesShort.regional_manager',
+  commercial_dir: 'calendar.rolesShort.commercial_dir',
+  all: 'calendar.rolesShort.all',
 };
 
-const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  offline_training: '🎓 Офлайн-тренинг',
-  online_block: '💻 Онлайн-блок',
-  pulse_check: '📊 Pulse-срез',
-  attestation: '📋 Аттестация',
-  championship: '🏆 Кубок / соревнование',
-  field_trip: '✈️ Командировка',
+const EVENT_TYPE_ICONS: Record<EventType, string> = {
+  offline_training: '🎓',
+  online_block: '💻',
+  pulse_check: '📊',
+  attestation: '📋',
+  championship: '🏆',
+  field_trip: '✈️',
 };
 
-const STATUS_LABELS: Record<EventStatus, string> = {
-  planned: 'Запланировано',
-  confirmed: 'Подтверждено',
-  in_progress: 'Идёт сейчас',
-  completed: 'Завершено',
-  cancelled: 'Отменено',
-  rescheduled: 'Перенесено',
+const EVENT_TYPE_KEYS: Record<EventType, string> = {
+  offline_training: 'calendar.eventTypes.offline_training',
+  online_block: 'calendar.eventTypes.online_block',
+  pulse_check: 'calendar.eventTypes.pulse_check',
+  attestation: 'calendar.eventTypes.attestation',
+  championship: 'calendar.eventTypes.championship',
+  field_trip: 'calendar.eventTypes.field_trip',
+};
+
+const STATUS_LABEL_KEYS: Record<EventStatus, string> = {
+  planned: 'calendar.statuses.planned',
+  confirmed: 'calendar.statuses.confirmed',
+  in_progress: 'calendar.statuses.in_progress',
+  completed: 'calendar.statuses.completed',
+  cancelled: 'calendar.statuses.cancelled',
+  rescheduled: 'calendar.statuses.rescheduled',
 };
 
 const STATUS_BADGE_CLASS: Record<EventStatus, string> = {
@@ -61,10 +71,10 @@ const STATUS_BADGE_CLASS: Record<EventStatus, string> = {
   rescheduled: 'bg-orange-50 text-orange-700 border-orange-200',
 };
 
-const READINESS_LABELS: Record<string, string> = {
-  ready: '✅ Готов',
-  created: '🔨 Черновик',
-  template: '✍️ Шаблон',
+const READINESS_LABEL_KEYS: Record<string, string> = {
+  ready: 'calendar.readiness.ready',
+  created: 'calendar.readiness.created',
+  template: 'calendar.readiness.template',
 };
 
 function formatDate(iso: string | null): string {
@@ -88,6 +98,7 @@ function formatPct(v: number | null | undefined): string {
 export function CalendarEventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const navigate = useNavigate();
+  const t = useT();
   const user = useAuthStore((s) => s.user);
   const [event, setEvent] = useState<CalendarEvent | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,17 +121,17 @@ export function CalendarEventDetailPage() {
       // (баг-хант 2026-07-12: сырой axios-текст вместо заглушки)
       .catch((e: unknown) => {
         if (!(isAxiosError(e) && e.response?.status === 404)) {
-          setError('Не удалось загрузить событие. Попробуйте обновить страницу.');
+          setError(t('calendar.detail.loadError'));
         }
       })
       .finally(() => setLoading(false));
-  }, [eventId, reloadKey]);
+  }, [eventId, reloadKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reload = () => setReloadKey((k) => k + 1);
 
   const handleCancel = async () => {
     if (!event) return;
-    if (!confirm('Отменить событие?')) return;
+    if (!confirm(t('calendar.detail.confirmCancel'))) return;
     setActionLoading(true);
     setActionError(null);
     try {
@@ -128,7 +139,7 @@ export function CalendarEventDetailPage() {
       reload();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setActionError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setActionError(err?.response?.data?.detail || err?.message || t('common.error'));
     } finally {
       setActionLoading(false);
     }
@@ -143,7 +154,7 @@ export function CalendarEventDetailPage() {
       reload();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setActionError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setActionError(err?.response?.data?.detail || err?.message || t('common.error'));
     } finally {
       setActionLoading(false);
     }
@@ -162,9 +173,9 @@ export function CalendarEventDetailPage() {
   if (!event) {
     return (
       <div className="max-w-4xl mx-auto p-6 text-center">
-        <p className="mb-4" style={{ color: 'var(--text-primary)' }}>Событие не найдено</p>
+        <p className="mb-4" style={{ color: 'var(--text-primary)' }}>{t('calendar.detail.notFound')}</p>
         <button onClick={() => navigate('/training-plan')} className="text-sm underline" style={{ color: 'var(--info)' }}>
-          К плану обучения
+          {t('calendar.toPlan')}
         </button>
       </div>
     );
@@ -181,24 +192,24 @@ export function CalendarEventDetailPage() {
         onClick={() => navigate('/training-plan')}
         className="text-sm text-stone-600 hover:text-stone-900 mb-4"
       >
-        ← К плану обучения
+        {t('calendar.backToPlan')}
       </button>
 
       {/* Header card */}
       <div className="bg-white border border-stone-200 rounded-lg p-6 mb-6">
         <div className="flex items-center gap-2 flex-wrap mb-3">
           <span className={`px-2 py-0.5 text-xs rounded-full border ${STATUS_BADGE_CLASS[event.status]}`}>
-            {STATUS_LABELS[event.status]}
+            {t(STATUS_LABEL_KEYS[event.status])}
           </span>
           <span className="px-2 py-0.5 text-xs rounded-full border bg-stone-50 text-stone-700 border-stone-200">
-            {EVENT_TYPE_LABELS[event.event_type]}
+            {EVENT_TYPE_ICONS[event.event_type]} {t(EVENT_TYPE_KEYS[event.event_type])}
           </span>
           <span className="px-2 py-0.5 text-xs rounded-full border bg-blue-50 text-blue-700 border-blue-200">
-            {ROLE_LABELS[event.target_role] || event.target_role}
+            {ROLE_LABEL_KEYS[event.target_role] ? t(ROLE_LABEL_KEYS[event.target_role]) : event.target_role}
           </span>
           {event.readiness && (
             <span className="px-2 py-0.5 text-xs rounded-full border bg-amber-50 text-amber-800 border-amber-200">
-              {READINESS_LABELS[event.readiness] || event.readiness}
+              {READINESS_LABEL_KEYS[event.readiness] ? t(READINESS_LABEL_KEYS[event.readiness]) : event.readiness}
             </span>
           )}
           <span className="text-xs font-mono text-stone-600 ml-auto">{event.event_code}</span>
@@ -210,12 +221,12 @@ export function CalendarEventDetailPage() {
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <Stat label="Дата начала" value={formatDate(event.start_date)} />
-          <Stat label="Дата окончания" value={event.end_date ? formatDate(event.end_date) : '—'} />
-          <Stat label="Длительность" value={event.duration_minutes ? `${event.duration_minutes} мин` : '—'} />
+          <Stat label={t('calendar.startDate')} value={formatDate(event.start_date)} />
+          <Stat label={t('calendar.endDate')} value={event.end_date ? formatDate(event.end_date) : '—'} />
+          <Stat label={t('calendar.detail.duration')} value={event.duration_minutes ? t('calendar.minutes', { n: event.duration_minutes }) : '—'} />
           <Stat
-            label={event.week_number ? `Неделя ${event.week_number}` : 'Неделя'}
-            value={event.half_of_month === 'first' ? '1-я пол.' : event.half_of_month === 'second' ? '2-я пол.' : '—'}
+            label={event.week_number ? t('calendar.detail.weekN', { n: event.week_number }) : t('calendar.detail.week')}
+            value={event.half_of_month === 'first' ? t('calendar.detail.firstHalfShort') : event.half_of_month === 'second' ? t('calendar.detail.secondHalfShort') : '—'}
           />
         </div>
 
@@ -223,12 +234,12 @@ export function CalendarEventDetailPage() {
           <div className="text-sm text-stone-700 space-y-1">
             {event.location && (
               <div>
-                <span className="font-medium">Локация:</span> {event.location}
+                <span className="font-medium">{t('calendar.location')}:</span> {event.location}
               </div>
             )}
             {event.target_region && (
               <div>
-                <span className="font-medium">Регион:</span> {event.target_region}
+                <span className="font-medium">{t('calendar.detail.region')}:</span> {event.target_region}
               </div>
             )}
           </div>
@@ -236,7 +247,7 @@ export function CalendarEventDetailPage() {
 
         {event.competencies && event.competencies.length > 0 && (
           <div className="mt-4">
-            <div className="text-xs text-stone-600 mb-1">Компетенции:</div>
+            <div className="text-xs text-stone-600 mb-1">{t('calendar.detail.competencies')}:</div>
             <div className="flex gap-1 flex-wrap">
               {event.competencies.map((c) => (
                 <span
@@ -252,7 +263,7 @@ export function CalendarEventDetailPage() {
 
         {event.notes && (
           <div className="mt-4 p-3 bg-stone-50 rounded text-sm text-stone-700">
-            <span className="font-medium">Заметки:</span> {event.notes}
+            <span className="font-medium">{t('calendar.notes')}:</span> {event.notes}
           </div>
         )}
       </div>
@@ -260,18 +271,18 @@ export function CalendarEventDetailPage() {
       {/* Completed facts */}
       {event.status === 'completed' && (
         <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-5 mb-6">
-          <h2 className="font-medium text-emerald-900 mb-3">Результаты проведения</h2>
+          <h2 className="font-medium text-emerald-900 mb-3">{t('calendar.detail.results')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Stat
-              label="Участников"
+              label={t('calendar.detail.participants')}
               value={event.actual_participants_count?.toString() || '—'}
               dark
             />
             <Stat label="PRE" value={formatPct(event.pre_avg_score)} dark />
             <Stat label="POST" value={formatPct(event.post_avg_score)} dark />
             <Stat
-              label="Рост"
-              value={event.growth_pct !== null ? `+${event.growth_pct.toFixed(0)} п.п.` : '—'}
+              label={t('calendar.detail.growth')}
+              value={event.growth_pct !== null ? t('calendar.pp', { n: `+${event.growth_pct.toFixed(0)}` }) : '—'}
               highlight
               dark
             />
@@ -283,12 +294,12 @@ export function CalendarEventDetailPage() {
       {event.status === 'rescheduled' && event.rescheduled_to_event_id && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
           <p className="text-orange-900">
-            Событие перенесено.{' '}
+            {t('calendar.detail.rescheduledInfo')}{' '}
             <button
               onClick={() => navigate(`/training-plan/calendar/${event.rescheduled_to_event_id}`)}
               className="underline font-medium"
             >
-              Открыть новое событие →
+              {t('calendar.detail.openNewEvent')}
             </button>
           </p>
         </div>
@@ -297,7 +308,7 @@ export function CalendarEventDetailPage() {
       {/* Actions */}
       {canManage && (
         <div className="bg-white border border-stone-200 rounded-lg p-5 mb-6">
-          <h2 className="font-medium text-stone-800 mb-3">Действия</h2>
+          <h2 className="font-medium text-stone-800 mb-3">{t('calendar.detail.actions')}</h2>
           {actionError && (
             <div className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-700 mb-3">
               {actionError}
@@ -310,7 +321,7 @@ export function CalendarEventDetailPage() {
                 disabled={actionLoading}
                 className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 disabled:opacity-50"
               >
-                Завершить (PRE/POST)
+                {t('calendar.detail.completeBtn')}
               </button>
             )}
             {canConfirm && (
@@ -319,7 +330,7 @@ export function CalendarEventDetailPage() {
                 disabled={actionLoading}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                Подтвердить готовность
+                {t('calendar.detail.confirmReadiness')}
               </button>
             )}
             {canReschedule && (
@@ -328,7 +339,7 @@ export function CalendarEventDetailPage() {
                 disabled={actionLoading}
                 className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50 disabled:opacity-50"
               >
-                Перенести
+                {t('calendar.detail.rescheduleBtn')}
               </button>
             )}
             {canCancel && (
@@ -337,7 +348,7 @@ export function CalendarEventDetailPage() {
                 disabled={actionLoading}
                 className="px-4 py-2 border border-red-300 text-red-700 rounded-lg hover:bg-red-50 disabled:opacity-50"
               >
-                Отменить
+                {t('calendar.detail.cancelBtn')}
               </button>
             )}
           </div>
@@ -413,6 +424,7 @@ function CompleteModal({
   onClose: () => void;
   onCompleted: () => void;
 }) {
+  const t = useT();
   const [participantsCount, setParticipantsCount] = useState<number | ''>('');
   const [preInput, setPreInput] = useState('');
   const [postInput, setPostInput] = useState('');
@@ -434,7 +446,7 @@ function CompleteModal({
   const handleSubmit = async () => {
     setError(null);
     if (typeof participantsCount !== 'number') {
-      setError('Укажи количество участников');
+      setError(t('calendar.completeModal.participantsRequired'));
       return;
     }
     setSubmitting(true);
@@ -448,7 +460,7 @@ function CompleteModal({
       onCompleted();
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
@@ -456,13 +468,13 @@ function CompleteModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 className="text-lg font-medium text-stone-800 mb-2">Завершить событие</h3>
+        <h3 className="text-lg font-medium text-stone-800 mb-2">{t('calendar.completeModal.title')}</h3>
         <p className="text-sm text-stone-600 mb-4">{event.title_ru}</p>
 
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Количество участников
+              {t('calendar.completeModal.participantsCount')}
             </label>
             <input
               type="number"
@@ -477,7 +489,7 @@ function CompleteModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                PRE средний (%)
+                {t('calendar.preAvgPct')}
               </label>
               <input
                 type="text"
@@ -489,7 +501,7 @@ function CompleteModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                POST средний (%)
+                {t('calendar.postAvgPct')}
               </label>
               <input
                 type="text"
@@ -502,20 +514,19 @@ function CompleteModal({
           </div>
           {growth !== null && (
             <div className="text-sm text-emerald-700">
-              Рост: {growth >= 0 ? '+' : ''}
-              {growth.toFixed(0)} п.п.
+              {t('calendar.growthPp', { n: `${growth >= 0 ? '+' : ''}${growth.toFixed(0)}` })}
             </div>
           )}
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Заметки (опц.)
+              {t('calendar.completeModal.notesOptional')}
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={3}
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
-              placeholder="Что обсуждали, какие выводы..."
+              placeholder={t('calendar.completeModal.notesPlaceholder')}
             />
           </div>
 
@@ -530,14 +541,14 @@ function CompleteModal({
               onClick={onClose}
               className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
               className="px-4 py-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 disabled:opacity-50"
             >
-              {submitting ? 'Сохраняю…' : 'Завершить'}
+              {submitting ? t('calendar.saving') : t('calendar.completeModal.complete')}
             </button>
           </div>
         </div>
@@ -559,6 +570,7 @@ function RescheduleModal({
   onClose: () => void;
   onRescheduled: (newEventId: string) => void;
 }) {
+  const t = useT();
   const [newStartDate, setNewStartDate] = useState('');
   const [newEndDate, setNewEndDate] = useState('');
   const [reason, setReason] = useState('');
@@ -568,7 +580,7 @@ function RescheduleModal({
   const handleSubmit = async () => {
     setError(null);
     if (!newStartDate) {
-      setError('Укажи новую дату начала');
+      setError(t('calendar.rescheduleModal.dateRequired'));
       return;
     }
     setSubmitting(true);
@@ -581,7 +593,7 @@ function RescheduleModal({
       onRescheduled(res.data.id);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } }; message?: string };
-      setError(err?.response?.data?.detail || err?.message || 'Ошибка');
+      setError(err?.response?.data?.detail || err?.message || t('common.error'));
       setSubmitting(false);
     }
   };
@@ -589,7 +601,7 @@ function RescheduleModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg max-w-md w-full p-6">
-        <h3 className="text-lg font-medium text-stone-800 mb-2">Перенести событие</h3>
+        <h3 className="text-lg font-medium text-stone-800 mb-2">{t('calendar.rescheduleModal.title')}</h3>
         <p className="text-sm text-stone-600 mb-4">
           {event.title_ru} ({formatDate(event.start_date)})
         </p>
@@ -598,7 +610,7 @@ function RescheduleModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                Новая дата начала
+                {t('calendar.rescheduleModal.newStartDate')}
               </label>
               <input
                 type="date"
@@ -609,7 +621,7 @@ function RescheduleModal({
             </div>
             <div>
               <label className="block text-sm font-medium text-stone-700 mb-1">
-                Новая дата окончания
+                {t('calendar.rescheduleModal.newEndDate')}
               </label>
               <input
                 type="date"
@@ -621,14 +633,14 @@ function RescheduleModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-stone-700 mb-1">
-              Причина переноса (опц.)
+              {t('calendar.rescheduleModal.reasonOptional')}
             </label>
             <textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={3}
               className="w-full border border-stone-300 rounded px-3 py-2 text-sm"
-              placeholder="Почему переносим..."
+              placeholder={t('calendar.rescheduleModal.reasonPlaceholder')}
             />
           </div>
 
@@ -643,14 +655,14 @@ function RescheduleModal({
               onClick={onClose}
               className="px-4 py-2 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
             >
-              Отмена
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleSubmit}
               disabled={submitting}
               className="px-4 py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-700 disabled:opacity-50"
             >
-              {submitting ? 'Переношу…' : 'Перенести'}
+              {submitting ? t('calendar.rescheduleModal.saving') : t('calendar.rescheduleModal.submit')}
             </button>
           </div>
         </div>
