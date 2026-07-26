@@ -153,9 +153,17 @@ export const useScopeStore = create<ScopeState>((set, get) => ({
     // ВАЖНО: возвращаем первую страницу, реально прошедшую isPageAllowed (с учётом
     // клиентской политики ROLE_FORCE_DENY) — иначе редирект на запрещённую страницу
     // (напр. ТП → training_plan) зацикливается с ProtectedRoute (чёрный мигающий экран).
+    //
+    // 🔴 Легаси-ключ нормализуем в канонический ДО проверки доступа. Иначе проверяется
+    // один ключ, а роутится другой — и гейт назначения теряется. Именно так возникал
+    // чёрный экран у бронзовых ТП: ключ 'kpi' гейтом не закрыт и проходит isPageAllowed,
+    // но ведёт на /dashboard, чей ключ 'dashboard' закрыт до silver → ProtectedRoute
+    // отправляет обратно сюда → бесконечный цикл. Подтверждено на проде 2026-07-26
+    // (nmedovfer-A24: tier=bronze, power=50, allowed_pages[0]='kpi').
     for (const key of allowedPages) {
-      if (isPageAllowed(key)) {
-        const path = PAGE_KEY_TO_PATH[key];
+      const canonical = LEGACY_TO_NEW[key] ?? key;
+      if (isPageAllowed(canonical)) {
+        const path = PAGE_KEY_TO_PATH[canonical] ?? PAGE_KEY_TO_PATH[key];
         if (path) return path;
       }
     }
