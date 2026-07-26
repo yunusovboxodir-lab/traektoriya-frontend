@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { goalsApi, type Goal } from '../../api/goals';
-import { useLangStore } from '../../stores/langStore';
+import { useLangStore, useT } from '../../stores/langStore';
 import { TacticalPanel } from '../tactical/shell';
 
 /**
@@ -25,9 +25,11 @@ function tashkentToday(): string {
 
 export function DailyQuestsWidget() {
   const lang = useLangStore((s) => s.lang);
+  const t = useT();
   const navigate = useNavigate();
   const [quests, setQuests] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const today = tashkentToday();
@@ -38,12 +40,39 @@ export function DailyQuestsWidget() {
           .sort((a, b) => (a.metadata?.order ?? 0) - (b.metadata?.order ?? 0));
         setQuests(items);
       })
-      .catch(() => setQuests([]))
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false));
   }, []);
 
-  // Нет квестов (не ТП / не сгенерированы) → панель не показываем целиком.
-  if (loading || quests.length === 0) return null;
+  // Сбой загрузки ≠ «квестов нет». Раньше .catch() ставил пустой массив, и
+  // упавший запрос выглядел как честная пустота — отсюда жалобы «платформа
+  // показывает нули». Молчать об ошибке нельзя, но и пугать полевого
+  // сотрудника стеком не нужно: показываем спокойную строку с возможностью
+  // повторить.
+  if (loading) return null;
+
+  if (failed) {
+    return (
+      <TacticalPanel label="QUESTS" title={t('dashboard.quests.title')}>
+        <div className="px-5 py-4 sm:px-6 flex items-center justify-between gap-3">
+          <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {t('dashboard.quests.loadFailed')}
+          </span>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="text-sm font-semibold underline underline-offset-2"
+            style={{ color: 'var(--accent)' }}
+          >
+            {t('common.actions.retry')}
+          </button>
+        </div>
+      </TacticalPanel>
+    );
+  }
+
+  // Квестов действительно нет (не ТП / не сгенерированы) → панель не показываем.
+  if (quests.length === 0) return null;
 
   const done = quests.filter((q) => q.status === 'completed').length;
 

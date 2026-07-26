@@ -258,6 +258,10 @@
       "generationDesc": "Sun'iy intellekt yordamida darslar va kontent yaratish",
       "planogramDesc": "Kompyuter koʻrish yordamida tovar joylashuvini tahlil qilish",
       "analyticsDesc": "Statistika, hisobotlar va samaradorlik koʻrsatkichlari"
+    },
+    "quests": {
+      "title": "Bugungi vazifalar",
+      "loadFailed": "Vazifalarni yuklab bo‘lmadi"
     }
   },
   "tasks": {
@@ -1488,7 +1492,8 @@
       "refresh": "Yangilash",
       "reindex": "Qayta indekslash",
       "changeType": "Turini oʻzgartirish",
-      "markReviewed": "Koʻrib chiqilgan deb belgilash"
+      "markReviewed": "Koʻrib chiqilgan deb belgilash",
+      "retry": "Qayta urinish"
     },
     "filters": {
       "show": "Filtrlar",
