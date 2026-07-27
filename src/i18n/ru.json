@@ -858,7 +858,81 @@
       "topManagement": "Топ-менеджмент"
     },
     "reportButton": "Отчёт",
-    "lbEmployee": "Сотрудник"
+    "lbEmployee": "Сотрудник",
+    "pulseDash": {
+      "companyName": "N'Medov Distribution",
+      "eyebrow": {
+        "company": "Компания",
+        "city": "Город",
+        "dealer": "Дилер",
+        "team": "Команда"
+      },
+      "breadcrumbDealer": "дилер {name}",
+      "subtitleCompany": "Пульс обучения · {count} {role} · боевые данные",
+      "subtitleCity": "{count} {role}",
+      "subtitleCityRmSuffix": "ответственный за регион: {name}",
+      "subtitleDealer": "{count} {role} в разрезе дилера",
+      "subtitleTeam": "{city} · дилер {dealer} · {count} чел.",
+      "subtitlePerson": "{id} · уровень: {level}",
+      "axesTitleRole": "Шкалы радара · {role} · {count} чел.",
+      "axesTitlePerson": "Компетенции сотрудника",
+      "axesEmpty": "Нет данных по этой роли в выбранном разрезе.",
+      "goalLabel": "цель {goal}%",
+      "coursesOf": "{done} из {total} курсов",
+      "listTitleCities": "Города",
+      "listTitleDealers": "Дилеры",
+      "listTitleTeams": "Команды супервайзеров",
+      "listTitleEmployees": "Сотрудники команды",
+      "listTitlePersonCard": "Карточка сотрудника",
+      "listTitleRmZones": "Региональные менеджеры · зоны ответственности",
+      "cardHint": "Нажмите для детализации",
+      "dealersCount": "Дилеров: {n}",
+      "teamsCount": "Команд: {n}",
+      "peopleCount": "{n} чел.",
+      "underCount": "{n} чел. в подчинении",
+      "noZoneAssigned": "зона не назначена",
+      "noEmployeesInCut": "В этом разрезе нет сотрудников выбранной роли.",
+      "table": {
+        "employee": "Сотрудник",
+        "roleCity": "Роль · город",
+        "lastLogin": "Посл. вход",
+        "activeTime": "Занимался",
+        "courses": "Курсов",
+        "pulse": "Пульс",
+        "status": "Статус"
+      },
+      "minutesShort": "мин",
+      "activityStatus": {
+        "studying": "Учится",
+        "enteredNotFinished": "Зашёл, не завершил",
+        "peeked": "Заглянул",
+        "enteredNoActivity": "Вошёл, 0 активности",
+        "neverEntered": "Не входил"
+      },
+      "personStat": {
+        "lastLogin": "Последний вход",
+        "totalMinutes": "Занимался всего",
+        "coursesCompleted": "Курсов завершено",
+        "pulse": "Пульс"
+      },
+      "zoneResponsibility": "Зона ответственности:",
+      "statusLabel": {
+        "normal": "Норма",
+        "attention": "Внимание",
+        "critical": "Критично",
+        "none": "Нет обучения"
+      },
+      "roleFull": {
+        "sales_rep": "Торговые представители",
+        "supervisor": "Супервайзеры",
+        "regional_manager": "Региональные менеджеры"
+      },
+      "noteHow": "Как читать:",
+      "noteBody": "Шкалы — это оси радара компетенций выбранной роли (Пульс, % от целевого уровня). Цель по каждой оси — {goal}%, отмечена пунктиром. Клик по карточке углубляет: город → дилер → команда СВ → сотрудник. Демо-аккаунты и демо-регион исключены — только боевые данные.",
+      "scopeFootnote": "Всего сотрудников: {total} · демо исключено: {excluded}",
+      "loadError": "Не удалось загрузить пульс обучения",
+      "emptyState": "Нет данных о пульсе обучения"
+    }
   },
   "dictionary": {
     "title": "Словарь UZ",

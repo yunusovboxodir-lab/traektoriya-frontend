@@ -858,7 +858,81 @@
       "topManagement": "Top-menejment"
     },
     "reportButton": "Hisobot",
-    "lbEmployee": "Xodim"
+    "lbEmployee": "Xodim",
+    "pulseDash": {
+      "companyName": "N'Medov Distribution",
+      "eyebrow": {
+        "company": "Kompaniya",
+        "city": "Shahar",
+        "dealer": "Diler",
+        "team": "Jamoa"
+      },
+      "breadcrumbDealer": "diler {name}",
+      "subtitleCompany": "Oʻqitish pulsi · {count} {role} · real ma'lumotlar",
+      "subtitleCity": "{count} {role}",
+      "subtitleCityRmSuffix": "hudud uchun mas'ul: {name}",
+      "subtitleDealer": "diler kesimida {count} {role}",
+      "subtitleTeam": "{city} · diler {dealer} · {count} kishi",
+      "subtitlePerson": "{id} · daraja: {level}",
+      "axesTitleRole": "Radar shkalalari · {role} · {count} kishi",
+      "axesTitlePerson": "Xodim kompetensiyalari",
+      "axesEmpty": "Tanlangan kesimda bu rol boʻyicha ma'lumot yoʻq.",
+      "goalLabel": "maqsad {goal}%",
+      "coursesOf": "{total} tadan {done} kurs",
+      "listTitleCities": "Shaharlar",
+      "listTitleDealers": "Dilerlar",
+      "listTitleTeams": "Supervayzer jamoalari",
+      "listTitleEmployees": "Jamoa xodimlari",
+      "listTitlePersonCard": "Xodim kartasi",
+      "listTitleRmZones": "Mintaqaviy menejerlar · mas'ul hududlar",
+      "cardHint": "Batafsil koʻrish uchun bosing",
+      "dealersCount": "Dilerlar: {n}",
+      "teamsCount": "Jamoalar: {n}",
+      "peopleCount": "{n} kishi",
+      "underCount": "{n} kishi qarashida",
+      "noZoneAssigned": "hudud biriktirilmagan",
+      "noEmployeesInCut": "Bu kesimda tanlangan rol boʻyicha xodim yoʻq.",
+      "table": {
+        "employee": "Xodim",
+        "roleCity": "Rol · shahar",
+        "lastLogin": "Oxirgi kirish",
+        "activeTime": "Shugʻullangan",
+        "courses": "Kurslar",
+        "pulse": "Puls",
+        "status": "Holat"
+      },
+      "minutesShort": "daq",
+      "activityStatus": {
+        "studying": "Oʻqiyapti",
+        "enteredNotFinished": "Kirdi, tugatmadi",
+        "peeked": "Bir qarab chiqdi",
+        "enteredNoActivity": "Kirdi, faollik 0",
+        "neverEntered": "Kirmagan"
+      },
+      "personStat": {
+        "lastLogin": "Oxirgi kirish",
+        "totalMinutes": "Jami shugʻullangan",
+        "coursesCompleted": "Yakunlangan kurslar",
+        "pulse": "Puls"
+      },
+      "zoneResponsibility": "Mas'ul hudud:",
+      "statusLabel": {
+        "normal": "Norma",
+        "attention": "Diqqat",
+        "critical": "Kritik",
+        "none": "Oʻqish yoʻq"
+      },
+      "roleFull": {
+        "sales_rep": "Savdo vakillari",
+        "supervisor": "Supervayzerlar",
+        "regional_manager": "Mintaqaviy menejerlar"
+      },
+      "noteHow": "Qanday oʻqish kerak:",
+      "noteBody": "Shkalalar — tanlangan rolning kompetensiya radar oʻqlari (Puls, maqsad darajasidan %). Har bir oʻq boʻyicha maqsad — {goal}%, punktir chiziq bilan belgilangan. Kartani bosish chuqurlashtiradi: shahar → diler → SV jamoasi → xodim. Demo-akkauntlar va demo-hudud chiqarib tashlangan — faqat real ma'lumotlar.",
+      "scopeFootnote": "Jami xodimlar: {total} · demo chiqarib tashlandi: {excluded}",
+      "loadError": "Oʻqitish pulsini yuklab boʻlmadi",
+      "emptyState": "Oʻqitish pulsi boʻyicha ma'lumot yoʻq"
+    }
   },
   "dictionary": {
     "title": "Oʻzbek lugʻati",

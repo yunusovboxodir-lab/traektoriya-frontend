@@ -333,15 +333,8 @@ export function AnalyticsPage() {
         ))}
       </div>
 
-      {/* TAB: Overview */}
-      {activeTab === 'overview' && (
-        <OverviewTab
-          overview={overview}
-          learning={learning}
-          productStats={productStats}
-          leaderboard={leaderboard}
-        />
-      )}
+      {/* TAB: Overview — «Пульс обучения» (грузит данные самостоятельно) */}
+      {activeTab === 'overview' && <OverviewTab />}
 
       {/* TAB: AI L&D */}
       {activeTab === 'lms' && (

@@ -29,6 +29,12 @@ export const analyticsApi = {
   // ROI обучения: петля «обучение → KPI-дельта»
   getLearningRoi: (params?: { baseline?: string; region?: string }) =>
     api.get<LearningRoiData>('/api/v1/analytics/learning-roi', { params }),
+
+  // Пульс обучения (exec-дашборд руководителя, вкладка «Обзор»)
+  getLearningPulse: (params?: { exclude_demo?: boolean }) =>
+    api.get<LearningPulseData>('/api/v1/analytics/learning-pulse', {
+      params: { exclude_demo: true, ...params },
+    }),
 };
 
 // --- ROI обучения ---
@@ -69,4 +75,83 @@ export interface LearningRoiData {
   };
   programs: RoiProgramRow[];
   courses: RoiCourseRow[];
+}
+
+// ---------------------------------------------------------------------------
+// Пульс обучения — exec-дашборд руководителя (замена вкладки «Обзор»)
+// Контракт: GET /api/v1/analytics/learning-pulse?exclude_demo=true
+// ---------------------------------------------------------------------------
+
+export type LearningPulseRoleId = 'sales_rep' | 'supervisor' | 'regional_manager';
+
+/** Ось компетенции, агрегированная бэком по всей роли (без разреза по городу/дилеру/команде). */
+export interface LearningPulseRoleAxis {
+  competency_id: string;
+  name: string;
+  name_uz: string;
+  /** 0..1 — доля от целевого уровня */
+  avg_pct: number;
+  courses_completed: number;
+  courses_total: number;
+}
+
+export interface LearningPulseRoleSummary {
+  role: LearningPulseRoleId;
+  role_ru: string;
+  count: number;
+  /** 0..1 */
+  avg_pulse: number;
+  axes: LearningPulseRoleAxis[];
+}
+
+/** Ось компетенции на уровне одного сотрудника (используется для клиентской агрегации при драм-дауне). */
+export interface LearningPulsePersonAxis {
+  name: string;
+  name_uz?: string;
+  /** 0..1 */
+  pct: number;
+  courses_completed: number;
+  courses_total: number;
+}
+
+export interface LearningPulsePerson {
+  user_id: string;
+  employee_id: string;
+  full_name: string;
+  role: LearningPulseRoleId;
+  city: string;
+  dealer: string;
+  team: string;
+  supervisor_name: string;
+  /** 0..1 */
+  pulse: number;
+  level_ru: string;
+  active_minutes: number;
+  last_login: string | null;
+  courses_completed: number;
+  axes: LearningPulsePersonAxis[];
+}
+
+export interface LearningPulseTeam {
+  name: string;
+  supervisor_name: string;
+  members: number;
+}
+
+export interface LearningPulseDealer {
+  name: string;
+  teams: LearningPulseTeam[];
+}
+
+export interface LearningPulseCity {
+  name: string;
+  rm_name: string | null;
+  dealers: LearningPulseDealer[];
+}
+
+export interface LearningPulseData {
+  scope: { people_total: number; demo_excluded: number };
+  roles: LearningPulseRoleSummary[];
+  people: LearningPulsePerson[];
+  hierarchy: { cities: LearningPulseCity[] };
 }

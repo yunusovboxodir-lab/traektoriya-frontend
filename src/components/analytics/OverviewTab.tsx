@@ -1,465 +1,255 @@
-import { useT } from '../../stores/langStore';
-import type {
-  OverviewData, LearningMetrics, ProductStats,
-  LeaderboardEntry, BrandItem,
-} from './types';
+/**
+ * OverviewTab — «Пульс обучения»: exec-дашборд руководителя (замена старой
+ * вкладки «Обзор», задача владельца 2026-07-27).
+ *
+ * Перенесено из одобренного HTML-прототипа (`exec_learning_dashboard.html`)
+ * максимально близко по структуре и поведению drill-down:
+ *   Компания › Город › Дилер › Команда СВ › Сотрудник
+ *
+ * Ключевые решения:
+ *  - РМ — уровень НАД городом. Внутри города кнопка РМ скрыта (остаются ТП/СВ),
+ *    а РМ показывается в шапке города как «ответственный за регион».
+ *  - Роль РМ на верхнем уровне раскрывается в карточки самих РМ (не в города).
+ *  - Иерархия и связи людей — из полей API (city/dealer/team/hierarchy),
+ *    НЕ из разбора префиксов ФИО (тот подход был временным костылём демо-данных
+ *    в прототипе — на бэке уже решено правильно).
+ *  - Вкладка полностью самодостаточна: сама грузит /api/v1/analytics/learning-pulse.
+ */
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useT, useLangStore } from '../../stores/langStore';
+import { analyticsApi } from '../../api/analytics';
+import type { LearningPulseData, LearningPulseRoleId } from '../../api/analytics';
+import { Breadcrumbs, type Crumb } from './pulse/Breadcrumbs';
+import { AxisBars } from './pulse/AxisBars';
+import { DrillList } from './pulse/DrillList';
+import { buildHeaderInfo } from './pulse/buildHeaderInfo';
 import {
-  SectionTitle, StatCard, DonutChart,
-  HorizontalBarChart, MetricBar, MetricValue,
-} from './charts';
-import type { StatCardDef } from './charts';
+  fmt1,
+  INITIAL_DRILL_STATE,
+  PULSE_GOAL_PCT,
+  pulseStatusColorVar,
+  pulseStatusKey,
+  ROLE_COLOR_VAR,
+  ROLE_ORDER,
+  roleAbbrevKey,
+  scopedPeople,
+  summaryFor,
+  type DrillState,
+} from './pulse/helpers';
 
-// Бейдж «за всё время» — эти блоки не зависят от фильтра периода (см. AnalyticsPage)
-function AllTimeBadge({ t }: { t: ReturnType<typeof useT> }) {
+// ---------------------------------------------------------------------------
+// Loading state
+// ---------------------------------------------------------------------------
+
+function Skeleton() {
   return (
-    <span
-      className="ml-2 align-middle inline-block px-2 py-0.5 rounded text-xs font-medium"
-      style={{ background: 'var(--bg-overlay)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
-    >
-      {t('analytics.allTime')}
-    </span>
+    <div className="animate-pulse">
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <div className="h-3 w-20 rounded mb-2" style={{ background: 'var(--bg-elevated)' }} />
+          <div className="h-7 w-64 rounded mb-2" style={{ background: 'var(--bg-elevated)' }} />
+          <div className="h-4 w-48 rounded" style={{ background: 'var(--bg-elevated)' }} />
+        </div>
+        <div className="h-10 w-20 rounded" style={{ background: 'var(--bg-elevated)' }} />
+      </div>
+      <div className="h-10 w-full rounded mb-6" style={{ background: 'var(--bg-elevated)' }} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-40 rounded-xl" style={{ background: 'var(--bg-elevated)' }} />
+        ))}
+      </div>
+    </div>
   );
-}
-
-// ---------------------------------------------------------------------------
-// Constants (moved to component for access to t)
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// Helpers to read overview data (nested or flat)
-// ---------------------------------------------------------------------------
-function ov(data: OverviewData | null, path: string): number {
-  if (!data) return 0;
-  const parts = path.split('.');
-  let cur: unknown = data;
-  for (const p of parts) {
-    if (cur && typeof cur === 'object' && p in (cur as Record<string, unknown>)) {
-      cur = (cur as Record<string, unknown>)[p];
-    } else {
-      cur = undefined;
-      break;
-    }
-  }
-  if (typeof cur === 'number') return cur;
-  const flatKey = parts.join('_');
-  const flat = (data as Record<string, unknown>)[flatKey];
-  if (typeof flat === 'number') return flat;
-  return 0;
 }
 
 // ---------------------------------------------------------------------------
 // OverviewTab
 // ---------------------------------------------------------------------------
 
-interface Props {
-  overview: OverviewData | null;
-  learning: LearningMetrics | null;
-  productStats: ProductStats | null;
-  leaderboard: LeaderboardEntry[];
-}
-
-export function OverviewTab({ overview, learning, productStats, leaderboard }: Props) {
+export function OverviewTab() {
   const t = useT();
+  const lang = useLangStore((s) => s.lang);
 
-  const ROLE_LABELS: Record<string, string> = {
-    superadmin: t('common.roles.superadmin'),
-    commercial_dir: t('common.roles.commercialDirector'),
-    admin: t('common.roles.admin'),
-    regional_manager: t('common.roles.regionalManager'),
-    supervisor: t('common.roles.supervisor'),
-    sales_rep: t('common.roles.salesRep'),
-    standalone: t('analytics.ovw.generalProducts'),
-    top_management: t('analytics.ovw.topManagement'),
-  };
+  const [data, setData] = useState<LearningPulseData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [drill, setDrill] = useState<DrillState>(INITIAL_DRILL_STATE);
 
-  const statCards: StatCardDef[] = [
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await analyticsApi.getLearningPulse();
+      setData(res.data);
+    } catch {
+      setError(t('analytics.pulseDash.loadError'));
+    } finally {
+      setLoading(false);
+    }
+  }, [t]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const patch = useCallback((p: Partial<DrillState>) => {
+    setDrill((s) => ({ ...s, ...p }));
+  }, []);
+
+  const selectRole = useCallback((role: LearningPulseRoleId) => {
+    setDrill((s) => ({
+      ...s,
+      role,
+      person: null,
+      // РМ — уровень над городом: переключение на РМ поднимает наверх.
+      city: role === 'regional_manager' ? null : s.city,
+      dealer: role === 'regional_manager' ? null : s.dealer,
+      team: role === 'regional_manager' ? null : s.team,
+    }));
+  }, []);
+
+  const scoped = useMemo(() => (data ? scopedPeople(data, drill) : []), [data, drill]);
+  const summary = useMemo(
+    () => (data ? summaryFor(data, drill) : { pulse: 0, axes: [], count: 0 }),
+    [data, drill],
+  );
+  const statusKey = pulseStatusKey(summary.pulse);
+  const statusColor = pulseStatusColorVar(statusKey);
+  const roleColorVar = ROLE_COLOR_VAR[drill.role];
+  const roleFullLabel = t(`analytics.pulseDash.roleFull.${drill.role}`);
+
+  if (loading) return <Skeleton />;
+
+  if (error) {
+    return (
+      <div className="max-w-xl mx-auto mt-12 rounded-lg p-4" style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)' }}>
+        <p className="text-sm" style={{ color: 'var(--danger)' }}>{error}</p>
+        <button onClick={load} className="text-sm underline mt-1" style={{ color: 'var(--danger)' }}>
+          {t('analytics.tryAgain')}
+        </button>
+      </div>
+    );
+  }
+
+  if (!data || data.scope.people_total === 0) {
+    return (
+      <div className="text-center py-16" style={{ color: 'var(--text-muted)' }}>
+        <p className="text-sm">{t('analytics.pulseDash.emptyState')}</p>
+      </div>
+    );
+  }
+
+  const { eyebrow, title, subtitle } = buildHeaderInfo(t, data, drill, scoped.length, summary.count, roleFullLabel);
+
+  // -- Breadcrumbs --
+  const crumbs: Crumb[] = [
     {
-      label: t('analytics.users'),
-      value: ov(overview, 'users.total'),
-      accentColor: 'var(--info)',
-      accentBg: 'var(--info-bg)',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 00-3-3.87" />
-          <path d="M16 3.13a4 4 0 010 7.75" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.courses'),
-      value: ov(overview, 'courses.total'),
-      accentColor: 'var(--success)',
-      accentBg: 'var(--success-bg)',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
-          <path d="M4 4.5A2.5 2.5 0 016.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15z" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.tasks'),
-      value: ov(overview, 'tasks.total'),
-      accentColor: 'var(--warning)',
-      accentBg: 'var(--warning-bg)',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-          <path d="M9 14l2 2 4-4" />
-        </svg>
-      ),
-    },
-    {
-      label: t('analytics.products'),
-      value: ov(overview, 'products.total'),
-      accentColor: 'var(--info)',
-      accentBg: 'var(--info-bg)',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-          <path d="M3.27 6.96L12 12.01l8.73-5.05" />
-          <path d="M12 22.08V12" />
-        </svg>
-      ),
+      key: 'company',
+      label: t('analytics.pulseDash.companyName'),
+      onSelect: () => patch({ city: null, dealer: null, team: null, person: null }),
     },
   ];
+  if (drill.city) {
+    crumbs.push({ key: 'city', label: drill.city, onSelect: () => patch({ dealer: null, team: null, person: null }) });
+  }
+  if (drill.dealer) {
+    crumbs.push({
+      key: 'dealer',
+      label: t('analytics.pulseDash.breadcrumbDealer', { name: drill.dealer }),
+      onSelect: () => patch({ team: null, person: null }),
+    });
+  }
+  if (drill.team) {
+    crumbs.push({ key: 'team', label: drill.team, onSelect: () => patch({ person: null }) });
+  }
+  if (drill.person) {
+    crumbs.push({ key: 'person', label: drill.person.full_name || drill.person.employee_id });
+  }
 
-  // Знание товаров — по БРЕНДАМ (17 читаемо; по SKU 114 — шум). Приоритет by_brand;
-  // фолбэк на categories_breakdown (старый бэк) без pass_rate.
-  const byBrand: BrandItem[] =
-    productStats?.by_brand && productStats.by_brand.length > 0
-      ? productStats.by_brand
-      : (productStats?.categories_breakdown ?? []).map((c) => ({
-          brand: c.category,
-          products: c.product_count,
-          attempts: c.attempts,
-          pass_rate: 0,
-          avg_score: c.avg_score,
-        }));
-  // Бар «Бренды» — доля товаров по бренду
-  const brandBars = byBrand.map((b) => ({ name: b.brand, count: b.products }));
-
-  const byTerritory = learning?.by_territory ?? [];
-  const byCourse = learning?.by_course ?? [];
-  const byRole = learning?.by_role ?? [];
-  const usersByRole = overview?.users?.by_role ?? {};
-
-  // «Нет активности» — когда нет ни прохождений курсов, ни закрытых задач.
-  // Раньше пустые метрики (0) читались как «сломано»; показываем честную плашку.
-  const noActivity =
-    ov(overview, 'learning.total_completed') === 0 &&
-    ov(overview, 'tasks.completed') === 0;
+  const axesTitle = drill.person
+    ? t('analytics.pulseDash.axesTitlePerson')
+    : t('analytics.pulseDash.axesTitleRole', { role: roleFullLabel, count: summary.count });
 
   return (
-    <>
-      {/* Stat cards */}
-      <SectionTitle title={t('analytics.overview')} />
-      {noActivity && (
-        <div
-          className="mb-6 rounded-xl px-4 py-3 text-sm flex items-start gap-2"
-          style={{
-            background: 'var(--info-bg)',
-            border: '1px solid var(--info)',
-            color: 'var(--text-secondary)',
-          }}
-        >
-          <span aria-hidden="true" /* eslint-disable-line i18next/no-literal-string */>ℹ️</span>
-          <span>
-            {t('analytics.ovw.noActivityNotice')}
-          </span>
+    <div>
+      {/* Header */}
+      <div className="flex items-start justify-between gap-5 flex-wrap pb-5 border-b" style={{ borderColor: 'var(--border)' }}>
+        <div>
+          <div className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{eyebrow}</div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            {title}
+          </h1>
+          <div className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{subtitle}</div>
         </div>
-      )}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {statCards.map((card) => (
-          <StatCard key={card.label} card={card} />
-        ))}
+        <div className="text-right shrink-0">
+          <div
+            className="text-3xl sm:text-4xl font-bold leading-none"
+            style={{ color: statusColor, fontVariantNumeric: 'tabular-nums' }}
+          >
+            {fmt1(summary.pulse)}
+          </div>
+          <div className="text-xs font-semibold mt-1" style={{ color: statusColor }}>
+            {t(`analytics.pulseDash.statusLabel.${statusKey}`)}
+          </div>
+        </div>
       </div>
 
-      {/* Состав пользователей по ролям (данные уже в overview.users.by_role) */}
-      {Object.keys(usersByRole).length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-10">
-          {(['regional_manager', 'supervisor', 'sales_rep', 'admin', 'commercial_dir', 'superadmin'] as const)
-            .filter((r) => usersByRole[r])
-            .map((r) => (
-              <span
-                key={r}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs"
-                style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
-              >
-                {ROLE_LABELS[r] ?? r}
-                <strong style={{ color: 'var(--text-primary)' }}>{usersByRole[r]}</strong>
-              </span>
-            ))}
+      {/* Breadcrumbs */}
+      <Breadcrumbs items={crumbs} accentColorVar={roleColorVar} />
+
+      {/* Role switcher + axis bars */}
+      <div className="pt-6">
+        <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+          <span className="text-xs uppercase tracking-wide font-semibold" style={{ color: 'var(--text-muted)' }}>
+            {axesTitle}
+          </span>
+          <div className="flex gap-2">
+            {ROLE_ORDER.filter((r) => !(r === 'regional_manager' && drill.city)).map((r) => {
+              const isActive = drill.role === r;
+              const colorVar = ROLE_COLOR_VAR[r];
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => selectRole(r)}
+                  className="px-4 py-2 rounded-md text-sm font-semibold min-h-[40px]"
+                  style={{
+                    background: isActive ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+                    border: `1px solid ${isActive ? colorVar : 'var(--border)'}`,
+                    color: isActive ? colorVar : 'var(--text-secondary)',
+                  }}
+                >
+                  {t(`common.roles.abbreviations.${roleAbbrevKey(r)}`)}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      )}
+        <AxisBars axes={summary.axes} roleColorVar={roleColorVar} lang={lang} />
+      </div>
 
-      {/* Leaderboard */}
-      {leaderboard.length > 0 && (
-        <>
-          <SectionTitle title={t('analytics.leaderboard')} />
-          {/* px-4 на контейнере: без него первая и последняя колонки лежали
-              вплотную к скруглённым краям карточки (репорт владельца 2026-07-12) */}
-          <div className="rounded-xl shadow-sm mb-10 overflow-x-auto px-4" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  <th className="text-left py-2 pr-4 font-medium w-8" style={{ color: 'var(--text-muted)' }}>#</th>
-                  <th className="text-left py-2 pr-4 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.name')}</th>
-                  <th className="text-left py-2 pr-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.role')}</th>
-                  <th className="text-left py-2 pr-4 font-medium hidden md:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.region')}</th>
-                  <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.tasksCompleted')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {leaderboard.map((entry, idx) => (
-                  <tr key={entry.user_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td className="py-2.5 pr-4">
-                      <span
-                        className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
-                        style={
-                          idx === 0 ? { background: 'rgba(251,191,36,0.15)', color: 'var(--warning)' } :
-                          idx === 1 ? { background: 'var(--bg-overlay)', color: 'var(--text-muted)' } :
-                          idx === 2 ? { background: 'rgba(251,146,60,0.15)', color: '#FB923C' } :
-                          { color: 'var(--text-muted)' }
-                        }
-                      >
-                        {idx + 1}
-                      </span>
-                    </td>
-                    <td className="py-2.5 pr-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ background: 'var(--info-bg)', color: 'var(--info)' }}>
-                          {entry.full_name.charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-medium truncate max-w-[150px]" style={{ color: 'var(--text-primary)' }}>{entry.full_name}</div>
-                          <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{entry.employee_id}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-2.5 pr-4 hidden sm:table-cell">
-                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[entry.role] ?? entry.role}</span>
-                    </td>
-                    <td className="py-2.5 pr-4 hidden md:table-cell">
-                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>{entry.region ?? '—'}</span>
-                    </td>
-                    <td className="py-2.5 text-right">
-                      <span className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
-                        {entry.tasks_completed}
-                        <svg className="w-3.5 h-3.5" style={{ color: 'var(--success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                          <path d="M9 12l2 2 4-4" />
-                        </svg>
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
+      {/* Drill-down list */}
+      <DrillList data={data} drill={drill} scoped={scoped} lang={lang} onPatch={patch} onSetDrill={setDrill} />
 
-      {/* Learning metrics */}
-      {learning && (
-        <>
-          <SectionTitle title={<>{t('analytics.learningMetrics')}<AllTimeBadge t={t} /></>} />
-          <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <MetricBar
-                label={t('analytics.completion')}
-                value={learning.completion_rate ?? learning.avg_completion_rate ?? 0}
-                max={100}
-                suffix="%"
-              />
-              <MetricBar
-                label={t('analytics.avgScore')}
-                value={learning.average_score ?? 0}
-                max={100}
-                suffix="%"
-              />
-              <MetricValue
-                label={t('analytics.activeLearners')}
-                value={learning.active_learners ?? learning.total_enrolled ?? 0}
-              />
-              <MetricValue
-                label={t('analytics.coursesCompleted')}
-                value={learning.courses_completed ?? learning.total_completed ?? 0}
-              />
-            </div>
+      {/* Note */}
+      <div
+        className="mt-6 rounded-xl p-4 text-sm"
+        style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: '3px solid var(--color-gold-400)' }}
+      >
+        <b style={{ color: 'var(--text-primary)' }}>{t('analytics.pulseDash.noteHow')}</b>{' '}
+        <span style={{ color: 'var(--text-secondary)' }}>
+          {t('analytics.pulseDash.noteBody', { goal: PULSE_GOAL_PCT })}
+        </span>
+      </div>
 
-            {learning.time_stats && (
-              <div className="grid grid-cols-2 gap-4 mb-6 pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-                <MetricValue
-                  label={t('analytics.avgLessonTime')}
-                  value={`${learning.time_stats.avg_time_per_lesson ?? 0} ${t('analytics.min')}`}
-                />
-                <MetricValue
-                  label={t('analytics.totalHours')}
-                  value={`${learning.time_stats.total_learning_hours ?? 0} ${t('analytics.hours')}`}
-                />
-              </div>
-            )}
-
-            {byTerritory.length > 0 && (
-              <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.byTerritory')}
-                </h3>
-                <HorizontalBarChart
-                  categories={byTerritory.map((tr) => ({
-                    name: tr.territory || '—',
-                    count: tr.enrolled,
-                  }))}
-                />
-              </div>
-            )}
-
-            {/* Разбивка обучения по ролям ТП/СВ/РМ */}
-            {byRole.length > 0 && (
-              <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.ovw.byRoles')}
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {byRole.map((r) => (
-                    <div key={r.role} className="rounded-lg p-3" style={{ background: 'var(--bg-overlay)', border: '1px solid var(--border)' }}>
-                      <div className="text-sm mb-1" style={{ color: 'var(--text-muted)' }}>{ROLE_LABELS[r.role] ?? r.role}</div>
-                      <div className="flex items-baseline gap-3 text-sm">
-                        <span style={{ color: 'var(--text-primary)' }}><strong>{r.completed}</strong> / {r.enrolled}</span>
-                        <span style={{ color: 'var(--text-muted)' }}>{t('analytics.abbreviations.avg')} {r.avg_score}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {byCourse.length > 0 && (
-              <div className="pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.byCourse')}
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.courseName')}</th>
-                        <th className="text-left py-2 pl-4 font-medium hidden sm:table-cell" style={{ color: 'var(--text-muted)' }}>{t('analytics.role')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.enrolled')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.completed')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {byCourse.map((c) => (
-                        <tr key={c.course_id} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td className="py-2 truncate max-w-[200px]" style={{ color: 'var(--text-primary)' }}>{c.title}</td>
-                          <td className="py-2 pl-4 hidden sm:table-cell text-sm" style={{ color: 'var(--text-muted)' }}>{c.role ? (ROLE_LABELS[c.role] ?? c.role) : '—'}</td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.enrolled}</td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{c.completed}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-
-      {/* Product knowledge */}
-      {productStats && (
-        <>
-          <SectionTitle title={<>{t('analytics.productKnowledge')}<AllTimeBadge t={t} /></>} />
-          <div className="rounded-xl p-6 shadow-sm mb-10" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <MetricValue
-                label={t('analytics.totalProducts')}
-                value={productStats.total_products ?? 0}
-              />
-              <MetricValue
-                label={t('analytics.productsWithHpv')}
-                value={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
-              />
-              <MetricBar
-                label={t('analytics.avgTestScore')}
-                value={productStats.average_test_score ?? productStats.test_stats?.avg_score ?? 0}
-                max={100}
-                suffix="%"
-              />
-              <MetricValue
-                label={t('analytics.testsCompleted')}
-                value={productStats.tests_completed ?? productStats.test_stats?.total_attempts ?? 0}
-              />
-            </div>
-            <div className="mb-8" style={{ borderTop: '1px solid var(--border)' }} />
-            {/* Без категорий сетка 2 колонок оставляла дыру справа от бублика —
-                вторая колонка включается только когда есть чем её заполнить. */}
-            <div className={`grid grid-cols-1 gap-8 mb-8 ${brandBars.length > 0 ? 'lg:grid-cols-2' : ''}`}>
-              <div className="flex flex-col items-center">
-                <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.hpvCoverage')}
-                </h3>
-                <DonutChart
-                  total={productStats.total_products ?? 0}
-                  filled={productStats.products_with_hpv ?? productStats.products_with_tests ?? 0}
-                />
-              </div>
-              {brandBars.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-medium mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    {t('analytics.ovw.brands')}
-                  </h3>
-                  <HorizontalBarChart categories={brandBars} />
-                </div>
-              )}
-            </div>
-
-            {byBrand.length > 0 && (
-              <div className="pt-4" style={{ borderTop: '1px solid var(--border)' }}>
-                <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
-                  {t('analytics.ovw.brandKnowledge')}
-                </h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                        <th className="text-left py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.ovw.brand')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.report.products')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.attempts')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.passRate')}</th>
-                        <th className="text-right py-2 font-medium" style={{ color: 'var(--text-muted)' }}>{t('analytics.avgScore')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {byBrand.map((b) => (
-                        <tr key={b.brand} className="last:border-0" style={{ borderBottom: '1px solid var(--border)' }}>
-                          <td className="py-2 truncate max-w-[200px] font-medium" style={{ color: 'var(--text-primary)' }}>{b.brand}</td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.products}</td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.attempts}</td>
-                          <td className="py-2 text-right">
-                            <span className="font-medium" style={{
-                              color: b.pass_rate >= 80 ? 'var(--success)' :
-                                     b.pass_rate >= 50 ? 'var(--warning)' :
-                                     'var(--danger)',
-                            }}>
-                              {b.pass_rate}%
-                            </span>
-                          </td>
-                          <td className="py-2 text-right" style={{ color: 'var(--text-secondary)' }}>{b.avg_score}%</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </>
+      {/* Footer scope note */}
+      <p className="mt-4 text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+        {t('analytics.pulseDash.scopeFootnote', {
+          total: data.scope.people_total,
+          excluded: data.scope.demo_excluded,
+        })}
+      </p>
+    </div>
   );
 }
