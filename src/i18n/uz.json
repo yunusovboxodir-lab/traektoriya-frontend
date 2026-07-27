@@ -235,6 +235,7 @@
       "title": "ShelfScan AI",
       "viewAll": "Barcha tahlillar",
       "empty": "Tahlillar hali yoʻq",
+      "loadFailed": "Tahlillarni yuklab boʻlmadi",
       "startScan": "Birinchi tahlilni qilish",
       "analysis": "Javon tahlili",
       "tasksGen": "vazifa"

@@ -235,6 +235,7 @@
       "title": "ShelfScan AI",
       "viewAll": "Все анализы",
       "empty": "Анализов пока нет",
+      "loadFailed": "Не удалось загрузить анализы",
       "startScan": "Сделать первый анализ",
       "analysis": "Анализ полки",
       "tasksGen": "задач"

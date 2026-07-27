@@ -29,6 +29,7 @@ function relativeTime(dateStr: string, lang: string): string {
 export function ShelfScanHistoryWidget() {
   const [analyses, setAnalyses] = useState<ShelfAnalysis[]>([]);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
   const t = useT();
   const lang = useLangStore((s) => s.lang);
 
@@ -39,7 +40,10 @@ export function ShelfScanHistoryWidget() {
         const items = res.data?.items ?? (Array.isArray(res.data) ? res.data : []);
         setAnalyses(items.slice(0, 3));
       })
-      .catch(() => setAnalyses([]))
+      // Сбой запроса ≠ «анализов нет». Раньше .catch() ставил пустой массив,
+      // и упавшая загрузка выглядела как честная пустота — виджет молча
+      // показывал «Анализов пока нет» вместо признания ошибки.
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -80,7 +84,21 @@ export function ShelfScanHistoryWidget() {
       </div>
 
       <div className="px-5 py-4 sm:px-6">
-        {analyses.length === 0 ? (
+        {failed ? (
+          <div className="flex items-center justify-between gap-3 py-2">
+            <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              {t('dashboard.shelfScan.loadFailed')}
+            </span>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="text-sm font-semibold underline underline-offset-2"
+              style={{ color: 'var(--color-tp)' }}
+            >
+              {t('common.actions.retry')}
+            </button>
+          </div>
+        ) : analyses.length === 0 ? (
           <div className="text-center py-6">
             <div
               className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
