@@ -275,10 +275,32 @@ function ChampionshipSkeleton() {
 }
 
 /** Empty-state когда нет закрытых периодов. */
-function EmptyState({ note, lang }: { note?: string; lang: string }) {
-  const defaultNote = lang === 'uz'
-    ? "Yopiq davrlar hali yo'q. Birinchi oy yopilgandan so'ng chempionat boshlaydi."
-    : 'Нет закрытых периодов. Чемпионат стартует после закрытия первого месяца.';
+function EmptyState({
+  lang,
+  reason,
+  firstTrustedPeriod,
+}: {
+  lang: string;
+  reason?: 'no_trusted_closed_period' | 'demo_period';
+  firstTrustedPeriod?: string;
+}) {
+  // Текст собираем здесь, а не берём готовым с бэкенда: серверное пояснение
+  // всегда по-русски, и в узбекском режиме оно вытеснило бы перевод.
+  const p = firstTrustedPeriod ?? '';
+  let defaultNote: string;
+  if (reason === 'demo_period') {
+    defaultNote = lang === 'uz'
+      ? `Bu davr namoyish uchun kiritilgan maʻlumotlarni oʻz ichiga oladi va hisobga olinmaydi. Birinchi hisobli davr — ${p}.`
+      : `Этот период содержит демонстрационные данные и в зачёт не идёт. Первый зачётный период — ${p}.`;
+  } else if (reason === 'no_trusted_closed_period') {
+    defaultNote = lang === 'uz'
+      ? `Hisobli yopiq davr hali yoʻq. Chempionat ${p} davri yopilgandan soʻng boshlanadi.`
+      : `Зачётных закрытых периодов пока нет. Чемпионат стартует после закрытия периода ${p}.`;
+  } else {
+    defaultNote = lang === 'uz'
+      ? "Yopiq davrlar hali yo'q. Birinchi oy yopilgandan so'ng chempionat boshlaydi."
+      : 'Нет закрытых периодов. Чемпионат стартует после закрытия первого месяца.';
+  }
   return (
     <div
       className="glass-panel"
@@ -290,7 +312,7 @@ function EmptyState({ note, lang }: { note?: string; lang: string }) {
         <path d="M7 5h10l-2 4 2 4H7" fill="var(--text-2)" opacity="0.6" />
       </svg>
       <div style={{ fontFamily: MONO, fontSize: 14, color: 'var(--text-1)', lineHeight: 1.6 }}>
-        {note || defaultNote}
+        {defaultNote}
       </div>
     </div>
   );
@@ -468,7 +490,11 @@ export function Championship2026Page() {
               </div>
 
               {data.leaders.length === 0 ? (
-                <EmptyState note={data.note} lang={lang} />
+                <EmptyState
+                  lang={lang}
+                  reason={data.reason}
+                  firstTrustedPeriod={data.first_trusted_period}
+                />
               ) : (
                 <>
                   {/* Подиум топ-3 */}
