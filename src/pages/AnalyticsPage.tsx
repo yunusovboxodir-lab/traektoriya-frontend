@@ -50,10 +50,14 @@ export function AnalyticsPage() {
   const isAdminPlus = (ROLE_HIERARCHY[userRole] ?? 0) >= 3;
 
   // Build tabs with optional Reports tab for admin+
+  // «Эффективность» СКРЫТА 2026-07-27 (GOO-46): показывала витрину без механизма —
+  // ContentInsight/PainCluster никем не заполняются (на проде 0 записей), а таблица
+  // «тема → KPI» была статичным fallback'ом из кода, а не расчётом. Экран выглядел
+  // наполненным и создавал ложное ощущение, что эффективность измеряется.
+  // Вернуть вместе с джобами расчёта — критерии приёмки в GOO-46.
   const tabOptions: { id: AnalyticsTabId; labelKey: string }[] = [
     { id: 'overview', labelKey: 'analytics.tabOverview' },
     { id: 'lms', labelKey: 'analytics.tabLms' },
-    { id: 'effectiveness', labelKey: 'analytics.tabEffectiveness' },
     ...(isAdminPlus ? [
       { id: 'roi' as const, labelKey: 'analytics.tabRoi' },
       { id: 'reports' as const, labelKey: 'analytics.tabReports' },
