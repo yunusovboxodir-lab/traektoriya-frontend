@@ -18,7 +18,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useT, useLangStore } from '../../stores/langStore';
 import { analyticsApi } from '../../api/analytics';
-import type { LearningPulseData, LearningPulseRoleId } from '../../api/analytics';
+import type { LearningPulseData, LearningPulseRoleId, LearningPulseViewerScope } from '../../api/analytics';
 import { Breadcrumbs, type Crumb } from './pulse/Breadcrumbs';
 import { AxisBars } from './pulse/AxisBars';
 import { DrillList } from './pulse/DrillList';
@@ -29,6 +29,7 @@ import {
   PULSE_GOAL_PCT,
   pulseStatusColorVar,
   pulseStatusKey,
+  resolveViewerScope,
   ROLE_COLOR_VAR,
   ROLE_ORDER,
   roleAbbrevKey,
@@ -108,15 +109,35 @@ export function OverviewTab() {
     }));
   }, []);
 
-  const scoped = useMemo(() => (data ? scopedPeople(data, drill) : []), [data, drill]);
+  // Срез, под которым бэк отдал данные (org/region/team) — задача владельца
+  // 2026-07-28: экран открыт также СВ/РМ. Не хук, обычный derived-const — можно
+  // объявлять до ранних return'ов ниже и использовать после них.
+  const viewerScope: LearningPulseViewerScope = data ? resolveViewerScope(data) : 'org';
+
+  // СВ (viewer_scope='team') видит ровно одну свою команду — город и дилер у
+  // него единственные, показывать их как отдельный выбор не имеет смысла
+  // (шум). Подставляем их автоматически поверх raw-состояния `drill`, чтобы
+  // drill-down у СВ открывался сразу на уровне списка сотрудников команды —
+  // без лишнего кадра с карточками «1 город» → «1 дилер».
+  const effectiveDrill = useMemo<DrillState>(() => {
+    if (!data || viewerScope !== 'team') return drill;
+    if (drill.city || drill.dealer || drill.team) return drill;
+    const city = data.hierarchy.cities[0];
+    const dealer = city?.dealers[0];
+    const team = dealer?.teams[0];
+    if (!city || !dealer || !team) return drill;
+    return { ...drill, city: city.name, dealer: dealer.name, team: team.name };
+  }, [data, viewerScope, drill]);
+
+  const scoped = useMemo(() => (data ? scopedPeople(data, effectiveDrill) : []), [data, effectiveDrill]);
   const summary = useMemo(
-    () => (data ? summaryFor(data, drill) : { pulse: 0, axes: [], count: 0 }),
-    [data, drill],
+    () => (data ? summaryFor(data, effectiveDrill) : { pulse: 0, axes: [], count: 0 }),
+    [data, effectiveDrill],
   );
   const statusKey = pulseStatusKey(summary.pulse);
   const statusColor = pulseStatusColorVar(statusKey);
-  const roleColorVar = ROLE_COLOR_VAR[drill.role];
-  const roleFullLabel = t(`analytics.pulseDash.roleFull.${drill.role}`);
+  const roleColorVar = ROLE_COLOR_VAR[effectiveDrill.role];
+  const roleFullLabel = t(`analytics.pulseDash.roleFull.${effectiveDrill.role}`);
 
   if (loading) return <Skeleton />;
 
@@ -139,34 +160,40 @@ export function OverviewTab() {
     );
   }
 
-  const { eyebrow, title, subtitle } = buildHeaderInfo(t, data, drill, scoped.length, summary.count, roleFullLabel);
+  const {
+    eyebrow, title, subtitle,
+  } = buildHeaderInfo(t, data, effectiveDrill, scoped.length, summary.count, roleFullLabel, viewerScope);
 
   // -- Breadcrumbs --
-  const crumbs: Crumb[] = [
-    {
+  // СВ (viewer_scope='team') видит только свою команду — уровни «компания/город/
+  // дилер» для него не выбор, а шум (задача владельца 2026-07-28): показываем
+  // только «команда» и, если открыта, «сотрудник».
+  const crumbs: Crumb[] = [];
+  if (viewerScope !== 'team') {
+    crumbs.push({
       key: 'company',
-      label: t('analytics.pulseDash.companyName'),
+      label: viewerScope === 'region' ? t('analytics.pulseDash.myRegion') : t('analytics.pulseDash.companyName'),
       onSelect: () => patch({ city: null, dealer: null, team: null, person: null }),
-    },
-  ];
-  if (drill.city) {
-    crumbs.push({ key: 'city', label: drill.city, onSelect: () => patch({ dealer: null, team: null, person: null }) });
+    });
   }
-  if (drill.dealer) {
+  if (effectiveDrill.city && viewerScope !== 'team') {
+    crumbs.push({ key: 'city', label: effectiveDrill.city, onSelect: () => patch({ dealer: null, team: null, person: null }) });
+  }
+  if (effectiveDrill.dealer && viewerScope !== 'team') {
     crumbs.push({
       key: 'dealer',
-      label: t('analytics.pulseDash.breadcrumbDealer', { name: drill.dealer }),
+      label: t('analytics.pulseDash.breadcrumbDealer', { name: effectiveDrill.dealer }),
       onSelect: () => patch({ team: null, person: null }),
     });
   }
-  if (drill.team) {
-    crumbs.push({ key: 'team', label: drill.team, onSelect: () => patch({ person: null }) });
+  if (effectiveDrill.team) {
+    crumbs.push({ key: 'team', label: effectiveDrill.team, onSelect: () => patch({ person: null }) });
   }
-  if (drill.person) {
-    crumbs.push({ key: 'person', label: drill.person.full_name || drill.person.employee_id });
+  if (effectiveDrill.person) {
+    crumbs.push({ key: 'person', label: effectiveDrill.person.full_name || effectiveDrill.person.employee_id });
   }
 
-  const axesTitle = drill.person
+  const axesTitle = effectiveDrill.person
     ? t('analytics.pulseDash.axesTitlePerson')
     : t('analytics.pulseDash.axesTitleRole', { role: roleFullLabel, count: summary.count });
 
@@ -204,8 +231,15 @@ export function OverviewTab() {
             {axesTitle}
           </span>
           <div className="flex gap-2">
-            {ROLE_ORDER.filter((r) => !(r === 'regional_manager' && drill.city)).map((r) => {
-              const isActive = drill.role === r;
+            {ROLE_ORDER.filter((r) => {
+              if (r !== 'regional_manager') return true;
+              // РМ в переключателе — только на уровне всей компании (org):
+              // - у самого РМ (region) он там один — нет смысла листать «роли»;
+              // - у СВ (team) РМ не входит в его команду.
+              if (viewerScope !== 'org') return false;
+              return !effectiveDrill.city;
+            }).map((r) => {
+              const isActive = effectiveDrill.role === r;
               const colorVar = ROLE_COLOR_VAR[r];
               return (
                 <button
@@ -230,7 +264,7 @@ export function OverviewTab() {
       </div>
 
       {/* Drill-down list */}
-      <DrillList data={data} drill={drill} scoped={scoped} lang={lang} onPatch={patch} onSetDrill={setDrill} />
+      <DrillList data={data} drill={effectiveDrill} scoped={scoped} lang={lang} onPatch={patch} onSetDrill={setDrill} />
 
       {/* Note */}
       <div

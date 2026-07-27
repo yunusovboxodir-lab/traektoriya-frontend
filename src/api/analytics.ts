@@ -149,8 +149,18 @@ export interface LearningPulseCity {
   dealers: LearningPulseDealer[];
 }
 
+/**
+ * Срез, под которым бэк отдаёт данные (задача владельца 2026-07-28: экран
+ * «Пульс обучения» открыт также СВ/РМ, каждому — свой срез):
+ *  - 'org'    — вся компания (admin/commercial_dir/superadmin), поведение как раньше.
+ *  - 'region' — данные одного РМ (его города).
+ *  - 'team'   — данные одного СВ (его команда).
+ * Поле необязательное: старый бэк его не пришлёт — трактуем как 'org'.
+ */
+export type LearningPulseViewerScope = 'org' | 'region' | 'team';
+
 export interface LearningPulseData {
-  scope: { people_total: number; demo_excluded: number };
+  scope: { people_total: number; demo_excluded: number; viewer_scope?: LearningPulseViewerScope };
   roles: LearningPulseRoleSummary[];
   people: LearningPulsePerson[];
   hierarchy: { cities: LearningPulseCity[] };

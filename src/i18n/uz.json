@@ -861,8 +861,10 @@
     "lbEmployee": "Xodim",
     "pulseDash": {
       "companyName": "N'Medov Distribution",
+      "myRegion": "Mening hududim",
       "eyebrow": {
         "company": "Kompaniya",
+        "region": "Hudud",
         "city": "Shahar",
         "dealer": "Diler",
         "team": "Jamoa"

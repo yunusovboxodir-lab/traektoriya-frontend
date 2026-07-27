@@ -12,7 +12,13 @@ import type {
   LearningPulsePersonAxis,
   LearningPulseRoleAxis,
   LearningPulseRoleId,
+  LearningPulseViewerScope,
 } from '../../../api/analytics';
+
+/** `scope.viewer_scope` от бэка; поля нет (старый бэк) → ведём себя как 'org'. */
+export function resolveViewerScope(data: LearningPulseData): LearningPulseViewerScope {
+  return data.scope.viewer_scope ?? 'org';
+}
 
 /** Цель по каждой оси компетенций (Кодекс: 60% от максимума). */
 export const PULSE_GOAL_PCT = 60;

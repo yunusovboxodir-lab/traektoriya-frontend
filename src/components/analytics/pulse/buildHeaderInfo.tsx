@@ -4,7 +4,7 @@
  * Вынесено из OverviewTab.tsx, чтобы удержать файл в разумном размере.
  */
 import type { ReactNode } from 'react';
-import type { LearningPulseData } from '../../../api/analytics';
+import type { LearningPulseData, LearningPulseViewerScope } from '../../../api/analytics';
 import { levelDictKey, rmNameOfCity, roleAbbrevKey, type DrillState } from './helpers';
 
 type TFn = (key: string, params?: Record<string, string | number>) => string;
@@ -22,6 +22,7 @@ export function buildHeaderInfo(
   scopedCount: number,
   summaryCount: number,
   roleFullLabel: string,
+  viewerScope: LearningPulseViewerScope,
 ): HeaderInfo {
   if (drill.person) {
     const p = drill.person;
@@ -73,6 +74,18 @@ export function buildHeaderInfo(
           {rm && <> · {t('analytics.pulseDash.subtitleCityRmSuffix', { name: rm })}</>}
         </>
       ),
+    };
+  }
+
+  // Уровень «компании»: для РМ (viewer_scope='region') это не компания, а его
+  // регион — «N'Medov Distribution» ему не срез, а весь бизнес (задача владельца
+  // 2026-07-28). Для СВ (viewer_scope='team') этот уровень не встречается —
+  // effectiveDrill в OverviewTab подставляет его team ещё до первого рендера.
+  if (viewerScope === 'region') {
+    return {
+      eyebrow: t('analytics.pulseDash.eyebrow.region'),
+      title: t('analytics.pulseDash.myRegion'),
+      subtitle: t('analytics.pulseDash.subtitleCompany', { count: summaryCount, role: roleFullLabel }),
     };
   }
 

@@ -861,8 +861,10 @@
     "lbEmployee": "Сотрудник",
     "pulseDash": {
       "companyName": "N'Medov Distribution",
+      "myRegion": "Мой регион",
       "eyebrow": {
         "company": "Компания",
+        "region": "Регион",
         "city": "Город",
         "dealer": "Дилер",
         "team": "Команда"

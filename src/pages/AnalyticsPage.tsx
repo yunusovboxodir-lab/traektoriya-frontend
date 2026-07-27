@@ -55,14 +55,21 @@ export function AnalyticsPage() {
   // «тема → KPI» была статичным fallback'ом из кода, а не расчётом. Экран выглядел
   // наполненным и создавал ложное ощущение, что эффективность измеряется.
   // Вернуть вместе с джобами расчёта — критерии приёмки в GOO-46.
-  const tabOptions: { id: AnalyticsTabId; labelKey: string }[] = [
-    { id: 'overview', labelKey: 'analytics.tabOverview' },
-    { id: 'lms', labelKey: 'analytics.tabLms' },
-    ...(isAdminPlus ? [
-      { id: 'roi' as const, labelKey: 'analytics.tabRoi' },
-      { id: 'reports' as const, labelKey: 'analytics.tabReports' },
-    ] : []),
-  ];
+  //
+  // СВ/РМ (2026-07-28): страница «Аналитика» открыта им как срез «Пульс обучения»,
+  // но остальные вкладки (AI L&D, ROI, Отчёты) дёргают admin+ эндпоинты и вернут
+  // 403 — показываем им ТОЛЬКО «Обзор», чтобы не упирались в ошибки доступа.
+  const isSvOrRm = userRole === 'supervisor' || userRole === 'regional_manager';
+  const tabOptions: { id: AnalyticsTabId; labelKey: string }[] = isSvOrRm
+    ? [{ id: 'overview', labelKey: 'analytics.tabOverview' }]
+    : [
+        { id: 'overview', labelKey: 'analytics.tabOverview' },
+        { id: 'lms', labelKey: 'analytics.tabLms' },
+        ...(isAdminPlus ? [
+          { id: 'roi' as const, labelKey: 'analytics.tabRoi' },
+          { id: 'reports' as const, labelKey: 'analytics.tabReports' },
+        ] : []),
+      ];
 
   const tabFromUrl = searchParams.get('tab') as AnalyticsTabId | null;
   const [activeTab, setActiveTab] = useState<AnalyticsTabId>(
@@ -75,6 +82,12 @@ export function AnalyticsPage() {
     const urlTab = searchParams.get('tab') as AnalyticsTabId | null;
     if (urlTab && tabOptions.some((t) => t.id === urlTab)) {
       setActiveTab(urlTab);
+    } else if (urlTab) {
+      // Вкладка из URL недоступна текущей роли (напр. у СВ/РМ в закладке
+      // сохранилась старая ссылка ?tab=roi) — мягко откатываемся на «Обзор»
+      // и чистим query-параметр, без ошибок и без цикла редиректов.
+      setActiveTab('overview');
+      setSearchParams({}, { replace: true });
     }
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -320,22 +333,25 @@ export function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Tab navigation */}
-      <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-8 w-fit">
-        {tabOptions.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => handleTabChange(tab.id)}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-              activeTab === tab.id
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t(tab.labelKey)}
-          </button>
-        ))}
-      </div>
+      {/* Tab navigation — при единственной доступной вкладке (СВ/РМ) панель
+          не показываем: пустая полоска с одной активной кнопкой выглядит нелепо. */}
+      {tabOptions.length > 1 && (
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-0.5 mb-8 w-fit">
+          {tabOptions.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t(tab.labelKey)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* TAB: Overview — «Пульс обучения» (грузит данные самостоятельно) */}
       {activeTab === 'overview' && <OverviewTab />}
