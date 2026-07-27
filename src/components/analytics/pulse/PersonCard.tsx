@@ -15,7 +15,7 @@ interface PersonCardProps {
 
 export function PersonCard({ person, zoneCities, onJumpToCity }: PersonCardProps) {
   const t = useT();
-  const pulsePct = person.pulse * 100;
+  const pulsePct = person.pulse;
   const statusColor = pulseStatusColorVar(pulseStatusKey(pulsePct));
 
   return (

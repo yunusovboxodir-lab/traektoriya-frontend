@@ -115,7 +115,7 @@ export function PeopleTable({ people, onSelect }: PeopleTableProps) {
                   className="px-4 py-3 text-right font-semibold whitespace-nowrap"
                   style={{ color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}
                 >
-                  {fmt1(p.pulse * 100)}%
+                  {fmt1(p.pulse)}%
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   <span className="text-xs font-semibold" style={{ color: status.colorVar }}>

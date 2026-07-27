@@ -108,7 +108,7 @@ export function aggregateAxes(people: { axes: LearningPulsePersonAxis[] }[]): Di
         acc.set(a.name, entry);
         order.push(a.name);
       }
-      entry.vals.push(a.pct * 100);
+      entry.vals.push(a.pct);
       entry.cc += a.courses_completed;
       if (a.courses_total > entry.ct) entry.ct = a.courses_total;
       if (!entry.nameUz && a.name_uz) entry.nameUz = a.name_uz;
@@ -134,7 +134,7 @@ export function roleAxesToDisplay(axes: LearningPulseRoleAxis[]): DisplayAxis[] 
     key: a.competency_id || a.name,
     name: a.name,
     nameUz: a.name_uz,
-    pct: a.avg_pct * 100,
+    pct: a.avg_pct,
     coursesCompleted: a.courses_completed,
     coursesTotal: a.courses_total,
   }));
@@ -157,7 +157,7 @@ export interface PulseSummary {
 export function summaryFor(data: LearningPulseData, state: DrillState): PulseSummary {
   if (state.person) {
     return {
-      pulse: state.person.pulse * 100,
+      pulse: state.person.pulse,
       axes: aggregateAxes([state.person]),
       count: 1,
     };
@@ -168,7 +168,7 @@ export function summaryFor(data: LearningPulseData, state: DrillState): PulseSum
     const roleSummary = data.roles.find((r) => r.role === state.role);
     if (roleSummary) {
       return {
-        pulse: roleSummary.avg_pulse * 100,
+        pulse: roleSummary.avg_pulse,
         axes: roleAxesToDisplay(roleSummary.axes),
         count: roleSummary.count,
       };
@@ -177,7 +177,7 @@ export function summaryFor(data: LearningPulseData, state: DrillState): PulseSum
 
   const ppl = scopedPeople(data, state);
   return {
-    pulse: avgOf(ppl.map((p) => p.pulse * 100)),
+    pulse: avgOf(ppl.map((p) => p.pulse)),
     axes: aggregateAxes(ppl),
     count: ppl.length,
   };

@@ -63,7 +63,7 @@ export function DrillList({ data, drill, scoped, lang, onPatch, onSetDrill }: Dr
               key={team.name}
               title={team.name}
               subtitle={`${t('common.roles.abbreviations.sv')}: ${team.supervisor_name} · ${t('analytics.pulseDash.peopleCount', { n: teamPeople.length })}`}
-              pulse={avgOf(teamPeople.map((p) => p.pulse * 100))}
+              pulse={avgOf(teamPeople.map((p) => p.pulse))}
               axes={aggregateAxes(teamPeople)}
               lang={lang}
               onSelect={() => onPatch({ team: team.name })}
@@ -85,7 +85,7 @@ export function DrillList({ data, drill, scoped, lang, onPatch, onSetDrill }: Dr
               key={dealer.name}
               title={dealer.name}
               subtitle={`${t('analytics.pulseDash.dealersCount', { n: dealer.teams.length })} · ${t('analytics.pulseDash.peopleCount', { n: dealerPeople.length })}`}
-              pulse={avgOf(dealerPeople.map((p) => p.pulse * 100))}
+              pulse={avgOf(dealerPeople.map((p) => p.pulse))}
               axes={aggregateAxes(dealerPeople)}
               lang={lang}
               onSelect={() => onPatch({ dealer: dealer.name })}
@@ -113,7 +113,7 @@ export function DrillList({ data, drill, scoped, lang, onPatch, onSetDrill }: Dr
               key={rm.user_id}
               title={rm.full_name || rm.employee_id}
               subtitle={subtitle}
-              pulse={rm.pulse * 100}
+              pulse={rm.pulse}
               axes={aggregateAxes([rm])}
               lang={lang}
               onSelect={() => onPatch({ person: rm })}
@@ -133,7 +133,7 @@ export function DrillList({ data, drill, scoped, lang, onPatch, onSetDrill }: Dr
               key={city.name}
               title={city.name}
               subtitle={`${t('analytics.pulseDash.dealersCount', { n: city.dealers.length })} · ${t('analytics.pulseDash.peopleCount', { n: cityPeople.length })}`}
-              pulse={avgOf(cityPeople.map((p) => p.pulse * 100))}
+              pulse={avgOf(cityPeople.map((p) => p.pulse))}
               axes={aggregateAxes(cityPeople)}
               lang={lang}
               onSelect={() => onPatch({ city: city.name })}
