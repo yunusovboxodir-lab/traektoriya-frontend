@@ -219,7 +219,10 @@
       "collapse": "Свернуть",
       "outOf": "из",
       "daysFull": "дней",
-      "coursesShort": "курс"
+      "coursesShort": "курс",
+      "formulaLearning": "{pct}% обучение",
+      "formulaActivity": "{pct}% активность",
+      "formulaStreak": "{pct}% серия"
     },
     "supervisorTeam": {
       "title": "Моя команда",

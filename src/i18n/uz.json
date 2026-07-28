@@ -219,7 +219,10 @@
       "collapse": "Yigʻish",
       "outOf": "tadan",
       "daysFull": "kun",
-      "coursesShort": "kurs"
+      "coursesShort": "kurs",
+      "formulaLearning": "{pct}% oʻqish",
+      "formulaActivity": "{pct}% faollik",
+      "formulaStreak": "{pct}% ketma-ketlik"
     },
     "supervisorTeam": {
       "title": "Mening jamoam",

@@ -156,9 +156,18 @@ export function LearningRankWidget() {
     const n = v ?? def;
     return Math.round(n <= 1 ? n * 100 : n);
   };
-  const fLearning = `${toPct(fw?.learning, 0.5)}% обучение`;
-  const fActivity = `${toPct(fw?.activity, 0.3)}% активность`;
-  const fStreak = `${toPct(fw?.streak, 0.2)}% streak`;
+  // Через словарь, а не литералом: строки, собранные в переменной, ESLint-гейт
+  // i18next/no-literal-string не видит — он проверяет текст в JSX. Из-за этого
+  // подпись формулы оставалась русской в UZ-режиме при базлайне хардкодов 0.
+  // Показываем только компоненты с ненулевым весом. С 2026-07-28 рейтинг обучения
+  // считается на 100% по обучению (реестр learning_rating.weights), и строка
+  // «+ 0% активность + 0% серия» только сбивала бы с толку. Дефолты — на случай,
+  // если бэк не отдал weights; они повторяют текущий реестр.
+  const formulaParts = [
+    { pct: toPct(fw?.learning, 1), text: t('dashboard.leaderboard.formulaLearning', { pct: toPct(fw?.learning, 1) }), color: 'var(--success)' },
+    { pct: toPct(fw?.activity, 0), text: t('dashboard.leaderboard.formulaActivity', { pct: toPct(fw?.activity, 0) }), color: 'var(--warning)' },
+    { pct: toPct(fw?.streak, 0), text: t('dashboard.leaderboard.formulaStreak', { pct: toPct(fw?.streak, 0) }), color: 'var(--info)' },
+  ].filter((p) => p.pct > 0);
 
   // Разделение на пьедестал и список
   const top3 = leaderboard.slice(0, 3);
@@ -200,11 +209,12 @@ export function LearningRankWidget() {
                 Кодекс 01c §3 п.9: формула = содержимое, читают → text-sm (14px). */}
             <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
               <span className="font-medium" style={{ color: 'var(--text-primary)' }}>{t('dashboard.leaderboard.ratingFormula')}:</span>{' '}
-              <span className="font-semibold" style={{ color: 'var(--success)' }}>{fLearning}</span>
-              {' + '}
-              <span className="font-semibold" style={{ color: 'var(--warning)' }}>{fActivity}</span>
-              {' + '}
-              <span className="font-semibold" style={{ color: 'var(--info)' }}>{fStreak}</span>
+              {formulaParts.map((p, i) => (
+                <span key={p.color}>
+                  {i > 0 ? ' + ' : ''}
+                  <span className="font-semibold" style={{ color: p.color }}>{p.text}</span>
+                </span>
+              ))}
             </p>
           </div>
           <Link
@@ -270,7 +280,7 @@ export function LearningRankWidget() {
           {/* Контекст текущего выбора — было text-[11px] → 12px (text-xs) */}
           <div className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>
             {data.formula?.period_days && (
-              <>{t('dashboard.leaderboard.lastNDays')} <strong style={{ color: 'var(--text-secondary)' }}>{data.formula.period_days}</strong> {t('dashboard.leaderboard.daysFull')}</>
+              <>{t('dashboard.leaderboard.lastNDays', { days: data.formula.period_days })}</>
             )}
           </div>
         </div>
