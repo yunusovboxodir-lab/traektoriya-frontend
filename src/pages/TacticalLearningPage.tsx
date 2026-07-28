@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useTenantStore } from '../stores/tenantStore';
 import { useLangStore } from '../stores/langStore';
+import { useDivisionStore } from '../stores/divisionStore';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
 import { HeroPanel } from '../components/tactical/HeroPanel';
@@ -69,7 +70,9 @@ export function TacticalLearningPage() {
 
   // Для admin/superadmin/КД — селектор ролей. Для обычных юзеров — их собственная роль.
   const userRole = user?.role || 'sales_rep';
-  const showRoleSelector = !SELF_LEARNING_ROLES.has(userRole);
+  const division = useDivisionStore((s) => s.division);
+  const isProduction = division === 'production';
+  const showRoleSelector = !SELF_LEARNING_ROLES.has(userRole) && !isProduction;
   const [viewAsRole, setViewAsRole] = useState<string>(
     showRoleSelector ? 'sales_rep' : userRole,
   );
@@ -226,7 +229,20 @@ export function TacticalLearningPage() {
               </div>
             ) : nodes.length === 0 ? (
               <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
-                <div>{lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ'}</div>
+                <div>
+                  {isProduction
+                    ? (lang === 'uz' ? "ISHLAB CHIQARISH UCHUN KURSLAR HALI YO'Q" : 'КУРСОВ ДЛЯ ПРОИЗВОДСТВА ПОКА НЕТ')
+                    : (lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ')}
+                </div>
+                {/* Пустая карта цеха — это верно, а не ошибка: обучение продаж
+                    на сторону производства не показывается. */}
+                {isProduction && (
+                  <div style={{ marginTop: 16, fontSize: 14, letterSpacing: '0.05em', textTransform: 'none', color: 'var(--text-muted)' }}>
+                    {lang === 'uz'
+                      ? 'Sexning kompetensiyalari va matritsasi tayyor — kurslar keyingi bosqichda.'
+                      : 'Компетенции и матрица цеха уже заведены — курсы появятся на следующем шаге.'}
+                  </div>
+                )}
                 {/* 13 → 14px; opacity с текста убран — иерархия токеном text-muted */}
                 {showRoleSelector && (
                   <div style={{ marginTop: 16, fontSize: 14, letterSpacing: '0.05em', textTransform: 'none', color: 'var(--text-muted)' }}>

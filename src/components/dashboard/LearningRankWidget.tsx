@@ -17,6 +17,7 @@ import { learningApi } from '../../api/learning';
 import type { LeaderboardResponse, LeaderboardEntry, LeaderboardPeriod, LeaderboardRole } from '../../api/learning';
 import { DEMO_EMPLOYEE_ID } from '../../api/demoData';
 import { useAuthStore } from '../../stores/authStore';
+import { useDivisionStore } from '../../stores/divisionStore';
 import { useT } from '../../stores/langStore';
 import { useDashboardFilters } from '../../stores/dashboardFiltersStore';
 
@@ -58,6 +59,7 @@ export function LearningRankWidget() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
   const isAdmin = !!user?.role && ADMIN_ROLES.includes(user.role);
+  const division = useDivisionStore((s) => s.division);
 
   const PERIOD_OPTIONS: Array<{ value: LeaderboardPeriod; label: string; short: string }> = [
     { value: 'month',     label: t('analytics.periodMonth'),     short: t('dashboard.leaderboard.days30') },
@@ -66,11 +68,19 @@ export function LearningRankWidget() {
     { value: 'year',      label: t('dashboard.leaderboard.year'), short: t('dashboard.leaderboard.days365') },
   ];
 
-  const ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
+  // Ступени рейтинга — по стороне платформы. На производстве не должно быть
+  // ни РМ, ни СВ, ни ТП: у цеха свои роли, и рейтинги сторон не смешиваются.
+  const SALES_ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
     { value: 'regional_manager', label: t('common.roles.abbreviations.rm'),  icon: '👔' },
     { value: 'supervisor',       label: t('common.roles.abbreviations.sv'),  icon: '🤝' },
     { value: 'sales_rep',        label: t('common.roles.abbreviations.tp'),  icon: '🛒' },
   ];
+  const PRODUCTION_ROLE_OPTIONS: Array<{ value: LeaderboardRole; label: string; icon: string }> = [
+    { value: 'shop_head' as LeaderboardRole, label: t('roles.shop_head'),   icon: '🏭' },
+    { value: 'foreman' as LeaderboardRole,   label: t('roles.foreman'),     icon: '🧰' },
+    { value: 'operator' as LeaderboardRole,  label: t('roles.operator'),    icon: '⚙️' },
+  ];
+  const ROLE_OPTIONS = division === 'production' ? PRODUCTION_ROLE_OPTIONS : SALES_ROLE_OPTIONS;
 
   // Shared filters (синхронизировано с Activity и Pulse)
   const role = useDashboardFilters((s) => s.role);
@@ -82,11 +92,16 @@ export function LearningRankWidget() {
   useEffect(() => {
     if (!isAdmin && user?.role) {
       const userRole = user.role as LeaderboardRole;
-      if (['regional_manager', 'supervisor', 'sales_rep'].includes(userRole)) {
+      if (ROLE_OPTIONS.some((o) => o.value === userRole)) {
         if (role !== userRole) setRole(userRole);
       }
     }
-  }, [isAdmin, user?.role]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Смена стороны: выбранная ступень другой стороны недопустима —
+    // сбрасываем на первую ступень текущей.
+    if (isAdmin && !ROLE_OPTIONS.some((o) => o.value === role)) {
+      setRole(ROLE_OPTIONS[0].value);
+    }
+  }, [isAdmin, user?.role, division]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setLoading(true);
