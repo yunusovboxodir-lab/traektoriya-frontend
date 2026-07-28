@@ -60,7 +60,13 @@ export const useDivisionStore = create<DivisionState>((set, get) => ({
       (d): d is Division => d === 'sales' || d === 'production',
     );
     const own: Division = userDivision === 'production' ? 'production' : 'sales';
-    const available = sides.length ? sides : [own];
+    // Порядок фиксированный: Продажи слева, Производство справа. Порядок из
+    // visible_divisions алфавитный, и Производство вставало первым — читается
+    // как «главная сторона», хотя стороны равноправны.
+    const ORDER: Division[] = ['sales', 'production'];
+    const available = (sides.length ? sides : [own]).slice().sort(
+      (a, b) => ORDER.indexOf(a) - ORDER.indexOf(b),
+    );
     const canSwitch = available.length > 1;
 
     const stored = readStored();
