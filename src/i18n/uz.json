@@ -50,7 +50,14 @@
     "supervisor": "Supervayzer",
     "sales_rep": "Savdo vakili",
     "manager": "Menejer",
-    "user": "Xodim"
+    "user": "Xodim",
+    "ceo": "Bosh direktor",
+    "hr_dir": "HR direktor",
+    "production_dir": "Ishlab chiqarish direktori",
+    "shop_head": "Sex boshlig'i",
+    "technologist": "Texnolog",
+    "foreman": "Brigadir",
+    "operator": "Liniya operatori"
   },
   "login": {
     "title": "TRAEKTORIYA",
@@ -2702,5 +2709,10 @@
   },
   "championship": {
     "percentile": "{value}‑chi persentil"
+  },
+  "division": {
+    "sales": "Savdo",
+    "production": "Ishlab chiqarish",
+    "common": "Umumiy"
   }
 }

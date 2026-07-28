@@ -50,7 +50,14 @@
     "supervisor": "Супервайзер",
     "sales_rep": "Продавец",
     "manager": "Менеджер",
-    "user": "Сотрудник"
+    "user": "Сотрудник",
+    "ceo": "Ген. директор",
+    "hr_dir": "HR-директор",
+    "production_dir": "Директор производства",
+    "shop_head": "Начальник цеха",
+    "technologist": "Технолог",
+    "foreman": "Бригадир",
+    "operator": "Оператор линии"
   },
   "login": {
     "title": "TRAEKTORIYA",
@@ -2702,5 +2709,10 @@
   },
   "championship": {
     "percentile": "{value}‑й перцентиль"
+  },
+  "division": {
+    "sales": "Продажи",
+    "production": "Производство",
+    "common": "Общее"
   }
 }

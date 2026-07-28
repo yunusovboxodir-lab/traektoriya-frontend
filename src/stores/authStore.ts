@@ -1,6 +1,7 @@
 ﻿import { create } from 'zustand';
 import { authApi } from '../api/client';
 import { useScopeStore } from './scopeStore';
+import { useDivisionStore } from './divisionStore';
 
 interface User {
   id: string;
@@ -11,6 +12,10 @@ interface User {
   is_active: boolean;
   last_login?: string;
   team_id?: string;
+  /** Сторона платформы: sales | production. */
+  division?: string;
+  /** Стороны, доступные пользователю: обе — только у ролей над доменами. */
+  visible_divisions?: string[];
 }
 
 interface AuthState {
@@ -74,6 +79,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Load role scopes + power tier (для прогрессивного раскрытия) after login
       useScopeStore.getState().fetchMyScopes();
       useScopeStore.getState().fetchUserTier(user?.role);
+      // Сторона платформы (Продажи / Производство): у обычных ролей — своя,
+      // у ролей над доменами — последняя выбранная.
+      useDivisionStore.getState().syncFromUser(user?.division, user?.visible_divisions);
     } catch (error: any) {
       const message = error.response?.data?.detail || 'Login failed';
       set({
@@ -103,6 +111,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         error: null,
       });
       useScopeStore.getState().reset();
+      useDivisionStore.getState().reset();
     }
   },
 
@@ -115,6 +124,9 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ user: response.data });
       // Тир Мощи для прогрессивного раскрытия (роль из /me)
       useScopeStore.getState().fetchUserTier(response.data?.role);
+      useDivisionStore
+        .getState()
+        .syncFromUser(response.data?.division, response.data?.visible_divisions);
       // Авто-выбор языка при восстановлении сессии
       const { applyUserLang } = await import('./langStore');
       applyUserLang((response.data as { telegram_lang?: string | null }).telegram_lang);

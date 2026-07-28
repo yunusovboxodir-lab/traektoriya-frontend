@@ -23,6 +23,7 @@ import {
 } from '../../config/navigation';
 import type { NavDestination } from '../../config/navigation';
 import { PowerBadge } from './PowerBadge';
+import { DivisionSwitcher } from './DivisionSwitcher';
 
 // Навигация (иконки/пути/гейтинг разделов) вынесена в единый реестр
 // src/config/navigation.ts — один источник для десктоп-дропдауна, нижних табов
@@ -187,6 +188,10 @@ export function StatusBar() {
 
       {/* «Мощь игрока» — компактный бейдж между логотипом и языком, всегда виден (PO 2026-06-25) */}
       {user && <PowerBadge />}
+
+      {/* Сторона платформы (Продажи / Производство) — только у ролей над
+          доменами; остальные её не видят, у них сторона одна. */}
+      <DivisionSwitcher />
 
       {/* СПРАВА: переключатель темы + языка */}
       <button

@@ -75,12 +75,22 @@ export const NAV_REGISTRY: NavDestination[] = [
 
 /** Иерархия ролей (для isAdmin/isSuperOrAdmin). */
 export const ROLE_RANK: Record<string, number> = {
+  // над сторонами платформы
   superadmin: 5,
+  ceo: 5,
+  hr_dir: 3,
+  // продажи
   commercial_dir: 4,
   admin: 3,
   regional_manager: 2,
   supervisor: 2,
   sales_rep: 1,
+  // производство — ранг задаёт уровень полномочий, сторону задаёт division
+  production_dir: 4,
+  shop_head: 2,
+  technologist: 2,
+  foreman: 2,
+  operator: 1,
 };
 
 /** rank >= 3 (admin/commercial_dir/superadmin) — видит админ-блок. */
@@ -89,7 +99,7 @@ export const isAdminRole = (role?: string | null): boolean =>
 
 /** Строго superadmin/admin — для superAdminOnly-разделов. */
 export const isSuperOrAdminRole = (role?: string | null): boolean =>
-  role === 'superadmin' || role === 'admin';
+  role === 'superadmin' || role === 'admin' || role === 'ceo';
 
 export interface NavVisibilityCtx {
   isPageAllowed: (pageKey: string) => boolean;

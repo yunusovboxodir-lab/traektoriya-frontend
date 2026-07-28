@@ -1,5 +1,6 @@
 import axios, { AxiosError, type AxiosRequestConfig } from 'axios';
 import { isDemoSession, getDemoResponse } from './demoData';
+import { getActiveDivision } from '../stores/divisionStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.traektoriya.space';
 
@@ -23,6 +24,14 @@ api.interceptors.request.use((config) => {
   // multipart/form-data + boundary.
   if (config.data instanceof FormData) {
     delete config.headers['Content-Type'];
+  }
+
+  // Активная сторона платформы (Продажи / Производство) уходит в каждый
+  // запрос. Бэкенд считает по ней все агрегаты, поэтому цифры двух сторон
+  // не смешиваются даже у того, кто видит обе. Явно переданный в запросе
+  // division имеет приоритет — им пользуются точечные вызовы.
+  if (!config.params || (config.params as Record<string, unknown>).division === undefined) {
+    config.params = { ...(config.params || {}), division: getActiveDivision() };
   }
 
   // ДЕМО-РЕЖИМ (только аккаунт seller1): подменяем ответы части эндпоинтов
