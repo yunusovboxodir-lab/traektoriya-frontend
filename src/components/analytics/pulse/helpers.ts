@@ -23,23 +23,64 @@ export function resolveViewerScope(data: LearningPulseData): LearningPulseViewer
 /** Цель по каждой оси компетенций (Кодекс: 60% от максимума). */
 export const PULSE_GOAL_PCT = 60;
 
-/** Порядок ролей в переключателе — фиксированный (ТП · СВ · РМ). */
+/** Порядок ролей продаж — запасной, когда бэк не прислал `roles[]`. */
 export const ROLE_ORDER: LearningPulseRoleId[] = ['sales_rep', 'supervisor', 'regional_manager'];
 
+/** Роли для переключателя — из ответа бэка, а не из константы.
+ *
+ *  До 2026-07-29 здесь стоял жёсткий список ТП/СВ/РМ, и на стороне
+ *  производства экран предлагал переключатель торговых ролей с осями
+ *  «Техника визита» и «DSPM». Набор ролей знает бэк: он строит радары по
+ *  своей стороне (pulse_roles_for) и присылает их в том порядке, в каком
+ *  их надо показывать. */
+export function roleOrderFrom(data: LearningPulseData): LearningPulseRoleId[] {
+  const fromApi = (data.roles ?? []).map((r) => r.role);
+  return fromApi.length ? fromApi : ROLE_ORDER;
+}
+
+/** Подписи ролей из ответа (`role_ru`): «ТП» у продаж, «Бригадир» у цеха. */
+export function roleLabelsFrom(data: LearningPulseData): Record<string, string> {
+  return Object.fromEntries((data.roles ?? []).map((r) => [r.role, r.role_ru]));
+}
+
 /** Цвет активной роли — R4: ТП violet, СВ teal, РМ indigo (gold только бренд/CTA). */
-export const ROLE_COLOR_VAR: Record<LearningPulseRoleId, string> = {
+export const ROLE_COLOR_VAR: Record<string, string> = {
   sales_rep: 'var(--color-tp)',
   supervisor: 'var(--color-sv)',
   // index.css: --color-rm унаследован от золота (устаревшее пре-R4 значение).
   // Индиго для РМ живёт в tokens.css (R4, 2026-05-16) — единственный источник.
   regional_manager: 'var(--color-role-manager)',
+  // Производство: рабочие места — violet, руководство смены — teal/indigo.
+  operator: 'var(--color-tp)',
+  mechanic: 'var(--color-tp)',
+  foreman: 'var(--color-sv)',
+  technologist: 'var(--color-sv)',
+  shop_head: 'var(--color-role-manager)',
 };
 
-/** Короткий ключ роли для `common.roles.abbreviations.*` (ТП/СВ/РМ). */
-export function roleAbbrevKey(role: LearningPulseRoleId): 'tp' | 'sv' | 'rm' {
-  if (role === 'sales_rep') return 'tp';
-  if (role === 'supervisor') return 'sv';
-  return 'rm';
+/** Цвет роли с запасным вариантом — роль может прийти новой. */
+export function roleColorOf(role: string): string {
+  return ROLE_COLOR_VAR[role] ?? 'var(--color-role-manager)';
+}
+
+/** Ключ подписи роли для `common.roles.abbreviations.*`.
+ *
+ *  У продаж это аббревиатуры (ТП/СВ/РМ), у производства — короткие названия
+ *  должностей: аббревиатур в цехе нет. Раньше функция всё, что не ТП и не СВ,
+ *  возвращала как 'rm' — и оператор линии подписывался «РМ». */
+const ROLE_LABEL_KEY: Record<string, string> = {
+  sales_rep: 'tp',
+  supervisor: 'sv',
+  regional_manager: 'rm',
+  operator: 'operator',
+  mechanic: 'mechanic',
+  foreman: 'foreman',
+  technologist: 'technologist',
+  shop_head: 'shopHead',
+};
+
+export function roleAbbrevKey(role: LearningPulseRoleId | string): string {
+  return ROLE_LABEL_KEY[role] ?? role;
 }
 
 // ---------------------------------------------------------------------------

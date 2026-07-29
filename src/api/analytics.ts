@@ -82,7 +82,12 @@ export interface LearningRoiData {
 // Контракт: GET /api/v1/analytics/learning-pulse?exclude_demo=true
 // ---------------------------------------------------------------------------
 
-export type LearningPulseRoleId = 'sales_rep' | 'supervisor' | 'regional_manager';
+/** Роли Пульса обеих сторон: продажи и производство.
+ *  Набор для конкретного экрана приходит с бэка в `roles[]` — жёстко
+ *  перечислять его на фронте нельзя, иначе цех видит переключатель ТП/СВ/РМ. */
+export type LearningPulseRoleId =
+  | 'sales_rep' | 'supervisor' | 'regional_manager'
+  | 'operator' | 'mechanic' | 'foreman' | 'technologist' | 'shop_head';
 
 /** Ось компетенции, агрегированная бэком по всей роли (без разреза по городу/дилеру/команде). */
 export interface LearningPulseRoleAxis {

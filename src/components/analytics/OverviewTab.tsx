@@ -30,9 +30,9 @@ import {
   pulseStatusColorVar,
   pulseStatusKey,
   resolveViewerScope,
-  ROLE_COLOR_VAR,
-  ROLE_ORDER,
-  roleAbbrevKey,
+  roleColorOf,
+  roleLabelsFrom,
+  roleOrderFrom,
   scopedPeople,
   summaryFor,
   type DrillState,
@@ -120,13 +120,20 @@ export function OverviewTab() {
   // drill-down у СВ открывался сразу на уровне списка сотрудников команды —
   // без лишнего кадра с карточками «1 город» → «1 дилер».
   const effectiveDrill = useMemo<DrillState>(() => {
-    if (!data || viewerScope !== 'team') return drill;
-    if (drill.city || drill.dealer || drill.team) return drill;
+    if (!data) return drill;
+    // Переключение стороны меняет набор ролей: выбранный ранее «ТП» на
+    // производстве не существует, и экран показывал бы пустой радар с
+    // подписью торговой роли. Держимся первой роли своей стороны.
+    const roles = roleOrderFrom(data);
+    const base: DrillState =
+      roles.length && !roles.includes(drill.role) ? { ...drill, role: roles[0] } : drill;
+    if (viewerScope !== 'team') return base;
+    if (base.city || base.dealer || base.team) return base;
     const city = data.hierarchy.cities[0];
     const dealer = city?.dealers[0];
     const team = dealer?.teams[0];
-    if (!city || !dealer || !team) return drill;
-    return { ...drill, city: city.name, dealer: dealer.name, team: team.name };
+    if (!city || !dealer || !team) return base;
+    return { ...base, city: city.name, dealer: dealer.name, team: team.name };
   }, [data, viewerScope, drill]);
 
   const scoped = useMemo(() => (data ? scopedPeople(data, effectiveDrill) : []), [data, effectiveDrill]);
@@ -136,7 +143,11 @@ export function OverviewTab() {
   );
   const statusKey = pulseStatusKey(summary.pulse);
   const statusColor = pulseStatusColorVar(statusKey);
-  const roleColorVar = ROLE_COLOR_VAR[effectiveDrill.role];
+  const roleColorVar = roleColorOf(effectiveDrill.role);
+  // Роли и подписи — из ответа бэка: у продаж ТП/СВ/РМ, у цеха
+  // Оператор/Бригадир/Начальник цеха.
+  const roleOrder = data ? roleOrderFrom(data) : [];
+  const roleLabels = data ? roleLabelsFrom(data) : {};
   const roleFullLabel = t(`analytics.pulseDash.roleFull.${effectiveDrill.role}`);
 
   if (loading) return <Skeleton />;
@@ -231,7 +242,7 @@ export function OverviewTab() {
             {axesTitle}
           </span>
           <div className="flex gap-2">
-            {ROLE_ORDER.filter((r) => {
+            {roleOrder.filter((r) => {
               if (r !== 'regional_manager') return true;
               // РМ в переключателе — только на уровне всей компании (org):
               // - у самого РМ (region) он там один — нет смысла листать «роли»;
@@ -240,7 +251,7 @@ export function OverviewTab() {
               return !effectiveDrill.city;
             }).map((r) => {
               const isActive = effectiveDrill.role === r;
-              const colorVar = ROLE_COLOR_VAR[r];
+              const colorVar = roleColorOf(r);
               return (
                 <button
                   key={r}
@@ -254,7 +265,7 @@ export function OverviewTab() {
                     color: isActive ? colorVar : 'var(--text-secondary)',
                   }}
                 >
-                  {t(`common.roles.abbreviations.${roleAbbrevKey(r)}`)}
+                  {roleLabels[r] ?? r}
                 </button>
               );
             })}

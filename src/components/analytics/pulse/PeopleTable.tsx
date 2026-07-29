@@ -2,6 +2,7 @@
  * PeopleTable — таблица сотрудников выбранной команды (последний уровень
  * drill-down перед карточкой одного человека).
  */
+import { roleAbbrevKey as roleAbbrevKeyOf } from './helpers';
 import { useT } from '../../../stores/langStore';
 import type { LearningPulsePerson } from '../../../api/analytics';
 import { activityStatusOf, fmt1 } from './helpers';
@@ -55,8 +56,10 @@ export function PeopleTable({ people, onSelect }: PeopleTableProps) {
         <tbody>
           {sorted.map((p) => {
             const status = activityStatusOf(p);
-            const roleAbbrevKey =
-              p.role === 'sales_rep' ? 'tp' : p.role === 'supervisor' ? 'sv' : 'rm';
+            // Подпись роли — общая для обеих сторон: у продаж аббревиатура,
+            // у цеха короткое название должности (раньше всё, кроме ТП и СВ,
+            // подписывалось «РМ», включая операторов).
+            const roleKey = roleAbbrevKeyOf(p.role);
             return (
               <tr
                 key={p.user_id}
@@ -91,7 +94,7 @@ export function PeopleTable({ people, onSelect }: PeopleTableProps) {
                   </div>
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
-                  {t(`common.roles.abbreviations.${roleAbbrevKey}`)} · {p.city}
+                  {t(`common.roles.abbreviations.${roleKey}`)} · {p.city}
                 </td>
                 <td
                   className="px-4 py-3 text-right whitespace-nowrap"

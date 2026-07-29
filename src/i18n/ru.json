@@ -1601,7 +1601,12 @@
       "abbreviations": {
         "sv": "СВ",
         "rm": "РМ",
-        "tp": "ТП"
+        "tp": "ТП",
+        "operator": "Оператор",
+        "mechanic": "Механик",
+        "foreman": "Бригадир",
+        "technologist": "Технолог",
+        "shopHead": "Нач. цеха"
       }
     },
     "units": {

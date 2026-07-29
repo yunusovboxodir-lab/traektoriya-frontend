@@ -1601,7 +1601,12 @@
       "abbreviations": {
         "sv": "SV",
         "rm": "RM",
-        "tp": "TP"
+        "tp": "TP",
+        "operator": "Operator",
+        "mechanic": "Mexanik",
+        "foreman": "Brigadir",
+        "technologist": "Texnolog",
+        "shopHead": "Sex boshlig'i"
       }
     },
     "units": {
