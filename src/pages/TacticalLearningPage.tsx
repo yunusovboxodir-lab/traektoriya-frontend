@@ -43,6 +43,26 @@ const ROLES_WITH_COURSES = [
   { value: 'regional_manager', label_ru: 'РМ — Региональный менеджер', label_uz: 'RM — Mintaqaviy menejer' },
 ];
 
+// Модули карты на стороне производства. Их два, а не пять: оператор и механик
+// учатся по одной цепочке зон, бригадир/технолог/начальник цеха — по управлению
+// сменой. Значения совпадают с MODULE_DEFS и PRODUCTION_MAP_ROLES бэкенда —
+// карта принимает только их, роль пользователя (operator, foreman и т.д.)
+// сюда передавать нельзя, ответ будет пустым.
+const PRODUCTION_ROLES_WITH_COURSES = [
+  { value: 'production_worker', label_ru: 'Сотрудники производственной линии', label_uz: 'Ishlab chiqarish liniyasi xodimlari' },
+  { value: 'production_manager', label_ru: 'Руководство производственной линии', label_uz: 'Ishlab chiqarish liniyasi rahbariyati' },
+];
+
+// Какой модуль карты открыть человеку цеха по его должности.
+const PRODUCTION_ROLE_TO_MODULE: Record<string, string> = {
+  operator: 'production_worker',
+  mechanic: 'production_worker',
+  foreman: 'production_manager',
+  technologist: 'production_manager',
+  shop_head: 'production_manager',
+  production_dir: 'production_manager',
+};
+
 // Роли, у которых СВОЯ карта обучения (берётся напрямую user.role).
 // Для остальных (admin/superadmin/trainer/commercial_dir/dealer и т.д.) — нет своих курсов,
 // поэтому показываем селектор ролей и дефолтим на 'sales_rep'.
@@ -72,10 +92,26 @@ export function TacticalLearningPage() {
   const userRole = user?.role || 'sales_rep';
   const division = useDivisionStore((s) => s.division);
   const isProduction = division === 'production';
-  const showRoleSelector = !SELF_LEARNING_ROLES.has(userRole) && !isProduction;
-  const [viewAsRole, setViewAsRole] = useState<string>(
-    showRoleSelector ? 'sales_rep' : userRole,
-  );
+  // Модуль карты по стороне: на производстве роль пользователя (operator,
+  // foreman…) модулем не является — её надо перевести в production_worker /
+  // production_manager, иначе бэкенд вернёт пустую карту.
+  const defaultModule = isProduction
+    ? (PRODUCTION_ROLE_TO_MODULE[userRole] || 'production_worker')
+    : (SELF_LEARNING_ROLES.has(userRole) ? userRole : 'sales_rep');
+  // Селектор нужен тем, у кого своей карты нет. На производстве это админ и
+  // прочие кросс-роли: у оператора и бригадира модуль определяется должностью,
+  // и переключатель им только мешает.
+  const showRoleSelector = isProduction
+    ? !PRODUCTION_ROLE_TO_MODULE[userRole]
+    : !SELF_LEARNING_ROLES.has(userRole);
+  const roleOptions = isProduction ? PRODUCTION_ROLES_WITH_COURSES : ROLES_WITH_COURSES;
+  const [viewAsRole, setViewAsRole] = useState<string>(defaultModule);
+
+  // Смена стороны в шапке меняет и набор модулей: продажный target_role на
+  // производстве не существует и наоборот.
+  useEffect(() => {
+    setViewAsRole(defaultModule);
+  }, [defaultModule]);
 
   // Реальные данные из learning API
   const [nodes, setNodes] = useState<MapNode[]>([]);
@@ -150,7 +186,7 @@ export function TacticalLearningPage() {
         onOpenCourse={openCourse}
         roleSelector={
           showRoleSelector ? (
-            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
+            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} options={roleOptions} />
           ) : null
         }
       />
@@ -166,7 +202,7 @@ export function TacticalLearningPage() {
         <span className="tactical-tag" />
         {showRoleSelector && (
           <div style={{ marginLeft: 16 }}>
-            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} />
+            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} options={roleOptions} />
           </div>
         )}
         {HEADER_LINKS.filter((l) => l.path !== '/learning/hall-of-fame' || isRoot).map((l) => (
@@ -230,19 +266,12 @@ export function TacticalLearningPage() {
             ) : nodes.length === 0 ? (
               <div style={{ padding: 60, textAlign: 'center', color: 'var(--text-2)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: '0.18em' }}>
                 <div>
-                  {isProduction
-                    ? (lang === 'uz' ? "ISHLAB CHIQARISH UCHUN KURSLAR HALI YO'Q" : 'КУРСОВ ДЛЯ ПРОИЗВОДСТВА ПОКА НЕТ')
-                    : (lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ')}
+                  {lang === 'uz' ? 'KURSLAR TOPILMADI' : 'КУРСЫ НЕ НАЙДЕНЫ'}
                 </div>
-                {/* Пустая карта цеха — это верно, а не ошибка: обучение продаж
-                    на сторону производства не показывается. */}
-                {isProduction && (
-                  <div style={{ marginTop: 16, fontSize: 14, letterSpacing: '0.05em', textTransform: 'none', color: 'var(--text-muted)' }}>
-                    {lang === 'uz'
-                      ? 'Sexning kompetensiyalari va matritsasi tayyor — kurslar keyingi bosqichda.'
-                      : 'Компетенции и матрица цеха уже заведены — курсы появятся на следующем шаге.'}
-                  </div>
-                )}
+                {/* Заглушка «курсы появятся на следующем шаге» убрана 2026-07-29:
+                    у цеха свои секции уже есть. Пустой остаётся только карта
+                    модуля, в котором пока нет курсов, — об этом говорит общий
+                    текст выше и подсказка про селектор ниже. */}
                 {/* 13 → 14px; opacity с текста убран — иерархия токеном text-muted */}
                 {showRoleSelector && (
                   <div style={{ marginTop: 16, fontSize: 14, letterSpacing: '0.05em', textTransform: 'none', color: 'var(--text-muted)' }}>
@@ -405,10 +434,13 @@ function RoleSelector({
   value,
   onChange,
   lang,
+  options = ROLES_WITH_COURSES,
 }: {
   value: string;
   onChange: (v: string) => void;
   lang: 'ru' | 'uz';
+  // Набор модулей зависит от стороны: продажи или производство
+  options?: { value: string; label_ru: string; label_uz: string }[];
 }) {
   return (
     <label
@@ -443,7 +475,7 @@ function RoleSelector({
           cursor: 'pointer',
         }}
       >
-        {ROLES_WITH_COURSES.map((r) => (
+        {options.map((r) => (
           <option key={r.value} value={r.value} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
             {lang === 'uz' ? r.label_uz : r.label_ru}
           </option>
