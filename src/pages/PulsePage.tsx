@@ -126,10 +126,12 @@ export function PulsePage() {
   const [courses, setCourses] = useState<PulseCourse[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(false);
 
-  // Admin: выбор роли + сотрудника
+  // Admin: выбор роли + сотрудника. Дефолт — sales_rep: ТП есть в любой
+  // организации, а regional_manager у клиентов без слоя РМ (Deya) пуст,
+  // и страница выглядела бы «не настроенной»
   const isAdmin = ADMIN_ROLES.includes(user?.role || '');
   const [selectedRole, setSelectedRole] = useState<string>(
-    isAdmin ? 'regional_manager' : (user?.role || 'sales_rep'),
+    isAdmin ? 'sales_rep' : (user?.role || 'sales_rep'),
   );
   const [teamUsers, setTeamUsers] = useState<Array<{ id: string; full_name: string; employee_id: string }>>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
