@@ -44,6 +44,9 @@ export interface SectionMap {
   title: BilingualText;
   icon?: string | null;
   color?: string | null;
+  // Секции второго уровня (открываются после 100% базовой карты) помечены
+  // category === 'level2'. Обычные секции — null/undefined.
+  category?: string | null;
   level_range: LevelRange;
   is_unlocked: boolean;
   is_village: boolean;

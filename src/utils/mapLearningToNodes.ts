@@ -135,6 +135,10 @@ interface MapData {
   totalCourses: number;
   doneCourses: number;
   loading?: boolean;
+  // Гейт «уровня 2»: базовая карта = все секции с category !== 'level2'.
+  baseCompleted: boolean;   // все базовые секции пройдены на 100%
+  hasLevel2: boolean;       // в карте вообще есть секции уровня 2
+  level2Started: boolean;   // среди курсов уровня 2 есть хотя бы один пройденный
 }
 
 /**
@@ -146,11 +150,27 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
   const mapRes = await learningApi.getMap(role || 'sales_rep');
   const map: LearningMapResponse = mapRes.data;
 
+  // 1а. Гейт уровня 2: базовые секции (category !== 'level2') должны быть
+  // пройдены на 100%, прежде чем секции уровня 2 вообще попадут на карту.
+  const baseSections = map.sections.filter((s) => s.category !== 'level2');
+  const level2Sections = map.sections.filter((s) => s.category === 'level2');
+  const hasLevel2 = level2Sections.length > 0;
+  const baseCompleted = baseSections.length > 0
+    && baseSections.every((s) => (s.progress?.percentage ?? 0) >= 100);
+  const level2SectionIds = new Set(level2Sections.map((s) => s.section_id));
+
+  // Пока база не пройдена — секции уровня 2 не участвуют в сборке карты вовсе
+  // (их курсы не попадают ни в nodes, ни в totalCourses).
+  const visibleSections = baseCompleted ? map.sections : baseSections;
+
   // 2. Берём только секции с total > 0 (где есть курсы)
-  const sectionsWithCourses = map.sections.filter((s) => (s.progress?.total ?? 0) > 0);
+  const sectionsWithCourses = visibleSections.filter((s) => (s.progress?.total ?? 0) > 0);
 
   if (sectionsWithCourses.length === 0) {
-    return { nodes: [], zones: LEARNING_ZONES, edges: [], totalCourses: 0, doneCourses: 0 };
+    return {
+      nodes: [], zones: LEARNING_ZONES, edges: [], totalCourses: 0, doneCourses: 0,
+      baseCompleted, hasLevel2, level2Started: false,
+    };
   }
 
   // 3. Параллельно загружаем курсы каждой секции
@@ -238,11 +258,20 @@ export async function loadLearningMapData(role?: string, lang: 'ru' | 'uz' = 'ru
   const totalCourses = flatCourses.length;
   const doneCourses = flatCourses.filter((c) => c.status === 'completed').length;
 
+  // 10. Есть ли уже пройденные курсы среди секций уровня 2 (для UI: не показывать
+  // повторное поздравление, если человек уже начал уровень 2 в прошлый раз).
+  const level2Started = flatCourses.some(
+    (c) => level2SectionIds.has(c.section_id) && c.status === 'completed',
+  );
+
   return {
     nodes,
     zones: zonesUpdated,
     edges,
     totalCourses,
     doneCourses,
+    baseCompleted,
+    hasLevel2,
+    level2Started,
   };
 }

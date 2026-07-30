@@ -14,6 +14,7 @@ import { useDivisionStore } from '../stores/divisionStore';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { TacticalMap } from '../components/tactical/TacticalMap';
 import { HeroPanel } from '../components/tactical/HeroPanel';
+import { MapCompleteCelebration } from '../components/tactical/MapCompleteCelebration';
 // RecsPanel + AwardsPanel убраны UX-аудит 2026-05-03 (mock-данные).
 // Вернуть когда будет реальная интеграция AI-рекомендаций и achievements.
 import { StatusBar } from '../components/tactical/StatusBar';
@@ -120,6 +121,10 @@ export function TacticalLearningPage() {
   const [totalCourses, setTotalCourses] = useState(0);
   const [doneCourses, setDoneCourses] = useState(0);
   const [loading, setLoading] = useState(true);
+  // Гейт «уровня 2»: базовая карта пройдена на 100% → секции с category='level2'
+  // становятся видимыми (loadLearningMapData уже фильтрует их сам).
+  const [baseCompleted, setBaseCompleted] = useState(false);
+  const [hasLevel2, setHasLevel2] = useState(false);
 
   useEffect(() => {
     injectFonts();
@@ -138,6 +143,8 @@ export function TacticalLearningPage() {
         setZones(data.zones);
         setTotalCourses(data.totalCourses);
         setDoneCourses(data.doneCourses);
+        setBaseCompleted(data.baseCompleted);
+        setHasLevel2(data.hasLevel2);
       })
       .catch(() => {
         if (cancelled) return;
@@ -145,6 +152,8 @@ export function TacticalLearningPage() {
         setNodes([]);
         setEdges([]);
         setZones([]);
+        setBaseCompleted(false);
+        setHasLevel2(false);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -172,29 +181,44 @@ export function TacticalLearningPage() {
     ? `${roleLabel(user.role, lang)} · TASHKENT`
     : (lang === 'uz' ? 'OPERATOR' : 'ОПЕРАТОР');
 
+  // Празднуем только на СВОЕЙ карте (роль=роль пользователя, не подстановка
+  // через RoleSelector админом/тренером) — селектор скрыт именно в этом случае.
+  const isOwnMap = !showRoleSelector;
+  const celebration = (
+    <MapCompleteCelebration
+      eligible={baseCompleted && hasLevel2 && isOwnMap}
+      userId={user?.id ?? user?.employee_id ?? 'anon'}
+      role={viewAsRole}
+    />
+  );
+
   // На мобильном — отдельный UX
   if (isMobile) {
     return (
-      <TacticalMobile
-        operatorName={operatorName}
-        nodes={nodes}
-        edges={edges}
-        zones={zones}
-        totalCourses={totalCourses}
-        doneCourses={doneCourses}
-        loading={loading}
-        onOpenCourse={openCourse}
-        roleSelector={
-          showRoleSelector ? (
-            <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} options={roleOptions} />
-          ) : null
-        }
-      />
+      <>
+        {celebration}
+        <TacticalMobile
+          operatorName={operatorName}
+          nodes={nodes}
+          edges={edges}
+          zones={zones}
+          totalCourses={totalCourses}
+          doneCourses={doneCourses}
+          loading={loading}
+          onOpenCourse={openCourse}
+          roleSelector={
+            showRoleSelector ? (
+              <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} options={roleOptions} />
+            ) : null
+          }
+        />
+      </>
     );
   }
 
   return (
     <div className="tactical-root tactical-map-page">
+      {celebration}
       <StatusBar />
 
       <div className="title-row">

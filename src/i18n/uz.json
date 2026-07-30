@@ -531,6 +531,12 @@
     "allSlidesDone": "Siz ushbu kursning barcha slaydlarini koʻrib chiqdingiz",
     "goBack": "Qaytish",
     "recommended": "Tavsiya etamiz",
+    "mapComplete": {
+      "title": "Xarita toʻliq oʻtildi!",
+      "subtitle": "Ajoyib! Butun asosiy oʻquv dasturi oʻtildi — 2-daraja ochildi, xaritada yangi hududlar paydo boʻldi.",
+      "startLevel2": "2-darajani boshlash",
+      "later": "Keyinroq"
+    },
     "errors": {
       "modules": "Oʻquv modullarini yuklash imkoni boʻlmadi",
       "map": "Oʻquv xaritasini yuklash imkoni boʻlmadi",
