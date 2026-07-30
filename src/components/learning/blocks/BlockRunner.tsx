@@ -13,6 +13,7 @@ import { BlockScenarioChain } from './BlockScenarioChain';
 import { BlockMistakeAnalysis } from './BlockMistakeAnalysis';
 import { BlockFieldTask } from './BlockFieldTask';
 import { BlockQuiz } from './BlockQuiz';
+import { BlockImage } from './BlockImage';
 import { BlockResults } from './BlockResults';
 import { useLangStore, useT } from '../../../stores/langStore';
 
@@ -379,6 +380,8 @@ function BlockContent({
   switch (block.type) {
     case 'key_point':
       return <BlockKeyPoint data={block.data} accent={accent} accentSoft={accentSoft} onReady={onReady} />;
+    case 'image':
+      return <BlockImage data={block.data} accent={accent} accentSoft={accentSoft} onReady={onReady} />;
     case 'swipe_cards':
       return <BlockSwipeCards data={block.data} accent={accent} accentSoft={accentSoft} onAnswer={onAnswer} onReady={onReady} />;
     case 'sorting':

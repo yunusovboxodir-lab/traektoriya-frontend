@@ -438,6 +438,13 @@ export interface BlockFieldTaskData {
 }
 
 // Results
+/** Иллюстрация: схема, планограмма, фото продукции. Не требует действий. */
+export interface BlockImageData {
+  url: string;
+  caption?: BiText;
+  alt?: BiText;
+}
+
 export interface BlockResultsData {
   xpReward: number;
 }
@@ -465,6 +472,7 @@ export type LessonBlock =
   | { type: 'mistake_analysis'; data: BlockMistakeAnalysisData }
   | { type: 'field_task'; data: BlockFieldTaskData }
   | { type: 'quiz'; data: BlockQuizData }
+  | { type: 'image'; data: BlockImageData }
   | { type: 'results'; data: BlockResultsData };
 
 // V3 lesson data (block architecture)
