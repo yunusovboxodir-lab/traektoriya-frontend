@@ -105,6 +105,17 @@ export interface ProductListResponse {
   limit: number;
 }
 
+export interface ProductTestResult {
+  id: string;
+  user_id: string;
+  product_id: string;
+  score: number | null;
+  passed: boolean | null;
+  answers: Record<string, string> | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
 function fakeOk<T>(data: T) {
   return Promise.resolve({
     data,
@@ -145,7 +156,7 @@ export const productsApi = {
     return api.delete(`/api/v1/products/${id}`);
   },
   submitTest: (productId: string, answers: Record<string, string>) =>
-    api.post(`/api/v1/products/${productId}/test`, { answers }),
+    api.post<ProductTestResult>(`/api/v1/products/${productId}/test`, { answers }),
   getTestResults: (productId: string) =>
-    api.get(`/api/v1/products/${productId}/test-results`),
+    api.get<ProductTestResult[]>(`/api/v1/products/${productId}/test-results`),
 };

@@ -1438,7 +1438,19 @@
     "benefit": "Foyda",
     "notSpecified": "Koʻrsatilmagan",
     "testEmpty": "Testlar tez orada mavjud boʻladi",
-    "testSub": "Mahsulot boʻyicha savollar AI orqali avtomatik yaratiladi"
+    "testSub": "Mahsulot boʻyicha savollar AI orqali avtomatik yaratiladi",
+    "test": {
+      "submit": "Testni yakunlash",
+      "submitting": "Yuborilmoqda...",
+      "submitSuccess": "Test muvaffaqiyatli yuborildi",
+      "submitError": "Testni yuborib boʻlmadi",
+      "answerAllHint": "Testni yakunlash uchun barcha savollarga javob bering",
+      "passed": "Test topshirildi",
+      "failed": "Test topshirilmadi",
+      "scoreLabel": "Natija",
+      "validUntil": "{date} gacha amal qiladi",
+      "retake": "Qayta topshirish"
+    }
   },
   "rolesPage": {
     "title": "Rollarni boshqarish",

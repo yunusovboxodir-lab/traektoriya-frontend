@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { productsApi, type ProductDetail, type ProductHPV, type ProductTest } from '../api/products';
-import { useT } from '../stores/langStore';
+import { productsApi, type ProductDetail, type ProductHPV, type ProductTest, type ProductTestResult } from '../api/products';
+import { useT, useLangStore } from '../stores/langStore';
+import { toast } from '@/components/ui';
 
 type Tab = 'info' | 'merch' | 'sales' | 'hpv' | 'test';
 
@@ -188,7 +189,7 @@ export function ProductDetailPage() {
       {activeTab === 'merch' && <MerchTab product={product} />}
       {activeTab === 'sales' && <SalesTab product={product} />}
       {activeTab === 'hpv' && <HpvTab hpv={hpv} loading={hpvLoading} onRefresh={refreshHpv} />}
-      {activeTab === 'test' && <TestTab questions={product.test_questions} />}
+      {activeTab === 'test' && <TestTab productId={product.id} questions={product.test_questions} />}
     </div>
   );
 }
@@ -470,10 +471,73 @@ function HpvTab({
 // Test Tab
 // ============================================================================
 
-function TestTab({ questions }: { questions: ProductTest[] }) {
+function TestTab({ productId, questions }: { productId: string; questions: ProductTest[] }) {
   const t = useT();
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [checkingPrevious, setCheckingPrevious] = useState(true);
+  const [result, setResult] = useState<ProductTestResult | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setCheckingPrevious(true);
+    productsApi
+      .getTestResults(productId)
+      .then((res) => {
+        if (cancelled) return;
+        setResult(res.data[0] ?? null);
+      })
+      .catch(() => {
+        // нет свежего результата или запрос не удался — тест просто показывается заново
+      })
+      .finally(() => {
+        if (!cancelled) setCheckingPrevious(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+
   if (!questions || questions.length === 0) {
     return <EmptyState icon="✅" text={t('productDetail.testEmpty')} sub={t('productDetail.testSub')} />;
+  }
+
+  const answerableQuestions = questions.filter((q) => q.options && q.options.length > 0);
+  const allAnswered = answerableQuestions.length > 0 && answerableQuestions.every((q) => !!answers[q.id]);
+
+  const handleSelect = (questionId: string, value: string) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
+  };
+
+  const handleRetake = () => {
+    setResult(null);
+    setAnswers({});
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      const res = await productsApi.submitTest(productId, answers);
+      setResult(res.data);
+      toast.success(t('productDetail.test.submitSuccess'));
+    } catch {
+      toast.error(t('productDetail.test.submitError'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (checkingPrevious) {
+    return (
+      <div className="space-y-3 animate-pulse">
+        <div className="h-4 w-40 bg-gray-200 rounded" />
+        <div className="h-28 bg-gray-200 rounded-xl" />
+      </div>
+    );
+  }
+
+  if (result) {
+    return <TestResultCard result={result} onRetake={handleRetake} />;
   }
 
   return (
@@ -491,7 +555,14 @@ function TestTab({ questions }: { questions: ProductTest[] }) {
             <div className="space-y-2 ml-5">
               {q.options.map((opt: string, optIdx: number) => (
                 <label key={optIdx} className="flex items-center gap-2.5 text-sm text-gray-700 cursor-pointer hover:text-gray-900">
-                  <input type="radio" name={`question-${q.id}`} value={opt} className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" />
+                  <input
+                    type="radio"
+                    name={`question-${q.id}`}
+                    value={opt}
+                    checked={answers[q.id] === opt}
+                    onChange={() => handleSelect(q.id, opt)}
+                    className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                  />
                   {opt}
                 </label>
               ))}
@@ -499,6 +570,80 @@ function TestTab({ questions }: { questions: ProductTest[] }) {
           )}
         </div>
       ))}
+
+      <div className="flex items-center justify-end gap-3 pt-1">
+        {!allAnswered && (
+          <p className="text-xs text-gray-400">{t('productDetail.test.answerAllHint')}</p>
+        )}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!allAnswered || submitting}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {submitting && (
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          )}
+          {submitting ? t('productDetail.test.submitting') : t('productDetail.test.submit')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Test result card — score/pass-fail state after submission (or a fresh
+// still-valid result loaded from GET /test-results)
+// ============================================================================
+
+function TestResultCard({ result, onRetake }: { result: ProductTestResult; onRetake: () => void }) {
+  const t = useT();
+  const lang = useLangStore((s) => s.lang);
+  const passed = !!result.passed;
+  const scoreLabel = result.score != null ? `${Math.round(result.score)}%` : '—';
+  const expiresLabel = result.expires_at
+    ? new Date(result.expires_at).toLocaleDateString(lang === 'uz' ? 'uz-UZ' : 'ru-RU')
+    : null;
+
+  return (
+    <div className={`rounded-xl border p-5 ${passed ? 'border-green-200 bg-green-50/40' : 'border-red-200 bg-red-50/40'}`}>
+      <div className="flex items-center gap-3 mb-3">
+        <span className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${passed ? 'bg-green-600' : 'bg-red-600'}`}>
+          {passed ? (
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          )}
+        </span>
+        <div>
+          <p className={`text-sm font-semibold ${passed ? 'text-green-800' : 'text-red-800'}`}>
+            {passed ? t('productDetail.test.passed') : t('productDetail.test.failed')}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {t('productDetail.test.scoreLabel')}: <span className="font-semibold text-gray-700">{scoreLabel}</span>
+          </p>
+        </div>
+      </div>
+      {expiresLabel && (
+        <p className="text-xs text-gray-400 mb-4">{t('productDetail.test.validUntil', { date: expiresLabel })}</p>
+      )}
+      <button
+        type="button"
+        onClick={onRetake}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        {t('productDetail.test.retake')}
+      </button>
     </div>
   );
 }
