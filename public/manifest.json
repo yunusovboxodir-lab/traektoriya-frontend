@@ -1,7 +1,7 @@
 {
   "name": "Traektoriya",
   "short_name": "Traektoriya",
-  "description": "N'Medov — o'quv platformasi / платформа обучения",
+  "description": "Traektoriya — o'quv platformasi / платформа обучения",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e293b",

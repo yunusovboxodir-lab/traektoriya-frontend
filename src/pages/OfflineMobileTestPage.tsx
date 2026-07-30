@@ -16,7 +16,7 @@ const I18N = {
   ru: {
     pre: '📝 PRE-ТЕСТ',
     post: '✅ POST-ТЕСТ',
-    title: 'N\'MEDOV ACADEMY',
+    title: 'TRAEKTORIYA ACADEMY',
     nameLabel: 'Имя и фамилия',
     namePh: 'Например: Алишер Каримов',
     startBtn: 'Начать тест →',
@@ -38,7 +38,7 @@ const I18N = {
   uz: {
     pre: '📝 PRE-TEST',
     post: '✅ POST-TEST',
-    title: 'N\'MEDOV ACADEMY',
+    title: 'TRAEKTORIYA ACADEMY',
     nameLabel: 'Ism va familiya',
     namePh: 'Masalan: Alisher Karimov',
     startBtn: 'Testni boshlash →',
@@ -301,7 +301,7 @@ export function OfflineMobileTestPage() {
       )}
 
       <div className="text-center text-xs tracking-widest font-semibold mt-6" style={{ color: 'var(--text-muted)' }}>
-        {"N'MEDOV SALES ACADEMY • 2026"}
+        {"TRAEKTORIYA ACADEMY • 2026"}
       </div>
     </div>
   );

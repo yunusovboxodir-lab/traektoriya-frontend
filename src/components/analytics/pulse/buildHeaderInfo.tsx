@@ -23,6 +23,7 @@ export function buildHeaderInfo(
   summaryCount: number,
   roleFullLabel: string,
   viewerScope: LearningPulseViewerScope,
+  companyName: string,
 ): HeaderInfo {
   if (drill.person) {
     const p = drill.person;
@@ -78,9 +79,10 @@ export function buildHeaderInfo(
   }
 
   // Уровень «компании»: для РМ (viewer_scope='region') это не компания, а его
-  // регион — «N'Medov Distribution» ему не срез, а весь бизнес (задача владельца
-  // 2026-07-28). Для СВ (viewer_scope='team') этот уровень не встречается —
-  // effectiveDrill в OverviewTab подставляет его team ещё до первого рендера.
+  // регион — весь бизнес текущей организации ему не срез, а полный охват
+  // (задача владельца 2026-07-28). Для СВ (viewer_scope='team') этот уровень не
+  // встречается — effectiveDrill в OverviewTab подставляет его team ещё до
+  // первого рендера. Имя компании — из tenantStore (мультиорг брендинг), не хардкод.
   if (viewerScope === 'region') {
     return {
       eyebrow: t('analytics.pulseDash.eyebrow.region'),
@@ -91,7 +93,7 @@ export function buildHeaderInfo(
 
   return {
     eyebrow: t('analytics.pulseDash.eyebrow.company'),
-    title: t('analytics.pulseDash.companyName'),
+    title: companyName,
     subtitle: t('analytics.pulseDash.subtitleCompany', { count: summaryCount, role: roleFullLabel }),
   };
 }

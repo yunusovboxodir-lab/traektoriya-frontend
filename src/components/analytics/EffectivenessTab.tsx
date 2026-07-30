@@ -11,7 +11,7 @@ const FALLBACK_KPI_FIELD_SALES: KpiMappingSection = {
   items: [
     { category: 'возражения_цена', label: 'Ценовые возражения', labelUz: 'Narx eʼtirozlari', kpi: 'Средний чек, конверсия визитов', kpiUz: 'Oʻrtacha chek, tashriflar konversiyasi', weight: '30% (LMS/CRM)' },
     { category: 'мерч_выкладка', label: 'Выкладка', labelUz: 'Tovar joylashuvi', kpi: 'ShelfScan score', kpiUz: 'ShelfScan score', weight: '40% (AI)' },
-    { category: 'мерч_конкурент', label: 'Конкурент на полке', labelUz: 'Rakobatchi tokchada', kpi: "Доля полки N'Medov", kpiUz: "N'Medov tokcha ulushi", weight: '40% (AI)' },
+    { category: 'мерч_конкурент', label: 'Конкурент на полке', labelUz: 'Rakobatchi tokchada', kpi: 'Доля полки', kpiUz: 'Tokcha ulushi', weight: '40% (AI)' },
     { category: 'продукт_знания', label: 'Знание продукта', labelUz: 'Mahsulotni bilish', kpi: 'Cross-sell (SKU в заказе)', kpiUz: 'Cross-sell (buyurtmadagi SKU)', weight: '30% (LMS/CRM)' },
     { category: 'дебиторка', label: 'Дебиторка', labelUz: 'Debitorlik', kpi: 'Дебиторская задолженность', kpiUz: 'Debitorlik qarzi', weight: '30% (LMS/CRM)' },
     { category: 'планирование', label: 'Планирование', labelUz: 'Rejalashtirish', kpi: 'Активных визитов в день', kpiUz: 'Kuniga faol tashriflar', weight: '30% (LMS/CRM)' },

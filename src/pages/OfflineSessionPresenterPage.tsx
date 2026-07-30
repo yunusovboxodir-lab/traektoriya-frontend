@@ -18,6 +18,7 @@ import type {
   Slide,
 } from '../types/offlineProgram';
 import { BlockRenderer } from '../components/offline/blocks/BlockRenderer';
+import { useTenantStore } from '../stores/tenantStore';
 
 const POLL_INTERVAL_MS = 6000;
 
@@ -26,7 +27,6 @@ const POLL_INTERVAL_MS = 6000;
 // langStore — тренер показывает слайды залу на нужном языке.
 const I18N = {
   ru: {
-    brand: "N'MEDOV ACADEMY",
     codeBadge: 'КОД:',
     fullscreen: '⛶ Fullscreen',
     exit: '✕ Выход',
@@ -52,7 +52,6 @@ const I18N = {
     name: 'Имя',
   },
   uz: {
-    brand: "N'MEDOV ACADEMY",
     codeBadge: 'KOD:',
     fullscreen: '⛶ Fullscreen',
     exit: '✕ Chiqish',
@@ -82,6 +81,11 @@ const I18N = {
 export function OfflineSessionPresenterPage() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
+  // Брендинг шапки — из организации тренера (мультиорг), не хардкод N'Medov.
+  const tenant = useTenantStore((s) => s.tenant);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
+  const brand = tenant?.name ? `${tenant.name.toUpperCase()} ACADEMY` : 'TRAEKTORIYA ACADEMY';
+  useEffect(() => { fetchTenant(); }, [fetchTenant]);
   const [session, setSession] = useState<OfflineSession | null>(null);
   const [program, setProgram] = useState<Program | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -207,7 +211,7 @@ export function OfflineSessionPresenterPage() {
           style={{ color: '#9CA3AF', letterSpacing: '0.2em' }}
           className="text-xs font-semibold uppercase"
         >
-          {tt.brand} • <span style={{ color: '#C8A84B' }}>{program?.code.toUpperCase() || session.program}</span>
+          {brand} • <span style={{ color: '#C8A84B' }}>{program?.code.toUpperCase() || session.program}</span>
           {qrPayload && (
             <span
               style={{ background: '#C8A84B', color: '#0D0F14' }}

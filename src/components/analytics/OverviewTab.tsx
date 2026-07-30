@@ -17,6 +17,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useT, useLangStore } from '../../stores/langStore';
+import { useTenantStore } from '../../stores/tenantStore';
 import { analyticsApi } from '../../api/analytics';
 import type { LearningPulseData, LearningPulseRoleId, LearningPulseViewerScope } from '../../api/analytics';
 import { Breadcrumbs, type Crumb } from './pulse/Breadcrumbs';
@@ -70,6 +71,10 @@ function Skeleton() {
 export function OverviewTab() {
   const t = useT();
   const lang = useLangStore((s) => s.lang);
+  const tenant = useTenantStore((s) => s.tenant);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
+  // Имя компании в шапке «Пульса» — из брендинга организации, не хардкод.
+  const companyName = tenant?.name || t('analytics.pulseDash.eyebrow.company');
 
   const [data, setData] = useState<LearningPulseData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +96,8 @@ export function OverviewTab() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    fetchTenant();
+  }, [load, fetchTenant]);
 
   const patch = useCallback((p: Partial<DrillState>) => {
     setDrill((s) => ({ ...s, ...p }));
@@ -173,7 +179,7 @@ export function OverviewTab() {
 
   const {
     eyebrow, title, subtitle,
-  } = buildHeaderInfo(t, data, effectiveDrill, scoped.length, summary.count, roleFullLabel, viewerScope);
+  } = buildHeaderInfo(t, data, effectiveDrill, scoped.length, summary.count, roleFullLabel, viewerScope, companyName);
 
   // -- Breadcrumbs --
   // СВ (viewer_scope='team') видит только свою команду — уровни «компания/город/
@@ -183,7 +189,7 @@ export function OverviewTab() {
   if (viewerScope !== 'team') {
     crumbs.push({
       key: 'company',
-      label: viewerScope === 'region' ? t('analytics.pulseDash.myRegion') : t('analytics.pulseDash.companyName'),
+      label: viewerScope === 'region' ? t('analytics.pulseDash.myRegion') : companyName,
       onSelect: () => patch({ city: null, dealer: null, team: null, person: null }),
     });
   }

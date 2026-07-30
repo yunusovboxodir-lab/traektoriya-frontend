@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { learningApi, type SectionCoursesResponse, type CourseItem } from '../api/learning';
 import { useLangStore } from '../stores/langStore';
+import { useTenantStore } from '../stores/tenantStore';
 import { StatusBar } from '../components/tactical/StatusBar';
 
 const SECTION_SLUG = 'tp_assortment';
@@ -20,9 +21,19 @@ function pick(bt: { ru?: string | null; uz?: string | null } | string | undefine
 export function AssortmentAcademyPage() {
   const navigate = useNavigate();
   const lang = useLangStore((s) => s.lang);
+  const tenant = useTenantStore((s) => s.tenant);
+  const tenantLoaded = useTenantStore((s) => s.loaded);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
+  // Ассортимент N'Medov — легаси-контент корневой орг, другим не показываем.
+  const isRoot = tenant?.is_root === true;
   const [data, setData] = useState<SectionCoursesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => { fetchTenant(); }, [fetchTenant]);
+  useEffect(() => {
+    if (tenantLoaded && !isRoot) navigate('/learning', { replace: true });
+  }, [tenantLoaded, isRoot, navigate]);
 
   useEffect(() => {
     let alive = true;
@@ -37,6 +48,9 @@ export function AssortmentAcademyPage() {
   const courses: CourseItem[] = (data?.levels || []).flatMap((l) => l.courses || []);
   const completed = courses.filter((c) => c.status === 'completed').length;
   const pct = courses.length ? Math.round((completed / courses.length) * 100) : 0;
+
+  // Не рендерим чужой контент, пока не подтвердили корневую орг.
+  if (!tenantLoaded || !isRoot) return null;
 
   return (
     <div className="tactical-root" style={{ minHeight: '100vh', paddingBottom: 48 }}>

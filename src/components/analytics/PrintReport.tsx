@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { kpiApi } from '../../api/kpi';
 import type { KPIBreakdown } from '../../api/kpi';
 import { useT } from '../../stores/langStore';
+import { useTenantStore } from '../../stores/tenantStore';
 import type { OverviewData, LearningMetrics, ProductStats, LeaderboardEntry } from './types';
 
 // ---------------------------------------------------------------------------
@@ -86,10 +87,18 @@ const roleLabel = (r: string, t: ReturnType<typeof useT>) => {
 
 export function PrintReport({ period, overview, learning, productStats, leaderboard: _leaderboard, onClose }: PrintReportProps) {
   const t = useT();
+  // Имя организации в футере отчёта — из брендинга (мультиорг), не хардкод N'Medov.
+  const tenant = useTenantStore((s) => s.tenant);
+  const fetchTenant = useTenantStore((s) => s.fetchTenant);
+  const companyName = tenant?.name || t('analytics.pulseDash.eyebrow.company');
   const reportRef = useRef<HTMLDivElement>(null);
   const [kpiLeaderboard, setKpiLeaderboard] = useState<KpiEntry[]>([]);
   const [teamRatings, setTeamRatings] = useState<TeamRating[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTenant();
+  }, [fetchTenant]);
 
   useEffect(() => {
     (async () => {
@@ -376,7 +385,7 @@ export function PrintReport({ period, overview, learning, productStats, leaderbo
             {/* ═══ FOOTER ═══ */}
             <div className="mt-10 pt-4 border-t border-gray-200 flex justify-between items-center text-xs text-gray-400">
               <div>
-                {t('common.platformName')}{" AI · N'Medov Distribution · "}{today()}
+                {t('common.platformName')}{' AI · '}{companyName}{' · '}{today()}
               </div>
               <div>
                 {t('analytics.report.generatedAuto')} &middot; {periodLabel(period, t)}

@@ -61,7 +61,7 @@
   },
   "login": {
     "title": "TRAEKTORIYA",
-    "subtitle": "N'Medov savdo vakillari uchun oʻquv platformasi",
+    "subtitle": "Dala jamoalarini o'qitish platformasi",
     "heading": "Tizimga kirish",
     "subheading": "Hisob ma'lumotlaringizni kiriting",
     "employeeId": "Xodim ID",
@@ -629,7 +629,7 @@
       "title": "Reyting qanday shakllanadi",
       "description": "Reyting 3 ta KPI komponentiga asoslanadi. Har bir komponent avtomatik yangilanadi.",
       "aiTitle": "AI / Mahsulot testlari (40%)",
-      "aiDesc": "N'Medov mahsulotlari boʻyicha AI-testlarni topshirish ballari. Har bir test XPV, tarkib va saqlash shartlarini tekshiradi.",
+      "aiDesc": "Kompaniya mahsulotlari boʻyicha AI-testlarni topshirish ballari. Har bir test XPV, tarkib va saqlash shartlarini tekshiradi.",
       "aiSource": "Manba: Mahsulotlar → Test",
       "lmsTitle": "LMS / Oʻqitish (30%)",
       "lmsDesc": "Oʻquv kurslarini oʻtish jarayoni: oʻtilgan darslar, testlar va oʻrtacha ball.",
@@ -653,7 +653,7 @@
     "title": "AI-Maslahatchi",
     "subtitle": "Mahsulotlar, sotuv, KPI va ish jarayonlari haqida savollar bering",
     "emptyTitle": "Qanday yordam bera olaman?",
-    "emptyDesc": "Men N'Medov mahsulotlari, sotuv texnikasi, merchandayzing va KPI haqida bilaman.",
+    "emptyDesc": "Men kompaniya mahsulotlari, sotuv texnikasi, merchandayzing va KPI haqida bilaman.",
     "inputPlaceholder": "Savolingizni kiriting...",
     "errorMessage": "Kechirasiz, xatolik yuz berdi. Keyinroq urinib koʻring.",
     "sources": "Manbalar:",
@@ -662,7 +662,7 @@
     "unhelpful": "Foydasiz javob",
     "suggestions": [
       "\"Qimmat\" e'tiroziga qanday javob berish kerak?",
-      "N'Medov sut mahsulotlari haqida gapiring",
+      "Bizning mahsulotlarimiz haqida gapiring",
       "KPI ni qanday oshirish mumkin?",
       "Tovar joylash qoidalari"
     ]
@@ -870,7 +870,6 @@
     "reportButton": "Hisobot",
     "lbEmployee": "Xodim",
     "pulseDash": {
-      "companyName": "N'Medov Distribution",
       "myRegion": "Mening hududim",
       "eyebrow": {
         "company": "Kompaniya",

@@ -205,7 +205,7 @@ export function TacticalLearningPage() {
             <RoleSelector value={viewAsRole} onChange={setViewAsRole} lang={lang} options={roleOptions} />
           </div>
         )}
-        {HEADER_LINKS.filter((l) => l.path !== '/learning/hall-of-fame' || isRoot).map((l) => (
+        {HEADER_LINKS.filter((l) => (l.path !== '/learning/hall-of-fame' && l.path !== '/learning/assortment') || isRoot).map((l) => (
           <button
             key={l.path}
             type="button"
