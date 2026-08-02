@@ -1549,6 +1549,40 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .text-slate-300,
 .tactical-root .text-stone-400 { color: var(--text-3) !important; }
 
+/* ЦВЕТНЫЕ палитры 700/800/900 — ровно тот же баг, что был со stone-* выше,
+   только на red/green/blue/amber/purple. Найден 2026-08-02 на карточке товара
+   (/products/:id → вкладка «Продажи», блок «Работа с возражениями»):
+   text-green-800 сидел на .bg-green-50, который ниже перекрашен в --success-bg,
+   и давал 1.88:1; text-red-800 на --danger-bg — 1.72:1 (норма AA 4.5:1).
+   Метки «Возражение:»/«Ответ:» читались (500/400 не тронуты), а тело — нет.
+   Токены темозависимые → в светлой теме tactical темнеют сами. */
+.tactical-root .text-red-700, .tactical-root .text-red-800, .tactical-root .text-red-900,
+.tactical-root .text-rose-700, .tactical-root .text-rose-800, .tactical-root .text-rose-900,
+.tactical-root .text-pink-700, .tactical-root .text-pink-800, .tactical-root .text-pink-900
+{ color: var(--danger) !important; }
+
+.tactical-root .text-green-700, .tactical-root .text-green-800, .tactical-root .text-green-900,
+.tactical-root .text-emerald-700, .tactical-root .text-emerald-800, .tactical-root .text-emerald-900,
+.tactical-root .text-teal-700, .tactical-root .text-teal-800, .tactical-root .text-teal-900,
+.tactical-root .text-lime-700, .tactical-root .text-lime-800, .tactical-root .text-lime-900
+{ color: var(--success) !important; }
+
+.tactical-root .text-blue-700, .tactical-root .text-blue-800, .tactical-root .text-blue-900,
+.tactical-root .text-sky-700, .tactical-root .text-sky-800, .tactical-root .text-sky-900,
+.tactical-root .text-cyan-700, .tactical-root .text-cyan-800, .tactical-root .text-cyan-900
+{ color: var(--info) !important; }
+
+.tactical-root .text-amber-700, .tactical-root .text-amber-800, .tactical-root .text-amber-900,
+.tactical-root .text-yellow-700, .tactical-root .text-yellow-800, .tactical-root .text-yellow-900,
+.tactical-root .text-orange-700, .tactical-root .text-orange-800, .tactical-root .text-orange-900
+{ color: var(--warning) !important; }
+
+.tactical-root .text-purple-700, .tactical-root .text-purple-800, .tactical-root .text-purple-900,
+.tactical-root .text-violet-700, .tactical-root .text-violet-800, .tactical-root .text-violet-900,
+.tactical-root .text-indigo-700, .tactical-root .text-indigo-800, .tactical-root .text-indigo-900,
+.tactical-root .text-fuchsia-700, .tactical-root .text-fuchsia-800, .tactical-root .text-fuchsia-900
+{ color: var(--color-tp) !important; }
+
 /* --- Бордеры --- */
 .tactical-root .border-gray-100,
 .tactical-root .border-gray-200,

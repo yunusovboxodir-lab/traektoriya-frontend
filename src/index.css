@@ -512,6 +512,44 @@ body {
   color: var(--text-muted) !important;
 }
 
+/* ЦВЕТНЫЕ палитры 700/800/900 → семантические токены.
+   Дыра совместимости, найдена 2026-08-02 на карточке товара (вкладка «Продажи»,
+   блок «Работа с возражениями»): нейтральные gray/slate/stone выше перекрашивались,
+   а red/green/blue/amber — нет. Такой текст садился на bg-*-50, уже затемнённые
+   в *-bg выше, и контраст падал до 1.7–1.9:1 при норме AA 4.5:1.
+   Токены темозависимые → в светлой теме темнеют сами, отдельных правил не нужно. */
+:not(.tactical-root, .tactical-root *):where(
+  .text-red-700, .text-red-800, .text-red-900,
+  .text-rose-700, .text-rose-800, .text-rose-900,
+  .text-pink-700, .text-pink-800, .text-pink-900
+) { color: var(--danger) !important; }
+
+:not(.tactical-root, .tactical-root *):where(
+  .text-green-700, .text-green-800, .text-green-900,
+  .text-emerald-700, .text-emerald-800, .text-emerald-900,
+  .text-teal-700, .text-teal-800, .text-teal-900,
+  .text-lime-700, .text-lime-800, .text-lime-900
+) { color: var(--success) !important; }
+
+:not(.tactical-root, .tactical-root *):where(
+  .text-blue-700, .text-blue-800, .text-blue-900,
+  .text-sky-700, .text-sky-800, .text-sky-900,
+  .text-cyan-700, .text-cyan-800, .text-cyan-900
+) { color: var(--info) !important; }
+
+:not(.tactical-root, .tactical-root *):where(
+  .text-amber-700, .text-amber-800, .text-amber-900,
+  .text-yellow-700, .text-yellow-800, .text-yellow-900,
+  .text-orange-700, .text-orange-800, .text-orange-900
+) { color: var(--warning) !important; }
+
+:not(.tactical-root, .tactical-root *):where(
+  .text-purple-700, .text-purple-800, .text-purple-900,
+  .text-violet-700, .text-violet-800, .text-violet-900,
+  .text-indigo-700, .text-indigo-800, .text-indigo-900,
+  .text-fuchsia-700, .text-fuchsia-800, .text-fuchsia-900
+) { color: var(--color-tp) !important; }
+
 /* Inputs/selects — светлые → tones карточек (фокус — золотой акцент) */
 :not(.tactical-root, .tactical-root *):where(
   input[type="text"], input[type="number"], input[type="date"],
