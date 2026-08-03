@@ -273,6 +273,27 @@
     "quests": {
       "title": "Квесты дня",
       "loadFailed": "Не удалось загрузить квесты"
+    },
+    "kpiRank": {
+      "title": "Рейтинг сотрудников",
+      "subtitle": "KPI периода",
+      "formulaSales": "{pct}% продажи",
+      "formulaExecution": "{pct}% полевое исполнение",
+      "formulaLearning": "{pct}% обучение",
+      "formulaDiscipline": "{pct}% дисциплина",
+      "chasers": "Преследователи",
+      "yourPlace": "Ваше место",
+      "of": "из",
+      "sales": "Продажи",
+      "execution": "Поле",
+      "learning": "Обучение",
+      "discipline": "Дисциплина",
+      "loadError": "Не удалось загрузить рейтинг",
+      "empty": "За этот период оценок пока нет",
+      "goToKpi": "К показателям",
+      "you": "вы",
+      "showAll": "Показать всех",
+      "collapse": "Свернуть"
     }
   },
   "tasks": {

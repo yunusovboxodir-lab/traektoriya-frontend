@@ -273,6 +273,27 @@
     "quests": {
       "title": "Bugungi vazifalar",
       "loadFailed": "Vazifalarni yuklab bo‘lmadi"
+    },
+    "kpiRank": {
+      "title": "Xodimlar reytingi",
+      "subtitle": "Davr KPI",
+      "formulaSales": "{pct}% savdo",
+      "formulaExecution": "{pct}% dala ishi",
+      "formulaLearning": "{pct}% o'qish",
+      "formulaDiscipline": "{pct}% intizom",
+      "chasers": "Ta'qibchilar",
+      "yourPlace": "Sizning o'rningiz",
+      "of": "dan",
+      "sales": "Savdo",
+      "execution": "Dala",
+      "learning": "O'qish",
+      "discipline": "Intizom",
+      "loadError": "Reytingni yuklab bo'lmadi",
+      "empty": "Bu davr uchun baholar hali yo'q",
+      "goToKpi": "Ko'rsatkichlarga",
+      "you": "siz",
+      "showAll": "Barchasini ko'rsatish",
+      "collapse": "Yig'ish"
     }
   },
   "tasks": {

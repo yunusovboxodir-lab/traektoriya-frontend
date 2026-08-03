@@ -5,17 +5,24 @@ QA-смоук прода Traektoriya: логин + прогон ключевых
 
 Запуск локально:
     python scripts/smoke/qa_check.py
-Переменные окружения (необязательны):
+Переменные окружения:
     SMOKE_API_BASE   (default https://api.traektoriya.space/api/v1)
-    SMOKE_USER       (default admin)
-    SMOKE_PASSWORD   (default admin123)  ← в CI берётся из GitHub Secret
+    SMOKE_USER       — логин смоук-админа. Обязательна. В CI — из GitHub Secret.
+    SMOKE_PASSWORD   — пароль. Обязательна. В CI — из GitHub Secret.
 Код возврата: 0 — все PASS, 1 — есть FAIL (для гейта в CI).
+Репозиторий ПУБЛИЧНЫЙ: креды суперадмина в коде НЕ храним — только в окружении/секретах.
 """
 import json, os, sys, urllib.request, urllib.error
 
 BASE = os.environ.get("SMOKE_API_BASE", "https://api.traektoriya.space/api/v1")
-USER = os.environ.get("SMOKE_USER", "admin")
-PWD = os.environ.get("SMOKE_PASSWORD", "admin123")
+# Креды строго из окружения, без дефолтов: репо публичный, логин/пароль
+# суперадмина в коде = утечка (история с admin/admin123). В CI приходят из
+# GitHub Secrets SMOKE_USER / SMOKE_PASSWORD.
+USER = os.environ.get("SMOKE_USER")
+PWD = os.environ.get("SMOKE_PASSWORD")
+if not USER or not PWD:
+    print("SKIP: SMOKE_USER/SMOKE_PASSWORD не заданы в окружении — смоук пропущен")
+    sys.exit(0)
 PASS, FAIL = [], []
 
 

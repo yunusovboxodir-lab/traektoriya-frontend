@@ -23,7 +23,9 @@ jobs:
       - name: Run API smoke
         id: smoke
         env:
-          # Пароль демо-админа — из GitHub Secret (fallback в скрипте = admin123)
+          # Логин и пароль смоук-админа — ТОЛЬКО из GitHub Secrets (в коде их нет).
+          # Завести секреты: SMOKE_USER (напр. nmedov-admin) и SMOKE_PASSWORD (сильный).
+          SMOKE_USER: ${{ secrets.SMOKE_USER }}
           SMOKE_PASSWORD: ${{ secrets.SMOKE_PASSWORD }}
         run: |
           set -o pipefail
