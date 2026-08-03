@@ -29,6 +29,33 @@ const ROLE_TABS = [
   { key: 'regional_manager', labelKey: 'common.roles.abbreviations.rm' },
 ] as const;
 
+/**
+ * Периоды рейтинга.
+ *
+ * `months` — сколько календарных месяцев берём. KPI в платформе считается ЗА
+ * МЕСЯЦ (KPIRecord.period = 'YYYY-MM'), более мелкого разреза нет: дневного и
+ * недельного KPI не существует ни в модели, ни в расчёте. Поэтому «День» и
+ * «Неделя» показывают текущий месяц и подписаны об этом честно — вместо того
+ * чтобы молча выдавать месячную цифру за дневную.
+ * 1 месяц → /leaderboard/top, больше одного → /leaderboard/aggregate (AVG по периодам).
+ */
+const PERIOD_TABS = [
+  { key: 'day', labelKey: 'dashboard.kpiRank.periodDay', months: 1, monthly: true },
+  { key: 'week', labelKey: 'dashboard.kpiRank.periodWeek', months: 1, monthly: true },
+  { key: 'month', labelKey: 'dashboard.kpiRank.periodMonth', months: 1, monthly: false },
+  { key: 'quarter', labelKey: 'dashboard.kpiRank.periodQuarter', months: 3, monthly: false },
+  { key: 'half', labelKey: 'dashboard.kpiRank.periodHalf', months: 6, monthly: false },
+  { key: 'year', labelKey: 'dashboard.kpiRank.periodYear', months: 12, monthly: false },
+] as const;
+
+/** 'YYYY-MM' для месяца, отстоящего на `back` назад от текущего. */
+function periodKey(back: number): string {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - back);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
 /** Медали — семантика, читаются на обеих темах. */
 const PODIUM = {
   gold: { bg: 'linear-gradient(135deg, #FBBF24 0%, #C8A84B 100%)', text: '#0a1929', glow: 'rgba(251,191,36,0.40)' },
@@ -69,13 +96,24 @@ export function KpiRankWidget() {
   const [role, setRole] = useState<string>(
     isAdmin ? 'sales_rep' : (user?.role || 'sales_rep'),
   );
+  const [period, setPeriod] = useState<string>('month');
+  const tab = PERIOD_TABS.find((p) => p.key === period) ?? PERIOD_TABS[2];
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
     setError(false);
-    kpiApi
-      .getLeaderboard({ limit: 100, role })
+    // Один месяц — обычная доска; несколько — усреднение по периодам на бэке.
+    const req =
+      tab.months <= 1
+        ? kpiApi.getLeaderboard({ limit: 100, role })
+        : kpiApi.getLeaderboardAggregate({
+            from_period: periodKey(tab.months - 1),
+            to_period: periodKey(0),
+            limit: 100,
+            role,
+          });
+    req
       .then((res) => {
         if (!alive) return;
         const payload = (res.data?.leaders ?? res.data ?? []) as Leader[];
@@ -86,7 +124,7 @@ export function KpiRankWidget() {
     return () => {
       alive = false;
     };
-  }, [role]);
+  }, [role, period, tab.months]);
 
   // Подпись формулы. Веса реестра: 40/30/20/10. Строки собираем через словарь —
   // иначе в узбекском режиме подпись осталась бы русской (так уже было).
@@ -172,23 +210,50 @@ export function KpiRankWidget() {
           </Link>
         </div>
 
-        {isAdmin && (
-          <div className="flex gap-1.5 mt-3">
-            {ROLE_TABS.map((tab) => (
+        {/* Роли (только админам) и период — в одной полосе контролов */}
+        <div className="flex items-center flex-wrap gap-x-4 gap-y-2 mt-3">
+          {isAdmin && (
+            <div className="flex gap-1.5">
+              {ROLE_TABS.map((r) => (
+                <button
+                  key={r.key}
+                  onClick={() => setRole(r.key)}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
+                  style={{
+                    background: role === r.key ? 'var(--accent)' : 'var(--bg-secondary)',
+                    color: role === r.key ? 'var(--bg-card)' : 'var(--text-secondary)',
+                  }}
+                >
+                  {t(r.labelKey)}
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-1.5 flex-wrap">
+            {PERIOD_TABS.map((p) => (
               <button
-                key={tab.key}
-                onClick={() => setRole(tab.key)}
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
                 className="px-3 py-1 rounded-lg text-xs font-semibold transition-colors"
                 style={{
-                  background: role === tab.key ? 'var(--accent)' : 'var(--bg-secondary)',
-                  color: role === tab.key ? 'var(--bg-card)' : 'var(--text-secondary)',
+                  background: period === p.key ? 'var(--accent)' : 'var(--bg-secondary)',
+                  color: period === p.key ? 'var(--bg-card)' : 'var(--text-secondary)',
                 }}
               >
-                {t(tab.labelKey)}
+                {t(p.labelKey)}
               </button>
             ))}
           </div>
-        )}
+        </div>
+
+        {/* Честная подпись под контролами: за какой отрезок показана цифра */}
+        <div className="text-[11px] mt-2" style={{ color: 'var(--text-muted)' }}>
+          {tab.monthly
+            ? t('dashboard.kpiRank.monthlyNote')
+            : tab.months > 1
+              ? t('dashboard.kpiRank.rangeNote', { n: tab.months })
+              : ''}
+        </div>
       </div>
 
       {/* Тело */}

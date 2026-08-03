@@ -210,7 +210,8 @@
         "trainee": "Stajyor",
         "practitioner": "Amaliyotchi",
         "expert": "Ekspert",
-        "master": "Usta"
+        "master": "Usta",
+        "beginner": "Yangi boshlovchi"
       },
       "days30": "30 k",
       "days90": "90 k",
@@ -293,7 +294,15 @@
       "goToKpi": "Ko'rsatkichlarga",
       "you": "siz",
       "showAll": "Barchasini ko'rsatish",
-      "collapse": "Yig'ish"
+      "collapse": "Yig'ish",
+      "periodDay": "Kun",
+      "periodWeek": "Hafta",
+      "periodMonth": "Oy",
+      "periodQuarter": "Chorak",
+      "periodHalf": "Yarim yil",
+      "periodYear": "Yil",
+      "monthlyNote": "KPI kalendar oy uchun hisoblanadi — joriy oy ko'rsatilgan",
+      "rangeNote": "{n} oy o'rtachasi"
     }
   },
   "tasks": {

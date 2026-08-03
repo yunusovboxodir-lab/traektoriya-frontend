@@ -210,7 +210,8 @@
         "trainee": "Стажёр",
         "practitioner": "Практик",
         "expert": "Эксперт",
-        "master": "Мастер"
+        "master": "Мастер",
+        "beginner": "Новичок"
       },
       "days30": "30 дн",
       "days90": "90 дн",
@@ -293,7 +294,15 @@
       "goToKpi": "К показателям",
       "you": "вы",
       "showAll": "Показать всех",
-      "collapse": "Свернуть"
+      "collapse": "Свернуть",
+      "periodDay": "День",
+      "periodWeek": "Неделя",
+      "periodMonth": "Месяц",
+      "periodQuarter": "Квартал",
+      "periodHalf": "Полгода",
+      "periodYear": "Год",
+      "monthlyNote": "KPI рассчитывается за календарный месяц — показан текущий",
+      "rangeNote": "Среднее за {n} мес."
     }
   },
   "tasks": {

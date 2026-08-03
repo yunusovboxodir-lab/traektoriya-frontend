@@ -19,7 +19,6 @@ import { useAuthStore } from '../stores/authStore';
 import { useT, useLangStore } from '../stores/langStore';
 import { DailyQuestsWidget } from '../components/dashboard/DailyQuestsWidget';
 import { KpiRankWidget } from '../components/dashboard/KpiRankWidget';
-import { LearningRankWidget } from '../components/dashboard/LearningRankWidget';
 import { SupervisorTeamWidget } from '../components/dashboard/SupervisorTeamWidget';
 import { TacticalShell } from '../components/tactical/shell';
 import { formatDateLong } from '../utils/formatDate';
@@ -50,32 +49,23 @@ export function DashboardPage() {
                 реальное действие сегодня — раньше социального сравнения. */}
             <DailyQuestsWidget />
 
-            {/* 2. Рейтинг сотрудников по официальному KPI периода (40/30/20/10) —
-                главная оценка работы. Стоит выше рейтинга обучения: на главной
-                человек должен видеть, как оценивается его РАБОТА, а не только
-                развитие (запрос владельца 2026-08-03). */}
+            {/* 2. Рейтинг сотрудников по официальному KPI периода (40/30/20/10)
+                с фильтром день/неделя/месяц/квартал/полгода/год.
+                Рейтинг обучения с главной убран (запрос владельца 2026-08-03):
+                он остаётся на странице «Обучение», где ему и место. На главной —
+                одна оценка работы, а не две конкурирующие. */}
             <KpiRankWidget />
-
-            {/* 3. Рейтинг обучения — отдельная оценка развития, 100% по обучению. */}
-            <LearningRankWidget />
           </>
         ) : (
           <>
-            {/* Рейтинг сотрудников по KPI — первым для всех руководящих ролей.
-                Для СВ он тоже уместен: это не личное соревнование «как ученик»,
-                а оценка работы, где СВ сравнивается со своими коллегами-СВ. */}
+            {/* Рейтинг сотрудников по KPI — единственная доска на главной.
+                Для СВ он тоже уместен: это не соревнование «как ученик»,
+                а оценка работы, где СВ сравнивается с коллегами-СВ. */}
             <KpiRankWidget />
 
-            {/* Для supervisor личный рейтинг обучения скрыт (СВ не соревнуется как
-                ученик среди своих ТП, Кодекс 08). Вместо пустоты — командный блок:
-                место команды в рейтинге + CTA на «Команду» и «Пульс команды». */}
-            {isSupervisor ? (
-              <SupervisorTeamWidget />
-            ) : (
-              /* Рейтинг обучения — виджет сам себе карточка.
-                 Внешнюю рамку TacticalPanel убрали (двойная рамка не несла ценности, PO 2026-06-27). */
-              <LearningRankWidget />
-            )}
+            {/* Для supervisor — командный блок: место команды + CTA на «Команду»
+                и «Пульс команды» (Кодекс 08). */}
+            {isSupervisor && <SupervisorTeamWidget />}
 
             {/* Квесты дня — ежедневная петля (P1). Виджет сам рендерит панель и скрывается, если квестов нет. */}
             <DailyQuestsWidget />
