@@ -18,16 +18,39 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { kpiApi } from '../../api/kpi';
 import { useAuthStore } from '../../stores/authStore';
+import { useDivisionStore } from '../../stores/divisionStore';
 import { useT } from '../../stores/langStore';
 
 const ADMIN_ROLES = ['superadmin', 'admin', 'commercial_dir'];
 
-/** Роли, между которыми админ переключает доску. */
-const ROLE_TABS = [
-  { key: 'sales_rep', labelKey: 'common.roles.abbreviations.tp' },
-  { key: 'supervisor', labelKey: 'common.roles.abbreviations.sv' },
-  { key: 'regional_manager', labelKey: 'common.roles.abbreviations.rm' },
-] as const;
+/**
+ * Роли, между которыми админ переключает доску — СВОИ у каждой стороны.
+ *
+ * Первая версия виджета жёстко показывала ТП / СВ / РМ. При переключении на
+ * «Производство» вкладки оставались продажными, роль в запросе была sales_rep,
+ * и доска приходила пустой — «за этот период оценок пока нет». Списки ниже
+ * повторяют ALLOWED_RANK_ROLES_PRODUCTION из app/api/v1/learning.py.
+ */
+const ROLE_TABS_BY_DIVISION: Record<string, ReadonlyArray<{ key: string; labelKey: string }>> = {
+  sales: [
+    { key: 'sales_rep', labelKey: 'common.roles.abbreviations.tp' },
+    { key: 'supervisor', labelKey: 'common.roles.abbreviations.sv' },
+    { key: 'regional_manager', labelKey: 'common.roles.abbreviations.rm' },
+  ],
+  production: [
+    { key: 'operator', labelKey: 'common.roles.abbreviations.operator' },
+    { key: 'foreman', labelKey: 'common.roles.abbreviations.foreman' },
+    { key: 'shop_head', labelKey: 'common.roles.abbreviations.shopHead' },
+    { key: 'technologist', labelKey: 'common.roles.abbreviations.technologist' },
+    { key: 'mechanic', labelKey: 'common.roles.abbreviations.mechanic' },
+  ],
+};
+
+/** Роль по умолчанию для стороны — младшая массовая, с неё начинают смотреть. */
+const DEFAULT_ROLE: Record<string, string> = {
+  sales: 'sales_rep',
+  production: 'operator',
+};
 
 /**
  * Периоды рейтинга.
@@ -92,12 +115,23 @@ export function KpiRankWidget() {
   const t = useT();
   const user = useAuthStore((s) => s.user);
 
+  const division = useDivisionStore((s) => s.division);
+  const roleTabs = ROLE_TABS_BY_DIVISION[division] ?? ROLE_TABS_BY_DIVISION.sales;
   const isAdmin = ADMIN_ROLES.includes(user?.role || '');
   const [role, setRole] = useState<string>(
-    isAdmin ? 'sales_rep' : (user?.role || 'sales_rep'),
+    isAdmin ? (DEFAULT_ROLE[division] ?? 'sales_rep') : (user?.role || 'sales_rep'),
   );
   const [period, setPeriod] = useState<string>('month');
   const tab = PERIOD_TABS.find((p) => p.key === period) ?? PERIOD_TABS[2];
+
+  // Смена стороны меняет и набор ролей: продажная роль в производственном
+  // запросе даёт пустую доску, а не ошибку — молчаливая пустота хуже сбоя.
+  useEffect(() => {
+    if (!isAdmin) return;
+    if (!roleTabs.some((r) => r.key === role)) {
+      setRole(DEFAULT_ROLE[division] ?? roleTabs[0]?.key ?? 'sales_rep');
+    }
+  }, [division, isAdmin, role, roleTabs]);
 
   useEffect(() => {
     let alive = true;
@@ -124,16 +158,25 @@ export function KpiRankWidget() {
     return () => {
       alive = false;
     };
-  }, [role, period, tab.months]);
+  }, [role, period, tab.months, division]);
 
-  // Подпись формулы. Веса реестра: 40/30/20/10. Строки собираем через словарь —
-  // иначе в узбекском режиме подпись осталась бы русской (так уже было).
-  const formulaParts = [
-    { text: t('dashboard.kpiRank.formulaSales', { pct: 40 }), color: 'var(--warning)' },
-    { text: t('dashboard.kpiRank.formulaExecution', { pct: 30 }), color: 'var(--info)' },
-    { text: t('dashboard.kpiRank.formulaLearning', { pct: 20 }), color: 'var(--success)' },
-    { text: t('dashboard.kpiRank.formulaDiscipline', { pct: 10 }), color: 'var(--text-muted)' },
-  ];
+  // Подпись формулы. У продаж реестр даёт 40/30/20/10. У производства продаж НЕТ:
+  // ни плана, ни полки — источника не существует. Компонент отсутствует, а его
+  // вес распределяется между оставшимися (30/20/10 → 50/33/17). Ставить цеху ноль
+  // по продажам было бы враньём: ноль читается как «плохо работает».
+  const formulaParts =
+    division === 'production'
+      ? [
+          { text: t('dashboard.kpiRank.formulaExecution', { pct: 50 }), color: 'var(--info)' },
+          { text: t('dashboard.kpiRank.formulaLearning', { pct: 33 }), color: 'var(--success)' },
+          { text: t('dashboard.kpiRank.formulaDiscipline', { pct: 17 }), color: 'var(--text-muted)' },
+        ]
+      : [
+          { text: t('dashboard.kpiRank.formulaSales', { pct: 40 }), color: 'var(--warning)' },
+          { text: t('dashboard.kpiRank.formulaExecution', { pct: 30 }), color: 'var(--info)' },
+          { text: t('dashboard.kpiRank.formulaLearning', { pct: 20 }), color: 'var(--success)' },
+          { text: t('dashboard.kpiRank.formulaDiscipline', { pct: 10 }), color: 'var(--text-muted)' },
+        ];
 
   const top3 = leaders.slice(0, 3);
   const rest = expanded ? leaders.slice(3) : leaders.slice(3, 10);
@@ -214,7 +257,7 @@ export function KpiRankWidget() {
         <div className="flex items-center flex-wrap gap-x-4 gap-y-2 mt-3">
           {isAdmin && (
             <div className="flex gap-1.5">
-              {ROLE_TABS.map((r) => (
+              {roleTabs.map((r) => (
                 <button
                   key={r.key}
                   onClick={() => setRole(r.key)}
