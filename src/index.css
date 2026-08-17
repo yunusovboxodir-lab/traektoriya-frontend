@@ -457,26 +457,72 @@ body {
   background-color: var(--bg-elevated) !important;
   color: var(--text-primary);
 }
-:not(.tactical-root, .tactical-root *):where(.bg-blue-50) {
-  background-color: var(--info-bg) !important;
-  color: var(--info);
-}
-:not(.tactical-root, .tactical-root *):where(.bg-emerald-50, .bg-green-50) {
-  background-color: var(--success-bg) !important;
-  color: var(--success);
-}
-:not(.tactical-root, .tactical-root *):where(.bg-amber-50, .bg-yellow-50) {
-  background-color: var(--warning-bg) !important;
-  color: var(--warning);
-}
-:not(.tactical-root, .tactical-root *):where(.bg-red-50) {
+/* Тинты-подложки bg-<тон>-50/100 → семантические токены.
+   Покрыты ВСЕ тона и оба оттенка. Раньше здесь были только red/green/emerald/
+   amber/yellow/blue/orange-50: подложки bg-*-100 и «холодные» тона (purple,
+   violet, indigo, teal, cyan, sky) оставались светлыми на тёмной теме. Пока
+   текст на них тоже был тёмным, это работало; после перекраски текста в яркий
+   токен вышло «яркое на светлом» — 1.6–2.5:1. Фон и текст обязаны ехать вместе,
+   иначе починка одного ломает другое. Вскрыто гейтом scripts/check_contrast.mjs. */
+:not(.tactical-root, .tactical-root *):where(
+  .bg-red-50, .bg-red-100, .bg-rose-50, .bg-rose-100, .bg-pink-50, .bg-pink-100
+) {
   background-color: var(--danger-bg) !important;
   color: var(--danger);
 }
-:not(.tactical-root, .tactical-root *):where(.bg-orange-50) {
-  background-color: rgba(251, 146, 60, 0.10) !important;
-  color: #fdba74;
+:not(.tactical-root, .tactical-root *):where(
+  .bg-emerald-50, .bg-emerald-100, .bg-green-50, .bg-green-100,
+  .bg-teal-50, .bg-teal-100, .bg-lime-50, .bg-lime-100
+) {
+  background-color: var(--success-bg) !important;
+  color: var(--success);
 }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-amber-50, .bg-amber-100, .bg-yellow-50, .bg-yellow-100,
+  .bg-orange-50, .bg-orange-100
+) {
+  background-color: var(--warning-bg) !important;
+  color: var(--warning);
+}
+:not(.tactical-root, .tactical-root *):where(
+  .bg-blue-50, .bg-blue-100, .bg-sky-50, .bg-sky-100, .bg-cyan-50, .bg-cyan-100
+) {
+  background-color: var(--info-bg) !important;
+  color: var(--info);
+}
+:not(.tactical-root, .tactical-root *):where(
+  .bg-purple-50, .bg-purple-100, .bg-violet-50, .bg-violet-100,
+  .bg-indigo-50, .bg-indigo-100, .bg-fuchsia-50, .bg-fuchsia-100
+) {
+  background-color: var(--color-tp-bg) !important;
+  color: var(--color-tp);
+}
+
+/* Фоны с прозрачностью. У Tailwind `bg-white/90` — ОТДЕЛЬНЫЙ класс, правило для
+   `.bg-white` его не трогает. Пока текст на них тоже оставался тёмным, они
+   читались; после перекраски текста в светлый вышло «светлое на белом» (1.0:1).
+   Затемняем те, что дают светлую или серую панель.
+   `bg-white/5…30` НЕ трогаем — это «стеклянные» наложения поверх тёмного фона,
+   там они работают как задумано. Список закрытый: ровно то, что есть в коде. */
+:not(.tactical-root, .tactical-root *):where(
+  .bg-white\/60, .bg-white\/70, .bg-white\/90
+) { background-color: var(--bg-card) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-red-50\/30, .bg-red-50\/40, .bg-rose-50\/30
+) { background-color: var(--danger-bg) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-green-50\/30, .bg-green-50\/40, .bg-emerald-50\/30, .bg-emerald-50\/40
+) { background-color: var(--success-bg) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-amber-50\/30, .bg-amber-50\/40, .bg-yellow-50\/40,
+  .bg-orange-50\/30, .bg-orange-50\/50
+) { background-color: var(--warning-bg) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-blue-50\/30, .bg-blue-50\/40, .bg-blue-50\/50, .bg-sky-50\/30
+) { background-color: var(--info-bg) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-purple-50\/30, .bg-purple-50\/50, .bg-violet-50\/50, .bg-indigo-50\/30
+) { background-color: var(--color-tp-bg) !important; }
 
 /* Borders — светлые → тёмные (--border / --border-strong) */
 :not(.tactical-root, .tactical-root *):where(
@@ -512,43 +558,68 @@ body {
   color: var(--text-muted) !important;
 }
 
-/* ЦВЕТНЫЕ палитры 700/800/900 → семантические токены.
+/* ЦВЕТНЫЕ палитры 500…900 → семантические токены.
    Дыра совместимости, найдена 2026-08-02 на карточке товара (вкладка «Продажи»,
    блок «Работа с возражениями»): нейтральные gray/slate/stone выше перекрашивались,
    а red/green/blue/amber — нет. Такой текст садился на bg-*-50, уже затемнённые
    в *-bg выше, и контраст падал до 1.7–1.9:1 при норме AA 4.5:1.
+   Оттенки 500 и 600 добавлены следом: на тёмной теме #DC2626 и #2563EB дают
+   2.7–3.4:1 и на карточке, и на затемнённом тинте — их нашёл гейт.
    Токены темозависимые → в светлой теме темнеют сами, отдельных правил не нужно. */
 :not(.tactical-root, .tactical-root *):where(
-  .text-red-700, .text-red-800, .text-red-900,
-  .text-rose-700, .text-rose-800, .text-rose-900,
-  .text-pink-700, .text-pink-800, .text-pink-900
+  .text-red-500, .text-red-600, .text-red-700, .text-red-800, .text-red-900,
+  .text-rose-500, .text-rose-600, .text-rose-700, .text-rose-800, .text-rose-900,
+  .text-pink-500, .text-pink-600, .text-pink-700, .text-pink-800, .text-pink-900
 ) { color: var(--danger) !important; }
 
 :not(.tactical-root, .tactical-root *):where(
-  .text-green-700, .text-green-800, .text-green-900,
-  .text-emerald-700, .text-emerald-800, .text-emerald-900,
-  .text-teal-700, .text-teal-800, .text-teal-900,
-  .text-lime-700, .text-lime-800, .text-lime-900
+  .text-green-600, .text-green-700, .text-green-800, .text-green-900,
+  .text-emerald-600, .text-emerald-700, .text-emerald-800, .text-emerald-900,
+  .text-teal-600, .text-teal-700, .text-teal-800, .text-teal-900,
+  .text-lime-600, .text-lime-700, .text-lime-800, .text-lime-900
 ) { color: var(--success) !important; }
 
 :not(.tactical-root, .tactical-root *):where(
-  .text-blue-700, .text-blue-800, .text-blue-900,
-  .text-sky-700, .text-sky-800, .text-sky-900,
-  .text-cyan-700, .text-cyan-800, .text-cyan-900
+  .text-blue-500, .text-blue-600, .text-blue-700, .text-blue-800, .text-blue-900,
+  .text-sky-500, .text-sky-600, .text-sky-700, .text-sky-800, .text-sky-900,
+  .text-cyan-500, .text-cyan-600, .text-cyan-700, .text-cyan-800, .text-cyan-900
 ) { color: var(--info) !important; }
 
 :not(.tactical-root, .tactical-root *):where(
-  .text-amber-700, .text-amber-800, .text-amber-900,
-  .text-yellow-700, .text-yellow-800, .text-yellow-900,
-  .text-orange-700, .text-orange-800, .text-orange-900
+  .text-amber-600, .text-amber-700, .text-amber-800, .text-amber-900,
+  .text-yellow-600, .text-yellow-700, .text-yellow-800, .text-yellow-900,
+  .text-orange-500, .text-orange-600, .text-orange-700, .text-orange-800, .text-orange-900
 ) { color: var(--warning) !important; }
 
 :not(.tactical-root, .tactical-root *):where(
-  .text-purple-700, .text-purple-800, .text-purple-900,
-  .text-violet-700, .text-violet-800, .text-violet-900,
-  .text-indigo-700, .text-indigo-800, .text-indigo-900,
-  .text-fuchsia-700, .text-fuchsia-800, .text-fuchsia-900
+  .text-purple-500, .text-purple-600, .text-purple-700, .text-purple-800, .text-purple-900,
+  .text-violet-500, .text-violet-600, .text-violet-700, .text-violet-800, .text-violet-900,
+  .text-indigo-500, .text-indigo-600, .text-indigo-700, .text-indigo-800, .text-indigo-900,
+  .text-fuchsia-500, .text-fuchsia-600, .text-fuchsia-700, .text-fuchsia-800, .text-fuchsia-900
 ) { color: var(--color-tp) !important; }
+
+/* zinc/neutral — те же нейтральные палитры, что gray/slate/stone выше, просто
+   их в списке не было (та же история, что была со stone- в 2026-07).
+   Оттенок 950 НЕ трогаем: «почти чёрный» ставят осознанно поверх яркой заливки
+   (кнопка bg-yellow-600 в заявке на обучение). Перекрасив его в светлый, мы бы
+   сломали исправное место — 2.44:1. Гейт поймал это на первом же прогоне. */
+:not(.tactical-root, .tactical-root *):where(
+  .text-zinc-700, .text-zinc-800, .text-zinc-900,
+  .text-neutral-700, .text-neutral-800, .text-neutral-900
+) { color: var(--text-primary) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .text-zinc-500, .text-zinc-600, .text-neutral-500, .text-neutral-600
+) { color: var(--text-secondary) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-zinc-50, .bg-neutral-50
+) { background-color: var(--bg-card) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-gray-200, .bg-slate-200, .bg-stone-200, .bg-zinc-100, .bg-zinc-200,
+  .bg-neutral-100, .bg-neutral-200
+) { background-color: var(--bg-elevated) !important; }
+:not(.tactical-root, .tactical-root *):where(
+  .bg-zinc-800, .bg-zinc-900, .bg-neutral-800, .bg-neutral-900
+) { background-color: var(--bg-surface) !important; }
 
 /* Inputs/selects — светлые → tones карточек (фокус — золотой акцент) */
 :not(.tactical-root, .tactical-root *):where(

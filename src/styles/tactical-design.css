@@ -1682,6 +1682,102 @@ body, .statusbar, .glass-panel, .nav-menu, .lang-toggle, .theme-toggle, .sb-btn 
 .tactical-root .text-red-600,
 .tactical-root .text-rose-500 { color: var(--danger) !important; }
 
+/* --- Тинты, которых выше не было: холодные тона и розовый ---
+   Зелёные/жёлтые/красные подложки затемнялись, а blue/sky/cyan и
+   purple/violet/indigo — нет: оставались светлыми на тёмной теме. С текстом,
+   перекрашенным в яркий токен, это давало «яркое на светлом». Дополняем набор,
+   чтобы фон и текст ехали вместе. Вскрыто scripts/check_contrast.mjs. */
+.tactical-root .bg-blue-50, .tactical-root .bg-blue-100,
+.tactical-root .bg-sky-50, .tactical-root .bg-sky-100,
+.tactical-root .bg-cyan-50, .tactical-root .bg-cyan-100 {
+  background: var(--info-bg) !important;
+}
+.tactical-root .bg-purple-50, .tactical-root .bg-purple-100,
+.tactical-root .bg-violet-50, .tactical-root .bg-violet-100,
+.tactical-root .bg-indigo-50, .tactical-root .bg-indigo-100,
+.tactical-root .bg-fuchsia-50, .tactical-root .bg-fuchsia-100 {
+  background: var(--color-tp-bg) !important;
+}
+.tactical-root .bg-teal-50, .tactical-root .bg-teal-100,
+.tactical-root .bg-lime-50, .tactical-root .bg-lime-100 {
+  background: var(--success-bg) !important;
+}
+.tactical-root .bg-orange-50, .tactical-root .bg-orange-100 {
+  background: var(--warning-bg) !important;
+}
+.tactical-root .bg-pink-50, .tactical-root .bg-pink-100 {
+  background: var(--danger-bg) !important;
+}
+
+/* --- Тексты 500/600 у тонов, которых выше не было ---
+   Красные/зелёные/янтарные 500-600 перекрашены в своих секциях, а холодные
+   тона — нет: #7C3AED на затемнённом сиреневом тинте давал 2.46:1. */
+.tactical-root .text-blue-500, .tactical-root .text-blue-600,
+.tactical-root .text-sky-500, .tactical-root .text-sky-600,
+.tactical-root .text-cyan-500, .tactical-root .text-cyan-600 {
+  color: var(--info) !important;
+}
+.tactical-root .text-purple-500, .tactical-root .text-purple-600,
+.tactical-root .text-violet-500, .tactical-root .text-violet-600,
+.tactical-root .text-indigo-500, .tactical-root .text-indigo-600,
+.tactical-root .text-fuchsia-500, .tactical-root .text-fuchsia-600 {
+  color: var(--color-tp) !important;
+}
+.tactical-root .text-teal-500, .tactical-root .text-teal-600,
+.tactical-root .text-lime-500, .tactical-root .text-lime-600 {
+  color: var(--success) !important;
+}
+.tactical-root .text-orange-500, .tactical-root .text-orange-600 {
+  color: var(--warning) !important;
+}
+.tactical-root .text-pink-500, .tactical-root .text-pink-600,
+.tactical-root .text-rose-600 { color: var(--danger) !important; }
+
+/* zinc/neutral — дополняем нейтральный набор gray/slate/stone.
+   950 не трогаем: он осознанно стоит на яркой заливке (см. index.css). */
+.tactical-root .text-zinc-700, .tactical-root .text-zinc-800,
+.tactical-root .text-zinc-900,
+.tactical-root .text-neutral-700, .tactical-root .text-neutral-800,
+.tactical-root .text-neutral-900 { color: var(--text-0) !important; }
+.tactical-root .text-zinc-500, .tactical-root .text-zinc-600,
+.tactical-root .text-neutral-500, .tactical-root .text-neutral-600 {
+  color: var(--text-2) !important;
+}
+.tactical-root .bg-zinc-50, .tactical-root .bg-neutral-50 {
+  background: var(--bg-card) !important;
+}
+.tactical-root .bg-gray-200, .tactical-root .bg-slate-200,
+.tactical-root .bg-stone-200, .tactical-root .bg-zinc-100,
+.tactical-root .bg-zinc-200, .tactical-root .bg-neutral-100,
+.tactical-root .bg-neutral-200 { background: var(--bg-elevated) !important; }
+.tactical-root .bg-zinc-800, .tactical-root .bg-zinc-900,
+.tactical-root .bg-neutral-800, .tactical-root .bg-neutral-900 {
+  background: var(--bg-1) !important;
+}
+
+/* Фоны с прозрачностью — зеркало блока из index.css. `bg-white/90` у Tailwind
+   отдельный класс, правило для `.bg-white` его не трогает; со светлым текстом
+   поверх выходило 1.0:1. `bg-white/5…30` не трогаем — стеклянные наложения. */
+.tactical-root .bg-white\/60, .tactical-root .bg-white\/70,
+.tactical-root .bg-white\/90 { background: var(--bg-card) !important; }
+.tactical-root .bg-red-50\/30, .tactical-root .bg-red-50\/40,
+.tactical-root .bg-rose-50\/30 { background: var(--danger-bg) !important; }
+.tactical-root .bg-green-50\/30, .tactical-root .bg-green-50\/40,
+.tactical-root .bg-emerald-50\/30, .tactical-root .bg-emerald-50\/40 {
+  background: var(--success-bg) !important;
+}
+.tactical-root .bg-amber-50\/30, .tactical-root .bg-amber-50\/40,
+.tactical-root .bg-yellow-50\/40, .tactical-root .bg-orange-50\/30,
+.tactical-root .bg-orange-50\/50 { background: var(--warning-bg) !important; }
+.tactical-root .bg-blue-50\/30, .tactical-root .bg-blue-50\/40,
+.tactical-root .bg-blue-50\/50, .tactical-root .bg-sky-50\/30 {
+  background: var(--info-bg) !important;
+}
+.tactical-root .bg-purple-50\/30, .tactical-root .bg-purple-50\/50,
+.tactical-root .bg-violet-50\/50, .tactical-root .bg-indigo-50\/30 {
+  background: var(--color-tp-bg) !important;
+}
+
 /* --- Тени, чтобы не было "плоского" вида --- */
 .tactical-root .shadow,
 .tactical-root .shadow-md,

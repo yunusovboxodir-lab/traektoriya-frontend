@@ -1,0 +1,273 @@
+{
+  "_что": "Унаследованный долг по контрасту. Гейт не даёт ему расти: новая провалившаяся пара «текст × фон» или ухудшение известной валят сборку.",
+  "_как_чинить": "Перекрасить класс в слое совместимости (см. шапку check_contrast.mjs), затем node scripts/check_contrast.mjs --update",
+  "_обновлён": "2026-08-17",
+  "пары": {
+    "text-amber-100 на поверхности": {
+      "контраст": 1.07,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/OfflineSessionPresenterPage.tsx:455"
+    },
+    "text-amber-200 на bg-amber-900/30": {
+      "контраст": 2.88,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:154"
+    },
+    "text-amber-200 на bg-amber-900/40": {
+      "контраст": 2.35,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:82"
+    },
+    "text-amber-300/90 на bg-amber-900/30": {
+      "контраст": 1.25,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:158"
+    },
+    "text-amber-400 на bg-amber-50": {
+      "контраст": 4.25,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/LearningPage.tsx:1333"
+    },
+    "text-amber-500 на bg-amber-50": {
+      "контраст": 1.81,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/components/learning/FlashcardsView.tsx:62"
+    },
+    "text-amber-500 на bg-gray-50": {
+      "контраст": 2.07,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/components/analytics/PrintReport.tsx:239"
+    },
+    "text-amber-500 на bg-white": {
+      "контраст": 2.07,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/components/analytics/PrintReport.tsx:229"
+    },
+    "text-blue-300/70 на поверхности": {
+      "контраст": 1.47,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/blocks/BlockCinematicScene.tsx:447"
+    },
+    "text-emerald-100 на bg-white": {
+      "контраст": 1.09,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/PlanogramPage.tsx:338"
+    },
+    "text-emerald-200 на bg-emerald-900/40": {
+      "контраст": 2.83,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:338"
+    },
+    "text-emerald-500 на поверхности": {
+      "контраст": 2.45,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/moderation/MediaPromptsTab.tsx:202"
+    },
+    "text-emerald-500 на bg-emerald-50": {
+      "контраст": 2.15,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 3,
+      "пример": "src/components/learning/FlashcardsView.tsx:58"
+    },
+    "text-emerald-500 на bg-white": {
+      "контраст": 2.45,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/team/TeamLearningTab.tsx:351"
+    },
+    "text-gray-100 на поверхности": {
+      "контраст": 1.06,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/blocks/BlockCinematicScene.tsx:504"
+    },
+    "text-gray-200 на поверхности": {
+      "контраст": 1.19,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/blocks/BlockCinematicScene.tsx:201"
+    },
+    "text-gray-300 на поверхности": {
+      "контраст": 1.42,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 6,
+      "пример": "src/components/learning/FlashcardsView.tsx:121"
+    },
+    "text-gray-300 на bg-blue-50/40": {
+      "контраст": 1.23,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/layout/NotificationBell.tsx:107"
+    },
+    "text-gray-300 на bg-white": {
+      "контраст": 1.42,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 3,
+      "пример": "src/components/team/TeamLearningTab.tsx:110"
+    },
+    "text-gray-400 на bg-gray-800/50": {
+      "контраст": 1.84,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/blocks/CharacterPreview.tsx:34"
+    },
+    "text-gray-500 на bg-amber-50": {
+      "контраст": 4.36,
+      "тема": "dark",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/BlockCardView.tsx:121"
+    },
+    "text-gray-500 на bg-amber-50/40": {
+      "контраст": 4.36,
+      "тема": "dark",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/components/analytics/PrintReport.tsx:261"
+    },
+    "text-gray-500 на bg-green-50": {
+      "контраст": 4.38,
+      "тема": "dark",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/DictionaryUZPage.tsx:145"
+    },
+    "text-gray-500 на bg-orange-50/50": {
+      "контраст": 4.36,
+      "тема": "dark",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/analytics/PrintReport.tsx:377"
+    },
+    "text-gray-500 на bg-yellow-50": {
+      "контраст": 4.36,
+      "тема": "dark",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/DictionaryUZPage.tsx:149"
+    },
+    "text-green-500 на bg-green-50": {
+      "контраст": 1.93,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/ProductDetailPage.tsx:396"
+    },
+    "text-green-500 на bg-red-50/30": {
+      "контраст": 1.92,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/SupervisorDashboardPage.tsx:646"
+    },
+    "text-green-500 на bg-white": {
+      "контраст": 2.2,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/SupervisorDashboardPage.tsx:489"
+    },
+    "text-red-200 на bg-red-900/40": {
+      "контраст": 1.58,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:345"
+    },
+    "text-red-300/70 на поверхности": {
+      "контраст": 1.52,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/components/learning/blocks/BlockCinematicScene.tsx:447"
+    },
+    "text-yellow-100 на поверхности": {
+      "контраст": 1.04,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:138"
+    },
+    "text-yellow-100 на bg-zinc-900/60": {
+      "контраст": 4.41,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 4,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:300"
+    },
+    "text-zinc-100 на bg-zinc-900": {
+      "контраст": 1,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 7,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:172"
+    },
+    "text-zinc-200 на поверхности": {
+      "контраст": 1.22,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 8,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:169"
+    },
+    "text-zinc-300 на bg-zinc-900/60": {
+      "контраст": 3.21,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:367"
+    },
+    "text-zinc-400 на поверхности": {
+      "контраст": 2.47,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 2,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:132"
+    },
+    "text-zinc-400 на bg-zinc-900/60": {
+      "контраст": 1.85,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 1,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:366"
+    },
+    "text-zinc-500 на bg-zinc-900/60": {
+      "контраст": 1.69,
+      "тема": "light",
+      "слой": "plain",
+      "встречается": 4,
+      "пример": "src/pages/TrainingRequestNewPage.tsx:304"
+    }
+  }
+}

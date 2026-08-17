@@ -2,6 +2,8 @@
 # Пол читабельности 12px и tactical-шрифты — на error в самом ESLint (падают в lint).
 # i18n-долг (русские хардкоды в JSX) — на warn, поэтому держится отдельным
 # базлайн-гейтом: число не должно расти. См. scripts/check_i18n_baseline.mjs.
+# Контраст текста (2026-08-03) — тем же базлайн-приёмом: пара «текст × фон»
+# не должна опускаться ниже WCAG AA 4.5:1. См. scripts/check_contrast.mjs.
 name: quality-gates
 
 on:
@@ -30,3 +32,6 @@ jobs:
 
       - name: Гейты (пол 12px, tactical-шрифты, i18n-базлайн)
         run: node scripts/check_i18n_baseline.mjs
+
+      - name: Контраст текста (WCAG AA 4.5:1)
+        run: node scripts/check_contrast.mjs

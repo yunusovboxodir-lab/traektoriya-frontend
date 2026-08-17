@@ -1220,7 +1220,10 @@ function CourseView({
               {currentMediaPrompt && currentMediaPrompt.status === 'done' && currentMediaPrompt.media_url && (
                 <div className="mt-4 rounded-xl overflow-hidden border border-gray-200">
                   {currentMediaPrompt.type === 'video' ? (
-                    <div className="aspect-video bg-gray-900 flex items-center justify-center">
+                    /* bg-black/60, а не bg-gray-900: слой совместимости красит
+                       последний в золотой (правило «тёмные кнопки на тёмном»),
+                       и плашка видео выходила золотой с синей ссылкой — 1.11:1 */
+                    <div className="aspect-video bg-black/60 flex items-center justify-center">
                       <a href={currentMediaPrompt.media_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline text-sm">
                         {t('learning.openVideo')}
                       </a>
