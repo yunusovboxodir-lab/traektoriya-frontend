@@ -87,7 +87,7 @@
 
 ### 🔴 P0 — Секреты
 - 🔴 **Реальный Anthropic API-ключ в `.env` бэка** — `traektoriya-rag-backend/.env:28` `ANTHROPIC_API_KEY=sk-ant-api03-…`. Файл НЕ в git (проверено `git ls-files`), но лежит открытым текстом на диске и `.env` не защищён `!`-паттерном в `.gitignore` → риск при `git add .`. **Действие владельца: отозвать ключ в console.anthropic.com и выпустить новый.**
-- 🔴 **Хардкод паролей в seed-скрипте** — `traektoriya-rag-backend/_wt/pb2/scripts/seed_users.py:14` `ADMIN_PASSWORD = "admin123"` + `tp123456`/`sup12345` с прод-URL `api.traektoriya.space`. `_wt/` не в git, но если `admin123` ещё активен на текущем проде (`traektoriya.space`, вход admin/admin123 — по памяти проекта АКТИВЕН) — это P0-дыра. **Сменить прод-пароль admin.**
+- 🔴 **Хардкод паролей в seed-скриптах** — `scripts/seed_users.py:14` и соседние задают дефолтные пароли и целятся в прод-URL `api.traektoriya.space`. Репозиторий бэкенда приватный, но пароли в коде — дыра сама по себе. ✅ 30.08 прод-пароль суперадмина сменён; скрипты нужно перевести на чтение из переменных окружения. Конкретные значения здесь не приводятся.
 
 ### 🟡 P1 — Конфиг бэка
 - 🟡 **CORS fallback `["*"]` + `allow_credentials=True`** — `app/main.py:368,374`. Если `.env` без `cors_origins` → fallback на `*` с кредами (нарушение стандарта, опасная конфигурация). Заменить fallback на `raise`.
@@ -113,5 +113,5 @@
 ## 🔴 БЕЗОПАСНОСТЬ — критическое (требует действия владельца)
 
 1. 🔴 **Отозвать Anthropic API-ключ** `sk-ant-api03-…` (`traektoriya-rag-backend/.env:28`) и выпустить новый. Убедиться, что `.env` в `.gitignore`.
-2. 🔴 **Сменить прод-пароль `admin`** если `admin123` ещё активен (`_wt/pb2/scripts/seed_users.py:14`; по памяти проекта вход admin/admin123 на `traektoriya.space` активен).
+2. ~~🔴 **Сменить прод-пароль `admin`**~~ ✅ Закрыто 2026-08-30. Осталось: перевести seed-скрипты бэкенда на пароль из переменной окружения.
 3. 🟡 Закрыть `/docs` в проде, убрать CORS-fallback `["*"]`+credentials, не деплоить `.env` с `DEBUG=true`.
