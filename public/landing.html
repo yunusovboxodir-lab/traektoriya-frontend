@@ -525,29 +525,29 @@
   const STEPS=[
     {name:{ru:'Замер',uz:'O‘lchov'}, c:0x6e5526, hi:0x9a7838,
      desc:{ru:'сенсор снимает факт там, где идёт работа, и сверяет его со стандартом компании',
-           uz:'sensor ish ketayotgan joyda faktni qayd etadi va uni kompaniya standarti bilan solishtiradi'},
+           uz:'sensor ish bo‘layotgan joyda faktni qayd etadi va uni kompaniya standarti bilan solishtiradi'},
      kv:{ru:[['Чем','фото полки, замер на линии, строка отчёта'],['С чем сверяет','стандарт компании'],['Сколько идёт','30 секунд до оценки']],
-         uz:[['Nima bilan','javon fotosi, liniyadagi o‘lchov, hisobot satri'],['Nima bilan solishtiradi','kompaniya standarti'],['Qancha vaqt','baholashgacha 30 soniya']]}},
+         uz:[['Nima orqali','javon fotosi, liniyadagi o‘lchov, hisobot satri'],['Nima bilan solishtiradi','kompaniya standarti'],['Qancha vaqt','baholashgacha 30 soniya']]}},
     {name:{ru:'Задача',uz:'Vazifa'}, c:0xa8813f, hi:0xc89a52,
      desc:{ru:'расхождение становится задачей конкретного человека со сроком, а не пунктом протокола',
-           uz:'chetlanish bayonnoma bandiga emas, aniq odamning muddatli vazifasiga aylanadi'},
+           uz:'chetlanish aniq bir xodimning muddatli vazifasiga aylanadi, bayonnoma bandiga emas'},
      kv:{ru:[['Кому','тому, кто отвечает за эту точку'],['Что внутри','что именно разошлось со стандартом'],['Срок','задаёт процесс: сутки, смена, месяц']],
-         uz:[['Kimga','shu nuqta uchun javob beradiganga'],['Ichida nima','standartdan aynan nima chetlangani'],['Muddat','jarayon belgilaydi: sutka, smena, oy']]}},
+         uz:[['Kimga','shu nuqta uchun mas’ul bo‘lganga'],['Ichida nima bor','standartdan aynan nima chetlangani'],['Muddat','jarayon belgilaydi: sutka, smena, oy']]}},
     {name:{ru:'Урок',uz:'Dars'}, c:0xd4af6a, hi:0xe9c987,
      desc:{ru:'к задаче приложен короткий урок ровно про эту ошибку — на русском или узбекском',
            uz:'vazifaga aynan shu xato haqida qisqa dars biriktiriladi — rus yoki o‘zbek tilida'},
      kv:{ru:[['Длительность','5–7 минут'],['Кто готовит','ИИ, проверяют специалисты'],['Языки','русский и узбекский']],
-         uz:[['Davomiyligi','5–7 daqiqa'],['Kim tayyorlaydi','SI, mutaxassislar tekshiradi'],['Tillar','rus va o‘zbek']]}},
+         uz:[['Davomiyligi','5–7 daqiqa'],['Kim tayyorlaydi','AI, mutaxassislar tekshiradi'],['Tillar','rus va o‘zbek']]}},
     {name:{ru:'Проверка',uz:'Tekshiruv'}, c:0xf0ddb0, hi:0xfff0cf,
      desc:{ru:'следующий замер того же места показывает, исправлено или нет — цифрой, а не словами',
            uz:'o‘sha joyning keyingi o‘lchovi tuzatilgan yoki yo‘qligini ko‘rsatadi — so‘z bilan emas, raqam bilan'},
      kv:{ru:[['Что показывает','закрыто или нет и за сколько дней'],['Когда','в такте процесса'],['Что дальше','виток повторяется выше']],
-         uz:[['Nima ko‘rsatadi','yopildimi va necha kunda'],['Qachon','jarayon taktida'],['Keyin nima','vitok yuqoriroqda takrorlanadi']]}}
+         uz:[['Nima ko‘rsatadi','yopildimi yoki yo‘qmi, necha kunda'],['Qachon','jarayon taktida'],['Keyin nima bo‘ladi','o‘ram yuqoriroqda takrorlanadi']]}}
   ];
   const TURNS=[
-    {n:{ru:'Виток 1',uz:'1-vitok'}, d:{ru:'у отклонения появляется хозяин и срок',uz:'chetlanishning egasi va muddati paydo bo‘ladi'}},
-    {n:{ru:'Виток 2',uz:'2-vitok'}, d:{ru:'тех же ошибок меньше: человек уже прошёл урок по своей',uz:'o‘sha xatolar kamayadi: odam o‘z xatosi bo‘yicha darsni o‘tdi'}},
-    {n:{ru:'Виток 3',uz:'3-vitok'}, d:{ru:'повтор у многих показывает, что менять нужно сам стандарт',uz:'ko‘pchilikda takrorlanishi standartning o‘zini o‘zgartirish kerakligini ko‘rsatadi'}}
+    {n:{ru:'Виток 1',uz:'1-o‘ram'}, d:{ru:'у отклонения появляется хозяин и срок',uz:'chetlanishning egasi va muddati paydo bo‘ladi'}},
+    {n:{ru:'Виток 2',uz:'2-o‘ram'}, d:{ru:'тех же ошибок меньше: человек уже прошёл урок по своей',uz:'o‘sha xatolar kamayadi: odam o‘z xatosi bo‘yicha darsni allaqachon o‘zlashtirgan'}},
+    {n:{ru:'Виток 3',uz:'3-o‘ram'}, d:{ru:'повтор у многих показывает, что менять нужно сам стандарт',uz:'xatoning ko‘pchilikda takrorlanishi standartning o‘zini o‘zgartirish kerakligini ko‘rsatadi'}}
   ];
 
   const scene=new THREE.Scene();
@@ -627,7 +627,7 @@
     if(!selected)return;
     const d=selected.userData,st=STEPS[d.step],tn=TURNS[d.turn];
     const L={ru:{eyebrow:'ШАГ ',of:' ИЗ 4 · ',foot:'<b>Цикл не возвращает на то же место:</b> следующий виток начинается выше предыдущего.'},
-             uz:{eyebrow:'QADAM ',of:' / 4 · ',foot:'<b>Sikl o‘sha joyga qaytarmaydi:</b> keyingi vitok avvalgisidan yuqoriroqda boshlanadi.'}}[lang];
+             uz:{eyebrow:'QADAM ',of:' / 4 · ',foot:'<b>Sikl sizni o‘sha joyga qaytarmaydi:</b> keyingi o‘ram avvalgisidan yuqoriroqda boshlanadi.'}}[lang];
     $('pEyebrow').textContent=L.eyebrow+(d.step+1)+L.of+tr(tn.n).toUpperCase();
     $('pTitle').textContent=tr(st.name);
     $('pDesc').innerHTML='<b>'+tr(st.name)+'</b> — '+tr(st.desc)+'. '+tr(tn.d)+'.';
@@ -777,20 +777,20 @@
         renderPanel();
       }else{
         $('pEyebrow').textContent=(lang==='uz')?'SPIRALNI QANDAY O‘QISH KERAK':'КАК ЧИТАТЬ СПИРАЛЬ';
-        $('pTitle').textContent=(lang==='uz')?'Aylana emas, spiral':'Это не круг, а спираль';
+        $('pTitle').textContent=(lang==='uz')?'Bu aylana emas — spiral':'Это не круг, а спираль';
         $('pDesc').innerHTML=(lang==='uz')
-          ?'Har bir vitokda to‘rt qadam: <b>o‘lchov, vazifa, dars, tekshiruv</b>. Vitok yopilgach, keyingisi yuqoriroqda boshlanadi: odam kuchliroq, o‘sha tipdagi vazifalar kamroq. Istalgan tugunni bosing.'
+          ?'Har bir o‘ramda to‘rt qadam: <b>o‘lchov, vazifa, dars, tekshiruv</b>. O‘ram yopilgach, keyingisi yuqoriroqda boshlanadi: odam malakaliroq, o‘sha tipdagi vazifalar kamroq. Istalgan tugunni bosing.'
           :'На каждом витке четыре шага: <b>замер, задача, урок, проверка</b>. Виток закрылся — следующий начинается выше: человек компетентнее, задач того же типа меньше. Нажмите на любой узел.';
         $('pKv').innerHTML='';
-        $('pFoot').innerHTML=(lang==='uz')?'<b>Sikl</b> faqat standart bajarilganda yopiladi — xodimning so‘ziga ko‘ra emas.':'<b>Цикл</b> закрывается только тогда, когда стандарт выполнен — а не когда сотрудник отчитался.';
+        $('pFoot').innerHTML=(lang==='uz')?'<b>Sikl</b> faqat standart bajarilganda yopiladi — xodim hisobot bergandan keyin emas.':'<b>Цикл</b> закрывается только тогда, когда стандарт выполнен — а не когда сотрудник отчитался.';
       }
     }else{
       radarActive=true;radarStart=0;radarDone=false;radarFrame.last=-1;
-      $('vTitle').textContent=(lang==='uz')?'KOMPETENSIYALAR RADARI · YANGI XODIMNING 30 KUNLIK O’SISHI':'РАДАР КОМПЕТЕНЦИЙ · 30 ДНЕЙ РОСТА НОВОГО СОТРУДНИКА';
+      $('vTitle').textContent=(lang==='uz')?'KOMPETENSIYALAR RADARI · YANGI XODIMNING 30 KUNLIK O‘SISHI':'РАДАР КОМПЕТЕНЦИЙ · 30 ДНЕЙ РОСТА НОВОГО СОТРУДНИКА';
       $('pEyebrow').textContent=(lang==='uz')?'JONLI DINAMIKA':'ЖИВАЯ ДИНАМИКА';
       $('pTitle').textContent=(lang==='uz')?'Yangilikdan — rol profiliga':'Из новичка — в профиль роли';
       $('pDesc').innerHTML=(lang==='uz')
-        ?'Oltin figura — 8 ta asosiy kompetensiya bo’yicha <b>joriy profil</b>. Qizil nuqtali chiziq — <b>rol maqsadli profili</b>. Start noldan emas: intizom va muloqot allaqachon bor. Finish 100% emas: e’tirozlar va jamoa uzoqroq o’sadi — va bu halol.'
+        ?'Oltin figura — 8 ta asosiy kompetensiya bo‘yicha <b>joriy profil</b>. Qizil nuqtali chiziq — <b>rol maqsadli profili</b>. Start noldan emas: intizom va muloqot allaqachon bor. Finish 100% emas: e’tirozlar va jamoa uzoqroq o‘sadi — va bu halol.'
         :'Золотая фигура — <b>текущий профиль</b> по 8 базовым компетенциям. Красный пунктир — <b>целевой профиль роли</b>. Старт не с нуля: дисциплина и общение уже есть. Финиш не 100%: возражения и команда растут дольше — и это честно.';
       $('pFoot').innerHTML=(lang==='uz')?'<b>Radar yangilanadi</b> har bir o‘lchov va har bir darsdan keyin — bu reja emas, haqiqat.':'<b>Радар обновляется</b> после каждого замера и каждого урока — это не план, а факт.';
       requestAnimationFrame(radarFrame);
