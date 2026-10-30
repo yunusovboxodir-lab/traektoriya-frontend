@@ -250,25 +250,25 @@
   <div class="wrap">
     <div class="viewer">
       <div class="v-top">
-        <div class="v-title" id="vTitle">КАРТА КОМПЕТЕНЦИЙ · 4 УРОВНЯ × 10 СТУПЕНЕЙ</div>
+        <div class="v-title" id="vTitle">СПИРАЛЬ ЦИКЛА · ЗАМЕР → ЗАДАЧА → УРОК → ПРОВЕРКА</div>
         <div class="toggle" role="tablist">
-          <button id="btnTower" class="on" role="tab" aria-selected="true">🏛 Башня 4×10</button>
+          <button id="btnTower" class="on" role="tab" aria-selected="true">🌀 Спираль цикла</button>
           <button id="btnRadar" role="tab" aria-selected="false">📈 Радар: 30 дней роста</button>
         </div>
       </div>
       <div class="v-body">
         <div class="stagebox">
-          <div id="stage" aria-label="3D-башня компетенций: вращайте, нажимайте на сегменты"></div>
+          <div id="stage" aria-label="3D-спираль цикла: вращайте, нажимайте на узлы"></div>
           <div id="radar2d" aria-label="Анимация роста компетенций нового сотрудника за 30 дней"><canvas id="rc"></canvas></div>
           <div class="hint" id="hint">⟲ вращайте · нажмите на сегмент</div>
           <button class="replay" id="replay">⟲ ЗАНОВО</button>
         </div>
         <div class="panel" id="panel">
-          <div class="p-eyebrow" id="pEyebrow">КАК ЧИТАТЬ КАРТУ</div>
-          <h3 id="pTitle">Компетенции сотрудника — по уровням</h3>
-          <div class="desc" id="pDesc">Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму: от знакомства до мастерства. Каждый светящийся сегмент — пакет микро-уроков. Нажмите на любой сегмент.</div>
+          <div class="p-eyebrow" id="pEyebrow">КАК ЧИТАТЬ СПИРАЛЬ</div>
+          <h3 id="pTitle">Это не круг, а спираль</h3>
+          <div class="desc" id="pDesc">На каждом витке четыре шага: <b>замер, задача, урок, проверка</b>. Виток закрылся — следующий начинается выше: человек компетентнее, задач того же типа меньше. Нажмите на любой узел.</div>
           <div class="kv" id="pKv"></div>
-          <div class="p-foot" id="pFoot"><b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.</div>
+          <div class="p-foot" id="pFoot"><b>Цикл</b> закрывается только тогда, когда стандарт выполнен — а не когда сотрудник отчитался.</div>
         </div>
       </div>
     </div>
@@ -443,7 +443,7 @@
     'h-sub':{ru:`Руководитель видит в отчёте, что показатель упал, но не видит, где это случилось, кто отвечает и что уже сделано. «Траектория» показывает все три вещи — и <b>не отпускает отклонение, пока его не исправят</b>. На русском и узбекском.`,uz:`Rahbar hisobotda ko‘rsatkich tushganini ko‘radi, lekin bu qayerda sodir bo‘lganini, kim javob berishini va nima qilinganini ko‘rmaydi. «Traektoriya» uchalasini ham ko‘rsatadi — va <b>chetlanish tuzatilmaguncha qo‘yib yubormaydi</b>. Rus va o‘zbek tillarida.`},
     'h-cta1':{ru:'Запросить демо',uz:`Demo so'rash`},
     'h-cta2':{ru:'Исследовать карту',uz:`Xaritani ko'rish`},
-    'btnTower':{ru:'🏛 Башня 4×10',uz:'🏛 Minora 4×10'},
+    'btnTower':{ru:'🌀 Спираль цикла',uz:'🌀 Sikl spirali'},
     'btnRadar':{ru:'📈 Радар: 30 дней роста',uz:`📈 Radar: 30 kunlik o'sish`},
     'replay':{ru:'⟲ ЗАНОВО',uz:'⟲ QAYTADAN'},
     'st1k':{ru:'модуля: дистрибуция, производство, АУП, финансы',uz:'modul: distribusiya, ishlab chiqarish, ABB, moliya'},
@@ -521,28 +521,38 @@
   };
 
   /* ================= TOWER (Three.js) ================= */
-  const TERR=[
-    {name:{ru:'Стажёр',uz:'Stajer'},  c:0x6e5526, hi:0x9a7838, desc:{ru:'входит в профессию: база, термины, первые стандарты',uz:'kasbga kirish: baza, atamalar, birinchi standartlar'}},
-    {name:{ru:'Практик',uz:'Praktik'}, c:0xa8813f, hi:0xc89a52, desc:{ru:'уверенно работает по стандарту каждый день',uz:'har kuni standart bo’yicha ishonch bilan ishlaydi'}},
-    {name:{ru:'Эксперт',uz:'Ekspert'}, c:0xd4af6a, hi:0xe9c987, desc:{ru:'разбирает сложные случаи, оценивает работу других',uz:'murakkab holatlarni tahlil qiladi, boshqalarning ishini baholaydi'}},
-    {name:{ru:'Мастер',uz:'Master'},  c:0xf0ddb0, hi:0xfff0cf, desc:{ru:'эталон роли: улучшает стандарты и растит коллег',uz:'rol etaloni: standartlarni yaxshilaydi va hamkasblarini o’stiradi'}}
+  /* Спираль цикла: замер → задача → урок → проверка. Три витка, каждый выше предыдущего. */
+  const STEPS=[
+    {name:{ru:'Замер',uz:'O‘lchov'}, c:0x6e5526, hi:0x9a7838,
+     desc:{ru:'сенсор снимает факт там, где идёт работа, и сверяет его со стандартом компании',
+           uz:'sensor ish ketayotgan joyda faktni qayd etadi va uni kompaniya standarti bilan solishtiradi'},
+     kv:{ru:[['Чем','фото полки, замер на линии, строка отчёта'],['С чем сверяет','стандарт компании'],['Сколько идёт','30 секунд до оценки']],
+         uz:[['Nima bilan','javon fotosi, liniyadagi o‘lchov, hisobot satri'],['Nima bilan solishtiradi','kompaniya standarti'],['Qancha vaqt','baholashgacha 30 soniya']]}},
+    {name:{ru:'Задача',uz:'Vazifa'}, c:0xa8813f, hi:0xc89a52,
+     desc:{ru:'расхождение становится задачей конкретного человека со сроком, а не пунктом протокола',
+           uz:'chetlanish bayonnoma bandiga emas, aniq odamning muddatli vazifasiga aylanadi'},
+     kv:{ru:[['Кому','тому, кто отвечает за эту точку'],['Что внутри','что именно разошлось со стандартом'],['Срок','задаёт процесс: сутки, смена, месяц']],
+         uz:[['Kimga','shu nuqta uchun javob beradiganga'],['Ichida nima','standartdan aynan nima chetlangani'],['Muddat','jarayon belgilaydi: sutka, smena, oy']]}},
+    {name:{ru:'Урок',uz:'Dars'}, c:0xd4af6a, hi:0xe9c987,
+     desc:{ru:'к задаче приложен короткий урок ровно про эту ошибку — на русском или узбекском',
+           uz:'vazifaga aynan shu xato haqida qisqa dars biriktiriladi — rus yoki o‘zbek tilida'},
+     kv:{ru:[['Длительность','5–7 минут'],['Кто готовит','ИИ, проверяют специалисты'],['Языки','русский и узбекский']],
+         uz:[['Davomiyligi','5–7 daqiqa'],['Kim tayyorlaydi','SI, mutaxassislar tekshiradi'],['Tillar','rus va o‘zbek']]}},
+    {name:{ru:'Проверка',uz:'Tekshiruv'}, c:0xf0ddb0, hi:0xfff0cf,
+     desc:{ru:'следующий замер того же места показывает, исправлено или нет — цифрой, а не словами',
+           uz:'o‘sha joyning keyingi o‘lchovi tuzatilgan yoki yo‘qligini ko‘rsatadi — so‘z bilan emas, raqam bilan'},
+     kv:{ru:[['Что показывает','закрыто или нет и за сколько дней'],['Когда','в такте процесса'],['Что дальше','виток повторяется выше']],
+         uz:[['Nima ko‘rsatadi','yopildimi va necha kunda'],['Qachon','jarayon taktida'],['Keyin nima','vitok yuqoriroqda takrorlanadi']]}}
   ];
-  const FLOORS=[
-    {n:{ru:'Знакомство',uz:'Tanishuv'},d:{ru:'ориентируется в теме и роли',uz:'mavzu va rolda yo’nalish oladi'}},
-    {n:{ru:'Запоминание',uz:'Yodlash'},d:{ru:'знает термины, продукты и стандарты',uz:'atamalarni, mahsulotlarni va standartlarni biladi'}},
-    {n:{ru:'Понимание',uz:'Tushunish'},d:{ru:'объясняет суть своими словами',uz:'mohiyatni o’z so’zlari bilan tushuntiradi'}},
-    {n:{ru:'Применение',uz:'Qo’llash'},d:{ru:'выполняет работу по стандарту',uz:'ishni standart bo’yicha bajaradi'}},
-    {n:{ru:'Анализ',uz:'Tahlil'},d:{ru:'находит причины ошибок и просадок',uz:'xatolar va tushkunlik sabablarini topadi'}},
-    {n:{ru:'Синтез',uz:'Sintez'},d:{ru:'комбинирует приёмы под ситуацию',uz:'vaziyatga qarab usullarni birlashtiradi'}},
-    {n:{ru:'Оценка',uz:'Baholash'},d:{ru:'оценивает качество работы — своей и чужой',uz:'o’z va boshqalarning ish sifatini baholaydi'}},
-    {n:{ru:'Создание',uz:'Yaratish'},d:{ru:'предлагает улучшения стандартов',uz:'standartlarni yaxshilash takliflarini beradi'}},
-    {n:{ru:'Наставничество',uz:'Nastavniklik'},d:{ru:'обучает и подтягивает коллег',uz:'hamkasblarini o’qitadi va ko’taradi'}},
-    {n:{ru:'Мастерство',uz:'Mahorat'},d:{ru:'эталонная работа — пример для сети',uz:'etalon ish — tarmoq uchun namuna'}}
+  const TURNS=[
+    {n:{ru:'Виток 1',uz:'1-vitok'}, d:{ru:'у отклонения появляется хозяин и срок',uz:'chetlanishning egasi va muddati paydo bo‘ladi'}},
+    {n:{ru:'Виток 2',uz:'2-vitok'}, d:{ru:'тех же ошибок меньше: человек уже прошёл урок по своей',uz:'o‘sha xatolar kamayadi: odam o‘z xatosi bo‘yicha darsni o‘tdi'}},
+    {n:{ru:'Виток 3',uz:'3-vitok'}, d:{ru:'повтор у многих показывает, что менять нужно сам стандарт',uz:'ko‘pchilikda takrorlanishi standartning o‘zini o‘zgartirish kerakligini ko‘rsatadi'}}
   ];
 
   const scene=new THREE.Scene();
   const camera=new THREE.PerspectiveCamera(38,1,0.1,100);
-  camera.position.set(0,1.7,7.4); camera.lookAt(0,0,0);
+  camera.position.set(0,1.2,8.2); camera.lookAt(0,0.1,0);
   const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   stage.appendChild(renderer.domElement);
@@ -550,34 +560,45 @@
   const p1=new THREE.PointLight(0xffe2a8,1.15,40);p1.position.set(5,6,6);scene.add(p1);
   const p2=new THREE.PointLight(0xd4af6a,.6,40);p2.position.set(-6,-3,-4);scene.add(p2);
   const rig=new THREE.Group();scene.add(rig);
-  const towerG=new THREE.Group();rig.add(towerG);
+  const towerG=new THREE.Group();rig.add(towerG);   // имя оставлено: используется в анимации
 
   const towerMeshes=[];
   (function(){
-    const fh=.26,gap=.10,R=1.55,segGap=.14;
-    for(let f=0;f<10;f++){
-      const y=(f-4.5)*(fh+gap);
-      for(let t=0;t<4;t++){
-        const geo=new THREE.CylinderGeometry(R,R,fh,26,1,false,t*Math.PI/2+segGap/2,Math.PI/2-segGap);
-        const mat=new THREE.MeshStandardMaterial({color:TERR[t].c,metalness:.75,roughness:.32,transparent:true,opacity:.95});
+    const TN=TURNS.length, SN=STEPS.length, SEG=TN*SN;
+    // Параметр t идёт 0..1 снизу вверх; радиус сужается, высота растёт.
+    function pt(t){
+      const ang=t*TN*Math.PI*2 - Math.PI/2;
+      const k=1-.40*t, r=2.0*k;
+      return new THREE.Vector3(Math.cos(ang)*r, -1.85+t*3.6, Math.sin(ang)*r);
+    }
+    const pts=[];for(let i=0;i<=300;i++)pts.push(pt(i/300));
+    const curve=new THREE.CatmullRomCurve3(pts);
+    const lineMat=new THREE.MeshStandardMaterial({color:0xd9c79a,metalness:.85,roughness:.28,emissive:0x5a4520,emissiveIntensity:.25});
+    towerG.add(new THREE.Mesh(new THREE.TubeGeometry(curve,320,.042,10,false),lineMat));
+    // Узлы: на каждом витке четыре шага цикла.
+    for(let w=0;w<TN;w++){
+      for(let s=0;s<SN;s++){
+        const t=(w*SN+s+.5)/SEG;
+        const geo=new THREE.SphereGeometry(.145-.018*w,22,16);
+        const mat=new THREE.MeshStandardMaterial({color:STEPS[s].c,metalness:.72,roughness:.3});
         const m=new THREE.Mesh(geo,mat);
-        m.position.y=y;m.userData={floor:f,terr:t};
+        m.position.copy(pt(t));
+        m.userData={step:s,turn:w};
         towerG.add(m);towerMeshes.push(m);
       }
     }
-    const spineMat=new THREE.MeshStandardMaterial({color:0xf0ddb0,metalness:.9,roughness:.2,emissive:0x6e5526,emissiveIntensity:.4});
-    const spine=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,(fh+gap)*10+0.5,12),spineMat);
-    towerG.add(spine);
-    const tip=new THREE.Mesh(new THREE.ConeGeometry(.14,.34,12),spineMat.clone());
-    tip.position.y=((fh+gap)*10+0.5)/2+0.15;towerG.add(tip);
-    towerG.rotation.y=.5;
+    // Остриё вверх: спираль не замыкается, она продолжается.
+    const tipMat=new THREE.MeshStandardMaterial({color:0xf0ddb0,metalness:.9,roughness:.2,emissive:0x6e5526,emissiveIntensity:.45});
+    const tip=new THREE.Mesh(new THREE.ConeGeometry(.13,.34,14),tipMat);
+    const top=pt(1);tip.position.set(top.x,top.y+.26,top.z);towerG.add(tip);
+    towerG.rotation.y=.4;
   })();
 
   let dragging=false,moved=0,px=0,py=0,selected=null;
   function setEmissive(mesh,on){
     if(!mesh)return;
-    mesh.material.emissive=new THREE.Color(on?TERR[mesh.userData.terr].hi:0x000000);
-    mesh.material.emissiveIntensity=on?.7:0;
+    mesh.material.emissive=new THREE.Color(on?STEPS[mesh.userData.step].hi:0x000000);
+    mesh.material.emissiveIntensity=on?.75:0;
   }
   stage.addEventListener('pointerdown',e=>{dragging=true;moved=0;px=e.clientX;py=e.clientY;stage.classList.add('dragging');stage.setPointerCapture(e.pointerId);});
   stage.addEventListener('pointermove',e=>{
@@ -601,19 +622,16 @@
     selected=hit.object;setEmissive(selected,true);
     renderPanel();
   }
-  // Перерисовка панели башни для текущего выбранного сегмента и языка.
+  // Панель выбранного узла спирали: какой шаг цикла и какой это виток.
   function renderPanel(){
     if(!selected)return;
-    const d=selected.userData,t=TERR[d.terr],f=FLOORS[d.floor];
-    const L={ru:{terr:'ТЕРРИТОРИЯ · ',fl:'Этаж ',fmt:'Формат',ml:'микро-уроки 5–8 мин',chk:'Проверка',chkv:'тест + результат в работе',lng:'Языки',lngv:'RU · UZ · голос',foot:'<b>Следующий сегмент</b> платформа откроет сама — по реальной работе, а не по расписанию.',on:' На этом этаже сотрудник '},
-            uz:{terr:'HUDUD · ',fl:'Qavat ',fmt:'Format',ml:'mikro-darslar 5–8 daq',chk:'Tekshiruv',chkv:'test + ishdagi natija',lng:'Tillar',lngv:'RU · UZ · ovoz',foot:'<b>Keyingi segmentni</b> platforma o’zi ochadi — jadval bo’yicha emas, real ish bo’yicha.',on:' Bu qavatda xodim '}}[lang];
-    $('pEyebrow').textContent=L.terr+tr(t.name).toUpperCase();
-    $('pTitle').textContent=L.fl+(d.floor+1)+' · '+tr(f.n);
-    $('pDesc').innerHTML='<b>'+tr(t.name)+'</b> — '+tr(t.desc)+'.'+L.on+tr(f.d)+'.';
-    $('pKv').innerHTML=
-      '<div class="row"><span class="l">'+L.fmt+'</span><span class="r">'+L.ml+'</span></div>'+
-      '<div class="row"><span class="l">'+L.chk+'</span><span class="r">'+L.chkv+'</span></div>'+
-      '<div class="row"><span class="l">'+L.lng+'</span><span class="r">'+L.lngv+'</span></div>';
+    const d=selected.userData,st=STEPS[d.step],tn=TURNS[d.turn];
+    const L={ru:{eyebrow:'ШАГ ',of:' ИЗ 4 · ',foot:'<b>Цикл не возвращает на то же место:</b> следующий виток начинается выше предыдущего.'},
+             uz:{eyebrow:'QADAM ',of:' / 4 · ',foot:'<b>Sikl o‘sha joyga qaytarmaydi:</b> keyingi vitok avvalgisidan yuqoriroqda boshlanadi.'}}[lang];
+    $('pEyebrow').textContent=L.eyebrow+(d.step+1)+L.of+tr(tn.n).toUpperCase();
+    $('pTitle').textContent=tr(st.name);
+    $('pDesc').innerHTML='<b>'+tr(st.name)+'</b> — '+tr(st.desc)+'. '+tr(tn.d)+'.';
+    $('pKv').innerHTML=tr(st.kv).map(r=>'<div class="row"><span class="l">'+r[0]+'</span><span class="r">'+r[1]+'</span></div>').join('');
     $('pFoot').innerHTML=L.foot;
   }
 
@@ -748,23 +766,23 @@
     radarBox.style.display=tower?'none':'block';
     replayBtn.style.display=tower?'none':'block';
     hint.textContent=tower
-      ? (lang==='uz'?'⟲ aylantiring · segmentni bosing':'⟲ вращайте · нажмите на сегмент')
+      ? (lang==='uz'?'⟲ aylantiring · tugunni bosing':'⟲ вращайте · нажмите на узел')
       : (lang==='uz'?'jonli dinamika: yangilik → rol profili 30 kunda':'живая динамика: новичок → профиль роли за 30 дней');
     bT.classList.toggle('on',tower);bR.classList.toggle('on',!tower);
     bT.setAttribute('aria-selected',tower);bR.setAttribute('aria-selected',!tower);
     if(tower){
       radarActive=false;
-      $('vTitle').textContent=(lang==='uz')?'KOMPETENSIYALAR XARITASI · 4 DARAJA × 10 BOSQICH':'КАРТА КОМПЕТЕНЦИЙ · 4 УРОВНЯ × 10 СТУПЕНЕЙ';
+      $('vTitle').textContent=(lang==='uz')?'SIKL SPIRALI · O‘LCHOV → VAZIFA → DARS → TEKSHIRUV':'СПИРАЛЬ ЦИКЛА · ЗАМЕР → ЗАДАЧА → УРОК → ПРОВЕРКА';
       if(selected){
         renderPanel();
       }else{
-        $('pEyebrow').textContent=(lang==='uz')?'XARITANI QANDAY O’QISH KERAK':'КАК ЧИТАТЬ КАРТУ';
-        $('pTitle').textContent=(lang==='uz')?'Xodim kompetensiyalari — darajalar bo‘yicha':'Компетенции сотрудника — по уровням';
+        $('pEyebrow').textContent=(lang==='uz')?'SPIRALNI QANDAY O‘QISH KERAK':'КАК ЧИТАТЬ СПИРАЛЬ';
+        $('pTitle').textContent=(lang==='uz')?'Aylana emas, spiral':'Это не круг, а спираль';
         $('pDesc').innerHTML=(lang==='uz')
-          ?'To’rtta hudud — <b>Stajer, Praktik, Ekspert, Master</b> — bu minoraning qirralari. O’n qavat — Blum bo’yicha ko’nikmani egallash chuqurligi. Har bir segment — mikro-darslar to’plami. Istalgan segmentni bosing.'
-          :'Четыре территории — <b>Стажёр, Практик, Эксперт, Мастер</b> — это грани башни. Десять этажей — глубина владения навыком по Блуму. Каждый сегмент — пакет микро-уроков. Нажмите на любой сегмент.';
+          ?'Har bir vitokda to‘rt qadam: <b>o‘lchov, vazifa, dars, tekshiruv</b>. Vitok yopilgach, keyingisi yuqoriroqda boshlanadi: odam kuchliroq, o‘sha tipdagi vazifalar kamroq. Istalgan tugunni bosing.'
+          :'На каждом витке четыре шага: <b>замер, задача, урок, проверка</b>. Виток закрылся — следующий начинается выше: человек компетентнее, задач того же типа меньше. Нажмите на любой узел.';
         $('pKv').innerHTML='';
-        $('pFoot').innerHTML=(lang==='uz')?'<b>Traektoriya</b> xodimga keyingi qaysi segmentni ochishni o’zi hal qiladi.':'<b>Traektoriya</b> сама решает, какой сегмент открыть сотруднику следующим.';
+        $('pFoot').innerHTML=(lang==='uz')?'<b>Sikl</b> faqat standart bajarilganda yopiladi — xodimning so‘ziga ko‘ra emas.':'<b>Цикл</b> закрывается только тогда, когда стандарт выполнен — а не когда сотрудник отчитался.';
       }
     }else{
       radarActive=true;radarStart=0;radarDone=false;radarFrame.last=-1;
