@@ -744,15 +744,15 @@
   function radarFrame(ts){
     if(!radarActive)return;
     if(!radarStart)radarStart=ts;
+    const D=reduced?DUR*2:DUR;          // при «уменьшить движение» цикл идёт вдвое спокойнее, но идёт
     let el=ts-radarStart;
     let day;
-    if(reduced){day=30;radarDone=true;}
-    else if(el<DUR){day=1+29*(el/DUR);}
-    else if(el<DUR+HOLD){day=30;}
-    else{radarStart=ts;day=1;}
+    if(el<D){day=1+29*(el/D);}
+    else if(el<D+HOLD){day=30;}
+    else{radarStart=ts;day=1;}           // дошли до 30 дней — начинаем заново
     const vals=drawRadar(day);
     if(Math.round(day*2)!==radarFrame.last){updateRadarPanel(day,vals);radarFrame.last=Math.round(day*2);}
-    if(!reduced||!radarDone)requestAnimationFrame(radarFrame);
+    requestAnimationFrame(radarFrame);
   }
   replayBtn.addEventListener('click',()=>{radarStart=0;radarDone=false;if(reduced){const v=drawRadar(30);updateRadarPanel(30,v);}});
 
@@ -830,8 +830,8 @@
     requestAnimationFrame(animate);
     if(mode!=='tower')return;
     t+=.01;
-    if(!dragging&&!reduced)rig.rotation.y+=.0028;
-    if(!reduced)towerG.position.y=Math.sin(t)*.05;
+    if(!dragging)rig.rotation.y+=reduced?.0012:.0028;   // вращается всегда, при reduced — вдвое спокойнее
+    if(!reduced)towerG.position.y=Math.sin(t)*.05;      // покачивание только в обычном режиме
     renderer.render(scene,camera);
   })();
 })();
